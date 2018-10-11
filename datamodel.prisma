@@ -1,0 +1,68 @@
+type Address {
+  number: String
+  street: String
+  city: String
+  postalCode: String
+  country: String
+}
+
+# Represents a company or an individual that is going to receive an invoice
+type Customer {
+  id: ID! @unique
+  name: String
+  email: String!
+  address: Address
+  phone: String
+  siret: String
+  rcs: String
+  rm: String
+  vat: String
+}
+
+enum QuoteStatus {
+  DRAFT
+  INVOICE_SENT
+  INVOICE_ACCEPTED
+  REJECTED
+  INVOICED
+  INVOICED_VALIDATED
+}
+
+type Quote {
+  id: ID! @unique
+  issuer: Company! @relation(name: "CompanyQuotes")
+  customer: Customer!
+  # this token is a way to restrict access to anyone else than the customer
+  token: String!
+  status: QuoteStatus! @default(value: "DRAFT")
+  # items: [Items!]!
+  issuedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Company {
+  id: ID! @unique
+  name: String
+  owner: User! @relation(name: "CompanyOwner")
+  email: String
+  address: Address
+  phone: String
+  siret: String
+  rcs: String
+  rm: String
+  vat: String
+  customers: [Customer!]!
+  quotes: [Quote!]! @relation(name: "CompanyQuotes")
+}
+
+type User {
+  id: ID! @unique
+  email: String! @unique
+  password: String!
+  firstName: String
+  lastName: String
+  company: Company! @relation(name: "CompanyOwner")
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}

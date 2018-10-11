@@ -1,0 +1,102 @@
+scalar DateTime
+
+type Query {
+  me: User
+  customer(id: ID!): Customer!
+  quote(id: ID!, token: String): Quote!
+}
+
+type Mutation {
+  signup(email: String!, password: String!, firstName: String, lastName: String, company: CompanyInput): AuthPayload!
+  login(email: String!, password: String!): AuthPayload!
+
+  # Create a new customer inside the user's company
+  createCustomer(email: String!): Customer!
+  # Create a new quote for a customer of the user's company
+  createQuote(customerId: ID!): Quote!
+  # Send quote to validation, DRAFT -> INVOICE_SENT
+  sendQuote(id: ID!): Quote!
+  # Customer can accept invoice, INVOICE_SENT -> INVOICED_ACCEPTED
+  acceptInvoice(id: ID!, token: String!): Quote!
+  # Customer can reject invoice, INVOICE_SENT -> REJECTED
+  rejectInvoice(id: ID!, token: String!): Quote!
+}
+
+input CompanyInput {
+  name: String!
+  email: String
+  phone: String
+  siret: String
+  rcs: String
+  rm: String
+  vat: String  
+}
+
+type AuthPayload {
+  token: String!
+  user: User!
+}
+
+type Address {
+  number: String
+  street: String
+  city: String
+  postalCode: String
+  country: String
+}
+
+# Represents a company or an individual that is going to receive an invoice
+type Customer {
+  id: ID!
+  name: String
+  email: String!
+  address: Address
+  phone: String
+  siret: String
+  rcs: String
+  rm: String
+  vat: String
+}
+
+enum QuoteStatus {
+  DRAFT
+  INVOICE_SENT
+  INVOICE_ACCEPTED
+  REJECTED
+  INVOICED
+  INVOICED_VALIDATED
+}
+
+type Quote {
+  id: ID!
+  issuer: Company!
+  customer: Customer!
+  status: QuoteStatus!
+  # items: [Items!]!
+  issuedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Company {
+  id: ID!
+  name: String
+  owner: User!
+  email: String
+  address: Address
+  phone: String
+  siret: String
+  rcs: String
+  rm: String
+  vat: String
+  customers: [Customer!]!
+  quotes: [Quote!]!
+}
+
+type User {
+  id: ID!
+  email: String!
+  firstName: String
+  lastName: String
+  company: Company!
+}
