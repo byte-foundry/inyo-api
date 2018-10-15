@@ -13,7 +13,9 @@ type Mutation {
   # Create a new customer inside the user's company
   createCustomer(email: String!): Customer!
   # Create a new quote for a customer of the user's company
-  createQuote(customerId: ID!): Quote!
+  createQuote(customerId: ID, customer: CompanyInput): Quote!
+  # Update quote
+  # updateQuote(id: ID!): Quote!
   # Send quote to validation, DRAFT -> INVOICE_SENT
   sendQuote(id: ID!): Quote!
   # Customer can accept invoice, INVOICE_SENT -> INVOICED_ACCEPTED
@@ -24,12 +26,15 @@ type Mutation {
 
 input CompanyInput {
   name: String!
-  email: String
+  firstName: String!
+  lastName: String!
+  email: String!
+  address: Address
   phone: String
   siret: String
   rcs: String
   rm: String
-  vat: String  
+  vat: String
 }
 
 type AuthPayload {

@@ -116,6 +116,7 @@ const Mutation = {
       id,
       status: 'INVOICE_SENT',
       token: 'token4customer',
+      issuedAt: new Date(),
     })
   },
   acceptInvoice: async (parent, { id, token }, ctx) => {
