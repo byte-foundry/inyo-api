@@ -59,7 +59,7 @@ const Mutation = {
       },
     })
   },
-  createQuote: async (parent, { customerId, customer, option }, ctx) => {
+  createQuote: async (parent, { customerId, customer, template, option }, ctx) => {
     const userCompany = await ctx.db.user({ id: getUserId(ctx) }).company()
     
     if (!customerId && !customer) {
@@ -83,6 +83,7 @@ const Mutation = {
     return ctx.db.createQuote({
       ...variables,
       name: 'Name of the project',
+      template,
       issuer: { connect: { id: userCompany.id } },
       token: uuid(),
       options: {
@@ -103,7 +104,7 @@ const Mutation = {
     })
   },
   updateQuote: async (parent, { id, name, option }, ctx) => {
-    const [quote] = await ctx.db.user({ id: getUserId(ctx) }).company().quotes({ where: {id} })
+    const [quote] = await ctx.db.user({ id: getUserId(ctx) }).company().quotes({ where: { id } })
 
     if (option) {
       await ctx.db.updateOption({
@@ -120,14 +121,10 @@ const Mutation = {
   // addOption: async (parent, { quoteId, name, sections }, ctx) => {
   //   const quote = await ctx.db.user({ id: getUserId(ctx) }).company().quote({ id: quoteId });
 
-  //   return ctx.db.updateQuote({
-  //     id: quoteId,
-  //     options: {
-  //       create: {
-  //         name,
-  //         sections: { create: sections },
-  //       },
-  //     },
+  //   return ctx.db.createOption({
+  //     quote: { connect: { id: quoteId } },
+  //       name,
+  //       sections: { create: sections },
   //   });
   // },
   updateOption: (parent, { id, proposal }, ctx) => {
@@ -137,55 +134,69 @@ const Mutation = {
     })
   },
   // removeOption: async (parent, { id }, ctx) => {
-  //   const option = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options({id});
+  //   const option = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options({ where: { id } });
 
-  //   return ctx.db.removeOption({
+  //   return ctx.db.deleteOption({
   //     id,
   //   });
   // },
-  addSection: async (parent, { optionId, name, items }, ctx) => {
-    const option = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options({id: optionId});
+  addSection: async (parent, { optionId, name, items = [] }, ctx) => {
+    const option = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options({ where: { id: optionId } });
 
-    return ctx.db.updateOption({
-      id: optionId,
-      sections: {
-        create: {
-          name,
-        },
+    return ctx.db.createSection({
+      option: {
+        connect: { id: optionId },
       },
+      name,
+      items: { create: items },
     });
   },
   updateSection: async (parent, { id, name }, ctx) => {
-    const section = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections({ id });
+    const section = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections({ where: { id } });
 
     return ctx.db.updateSection({
-      where: { id: sectionId },
+      where: { id },
       data: { name },
     });
   },
   removeSection: async (parent, { id }, ctx) => {
-    const section = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections({ id });
+    const section = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections({ where: { id } });
 
-    return ctx.db.removeSection({ id });
+    return ctx.db.deleteSection({ id });
   },
-  addItem: async (parent, { sectionId, name, items }, ctx) => {
-  //   const option = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections({id: sectionId});
+  addItem: async (parent, { sectionId, name, description, unitPrice, unit, vatRate }, ctx) => {
+    const section = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections({ where: { id: sectionId } });
 
-  //   return ctx.db.updateSection({
-  //     id: sectionId,
-  //     items: {
-  //       create: {
-  //         name,
-  //       },
-  //     },
-  //   });
+    return ctx.db.createItem({
+      section: {
+        connect: { id: sectionId },
+      },
+      name,
+      description,
+      unitPrice,
+      unit,
+      vatRate,
+    });
+  },
+  updateItem: async (parent, { id, name, description, unitPrice, unit, vatRate }, ctx) => {
+    const item = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections().items({ where: { id } });
+
+    return ctx.db.updateSection({
+      where: { id },
+      data: {
+        name,
+        description,
+        unitPrice,
+        pendingUnit: unit, // waiting for customer's approval
+        vatRate,
+        status: unit ? 'PENDING' : undefined,
+      },
+    });
   },
   removeItem: async (parent, { id }, ctx) => {
-  //   const quote = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections().items({ id });
+    const item = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections().items({ where: { id } });
 
-  //   return ctx.db.removeItem({
-  //     id,
-  //   });
+    return ctx.db.deleteItem({ id });
   },
   sendQuote: async (parent, { id, customer }, ctx) => {
     const user = await ctx.db.user({ id: getUserId(ctx) })

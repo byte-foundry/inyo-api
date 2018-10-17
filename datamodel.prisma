@@ -40,10 +40,6 @@ enum ItemStatus {
   UPDATED_SENT
 }
 
-enum Unit {
-  TIME
-}
-
 # Until unions are supported
 type Author {
   user: User
@@ -59,26 +55,30 @@ type Comment {
 type Item {
   id: ID! @unique
   name: String!
+  description: String @default(value: "")
   unitPrice: Int! @default(value: 0)
   # when unit has been changed but not yet validated
-  pendingUnitPrice: Int
-  unit: Unit! @default(value: "TIME")
+  pendingUnit: Int
+  unit: Int @default(value: 0)
   comments: [Comment!]!
   vatRate: Int! @default(value: 0)
   status: ItemStatus! @default(value: "PENDING")
+  section: Section! @relation(name: "SectionItems")
 }
 
 type Section {
   id: ID! @unique
   name: String!
   items: [Item!]! @relation(name: "SectionItems", onDelete: CASCADE)
+  option: Option! @relation(name: "OptionSections")
 }
 
 type Option {
   id: ID! @unique
   name: String!
-  proposal: String
+  proposal: Json! @default(value: "{}")
   sections: [Section!]! @relation(name: "OptionSections", onDelete: CASCADE)
+  quote: Quote! @relation(name: "QuoteOptions")
 }
 
 type Quote {
