@@ -1,5 +1,4 @@
 type Address {
-  number: String
   street: String
   city: String
   postalCode: String
@@ -10,13 +9,14 @@ type Address {
 type Customer {
   id: ID! @unique
   name: String
+  firstName: String
+  lastName: String
   email: String!
   address: Address
   phone: String
   siret: String
   rcs: String
   rm: String
-  vat: String
 }
 
 enum QuoteStatus {
@@ -28,14 +28,70 @@ enum QuoteStatus {
   INVOICED_VALIDATED
 }
 
+enum QuoteTemplate {
+  WEBSITE
+  IDENTITY
+}
+
+enum ItemStatus {
+  PENDING
+  FINISHED
+  UPDATED
+  UPDATED_SENT
+}
+
+enum Unit {
+  TIME
+}
+
+# Until unions are supported
+type Author {
+  user: User
+  customer: Customer
+}
+
+type Comment {
+  id: ID! @unique
+  value: String!
+  author: Author!
+}
+
+type Item {
+  id: ID! @unique
+  name: String!
+  unitPrice: Int! @default(value: 0)
+  # when unit has been changed but not yet validated
+  pendingUnitPrice: Int
+  unit: Unit! @default(value: "TIME")
+  comments: [Comment!]!
+  vatRate: Int! @default(value: 0)
+  status: ItemStatus! @default(value: "PENDING")
+}
+
+type Section {
+  id: ID! @unique
+  name: String!
+  items: [Item!]! @relation(name: "SectionItems", onDelete: CASCADE)
+}
+
+type Option {
+  id: ID! @unique
+  name: String!
+  proposal: String
+  sections: [Section!]! @relation(name: "OptionSections", onDelete: CASCADE)
+}
+
 type Quote {
   id: ID! @unique
+  name: String!
+  template: QuoteTemplate
   issuer: Company! @relation(name: "CompanyQuotes")
   customer: Customer!
   # this token is a way to restrict access to anyone else than the customer
   token: String!
   status: QuoteStatus! @default(value: "DRAFT")
-  # items: [Items!]!
+  options: [Option!]! @relation(name: "QuoteOptions", onDelete: CASCADE)
+  viewedByCustomer: Boolean! @default(value: false)
   issuedAt: DateTime
   createdAt: DateTime!
   updatedAt: DateTime!

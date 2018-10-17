@@ -2,8 +2,8 @@ scalar DateTime
 
 type Query {
   me: User
-  customer(id: ID!): Customer!
-  quote(id: ID!, token: String): Quote!
+  customer(id: ID!): Customer
+  quote(id: ID!, token: String): Quote
 }
 
 type Mutation {
@@ -12,10 +12,30 @@ type Mutation {
 
   # Create a new customer inside the user's company
   createCustomer(email: String!): Customer!
+
   # Create a new quote for a customer of the user's company
-  createQuote(customerId: ID, customer: CompanyInput): Quote!
+  createQuote(customerId: ID, customer: CustomerInput, option: OptionInput): Quote!
   # Update quote
-  # updateQuote(id: ID!): Quote!
+  updateQuote(id: ID!, name: String!, option: OptionInput): Quote
+
+  # Add an option to the quote
+  # addOption(quoteId: ID!, name: String!, sections: [SectionInput!]): Option!
+  updateOption(id: ID!, proposal: String!): Option
+  # Remove an option
+  # removeOption(id: ID!): Option
+
+  # Add section to one of the quote's option
+  addSection(optionId: ID!, name: String!, items: [ItemInput!]): Section!
+  # Update 
+  updateSection(id: ID!, name: String!): Section
+  # Remove section
+  removeSection(id: ID!): Section
+
+  # Add an item to a section
+  addItem(sectionId: ID!, name: String!): Item!
+  # Remove an item
+  removeItem(id: ID!): Item
+
   # Send quote to validation, DRAFT -> INVOICE_SENT
   sendQuote(id: ID!): Quote!
   # Customer can accept invoice, INVOICE_SENT -> INVOICED_ACCEPTED
@@ -24,17 +44,52 @@ type Mutation {
   rejectInvoice(id: ID!, token: String!): Quote!
 }
 
+input AddressInput {
+  street: String
+  city: String
+  postalCode: String
+  country: String
+}
+
 input CompanyInput {
-  name: String!
-  firstName: String!
-  lastName: String!
-  email: String!
-  address: Address
+  name: String
+  email: String
   phone: String
   siret: String
   rcs: String
   rm: String
   vat: String
+}
+
+input CustomerInput {
+  name: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  address: AddressInput
+  phone: String
+  siret: String
+  rcs: String
+  rm: String
+  vat: String
+}
+
+input ItemInput {
+  name: String!
+  unitPrice: Int
+  pendingUnitPrice: Int
+  unit: Unit
+  vatRate: Int
+}
+
+input SectionInput {
+  name: String!
+  items: [ItemInput!]!
+}
+
+input OptionInput {
+  proposal: String
+  sections: [SectionInput!]!
 }
 
 type AuthPayload {
@@ -43,7 +98,7 @@ type AuthPayload {
 }
 
 type Address {
-  number: String
+  number: String # tmp
   street: String
   city: String
   postalCode: String
@@ -72,12 +127,68 @@ enum QuoteStatus {
   INVOICED_VALIDATED
 }
 
+enum QuoteTemplate {
+  WEBSITE
+  IDENTITY
+}
+
+enum ItemStatus {
+  PENDING
+  FINISHED
+  UPDATED
+  UPDATED_SENT
+}
+
+enum Unit {
+  TIME
+}
+
+# Until unions are supported
+# type Author {
+#   user: User
+#   customer: Customer
+# }
+
+# type Comment {
+#   id: ID!
+#   value: String!
+#   author: Author!
+# }
+
+type Item {
+  id: ID!
+  name: String!
+  unitPrice: Int!
+  # when unit has been changed but not yet validated
+  pendingUnitPrice: Int
+  unit: Unit!
+  # comments: [Comment!]!
+  vatRate: Int!
+  status: ItemStatus!
+}
+
+type Section {
+  id: ID!
+  name: String!
+  items: [Item!]!
+}
+
+type Option {
+  id: ID!
+  name: String!
+  proposal: String!
+  sections: [Section!]!
+}
+
 type Quote {
   id: ID!
+  name: String!
+  template: QuoteTemplate
   issuer: Company!
   customer: Customer!
   status: QuoteStatus!
-  # items: [Items!]!
+  options: [Option!]!
+  viewedByCustomer: Boolean!
   issuedAt: DateTime
   createdAt: DateTime!
   updatedAt: DateTime!

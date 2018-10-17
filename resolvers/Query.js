@@ -3,13 +3,26 @@ const { getUserId } = require('../utils')
 const Query = {
   me: (root, args, ctx) => ctx.db.user({ id: getUserId(ctx) }),
   customer: (root, { id }, ctx) => ctx.db.user({ id: getUserId(ctx) }).company().customer({ id }),
-  quote: (root, { id, token }, ctx) => {
+  quote: async (root, { id, token }, ctx) => {
     // public access with a secret token inserted in a mail
     if (token) {
-      return ctx.db.quote({ id, where: { token } })
+      const [quote] = await ctx.db.quotes({ id, where: { token } });
+
+      if (!quote) {
+        return null;
+      }
+
+      await ctx.db.updateQuote({
+        where: { id },
+        data: { viewedByCustomer: true },
+      });
+
+      return quote;
     }
 
-    return ctx.db.user({ id: getUserId(ctx) }).company().quote({ id })
+    const [quote] = await ctx.db.user({ id: getUserId(ctx) }).company().quotes({ where: {id} });
+
+    return quote;
   },
 }
 

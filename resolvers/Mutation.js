@@ -4,6 +4,8 @@ const uuid = require('uuid/v4')
 const { APP_SECRET, getUserId } = require('../utils')
 const client = require('@sendgrid/client');
 
+client.setApiKey(process.env.SENDGRID_API_KEY);
+
 const inyoQuoteBaseUrl = 'https://app.inyo.com/quote/';
 
 const Mutation = {
@@ -57,19 +59,137 @@ const Mutation = {
       },
     })
   },
-  createQuote: async (parent, { customerId }, ctx) => {
+  createQuote: async (parent, { customerId, customer, option }, ctx) => {
     const userCompany = await ctx.db.user({ id: getUserId(ctx) }).company()
+    
+    if (!customerId && !customer) {
+      throw new Error('You must define either a customer or set an existing customer id.')
+    }
+
+    let variables = {};
+    if (!customerId) {
+      variables.customer = { create: {
+        ...customer,
+        address: {
+          create: { ...customer.address },
+        },
+      } };
+    } else {
+      variables.customer = {
+        connect: { id: customerId },
+      };
+    }
 
     return ctx.db.createQuote({
-      issuer: userCompany.id,
-      customerId,
+      ...variables,
+      name: 'Name of the project',
+      issuer: { connect: { id: userCompany.id } },
       token: uuid(),
+      options: {
+        create: {
+          ...option,
+          name: 'A',
+          sections: option && option.sections && {
+            create: option.sections.map(section => ({
+              ...section,
+              items: section.items && {
+                create: section.items,
+              },
+            })),
+          },
+        },
+      },
       status: 'DRAFT',
     })
   },
-  sendQuote: async (parent, { id }, ctx) => {
+  updateQuote: async (parent, { id, name, option }, ctx) => {
+    const [quote] = await ctx.db.user({ id: getUserId(ctx) }).company().quotes({ where: {id} })
+
+    if (option) {
+      await ctx.db.updateOption({
+        where: { id: option.id },
+        update: option,
+      });
+    }
+
+    return ctx.db.updateQuote({
+      where: { id },
+      data: { name },
+    })
+  },
+  // addOption: async (parent, { quoteId, name, sections }, ctx) => {
+  //   const quote = await ctx.db.user({ id: getUserId(ctx) }).company().quote({ id: quoteId });
+
+  //   return ctx.db.updateQuote({
+  //     id: quoteId,
+  //     options: {
+  //       create: {
+  //         name,
+  //         sections: { create: sections },
+  //       },
+  //     },
+  //   });
+  // },
+  updateOption: (parent, { id, proposal }, ctx) => {
+    return ctx.db.updateQuote({
+      where: { id },
+      data: { proposal },
+    })
+  },
+  // removeOption: async (parent, { id }, ctx) => {
+  //   const option = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options({id});
+
+  //   return ctx.db.removeOption({
+  //     id,
+  //   });
+  // },
+  addSection: async (parent, { optionId, name, items }, ctx) => {
+    const option = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options({id: optionId});
+
+    return ctx.db.updateOption({
+      id: optionId,
+      sections: {
+        create: {
+          name,
+        },
+      },
+    });
+  },
+  updateSection: async (parent, { id, name }, ctx) => {
+    const section = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections({ id });
+
+    return ctx.db.updateSection({
+      where: { id: sectionId },
+      data: { name },
+    });
+  },
+  removeSection: async (parent, { id }, ctx) => {
+    const section = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections({ id });
+
+    return ctx.db.removeSection({ id });
+  },
+  addItem: async (parent, { sectionId, name, items }, ctx) => {
+  //   const option = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections({id: sectionId});
+
+  //   return ctx.db.updateSection({
+  //     id: sectionId,
+  //     items: {
+  //       create: {
+  //         name,
+  //       },
+  //     },
+  //   });
+  },
+  removeItem: async (parent, { id }, ctx) => {
+  //   const quote = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections().items({ id });
+
+  //   return ctx.db.removeItem({
+  //     id,
+  //   });
+  },
+  sendQuote: async (parent, { id, customer }, ctx) => {
     const user = await ctx.db.user({ id: getUserId(ctx) })
-    const quote = user.company().quote({ id });
+    const quote = await user.company().quote({ id });
 
     if (quote.status !== 'DRAFT') {
       throw new Error('This invoice has already been sent.');
@@ -77,7 +197,6 @@ const Mutation = {
 
     //sending the quote via sendgrid
     //this use the quote template
-    client.setApiKey(process.env.SENDGRID_API_KEY);
     const request = {
       method: 'POST',
       url: '/v3/mail/send',
@@ -106,8 +225,8 @@ const Mutation = {
     try {
       const [response, body] = await client.request(request)
     }
-    catch {
-      throw new Error(body.errors[0].message);
+    catch (errors) {
+      throw new Error(errors[0].message);
     }
 
     // send mail with token
