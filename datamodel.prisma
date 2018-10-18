@@ -135,7 +135,7 @@ type User {
 
 type Reminder {
   id: ID! @unique
-  Quote: Quote! @relation(name: "QuoteReminders")
+  quote: Quote! @relation(name: "QuoteReminders")
   postHookId: String!
   type: ReminderType!
   sendingDate: DateTime!
