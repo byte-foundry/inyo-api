@@ -50,6 +50,12 @@ enum ReminderType {
   AMENDMENT_AFTER_10_DAYS
 }
 
+enum ReminderStatus {
+  PENDING
+  SENT
+  ERROR
+}
+
 # Until unions are supported
 type Author {
   user: User
@@ -139,4 +145,5 @@ type Reminder {
   postHookId: String!
   type: ReminderType!
   sendingDate: DateTime!
+  status: ReminderStatus
 }

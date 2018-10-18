@@ -2,6 +2,7 @@ const { hash, compare } = require('bcrypt')
 const { sign } = require('jsonwebtoken')
 const uuid = require('uuid/v4')
 const { APP_SECRET, getUserId } = require('../utils')
+const {sendQuoteEmail} = require('../emails/QuoteEmail');
 
 const inyoQuoteBaseUrl = 'https://app.inyo.com/quote/';
 
@@ -246,6 +247,27 @@ const Mutation = {
       status: 'REJECTED',
     })
   },
+  sendEmail: async (parent, {id, email, user, customerName, projectName, quoteUrl}) => {
+    const reminder = await ctx.db.reminder({id});
+
+    try {
+      sendQuoteEmail({
+        email,
+        user,
+        customerName,
+        projectName,
+        quoteUrl,
+      });
+      ctx.db.updateReminder({
+        status: 'SENT',
+      });
+    }
+    catch (errors) {
+      ctx.db.updateReminder({
+        status: 'ERROR',
+      });
+    }
+  }
 }
 
 module.exports = {

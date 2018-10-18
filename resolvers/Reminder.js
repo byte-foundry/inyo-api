@@ -4,6 +4,7 @@ const Reminder = {
   postHookId: node => node.postHookId,
   type: node => node.type,
   sendingDate: node => node.sendingDate,
+  status: node => node.status,
 }
 
 module.exports = {

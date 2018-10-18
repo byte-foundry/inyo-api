@@ -45,6 +45,7 @@ type Mutation {
   acceptInvoice(id: ID!, token: String!): Quote!
   # Customer can reject invoice, INVOICE_SENT -> REJECTED
   rejectInvoice(id: ID!, token: String!): Quote!
+  sendEmail(id: ID!, email: String!, user: String!, customerName: String!, projectName: String!, quoteUrl: String!): Reminder
 }
 
 input AddressInput {
