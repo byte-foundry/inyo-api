@@ -179,13 +179,16 @@ const Mutation = {
   updateItem: async (parent, { id, name, description, unitPrice, unit, vatRate }, ctx) => {
     const item = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections().items({ where: { id } });
 
-    return ctx.db.updateSection({
+    // if not draft -> update pending instead
+
+    return ctx.db.updateItem({
       where: { id },
       data: {
         name,
         description,
         unitPrice,
-        pendingUnit: unit, // waiting for customer's approval
+        unit,
+        // pendingUnit: unit, // waiting for customer's approval
         vatRate,
         status: unit ? 'PENDING' : undefined,
       },
