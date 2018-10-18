@@ -250,7 +250,7 @@ const Mutation = {
       status: 'REJECTED',
     })
   },
-  sendEmail: async (parent, {id, email, user, customerName, projectName, quoteUrl}) => {
+  sendEmail: async (parent, {id, email, user, customerName, projectName, quoteUrl}, ctx) => {
     const reminder = await ctx.db.reminder({id});
 
     try {
@@ -270,6 +270,8 @@ const Mutation = {
         status: 'ERROR',
       });
     }
+
+    return null;
   }
 }
 
