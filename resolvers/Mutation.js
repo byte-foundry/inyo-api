@@ -126,7 +126,7 @@ const Mutation = {
   //   });
   // },
   updateOption: (parent, { id, proposal }, ctx) => {
-    return ctx.db.updateQuote({
+    return ctx.db.updateOption({
       where: { id },
       data: { proposal },
     })
@@ -200,8 +200,21 @@ const Mutation = {
     return ctx.db.deleteItem({ id });
   },
   sendQuote: async (parent, { id, customer }, ctx) => {
-    const user = await ctx.db.user({ id: getUserId(ctx) })
-    const quote = await user.company().quote({ id });
+    const user = await ctx.db.user({ id: getUserId(ctx) });
+    const [quote] = await ctx.db.user({ id: getUserId(ctx) }).company().quotes({ where: { id } }).$fragment(
+      `
+        fragment QuoteWithCustomer on Quote {
+          id
+          name
+          token
+          status
+          customer {
+            name
+            email
+          }
+        }
+      `
+    );
 
     if (quote.status !== 'DRAFT') {
       throw new Error('This invoice has already been sent.');
@@ -212,18 +225,19 @@ const Mutation = {
     sendQuoteEmail({
       email: quote.customer.email,
       customerName: quote.customer.name,
-      projectName: quote.projectName,
+      projectName: quote.name,
       user: `${user.firstName} ${user.lastName}`,
-      quoteUrl: `${inyoQuoteBaseUrl}${quote.id}/something_for_sharing_thequote`,
+      quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
     });
 
     // send mail with token
 
     return ctx.db.updateQuote({
-      id,
-      status: 'INVOICE_SENT',
-      token: 'token4customer',
-      issuedAt: new Date(),
+      where: { id },
+      data: {
+        status: 'INVOICE_SENT',
+        issuedAt: new Date(),
+      },
     })
   },
   acceptInvoice: async (parent, { id, token }, ctx) => {

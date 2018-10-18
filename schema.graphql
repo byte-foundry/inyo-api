@@ -45,7 +45,7 @@ type Mutation {
   acceptInvoice(id: ID!, token: String!): Quote!
   # Customer can reject invoice, INVOICE_SENT -> REJECTED
   rejectInvoice(id: ID!, token: String!): Quote!
-  sendEmail(id: ID!, email: String!, user: String!, customerName: String!, projectName: String!, quoteUrl: String!): Reminder
+  sendEmail(id: ID!, email: String!, user: String!, customerName: String!, projectName: String!, quoteUrl: String!): Boolean
 }
 
 input AddressInput {
@@ -99,7 +99,7 @@ input ItemInput {
   name: String!
   unitPrice: Int
   pendingUnitPrice: Int
-  unit: Unit
+  unit: Int
   vatRate: Int
 }
 
@@ -158,10 +158,6 @@ enum ItemStatus {
   FINISHED
   UPDATED
   UPDATED_SENT
-}
-
-enum Unit {
-  TIME
 }
 
 # Until unions are supported

@@ -8,5 +8,5 @@ const Reminder = {
 }
 
 module.exports = {
-  Section,
+  Reminder,
 }

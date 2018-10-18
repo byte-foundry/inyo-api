@@ -4,11 +4,7 @@ const Quote = {
   template: node => node.template,
   issuer: (node, args, ctx) => ctx.db.quote({ id: node.id }).issuer(),
   customer: (node, args, ctx) => ctx.db.quote({ id: node.id }).customer(),
-  status: node => {
-    console.log('Quote.status resolver', node)
-    // return node.status
-    return 'DRAFT';
-  },
+  status: node => node.status,
   options: (node, args, ctx) => ctx.db.quote({ id: node.id }).options(),
   viewedByCustomer: node => node.viewedByCustomer,
   issuedAt: node => node.issuedAt,

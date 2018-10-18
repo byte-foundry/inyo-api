@@ -78,7 +78,7 @@ type Item {
   unit: Int @default(value: 0)
   comments: [Comment!]!
   vatRate: Int! @default(value: 0)
-  status: ItemStatus! @default(value: "PENDING")
+  status: ItemStatus! @default(value: PENDING)
   section: Section! @relation(name: "SectionItems")
 }
 
@@ -105,7 +105,7 @@ type Quote {
   customer: Customer!
   # this token is a way to restrict access to anyone else than the customer
   token: String!
-  status: QuoteStatus! @default(value: "DRAFT")
+  status: QuoteStatus! @default(value: DRAFT)
   options: [Option!]! @relation(name: "QuoteOptions", onDelete: CASCADE)
   viewedByCustomer: Boolean! @default(value: false)
   issuedAt: DateTime
@@ -145,5 +145,5 @@ type Reminder {
   postHookId: String!
   type: ReminderType!
   sendingDate: DateTime!
-  status: ReminderStatus
+  status: ReminderStatus @default(value: PENDING)
 }
