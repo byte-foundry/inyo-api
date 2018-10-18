@@ -95,24 +95,6 @@ input OptionInput {
   sections: [SectionInput!]!
 }
 
-input ItemInput {
-  name: String!
-  unitPrice: Int
-  pendingUnitPrice: Int
-  unit: Int
-  vatRate: Int
-}
-
-input SectionInput {
-  name: String!
-  items: [ItemInput!]!
-}
-
-input OptionInput {
-  proposal: String
-  sections: [SectionInput!]!
-}
-
 type AuthPayload {
   token: String!
   user: User!

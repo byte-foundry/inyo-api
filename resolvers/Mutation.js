@@ -116,6 +116,15 @@ const Mutation = {
       data: { name },
     })
   },
+  removeQuote: async (parent, { id }, ctx) => {
+    const quotes = await ctx.db.user({ id: getUserId(ctx) }).company().quotes({ where: { id } });
+
+    if (!quotes.length) {
+      return null;
+    }
+
+    return ctx.db.deleteQuote({ id });
+  },
   // addOption: async (parent, { quoteId, name, sections }, ctx) => {
   //   const quote = await ctx.db.user({ id: getUserId(ctx) }).company().quote({ id: quoteId });
 
@@ -150,7 +159,11 @@ const Mutation = {
     });
   },
   updateSection: async (parent, { id, name }, ctx) => {
-    const section = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections({ where: { id } });
+    const sections = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections({ where: { id } });
+
+    if (!sections.length) {
+      throw new Error(`No section with id '${id}' has been found`);
+    }
 
     return ctx.db.updateSection({
       where: { id },
@@ -158,12 +171,20 @@ const Mutation = {
     });
   },
   removeSection: async (parent, { id }, ctx) => {
-    const section = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections({ where: { id } });
+    const sections = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections({ where: { id } });
+
+    if (!sections.length) {
+      return null;
+    }
 
     return ctx.db.deleteSection({ id });
   },
   addItem: async (parent, { sectionId, name, description, unitPrice, unit, vatRate }, ctx) => {
-    const section = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections({ where: { id: sectionId } });
+    const sections = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections({ where: { id: sectionId } });
+
+    if (!sections.length) {
+      throw new Error(`No section with id '${sectionId}' has been found`);
+    }
 
     return ctx.db.createItem({
       section: {
@@ -177,20 +198,43 @@ const Mutation = {
     });
   },
   updateItem: async (parent, { id, name, description, unitPrice, unit, vatRate }, ctx) => {
-    const item = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections().items({ where: { id } });
+    const items = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections().items({ where: { id } });
 
-    // if not draft -> update pending instead
+    if (!items.length) {
+      throw new Error(`No item with id '${id}' has been found`);
+    }
+
+    const item = await ctx.db.item({ id }).$fragment(`
+      fragment ItemWithQuote on Item {
+        status
+        section {
+          option {
+            quote {
+              status
+            }
+          }
+        }
+      }
+    `);
+
+    let variables = {};
+
+    // not draft -> update pending instead
+    if (item.section.option.quote.status === 'DRAFT') {
+      variables.unit = unit;
+    } else {
+      variables.pendingUnit = unit; // waiting for customer's approval
+    }
 
     return ctx.db.updateItem({
       where: { id },
       data: {
+        ...variables,
         name,
         description,
         unitPrice,
-        unit,
-        // pendingUnit: unit, // waiting for customer's approval
         vatRate,
-        status: unit ? 'PENDING' : undefined,
+        status: 'PENDING',
       },
     });
   },
@@ -201,20 +245,18 @@ const Mutation = {
   },
   sendQuote: async (parent, { id, customer }, ctx) => {
     const user = await ctx.db.user({ id: getUserId(ctx) });
-    const [quote] = await ctx.db.user({ id: getUserId(ctx) }).company().quotes({ where: { id } }).$fragment(
-      `
-        fragment QuoteWithCustomer on Quote {
-          id
+    const [quote] = await ctx.db.user({ id: getUserId(ctx) }).company().quotes({ where: { id } }).$fragment(`
+      fragment QuoteWithCustomer on Quote {
+        id
+        name
+        token
+        status
+        customer {
           name
-          token
-          status
-          customer {
-            name
-            email
-          }
+          email
         }
-      `
-    );
+      }
+    `);
 
     if (quote.status !== 'DRAFT') {
       throw new Error('This invoice has already been sent.');
