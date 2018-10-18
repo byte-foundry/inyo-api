@@ -40,6 +40,16 @@ enum ItemStatus {
   UPDATED_SENT
 }
 
+enum ReminderType {
+  QUOTE_AFTER_1MONTH
+  QUOTE_AFTER_2MONTH
+  QUOTE_20_DAYS_LEFT
+  QUOTE_10_DAYS_LEFT
+  QUOTE_5_DAYS_LEFT
+  AMENDMENT_AFTER_5_DAYS
+  AMENDMENT_AFTER_10_DAYS
+}
+
 # Until unions are supported
 type Author {
   user: User
@@ -121,4 +131,12 @@ type User {
   company: Company! @relation(name: "CompanyOwner")
   createdAt: DateTime!
   updatedAt: DateTime!
+}
+
+type Reminder {
+  id: ID! @unique
+  Quote: Quote! @relation(name: "QuoteReminders")
+  postHookId: String!
+  type: ReminderType!
+  sendingDate: DateTime!
 }

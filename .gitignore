@@ -1,4 +1,6 @@
 generated
 node_modules
 sendgrid.env
+posthook.env
 _vimrc*
+yarn-error.log

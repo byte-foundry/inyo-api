@@ -2,9 +2,6 @@ const { hash, compare } = require('bcrypt')
 const { sign } = require('jsonwebtoken')
 const uuid = require('uuid/v4')
 const { APP_SECRET, getUserId } = require('../utils')
-const client = require('@sendgrid/client');
-
-client.setApiKey(process.env.SENDGRID_API_KEY);
 
 const inyoQuoteBaseUrl = 'https://app.inyo.com/quote/';
 
@@ -208,37 +205,13 @@ const Mutation = {
 
     //sending the quote via sendgrid
     //this use the quote template
-    const request = {
-      method: 'POST',
-      url: '/v3/mail/send',
-      body: {
-        from:{
-          email: "contact@prototypo.io"
-        },
-        personalizations: [
-          {
-            to:[
-              {
-                email: quote.customer.email
-              }
-            ],
-            dynamic_template_data:{
-              customerName: quote.customer.name,
-              projectName: quote.projectName,
-              user: `${user.firstName} ${user.lastName}`,
-              quoteUrl: `${inyoQuoteBaseUrl}${quote.id}/something_for_sharing_thequote`
-            }
-          }
-        ],
-        template_id:"d-5055ed1a146348d9bd8cc440bf1160d8"
-      }
-    };
-    try {
-      const [response, body] = await client.request(request)
-    }
-    catch (errors) {
-      throw new Error(errors[0].message);
-    }
+    sendQuoteEmail({
+      email: quote.customer.email,
+      customerName: quote.customer.name,
+      projectName: quote.projectName,
+      user: `${user.firstName} ${user.lastName}`,
+      quoteUrl: `${inyoQuoteBaseUrl}${quote.id}/something_for_sharing_thequote`,
+    });
 
     // send mail with token
 

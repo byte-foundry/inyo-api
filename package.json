@@ -13,6 +13,7 @@
     "@sendgrid/client": "^6.3.0",
     "graphql": "^0.13.2",
     "graphql-yoga": "^1.16.2",
+    "moment": "^2.22.2",
     "prisma-client-lib": "^1.17.1"
   }
 }
