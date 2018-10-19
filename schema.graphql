@@ -144,11 +144,7 @@ enum ItemStatus {
   UPDATED_SENT
 }
 
-# Until unions are supported
-# type Author {
-#   user: User
-#   customer: Customer
-# }
+# union Author = User | Customer
 
 # type Comment {
 #   id: ID!

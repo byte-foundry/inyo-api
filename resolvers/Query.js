@@ -20,7 +20,7 @@ const Query = {
       return quote;
     }
 
-    const [quote] = await ctx.db.user({ id: getUserId(ctx) }).company().quotes({ where: {id} });
+    const [quote] = await ctx.db.user({ id: getUserId(ctx) }).company().customers().quotes({ where: {id} });
 
     return quote;
   },

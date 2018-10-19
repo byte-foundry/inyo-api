@@ -1,4 +1,5 @@
 type Address {
+  id: ID! @unique
   street: String
   city: String
   postalCode: String
@@ -18,6 +19,7 @@ type Customer {
   rcs: String
   rm: String
   serviceCompany: Company! @relation(name: "CompanyCustomers")
+  quotes: [Quote!]! @relation(name: "CustomerQuotes")
 }
 
 enum QuoteStatus {
@@ -57,16 +59,11 @@ enum ReminderStatus {
   ERROR
 }
 
-# Until unions are supported
-type Author {
-  user: User
-  customer: Customer
-}
-
 type Comment {
   id: ID! @unique
   value: String!
-  author: Author!
+  authorUser: User
+  authorCustomer: Customer
 }
 
 type Item {
@@ -102,13 +99,13 @@ type Quote {
   id: ID! @unique
   name: String!
   template: QuoteTemplate
-  issuer: Company! @relation(name: "CompanyQuotes")
-  customer: Customer!
+  customer: Customer! @relation(name: "CustomerQuotes")
   # this token is a way to restrict access to anyone else than the customer
   token: String!
   status: QuoteStatus! @default(value: DRAFT)
   options: [Option!]! @relation(name: "QuoteOptions", onDelete: CASCADE)
   viewedByCustomer: Boolean! @default(value: false)
+  reminders: [Reminder!]! @relation(name: "QuoteReminders", onDelete: CASCADE)
   issuedAt: DateTime
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -126,7 +123,6 @@ type Company {
   rm: String
   vat: String
   customers: [Customer!]! @relation(name: "CompanyCustomers")
-  quotes: [Quote!]! @relation(name: "CompanyQuotes")
 }
 
 type User {

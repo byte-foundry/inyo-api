@@ -4,6 +4,7 @@ const Quote = {
   template: node => node.template,
   issuer: (node, args, ctx) => ctx.db.quote({ id: node.id }).issuer(),
   customer: (node, args, ctx) => ctx.db.quote({ id: node.id }).customer(),
+  issuer: (node, args, ctx) => ctx.db.quote({ id: node.id }).customer().serviceCompany(),
   status: node => node.status,
   options: (node, args, ctx) => ctx.db.quote({ id: node.id }).options(),
   viewedByCustomer: node => node.viewedByCustomer,

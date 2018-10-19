@@ -20,6 +20,7 @@ const resolvers = {
   Section,
   Option,
   Quote,
+  Customer,
   Address,
 }
 

@@ -10,7 +10,27 @@ const Company = {
   rm: node => node.rm,
   vat: node => node.vat,
   customers: (node, args, ctx) => ctx.db.company({ id: node.id }).customers(),
-  quotes: (node, args, ctx) => ctx.db.company({ id: node.id }).quotes(),
+  quotes: async (node, args, ctx) => {
+    const customers = await ctx.db.company({ id: node.id }).customers().$fragment(`
+      fragment CustomerQuotes on Customer {
+        quotes {
+          id
+          name
+          template
+          status
+          viewedByCustomer
+          issuedAt
+          createdAt
+          updatedAt
+        }
+      }
+    `);
+
+    return customers.map(customer => customer.quotes).reduce(
+      (quotes, quotesPerCustomer) => quotes.concat(quotesPerCustomer),
+      []
+    );
+  },
 }
 
 module.exports = {
