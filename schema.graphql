@@ -51,7 +51,6 @@ type Mutation {
 }
 
 input AddressInput {
-  number: String
   street: String
   city: String
   postalCode: String
