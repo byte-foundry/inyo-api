@@ -283,7 +283,7 @@ const Mutation = {
       },
     })
   },
-  acceptInvoice: async (parent, { id, token }, ctx) => {
+  acceptQuote: async (parent, { id, token }, ctx) => {
     const quote = ctx.db.quote({ id, where: { token } })
 
     if (quote.status !== 'SENT') {
@@ -295,7 +295,7 @@ const Mutation = {
       status: 'ACCEPTED',
     })
   },
-  rejectInvoice: async () => {
+  rejectQuote: async () => {
     const quote = ctx.db.quote({ id, where: { token } })
 
     if (quote.status !== 'SENT') {
