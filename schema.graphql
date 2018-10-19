@@ -113,6 +113,8 @@ type Address {
 # Represents a company or an individual that is going to receive an invoice
 type Customer {
   id: ID!
+  firstName: String
+  lastName: String
   name: String
   email: String!
   address: Address
@@ -144,13 +146,13 @@ enum ItemStatus {
   UPDATED_SENT
 }
 
-# union Author = User | Customer
+union Author = User | Customer
 
-# type Comment {
-#   id: ID!
-#   value: String!
-#   author: Author!
-# }
+type Comment {
+  id: ID!
+  text: String!
+  author: Author!
+}
 
 type Item {
   id: ID!
@@ -160,7 +162,7 @@ type Item {
   # when unit has been changed but not yet validated
   pendingUnit: Int
   unit: Int
-  # comments: [Comment!]!
+  comments: [Comment!]!
   vatRate: Int!
   status: ItemStatus!
 }
@@ -186,6 +188,7 @@ type Quote {
   customer: Customer!
   status: QuoteStatus!
   options: [Option!]!
+  total: Int,
   viewedByCustomer: Boolean!
   issuedAt: DateTime
   createdAt: DateTime!

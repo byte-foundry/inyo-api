@@ -9,6 +9,7 @@ const { Option } = require('./Option')
 const { Quote } = require('./Quote')
 const { Customer } = require('./Customer')
 const { Address } = require('./Address')
+const { Author } = require('./Author')
 
 const resolvers = {
   Query,
@@ -22,6 +23,7 @@ const resolvers = {
   Quote,
   Customer,
   Address,
+  Author,
 }
 
 module.exports = {

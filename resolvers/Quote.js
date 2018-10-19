@@ -2,9 +2,32 @@ const Quote = {
   id: node => node.id,
   name: node => node.name,
   template: node => node.template,
-  issuer: (node, args, ctx) => ctx.db.quote({ id: node.id }).issuer(),
   customer: (node, args, ctx) => ctx.db.quote({ id: node.id }).customer(),
   issuer: (node, args, ctx) => ctx.db.quote({ id: node.id }).customer().serviceCompany(),
+  total: async (node, args, ctx) => {
+    const quote = await ctx.db.quote({ id: node.id }).$fragment(`
+      fragment QuotePrices on Quote {
+        options {
+          sections {
+            items {
+              unitPrice
+            }
+          }
+        }
+      }
+    `);
+
+    return quote.options.reduce(
+      (sum, option) => sum + option.sections.reduce(
+        (sum, section) => sum + section.items.reduce(
+          (sum, item) => sum + item.unitPrice,
+          0
+        ),
+        0
+      ),
+      0
+    );
+  },
   status: node => node.status,
   options: (node, args, ctx) => ctx.db.quote({ id: node.id }).options(),
   viewedByCustomer: node => node.viewedByCustomer,
