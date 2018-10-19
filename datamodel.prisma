@@ -22,11 +22,11 @@ type Customer {
 
 enum QuoteStatus {
   DRAFT
-  INVOICE_SENT
-  INVOICE_ACCEPTED
+  SENT
+  ACCEPTED
   REJECTED
   INVOICED
-  INVOICED_VALIDATED
+  INVOICED_ACCEPTED
 }
 
 enum QuoteTemplate {

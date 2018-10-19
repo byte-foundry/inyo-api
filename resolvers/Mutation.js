@@ -286,19 +286,19 @@ const Mutation = {
   acceptInvoice: async (parent, { id, token }, ctx) => {
     const quote = ctx.db.quote({ id, where: { token } })
 
-    if (quote.status !== 'INVOICE_SENT') {
+    if (quote.status !== 'SENT') {
       throw new Error('This quote has already been verified.');
     }
 
     return ctx.db.updateQuote({
       id,
-      status: 'INVOICE_ACCEPTED',
+      status: 'ACCEPTED',
     })
   },
   rejectInvoice: async () => {
     const quote = ctx.db.quote({ id, where: { token } })
 
-    if (quote.status !== 'INVOICE_SENT') {
+    if (quote.status !== 'SENT') {
       throw new Error('This quote has already been verified.');
     }
 

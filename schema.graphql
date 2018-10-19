@@ -41,12 +41,12 @@ type Mutation {
   # Remove an item
   removeItem(id: ID!): Item
 
-  # Send quote to validation, DRAFT -> INVOICE_SENT
+  # Send quote to validation, DRAFT -> SENT
   sendQuote(id: ID!): Quote!
-  # Customer can accept invoice, INVOICE_SENT -> INVOICED_ACCEPTED
-  acceptInvoice(id: ID!, token: String!): Quote!
-  # Customer can reject invoice, INVOICE_SENT -> REJECTED
-  rejectInvoice(id: ID!, token: String!): Quote!
+  # Customer can accept quote, SENT -> ACCEPTED
+  acceptQuote(id: ID!, token: String!): Quote!
+  # Customer can reject invoice, SENT -> REJECTED
+  rejectQuote(id: ID!, token: String!): Quote!
   sendEmail(id: ID!, email: String!, user: String!, customerName: String!, projectName: String!, quoteUrl: String!): Boolean
 }
 
@@ -125,11 +125,11 @@ type Customer {
 
 enum QuoteStatus {
   DRAFT
-  INVOICE_SENT
-  INVOICE_ACCEPTED
+  SENT
+  ACCEPTED
   REJECTED
   INVOICED
-  INVOICED_VALIDATED
+  INVOICED_ACCEPTED
 }
 
 enum QuoteTemplate {
