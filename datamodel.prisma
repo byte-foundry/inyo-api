@@ -17,6 +17,7 @@ type Customer {
   siret: String
   rcs: String
   rm: String
+  serviceCompany: Company! @relation(name: "CompanyCustomers")
 }
 
 enum QuoteStatus {
@@ -124,7 +125,7 @@ type Company {
   rcs: String
   rm: String
   vat: String
-  customers: [Customer!]!
+  customers: [Customer!]! @relation(name: "CompanyCustomers")
   quotes: [Quote!]! @relation(name: "CompanyQuotes")
 }
 

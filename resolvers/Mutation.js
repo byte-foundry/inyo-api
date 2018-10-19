@@ -59,7 +59,7 @@ const Mutation = {
   },
   createQuote: async (parent, { customerId, customer, template, option }, ctx) => {
     const userCompany = await ctx.db.user({ id: getUserId(ctx) }).company()
-    
+
     if (!customerId && !customer) {
       throw new Error('You must define either a customer or set an existing customer id.')
     }
@@ -68,6 +68,7 @@ const Mutation = {
     if (!customerId) {
       variables.customer = { create: {
         ...customer,
+        serviceCompany: { connect: { id: userCompany.id } },
         address: {
           create: { ...customer.address },
         },

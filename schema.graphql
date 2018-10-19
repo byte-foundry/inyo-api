@@ -18,6 +18,8 @@ type Mutation {
   createQuote(customerId: ID, customer: CustomerInput, template: QuoteTemplate, option: OptionInput): Quote!
   # Update quote
   updateQuote(id: ID!, name: String!, option: OptionInput): Quote
+  # Remove quote
+  removeQuote(id: ID!): Quote
 
   # Add an option to the quote
   # addOption(quoteId: ID!, name: String!, sections: [SectionInput!]): Option!
