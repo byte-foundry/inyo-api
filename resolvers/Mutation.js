@@ -278,7 +278,7 @@ const Mutation = {
     return ctx.db.updateQuote({
       where: { id },
       data: {
-        status: 'INVOICE_SENT',
+        status: 'SENT',
         issuedAt: new Date(),
       },
     })
