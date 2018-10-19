@@ -17,10 +17,21 @@ const Query = {
         data: { viewedByCustomer: true },
       });
 
+      quote.viewedByCustomer = true;
+
       return quote;
     }
 
-    const [quote] = await ctx.db.user({ id: getUserId(ctx) }).company().customers().quotes({ where: {id} });
+    const [quote] = await ctx.db.quotes({
+      where: {
+        id,
+        customer: {
+          serviceCompany: {
+            owner: { id: getUserId(ctx) },
+          },
+        },
+      },
+    });
 
     return quote;
   },
