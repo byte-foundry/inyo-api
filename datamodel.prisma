@@ -61,7 +61,7 @@ enum ReminderStatus {
 
 type Comment {
   id: ID! @unique
-  value: String!
+  text: String!
   authorUser: User
   authorCustomer: Customer
 }
@@ -72,8 +72,8 @@ type Item {
   description: String @default(value: "")
   unitPrice: Int! @default(value: 0)
   # when unit has been changed but not yet validated
-  pendingUnit: Int
-  unit: Int @default(value: 0)
+  pendingUnit: Float
+  unit: Float @default(value: 0)
   comments: [Comment!]!
   vatRate: Int! @default(value: 0)
   status: ItemStatus! @default(value: PENDING)

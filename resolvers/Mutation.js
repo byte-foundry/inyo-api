@@ -81,9 +81,8 @@ const Mutation = {
 
     return ctx.db.createQuote({
       ...variables,
-      name: 'Name of the project',
+      name: 'Nom du projet',
       template,
-      issuer: { connect: { id: userCompany.id } },
       token: uuid(),
       options: {
         create: {
@@ -103,7 +102,7 @@ const Mutation = {
     })
   },
   updateQuote: async (parent, { id, name, option }, ctx) => {
-    const [quote] = await ctx.db.user({ id: getUserId(ctx) }).company().quotes({ where: { id } })
+    const [quote] = await ctx.db.user({ id: getUserId(ctx) }).company().customers().quotes({ where: { id } })
 
     if (option) {
       await ctx.db.updateOption({
@@ -118,7 +117,7 @@ const Mutation = {
     })
   },
   removeQuote: async (parent, { id }, ctx) => {
-    const quotes = await ctx.db.user({ id: getUserId(ctx) }).company().quotes({ where: { id } });
+    const quotes = await ctx.db.user({ id: getUserId(ctx) }).company().customers().quotes({ where: { id } });
 
     if (!quotes.length) {
       return null;
@@ -127,7 +126,7 @@ const Mutation = {
     return ctx.db.deleteQuote({ id });
   },
   // addOption: async (parent, { quoteId, name, sections }, ctx) => {
-  //   const quote = await ctx.db.user({ id: getUserId(ctx) }).company().quote({ id: quoteId });
+  //   const quote = await ctx.db.user({ id: getUserId(ctx) }).company().customers().quote({ id: quoteId });
 
   //   return ctx.db.createOption({
   //     quote: { connect: { id: quoteId } },
@@ -142,14 +141,14 @@ const Mutation = {
     })
   },
   // removeOption: async (parent, { id }, ctx) => {
-  //   const option = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options({ where: { id } });
+  //   const option = await ctx.db.user({ id: getUserId(ctx) }).company().customers().quotes().options({ where: { id } });
 
   //   return ctx.db.deleteOption({
   //     id,
   //   });
   // },
   addSection: async (parent, { optionId, name, items = [] }, ctx) => {
-    const option = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options({ where: { id: optionId } });
+    const option = await ctx.db.user({ id: getUserId(ctx) }).company().customers().quotes().options({ where: { id: optionId } });
 
     return ctx.db.createSection({
       option: {
@@ -160,7 +159,7 @@ const Mutation = {
     });
   },
   updateSection: async (parent, { id, name }, ctx) => {
-    const sections = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections({ where: { id } });
+    const sections = await ctx.db.user({ id: getUserId(ctx) }).company().customers().quotes().options().sections({ where: { id } });
 
     if (!sections.length) {
       throw new Error(`No section with id '${id}' has been found`);
@@ -172,7 +171,7 @@ const Mutation = {
     });
   },
   removeSection: async (parent, { id }, ctx) => {
-    const sections = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections({ where: { id } });
+    const sections = await ctx.db.user({ id: getUserId(ctx) }).company().customers().quotes().options().sections({ where: { id } });
 
     if (!sections.length) {
       return null;
@@ -181,7 +180,7 @@ const Mutation = {
     return ctx.db.deleteSection({ id });
   },
   addItem: async (parent, { sectionId, name, description, unitPrice, unit, vatRate }, ctx) => {
-    const sections = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections({ where: { id: sectionId } });
+    const sections = await ctx.db.user({ id: getUserId(ctx) }).company().customers().quotes().options().sections({ where: { id: sectionId } });
 
     if (!sections.length) {
       throw new Error(`No section with id '${sectionId}' has been found`);
@@ -199,7 +198,7 @@ const Mutation = {
     });
   },
   updateItem: async (parent, { id, name, description, unitPrice, unit, vatRate }, ctx) => {
-    const items = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections().items({ where: { id } });
+    const items = await ctx.db.user({ id: getUserId(ctx) }).company().customers().quotes().options().sections().items({ where: { id } });
 
     if (!items.length) {
       throw new Error(`No item with id '${id}' has been found`);
@@ -218,35 +217,71 @@ const Mutation = {
       }
     `);
 
-    let variables = {};
-
-    // not draft -> update pending instead
-    if (item.section.option.quote.status === 'DRAFT') {
-      variables.unit = unit;
-    } else {
-      variables.pendingUnit = unit; // waiting for customer's approval
+    if (item.section.option.quote.status !== 'DRAFT') {
+      throw new Error(`Item '${id}' cannot be updated in this quote state.`);
     }
 
     return ctx.db.updateItem({
       where: { id },
       data: {
-        ...variables,
         name,
         description,
+        unit,
         unitPrice,
         vatRate,
         status: 'PENDING',
       },
     });
   },
+  updateValidatedItem: async (parent, { id, unit, comment }, ctx) => {
+    const userId = getUserId(ctx);
+    const items = await ctx.db.user({ id: userId }).company().customers().quotes().options().sections().items({ where: { id } });
+
+    if (!items.length) {
+      throw new Error(`No item with id '${id}' has been found`);
+    }
+
+    const item = await ctx.db.item({ id }).$fragment(`
+      fragment ItemWithQuote on Item {
+        status
+        section {
+          option {
+            quote {
+              status
+            }
+          }
+        }
+      }
+    `);
+
+    if (item.section.option.quote.status !== 'ACCEPTED') {
+      throw new Error(`Item '${id}' cannot be updated in this quote state.`);
+    }
+
+    return ctx.db.updateItem({
+      where: { id },
+      data: {
+        pendingUnit: unit,
+        status: 'UPDATED',
+        comments: {
+          create: {
+            text: comment.text,
+            authorUser: {
+              connect: { id: userId },
+            },
+          },
+        },
+      },
+    });
+  },
   removeItem: async (parent, { id }, ctx) => {
-    const item = await ctx.db.user({ id: getUserId(ctx) }).company().quotes().options().sections().items({ where: { id } });
+    const item = await ctx.db.user({ id: getUserId(ctx) }).company().customers().quotes().options().sections().items({ where: { id } });
 
     return ctx.db.deleteItem({ id });
   },
   sendQuote: async (parent, { id, customer }, ctx) => {
     const user = await ctx.db.user({ id: getUserId(ctx) });
-    const [quote] = await ctx.db.user({ id: getUserId(ctx) }).company().quotes({ where: { id } }).$fragment(`
+    const [quote] = await ctx.db.user({ id: getUserId(ctx) }).company().customers().quotes({ where: { id } }).$fragment(`
       fragment QuoteWithCustomer on Quote {
         id
         name
@@ -283,12 +318,140 @@ const Mutation = {
       },
     })
   },
-  acceptQuote: async (parent, { id, token }, ctx) => {
-    const quote = ctx.db.quote({ id, where: { token } })
+  finishItem: async (parent, { id }, ctx) => {
+    const user = ctx.db.user({ id: userId });
+    const items = await ctx.db.user({ id: user.id }).company().customers().quotes().options().sections().items({ where: { id } });
 
-    if (quote.status !== 'SENT') {
-      throw new Error('This quote has already been verified.');
+    if (!items.length) {
+      throw new Error(`No item with id '${id}' has been found`);
     }
+
+    const item = await ctx.db.item({ id }).$fragment(`
+      fragment ItemWithQuote on Item {
+        status
+        section {
+          option {
+            quote {
+              sections {
+                items {
+                  name
+                  unit
+                }
+              }
+              customer {
+                firstName
+                lastName
+                email
+              }
+              status
+            }
+          }
+        }
+      }
+    `);
+
+    if (item.section.option.quote.status !== 'UPDATED') {
+      throw new Error(`Item '${id}' cannot be finished.`);
+    }
+
+    const {sections} = items.section.option;
+    const {quote} = item.section.option;
+    const {customer} = quote;
+
+    sendTaskValidationEmail({
+      email: customer.email,
+      user: String(user.firstName + ' ' + user.lastName).trim(),
+      customerName: String(customer.firstName + ' ' + customer.lastName).trim(),
+      projectName: quote.name,
+      itemName: item.name,
+      sections: options[0].sections.map(
+        section => section.items
+          .filter(item => item.status === 'PENDING')
+          .map(item => ({
+            name: item.name,
+            unit: item.unit,
+          })),
+      ),
+    });
+
+    return ctx.db.updateItem({
+      where: { id },
+      data: {
+        pendingUnit: unit,
+        status: 'UPDATED',
+        comments: {
+          create: {
+            text: comment.text,
+            authorUser: {
+              connect: { id: userId },
+            },
+          },
+        },
+      },
+    });
+  },
+  acceptItem: async (parent, { id, token }, ctx) => {
+    const [item] = await ctx.db.items({ where: {
+      id,
+      section: { option: { quote: { token } } },
+    } }).$fragment(`
+      fragment ItemWithQuote on Item {
+        status
+        section {
+          option {
+            quote {
+              status
+            }
+          }
+        }
+      }
+    `);
+
+    if (!item) {
+      throw new Error(`No item with id '${id}' has been found`);
+    }
+
+    if (item.status !== 'UPDATED_SENT' || item.section.option.quote.status !== 'ACCEPTED') {
+      throw new Error(`Item '${id}' cannot be updated in this item or quote state.`);
+    }
+
+    return ctx.db.updateItem({
+      where: { id },
+      data: {
+        status: 'FINISHED',
+      },
+    });
+  },
+  acceptQuote: async (parent, { id, token }, ctx) => {
+    const quote = await ctx.db.quote({ id, where: { token } }).$fragment(`
+      fragment quoteWithItem on Quote {
+        status
+        options {
+          sections {
+            items {
+              id
+            }
+          }
+        }
+      }
+    `)
+
+    if (!quote || quote.status !== 'SENT') {
+      throw new Error(`No quote with id '${id}' has been found`);
+    }
+
+    await ctx.db.updateManyItems({
+      where: {
+        id_in: quote.options.reduce((ids, option) => ids.concat(
+          option.sections.reduce((ids, section) => ids.concat(
+            section.items.map(item => item.id)
+          ), []),
+        ), []),
+      },
+      data: {
+        status: 'FINISHED',
+      },
+    });
 
     return ctx.db.updateQuote({
       id,
