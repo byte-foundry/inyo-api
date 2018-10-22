@@ -1,43 +1,9 @@
 const https = require('https');
-const sendGridClient = require('@sendgrid/client');
+const sendEmail = require('./SendEmail.js');
 
-sendGridClient.setApiKey(process.env.SENDGRID_API_KEY);
 
 async function sendQuoteEmail({email, user, customerName, projectName, quoteUrl}) {
-    const request = {
-      method: 'POST',
-      url: '/v3/mail/send',
-      body: {
-        from:{
-          email: "edwige@inyo.me"
-        },
-        personalizations: [
-          {
-            to:[
-              {
-                email: email
-              }
-            ],
-            dynamic_template_data:{
-              customerName,
-              projectName,
-              user,
-              quoteUrl,
-            }
-          }
-        ],
-        template_id:"d-5055ed1a146348d9bd8cc440bf1160d8"
-      }
-    };
-
-    try {
-      const [response, body] = await sendGridClient.request(request)
-    }
-    catch (errors) {
-      throw new Error(errors[0].message);
-    }
-
-    return [response, body];
+    return sendEmail({email, {user, customerName, projectName},'d-5055ed1a146348d9bd8cc440bf1160d8');
 }
 
 function createReminder({
