@@ -1,8 +1,11 @@
 const { hash, compare } = require('bcrypt')
 const { sign } = require('jsonwebtoken')
 const uuid = require('uuid/v4')
+
 const { APP_SECRET, getUserId } = require('../utils')
 const {sendQuoteEmail} = require('../emails/QuoteEmail');
+const {sendTaskValidationEmail} = require('../emails/TaskEmail');
+const sendAmendmentEmail = () => {};
 
 const inyoQuoteBaseUrl = 'https://app.inyo.com/quote/';
 
@@ -319,7 +322,7 @@ const Mutation = {
     })
   },
   finishItem: async (parent, { id }, ctx) => {
-    const user = ctx.db.user({ id: userId });
+    const user = await ctx.db.user({ id: getUserId(ctx) });
     const items = await ctx.db.user({ id: user.id }).company().customers().quotes().options().sections().items({ where: { id } });
 
     if (!items.length) {
@@ -328,16 +331,19 @@ const Mutation = {
 
     const item = await ctx.db.item({ id }).$fragment(`
       fragment ItemWithQuote on Item {
+        name
         status
         section {
           option {
-            quote {
-              sections {
-                items {
-                  name
-                  unit
-                }
+            sections {
+              items {
+                name
+                unit
               }
+            }
+            quote {
+              id
+              token
               customer {
                 firstName
                 lastName
@@ -350,11 +356,11 @@ const Mutation = {
       }
     `);
 
-    if (item.section.option.quote.status !== 'UPDATED') {
+    if (item.section.option.quote.status !== 'ACCEPTED' || item.status !== 'PENDING') {
       throw new Error(`Item '${id}' cannot be finished.`);
     }
 
-    const {sections} = items.section.option;
+    const {sections} = item.section.option;
     const {quote} = item.section.option;
     const {customer} = quote;
 
@@ -364,7 +370,7 @@ const Mutation = {
       customerName: String(customer.firstName + ' ' + customer.lastName).trim(),
       projectName: quote.name,
       itemName: item.name,
-      sections: options[0].sections.map(
+      sections: sections.map(
         section => section.items
           .filter(item => item.status === 'PENDING')
           .map(item => ({
@@ -372,22 +378,77 @@ const Mutation = {
             unit: item.unit,
           })),
       ),
+      quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
     });
 
     return ctx.db.updateItem({
       where: { id },
       data: {
-        pendingUnit: unit,
-        status: 'UPDATED',
-        comments: {
-          create: {
-            text: comment.text,
-            authorUser: {
-              connect: { id: userId },
-            },
-          },
-        },
+        status: 'FINISHED',
       },
+    });
+  },
+  sendAmendment: async (parent, { quoteId }, ctx) => {
+    const quote = await ctx.db.quote({ id: quoteId, where: { token } }).$fragment(`
+      fragment quoteWithItems on Quote {
+        status
+        options {
+          sections {
+            items({ where: { status: UPDATED } }) {
+              id
+              name
+              unit
+              pendingUnit
+              comments {
+                text
+                authorUser {
+                  firstName
+                  lastName
+                }
+                authorCustomer {
+                  name
+                  firstName
+                  lastName
+                }
+              }
+            }
+          }
+        }
+      }
+    `)
+
+    if (!quote) {
+      throw new Error(`No quote with id '${id}' has been found`);
+    }
+
+    if (quote.status !== 'ACCEPTED') {
+      throw new Error(`An amendment for quote '${id}' can't be sent in this state.`);
+    }
+
+    const items = quote.options.reduce((ids, option) => ids.concat(
+      option.sections.reduce((ids, section) => ids.concat(
+        section.items.map(item => ({
+          ...item,
+          author: item.authorUser || item.authorCustomer,
+        }))
+      ), []),
+    ), []);
+
+    await ctx.db.updateManyItems({
+      where: {
+        id_in: items.map(item => item.id),
+      },
+      data: {
+        status: 'UPDATED_SENT',
+      },
+    });
+    
+    sendAmendmentEmail({
+      email: customer.email,
+      user: String(user.firstName + ' ' + user.lastName).trim(),
+      customerName: String(customer.firstName + ' ' + customer.lastName).trim(),
+      projectName: quote.name,
+      items,
     });
   },
   acceptItem: async (parent, { id, token }, ctx) => {

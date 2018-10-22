@@ -42,6 +42,10 @@ type Mutation {
   updateValidatedItem(id: ID!, unit: Float! comment: CommentInput!): Item
   # Remove an item
   removeItem(id: ID!): Item
+  # Finish an item
+  finishItem(id: ID!): Item
+  # Send an amendment with all the updated items
+  sendAmendment(quoteId: ID!): Item
 
   # Send quote to validation, DRAFT -> SENT
   sendQuote(id: ID!): Quote!

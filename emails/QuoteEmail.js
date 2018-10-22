@@ -3,7 +3,7 @@ const createReminder = require('../reminders/createReminder.js');
 
 
 async function sendQuoteEmail({email, user, customerName, projectName, quoteUrl}) {
-    return sendEmail({email, {user, customerName, projectName},'d-5055ed1a146348d9bd8cc440bf1160d8');
+    return sendEmail({email, data: {user, customerName, projectName}, templateId: 'd-5055ed1a146348d9bd8cc440bf1160d8'});
 }
 
 async function setupQuoteReminderEmail({email, user, customerName, projectName, quoteUrl, issueDate}) {
