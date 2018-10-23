@@ -270,7 +270,7 @@ const Mutation = {
     }
 
     const item = await ctx.db.item({ id }).$fragment(`
-      fragment ItemWithQuote on Item {
+      fragment ValidatedItemWithQuote on Item {
         status
         section {
           option {
@@ -309,18 +309,7 @@ const Mutation = {
   },
   sendQuote: async (parent, { id, customer }, ctx) => {
     const user = await ctx.db.user({ id: getUserId(ctx) });
-    // const result = await ctx.db.user({ id: getUserId(ctx) }).company().customers().quotes({ where: { id } }).$fragment(`
-    //   fragment QuoteWithCustomer on Quote {
-    //     id
-    //     name
-    //     token
-    //     status
-    //     customer {
-    //       name
-    //       email
-    //     }
-    //   }
-    // `);
+    // todo: verify quote ownership
     const quote = await ctx.db.quote({ id }).$fragment(`
       fragment QuoteWithCustomer on Quote {
         id
