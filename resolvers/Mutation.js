@@ -1,13 +1,14 @@
 const { hash, compare } = require('bcrypt')
 const { sign } = require('jsonwebtoken')
 const uuid = require('uuid/v4')
+const moment = require('moment');
 
 const { APP_SECRET, getUserId } = require('../utils')
-const {sendQuoteEmail} = require('../emails/QuoteEmail');
+const {sendQuoteEmail, setupQuoteReminderEmail} = require('../emails/QuoteEmail');
 const {sendTaskValidationEmail} = require('../emails/TaskEmail');
 const sendAmendmentEmail = () => {};
 
-const inyoQuoteBaseUrl = 'https://app.inyo.com/quote/';
+const inyoQuoteBaseUrl = 'https://app.inyo.com/app/quotes';
 
 const Mutation = {
   signup: async (parent, { email, password, firstName, lastName, company = {} }, ctx) => {
@@ -20,7 +21,7 @@ const Mutation = {
       company: {
         create: company,
       },
-    })
+    });
 
     return {
       token: sign({ userId: user.id }, APP_SECRET),
@@ -348,8 +349,18 @@ const Mutation = {
       customerName: quote.customer.name,
       projectName: quote.name,
       user: `${user.firstName} ${user.lastName}`,
-      quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
+      quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
     });
+
+    setupQuoteReminderEmail({
+      email: quote.customer.email,
+      customerName: quote.customer.name,
+      projectName: quote.name,
+      user: `${user.firstName} ${user.lastName}`,
+      issueDate: moment().format(),
+      quoteId: quote.id,
+      quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
+    }, ctx);
 
     // send mail with token
 
