@@ -460,9 +460,9 @@ const Mutation = {
     });
     
     sendAmendmentEmail({
-      email: customer.email,
+      email: quote.customer.email,
       user: String(user.firstName + ' ' + user.lastName).trim(),
-      customerName: String(customer.firstName + ' ' + customer.lastName).trim(),
+      customerName: String(quote.customer.firstName + ' ' + quote.customer.lastName).trim(),
       projectName: quote.name,
       items,
     });
