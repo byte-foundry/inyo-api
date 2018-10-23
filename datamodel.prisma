@@ -32,6 +32,7 @@ enum QuoteStatus {
 }
 
 enum QuoteTemplate {
+  BLANK
   WEBSITE
   IDENTITY
 }
@@ -98,7 +99,7 @@ type Option {
 type Quote {
   id: ID! @unique
   name: String!
-  template: QuoteTemplate
+  template: QuoteTemplate @default(value: BLANK)
   customer: Customer! @relation(name: "CustomerQuotes")
   # this token is a way to restrict access to anyone else than the customer
   token: String!

@@ -1,6 +1,13 @@
 const https = require('https');
 
-function createReminder(mutation) {
+function createReminder({
+  email,
+  user,
+  customerName,
+  projectName,
+  quoteUrl,
+  postDate,
+}) {
   return new Promise((resolve, reject) => {
 
     const options = {
@@ -60,9 +67,23 @@ function createReminder(mutation) {
     });
 
     req.write(JSON.stringify({
-      path: '/send-reminder-email',
+      path: '/',
       postAt: postDate,
-      data: { email, user, customerName, projectName, quoteUrl, templateId }
+      data: `
+        mutation sendEmailRightNow() {
+          sendEmail(
+            reminderId: ${reminderId},
+            email: "${email}",
+            templateId: "${templateId}",
+            data: ${JSON.stringify(JSON.stringify({ // stringified twice to put it as a string param
+              user,
+              customerName,
+              projectName,
+              quoteUrl,
+            }))},
+          )
+        }
+      `,
     }));
     req.end();
   });

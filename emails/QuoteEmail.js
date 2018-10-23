@@ -16,7 +16,7 @@ async function setupQuoteReminderEmail({email, user, customerName, projectName, 
     /*twoDaysLeft*/moment(endDate).subtract(2, 'days'),
   ];
 
-  dates.forEach(date => {
+  dates.forEach(async date => {
     try {
       await createReminder({
         email,

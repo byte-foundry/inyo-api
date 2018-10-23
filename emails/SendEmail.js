@@ -15,7 +15,7 @@ async function sendEmail({email, data, templateId}) {
           {
             to:[
               {
-                email: email
+                email
               }
             ],
             dynamic_template_data: data
@@ -25,12 +25,7 @@ async function sendEmail({email, data, templateId}) {
       }
     };
 
-    try {
-      const [response, body] = await sendGridClient.request(request)
-    }
-    catch (errors) {
-      throw new Error(errors[0].message);
-    }
+    const [response, body] = await sendGridClient.request(request)
 
     return [response, body];
 }

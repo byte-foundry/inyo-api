@@ -60,7 +60,7 @@ const Mutation = {
       },
     })
   },
-  createQuote: async (parent, { customerId, customer, template, option }, ctx) => {
+  createQuote: async (parent, { customerId, customer, name, template, option }, ctx) => {
     const userCompany = await ctx.db.user({ id: getUserId(ctx) }).company()
 
     if (!customerId && !customer) {
@@ -84,7 +84,7 @@ const Mutation = {
 
     return ctx.db.createQuote({
       ...variables,
-      name: 'Nom du projet',
+      name: name || 'Nom du projet',
       template,
       token: uuid(),
       options: {
@@ -284,7 +284,19 @@ const Mutation = {
   },
   sendQuote: async (parent, { id, customer }, ctx) => {
     const user = await ctx.db.user({ id: getUserId(ctx) });
-    const [quote] = await ctx.db.user({ id: getUserId(ctx) }).company().customers().quotes({ where: { id } }).$fragment(`
+    // const result = await ctx.db.user({ id: getUserId(ctx) }).company().customers().quotes({ where: { id } }).$fragment(`
+    //   fragment QuoteWithCustomer on Quote {
+    //     id
+    //     name
+    //     token
+    //     status
+    //     customer {
+    //       name
+    //       email
+    //     }
+    //   }
+    // `);
+    const quote = await ctx.db.quote({ id }).$fragment(`
       fragment QuoteWithCustomer on Quote {
         id
         name
@@ -296,6 +308,10 @@ const Mutation = {
         }
       }
     `);
+    
+    if (!quote) {
+      throw new Error(`No quote '${id}' has been found`);
+    }
 
     if (quote.status !== 'DRAFT') {
       throw new Error('This invoice has already been sent.');
@@ -450,6 +466,8 @@ const Mutation = {
       projectName: quote.name,
       items,
     });
+
+    return ctx.db.quote({ id: quoteId });
   },
   acceptItem: async (parent, { id, token }, ctx) => {
     const [item] = await ctx.db.items({ where: {
@@ -458,6 +476,7 @@ const Mutation = {
     } }).$fragment(`
       fragment ItemWithQuote on Item {
         status
+        pendingUnit
         section {
           option {
             quote {
@@ -479,7 +498,43 @@ const Mutation = {
     return ctx.db.updateItem({
       where: { id },
       data: {
-        status: 'FINISHED',
+        status: 'PENDING',
+        unit: item.pendingUnit,
+        pendingUnit: null,
+      },
+    });
+  },
+  rejectItem: async (parent, { id, token }, ctx) => {
+    const [item] = await ctx.db.items({ where: {
+      id,
+      section: { option: { quote: { token } } },
+    } }).$fragment(`
+      fragment ItemWithQuote on Item {
+        status
+        pendingUnit
+        section {
+          option {
+            quote {
+              status
+            }
+          }
+        }
+      }
+    `);
+
+    if (!item) {
+      throw new Error(`No item with id '${id}' has been found`);
+    }
+
+    if (item.status !== 'UPDATED_SENT' || item.section.option.quote.status !== 'ACCEPTED') {
+      throw new Error(`Item '${id}' cannot be updated in this item or quote state.`);
+    }
+
+    return ctx.db.updateItem({
+      where: { id },
+      data: {
+        status: 'PENDING',
+        pendingUnit: null,
       },
     });
   },
@@ -501,18 +556,18 @@ const Mutation = {
       throw new Error(`No quote with id '${id}' has been found`);
     }
 
-    await ctx.db.updateManyItems({
-      where: {
-        id_in: quote.options.reduce((ids, option) => ids.concat(
-          option.sections.reduce((ids, section) => ids.concat(
-            section.items.map(item => item.id)
-          ), []),
-        ), []),
-      },
-      data: {
-        status: 'FINISHED',
-      },
-    });
+    // await ctx.db.updateManyItems({
+    //   where: {
+    //     id_in: quote.options.reduce((ids, option) => ids.concat(
+    //       option.sections.reduce((ids, section) => ids.concat(
+    //         section.items.map(item => item.id)
+    //       ), []),
+    //     ), []),
+    //   },
+    //   data: {
+    //     status: 'FINISHED',
+    //   },
+    // });
 
     return ctx.db.updateQuote({
       id,
@@ -531,25 +586,20 @@ const Mutation = {
       status: 'REJECTED',
     })
   },
-  sendEmail: async (parent, {id, email, user, customerName, projectName, quoteUrl}, ctx) => {
+  sendEmail: async (parent, {reminderId, email, data, templateId}, ctx) => {
     const reminder = await ctx.db.reminder({id});
 
+    // look for X-Ph-Signature in ctx
+    if (process.env.POSTHOOK_SIGNATURE !== ctx.request.get('X-Ph-Signature')) {
+      throw new Error('The signature has not been verified.');
+    }
+
     try {
-      sendQuoteEmail({
-        email,
-        user,
-        customerName,
-        projectName,
-        quoteUrl,
-      });
-      ctx.db.updateReminder({
-        status: 'SENT',
-      });
+      sendEmail({ email, data, templateId })
+      ctx.db.updateReminder({ status: 'SENT' });
     }
     catch (errors) {
-      ctx.db.updateReminder({
-        status: 'ERROR',
-      });
+      ctx.db.updateReminder({ status: 'ERROR' });
     }
 
     return null;
