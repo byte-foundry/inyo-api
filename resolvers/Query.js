@@ -6,7 +6,7 @@ const Query = {
   quote: async (root, { id, token }, ctx) => {
     // public access with a secret token inserted in a mail
     if (token) {
-      const [quote] = await ctx.db.quotes({ id, where: { token } });
+      const [quote] = await ctx.db.quotes({ where: { id, token } });
 
       if (!quote) {
         return null;

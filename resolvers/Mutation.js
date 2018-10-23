@@ -405,12 +405,18 @@ const Mutation = {
     });
   },
   sendAmendment: async (parent, { quoteId }, ctx) => {
+    const user = await ctx.db.user({ id: getUserId(ctx) });
     const quote = await ctx.db.quote({ id: quoteId }).$fragment(`
       fragment quoteWithItems on Quote {
         status
+        customer {
+          email
+          firstName
+          lastName
+        }
         options {
           sections {
-            items({ where: { status: UPDATED } }) {
+            items(where: { status: UPDATED }) {
               id
               name
               unit
@@ -586,24 +592,6 @@ const Mutation = {
       status: 'REJECTED',
     })
   },
-  sendEmail: async (parent, {reminderId, email, data, templateId}, ctx) => {
-    const reminder = await ctx.db.reminder({id});
-
-    // look for X-Ph-Signature in ctx
-    if (process.env.POSTHOOK_SIGNATURE !== ctx.request.get('X-Ph-Signature')) {
-      throw new Error('The signature has not been verified.');
-    }
-
-    try {
-      sendEmail({ email, data, templateId })
-      ctx.db.updateReminder({ status: 'SENT' });
-    }
-    catch (errors) {
-      ctx.db.updateReminder({ status: 'ERROR' });
-    }
-
-    return null;
-  }
 }
 
 module.exports = {

@@ -57,8 +57,6 @@ type Mutation {
   rejectItem(id: ID!, token: String!): Item!
   # Customer can reject invoice, SENT -> REJECTED
   rejectQuote(id: ID!, token: String!): Quote!
-  # Posthook mutation to send email at the right time
-  sendEmail(reminderId: ID!, email: String!, templateId: String!, data: Json!): Boolean
 }
 
 input CommentInput {
