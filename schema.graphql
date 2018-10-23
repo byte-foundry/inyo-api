@@ -11,6 +11,9 @@ type Mutation {
   signup(email: String!, password: String!, firstName: String, lastName: String, company: CompanyInput): AuthPayload!
   login(email: String!, password: String!): AuthPayload!
 
+  # Update user profile and his company
+  updateUser(firstName: String, lastName: String, company: CompanyInput!): User
+
   # Create a new customer inside the user's company
   createCustomer(email: String!): Customer!
 

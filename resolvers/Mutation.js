@@ -44,6 +44,23 @@ const Mutation = {
       user,
     }
   },
+  updateUser: async (parent, { firstName, lastName, company }, ctx) => {
+    const userId = getUserId(ctx);
+    const userCompany = await ctx.db.user({ id: userId }).company();
+
+    await ctx.db.updateCompany({
+      where: { id: userCompany.id },
+      data: company,
+    });
+
+    return ctx.db.updateUser({
+      where: { id: userId },
+      data: {
+        firstName,
+        lastName,
+      },
+    });
+  },
   createCustomer: async (parent, { email }, ctx) => {
     const userCompany = await ctx.db.user({ id: getUserId(ctx) }).company()
 
