@@ -35,6 +35,58 @@ const Query = {
 
     return quote;
   },
+  itemComments: async (root, { id, token }, ctx) => {
+    if (token) {
+      const comments = await ctx.db.comments({
+        where: {
+          item: {
+            id,
+            section: {
+              option: {
+                quote: { token },
+              },
+            },
+          },
+        },
+      });
+
+      await ctx.db.updateManyComments({
+        where: { id_in: comments.map(comment => comment.id) },
+        data: { viewedByCustomer: true },
+      });
+
+      return comments.map(comment => ({...comment, viewedByCustomer: true}));
+    }
+
+    const comments = await ctx.db.comments({
+      where: {
+        item: {
+          id,
+          section: {
+            option: {
+              quote: {
+                customer: {
+                  serviceCompany: {
+                    owner: { id: getUserId(ctx) },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    await ctx.db.updateManyComments({
+      where: { id_in: comments.map(comment => comment.id) },
+      data: { viewedByUser: true },
+    });
+
+    return comments.map(comment => ({
+      ...comment,
+      viewedByUser: true,
+    }));
+  },
 }
 
 module.exports = {

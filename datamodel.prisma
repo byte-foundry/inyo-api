@@ -65,6 +65,9 @@ type Comment {
   text: String!
   authorUser: User
   authorCustomer: Customer
+  viewedByUser: Boolean! @default(value: false)
+  viewedByCustomer: Boolean! @default(value: false)
+  item: Item! @relation(name: "ItemComments")
 }
 
 type Item {
@@ -75,7 +78,7 @@ type Item {
   # when unit has been changed but not yet validated
   pendingUnit: Float
   unit: Float @default(value: 0)
-  comments: [Comment!]!
+  comments: [Comment!]! @relation(name: "ItemComments")
   vatRate: Int! @default(value: 0)
   status: ItemStatus! @default(value: PENDING)
   section: Section! @relation(name: "SectionItems")
@@ -119,8 +122,10 @@ type Company {
   email: String
   address: Address
   phone: String
+  type: String
   siret: String
   rcs: String
+  rcsCity: String
   rm: String
   vat: String
   customers: [Customer!]! @relation(name: "CompanyCustomers")

@@ -5,6 +5,7 @@ type Query {
   me: User
   customer(id: ID!): Customer
   quote(id: ID!, token: String): Quote
+  itemComments(itemId: ID!, token: String): [Comment!]!
 }
 
 type Mutation {
@@ -12,7 +13,7 @@ type Mutation {
   login(email: String!, password: String!): AuthPayload!
 
   # Update user profile and his company
-  updateUser(firstName: String, lastName: String, company: CompanyInput!): User
+  updateUser(email: String, firstName: String, lastName: String, company: CompanyInput): User
 
   # Create a new customer inside the user's company
   createCustomer(email: String!): Customer!
@@ -76,9 +77,12 @@ input AddressInput {
 input CompanyInput {
   name: String
   email: String
+  address: AddressInput
   phone: String
+  type: String
   siret: String
   rcs: String
+  rcsCity: String
   rm: String
   vat: String
 }
@@ -218,8 +222,10 @@ type Company {
   email: String
   address: Address
   phone: String
+  type: String
   siret: String
   rcs: String
+  rcsCity: String
   rm: String
   vat: String
   customers: [Customer!]!

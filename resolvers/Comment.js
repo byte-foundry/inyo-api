@@ -1,7 +1,10 @@
 const Comment = {
   text: node => node.text,
-  author: (node, args, ctx) => {
-    return node.authorUser || node.authorCustomer;
+  author: async (node, args, ctx) => {
+    const user = await ctx.db.comment({ id: node.id }).authorUser();
+    const customer = await ctx.db.comment({ id: node.id }).authorCustomer();
+
+    return user || customer;
   },
 }
 
