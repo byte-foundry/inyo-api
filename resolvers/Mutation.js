@@ -405,7 +405,7 @@ const Mutation = {
     });
   },
   sendAmendment: async (parent, { quoteId }, ctx) => {
-    const quote = await ctx.db.quote({ id: quoteId, where: { token } }).$fragment(`
+    const quote = await ctx.db.quote({ id: quoteId }).$fragment(`
       fragment quoteWithItems on Quote {
         status
         options {
