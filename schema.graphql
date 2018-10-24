@@ -172,6 +172,7 @@ type Comment {
   id: ID!
   text: String!
   author: Author!
+  createdAt: DateTime!
 }
 
 type Item {

@@ -6,6 +6,7 @@ const Comment = {
 
     return user || customer;
   },
+  createdAt: node => node.createdAt,
 }
 
 module.exports = {

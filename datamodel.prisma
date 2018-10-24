@@ -68,6 +68,7 @@ type Comment {
   viewedByUser: Boolean! @default(value: false)
   viewedByCustomer: Boolean! @default(value: false)
   item: Item! @relation(name: "ItemComments")
+  createdAt: DateTime!
 }
 
 type Item {
