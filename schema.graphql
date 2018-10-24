@@ -13,7 +13,7 @@ type Mutation {
   login(email: String!, password: String!): AuthPayload!
 
   # Update user profile and his company
-  updateUser(email: String, firstName: String, lastName: String, company: CompanyInput): User
+  updateUser(email: String, firstName: String, lastName: String, defaultDailyPrice: Int, defaultVatRate: Int, company: CompanyInput): User
 
   # Create a new customer inside the user's company
   createCustomer(email: String!): Customer!
