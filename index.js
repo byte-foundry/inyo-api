@@ -53,7 +53,7 @@ if (process.env.APOLLO_ENGINE_KEY) {
   })
 
   engine.listen(
-    { httpServer, graphqlPaths: ['/'] },
+    { port: 4000, httpServer, graphqlPaths: ['/'] },
     () =>
       console.log(
         `Server with Apollo Engine is running on http://localhost:4000`,
