@@ -2,6 +2,7 @@ const { hash, compare } = require('bcrypt')
 const { sign } = require('jsonwebtoken')
 const uuid = require('uuid/v4')
 const moment = require('moment');
+const { StatsD } = require('node-dogstatsd');
 
 const { APP_SECRET, getUserId } = require('../utils')
 const {sendQuoteEmail, setupQuoteReminderEmail} = require('../emails/QuoteEmail');
@@ -9,6 +10,7 @@ const {sendTaskValidationEmail} = require('../emails/TaskEmail');
 const sendAmendmentEmail = () => {};
 
 const inyoQuoteBaseUrl = 'https://app.inyo.com/app/quotes';
+const stats = new StatsD();
 
 const Mutation = {
   signup: async (parent, { email, password, firstName, lastName, company = {} }, ctx) => {
@@ -22,6 +24,8 @@ const Mutation = {
         create: company,
       },
     });
+
+    stats.increment('inyo.user.created');
 
     return {
       token: sign({ userId: user.id }, APP_SECRET),
@@ -47,7 +51,6 @@ const Mutation = {
   },
   updateUser: async (parent, { email, firstName, lastName, company, defaultVatRate, defaultDailyPrice }, ctx) => {
     const userId = getUserId(ctx);
-    const userCompany = await ctx.db.user({ id: userId }).company();
 
     return ctx.db.updateUser({
       where: { id: userId },
@@ -109,7 +112,7 @@ const Mutation = {
       };
     }
 
-    return ctx.db.createQuote({
+    const result = await ctx.db.createQuote({
       ...variables,
       name: name || 'Nom du projet',
       template,
@@ -130,6 +133,10 @@ const Mutation = {
       },
       status: 'DRAFT',
     })
+
+    stats.increment('inyo.quote.created');
+
+    return result;
   },
   updateQuote: async (parent, { id, name, option }, ctx) => {
     const [quote] = await ctx.db.user({ id: getUserId(ctx) }).company().customers().quotes({ where: { id } })
@@ -288,7 +295,7 @@ const Mutation = {
       throw new Error(`Item '${id}' cannot be updated in this quote state.`);
     }
 
-    return ctx.db.updateItem({
+    const result = await ctx.db.updateItem({
       where: { id },
       data: {
         pendingUnit: unit,
@@ -303,6 +310,10 @@ const Mutation = {
         },
       },
     });
+
+    stats.increment('inyo.item.updated');
+
+    return result;
   },
   removeItem: async (parent, { id }, ctx) => {
     const item = await ctx.db.user({ id: getUserId(ctx) }).company().customers().quotes().options().sections().items({ where: { id } });
@@ -354,6 +365,8 @@ const Mutation = {
     }, ctx);
 
     // send mail with token
+
+    stats.increment('inyo.quote.sent');
 
     return ctx.db.updateQuote({
       where: { id },
@@ -423,6 +436,8 @@ const Mutation = {
       quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
     });
 
+    stats.increment('inyo.item.validated');
+
     return ctx.db.updateItem({
       where: { id },
       data: {
@@ -490,6 +505,8 @@ const Mutation = {
         status: 'UPDATED_SENT',
       },
     });
+
+    items.forEach(() => stats.increment('inyo.item.updated_sent'));
     
     sendAmendmentEmail({
       email: quote.customer.email,
@@ -498,6 +515,8 @@ const Mutation = {
       projectName: quote.name,
       items,
     });
+
+    stats.increment('inyo.amendment.sent');
 
     return ctx.db.quote({ id: quoteId });
   },
@@ -527,7 +546,7 @@ const Mutation = {
       throw new Error(`Item '${id}' cannot be updated in this item or quote state.`);
     }
 
-    return ctx.db.updateItem({
+    const result = await ctx.db.updateItem({
       where: { id },
       data: {
         status: 'PENDING',
@@ -535,6 +554,10 @@ const Mutation = {
         pendingUnit: null,
       },
     });
+
+    stats.increment('inyo.item.accepted');
+
+    return result;
   },
   rejectItem: async (parent, { id, token }, ctx) => {
     const [item] = await ctx.db.items({ where: {
@@ -588,23 +611,14 @@ const Mutation = {
       throw new Error(`No quote with id '${id}' has been found`);
     }
 
-    // await ctx.db.updateManyItems({
-    //   where: {
-    //     id_in: quote.options.reduce((ids, option) => ids.concat(
-    //       option.sections.reduce((ids, section) => ids.concat(
-    //         section.items.map(item => item.id)
-    //       ), []),
-    //     ), []),
-    //   },
-    //   data: {
-    //     status: 'FINISHED',
-    //   },
-    // });
-
-    return ctx.db.updateQuote({
+    const result = await ctx.db.updateQuote({
       id,
       status: 'ACCEPTED',
     })
+
+    stats.increment('inyo.quote.created');
+
+    return result;
   },
   rejectQuote: async () => {
     const quote = ctx.db.quote({ id, where: { token } })

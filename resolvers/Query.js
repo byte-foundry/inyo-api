@@ -1,4 +1,8 @@
+const { StatsD } = require('node-dogstatsd');
+
 const { getUserId } = require('../utils')
+
+const stats = new StatsD();
 
 const Query = {
   me: (root, args, ctx) => ctx.db.user({ id: getUserId(ctx) }),
@@ -12,12 +16,18 @@ const Query = {
         return null;
       }
 
-      await ctx.db.updateQuote({
-        where: { id },
-        data: { viewedByCustomer: true },
-      });
+      stats.increment('inyo.quote.viewed.total');
 
-      quote.viewedByCustomer = true;
+      if (quote.viewedByCustomer) {
+        await ctx.db.updateQuote({
+          where: { id },
+          data: { viewedByCustomer: true },
+        });
+  
+        quote.viewedByCustomer = true;
+
+        stats.increment('inyo.quote.viewed.unique');
+      }
 
       return quote;
     }
