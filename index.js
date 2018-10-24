@@ -1,4 +1,5 @@
 const { GraphQLServer } = require('graphql-yoga')
+const { ApolloEngine } = require('apollo-engine')
 const bodyParser = require('body-parser')
 const { prisma } = require('./generated/prisma-client')
 const { resolvers } = require('./resolvers')
@@ -41,5 +42,23 @@ server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
   }
 })
 
-server.start(() => console.log('Server is running on http://localhost:4000'))
+if (process.env.APOLLO_ENGINE_KEY) {
+  const engine = new ApolloEngine({
+    apiKey: process.env.APOLLO_ENGINE_KEY,
+  })
 
+  const httpServer = server.createHttpServer({
+    tracing: true,
+    cacheControl: true,
+  })
+
+  engine.listen(
+    { httpServer, graphqlPaths: ['/'] },
+    () =>
+      console.log(
+        `Server with Apollo Engine is running on http://localhost:4000`,
+      ),
+  )
+} else {
+  server.start({ tracing: 'enabled' }, () => console.log('Server is running on http://localhost:4000'))
+}
