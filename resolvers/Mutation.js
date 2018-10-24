@@ -45,7 +45,7 @@ const Mutation = {
       user,
     }
   },
-  updateUser: async (parent, { email, firstName, lastName, company }, ctx) => {
+  updateUser: async (parent, { email, firstName, lastName, company, defaultVatRate, defaultDailyPrice }, ctx) => {
     const userId = getUserId(ctx);
     const userCompany = await ctx.db.user({ id: userId }).company();
 
@@ -55,6 +55,8 @@ const Mutation = {
         email,
         firstName,
         lastName,
+        defaultVatRate,
+        defaultDailyPrice,
         company: company && {
           update: {
             ...company,

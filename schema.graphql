@@ -239,4 +239,6 @@ type User {
   firstName: String
   lastName: String
   company: Company!
+  defaultDailyPrice: Int
+  defaultVatRate: Int
 }

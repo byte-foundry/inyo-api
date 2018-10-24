@@ -4,6 +4,8 @@ const User = {
   firstName: node => node.firstName,
   lastName: node => node.lastName,
   company: (node, args, ctx) => ctx.db.user({ id: node.id }).company(),
+  defaultDailyPrice: node => node.defaultDailyPrice,
+  defaultVatRate: node => node.defaultVatRate,
 }
 
 module.exports = {
