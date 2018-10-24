@@ -3,7 +3,7 @@ const https = require('https');
 function createReminder({
   email,
   templateId,
-  data
+  data,
   postDate,
 }) {
   return new Promise((resolve, reject) => {
