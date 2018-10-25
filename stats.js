@@ -1,11 +1,16 @@
-function sendMetric({ metric, count = 1 }) {
-	return fetch(
+const { DATADOG_API_KEY } = process.env;
+
+async function sendMetric({ metric, count = 1 }) {
+	const response = await fetch(
 		`https://api.datadoghq.com/api/v1/series?api_key=${DATADOG_API_KEY}`,
-		{ body: JSON.stringify({ series: [{
+		{ method: "POST", body: JSON.stringify({ series: [{
 			metric,
-			points: [[Math.floor(Date.now / 1000), count]],
+			type: 'count',
+			points: [[Math.floor(Date.now() / 1000), count]],
 		}] }) }
 	)
+
+	return response.json();
 }
 
 module.exports = {
