@@ -7,6 +7,14 @@ async function sendQuoteEmail({email, user, customerName, projectName, quoteUrl}
     return sendEmail({email, data: {user, customerName, projectName, quoteUrl}, templateId: 'd-5055ed1a146348d9bd8cc440bf1160d8'});
 }
 
+async function sendAcceptedQuoteEmail({email, user, customerName, projectName, quoteUrl}) {
+    return sendEmail({email, data: {user, customerName, projectName, quoteUrl}, templateId: 'd-0afe9632303d40ec82a2eb9362328a57'});
+}
+
+async function sendRejectedQuoteEmail({email, user, customerName, projectName, quoteUrl}) {
+    return sendEmail({email, data: {user, customerName, projectName, quoteUrl}, templateId: 'd-866a240bac9848ff84eb530487032a77'});
+}
+
 async function setupQuoteReminderEmail({
   email,
   user,

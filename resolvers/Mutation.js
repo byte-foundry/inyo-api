@@ -5,7 +5,7 @@ const moment = require('moment');
 
 const { APP_SECRET, getUserId } = require('../utils')
 const { sendMetric } = require('../stats');
-const {sendQuoteEmail, setupQuoteReminderEmail} = require('../emails/QuoteEmail');
+const {sendQuoteEmail, setupQuoteReminderEmail, sendAcceptedQuoteEmail, sendRejectedQuoteEmail} = require('../emails/QuoteEmail');
 const {sendTaskValidationEmail} = require('../emails/TaskEmail');
 const {sendAmendmentEmail, setupAmendmentReminderEmail} = require('../emails/AmendmentEmail');
 
@@ -356,10 +356,10 @@ const Mutation = {
       user: `${user.firstName} ${user.lastName}`,
       quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
     });
-		  console.log(`${Date.now().toLocaleString('fr-FR')}: Quote Email sent to ${quote.customer.email}`);
+		  console.log(`${Date.now().dateString}: Quote Email sent to ${quote.customer.email}`);
 	}
 	catch (error) {
-		  console.log(`${Date.now().toLocaleString('fr-FR')}: Quote Email not sent with error ${error}`);
+		  console.log(`${Date.now().dateString}: Quote Email not sent with error ${error}`);
 	}
 
     try {
@@ -372,10 +372,10 @@ const Mutation = {
       quoteId: quote.id,
       quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
     }, ctx);
-		  console.log(`${Date.now().toLocaleString('fr-FR')}: Quote reminder setup finished`);
+		  console.log(`${Date.now().dateString}: Quote reminder setup finished`);
 	}
 	catch (error) {
-		  console.log(`${Date.now().toLocaleString('fr-FR')}: Quote reminder setup errored with error ${error}`);
+		  console.log(`${Date.now().dateString}: Quote reminder setup errored with error ${error}`);
 	}
 
     // send mail with token
@@ -452,10 +452,10 @@ const Mutation = {
 		  ).filter(section => section.timeLeft > 0),
 		  quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
 		});
-		  console.log(`${Date.now().toLocaleString('fr-FR')}: Task validation email sent to ${customer.email}`);
+		  console.log(`${Date.now().dateString}: Task validation email sent to ${customer.email}`);
 	  }
 	  catch (error) {
-		  console.log(`${Date.now().toLocaleString('fr-FR')}: Task validation email not because with error ${error}`);
+		  console.log(`${Date.now().dateString}: Task validation email not because with error ${error}`);
 	  }
 
     sendMetric({metric: 'inyo.item.validated'});
@@ -541,10 +541,10 @@ const Mutation = {
 			  quoteUrl: `${inyoQuoteBaseUrl}/app/quotes/${quote.id}/view/${quote.token}`,
 			  items,
 			});
-		  console.log(`${Date.now().toLocaleString('fr-FR')}: Amendment Email sent to ${quote.customer.email}`);
+		  console.log(`${Date.now().dateString}: Amendment Email sent to ${quote.customer.email}`);
 	  }
 	  catch (error) {
-		  console.log(`${Date.now().toLocaleString('fr-FR')}: Amendment Email not sent with error ${error}`);
+		  console.log(`${Date.now().dateString}: Amendment Email not sent with error ${error}`);
 	  }
 
 	  try {
@@ -556,10 +556,10 @@ const Mutation = {
 		  quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
 		  items,
 		}, ctx);
-		  console.log(`${Date.now().toLocaleString('fr-FR')}: Amendment reminder setup finished with id`);
+		  console.log(`${Date.now().dateString}: Amendment reminder setup finished with id`);
 	  }
 	  catch (error) {
-		  console.log(`${Date.now().toLocaleString('fr-FR')}: Amendment reminder not setup with error ${error}`);
+		  console.log(`${Date.now().dateString}: Amendment reminder not setup with error ${error}`);
 	  }
 
     sendMetric({metric: 'inyo.amendment.sent'});
@@ -651,7 +651,23 @@ const Mutation = {
       data: {status: 'ACCEPTED'},
     })
 
-    sendMetric({metric: 'inyo.quote.created'});
+	  const user = quote.issuer.owner.email;
+	  try {
+		  await sendAcceptedQuoteEmail({
+			  email: user.email,
+			  user: `${user.firstName} ${user.lastName}`,
+			  customerName: `${quote.customer.firstName} ${quote.customer.lastName}`,
+			  projectName: quote.name,
+			  quoteUrl: `${inyoQuoteBaseUrl}/quote/${quote.id}/see`,
+		  });
+
+		  console.log(`${Date.now().dateString}: Acceptance quote email sent to ${quote.issuer.owner.email}`);
+	  }
+	  catch(error) {
+		  console.log(`${Date.now().dateString}: Acceptance quote email not sent with error ${error}`);
+	  }
+
+    sendMetric({metric: 'inyo.quote.accepted'});
 
     return result;
   },
@@ -666,6 +682,24 @@ const Mutation = {
       where: {id},
       data: {status: 'REJECTED'},
     })
+
+	  const user = quote.issuer.owner.email;
+	  try {
+		  await sendRejectedQuoteEmail({
+			  email: user.email,
+			  user: `${user.firstName} ${user.lastName}`,
+			  customerName: `${quote.customer.firstName} ${quote.customer.lastName}`,
+			  projectName: quote.name,
+			  quoteUrl: `${inyoQuoteBaseUrl}/quote/${quote.id}/see`,
+		  });
+
+		  console.log(`${Date.now().dateString}: Rejection quote email sent to ${quote.issuer.owner.email}`);
+	  }
+	  catch(error) {
+		  console.log(`${Date.now().dateString}: Rejection quote email not sent with error ${error}`);
+	  }
+
+    sendMetric({metric: 'inyo.quote.rejected'});
   },
   acceptAmendment: async (parent, { quoteId, token }, ctx) => {
     const [quote] = await ctx.db.quotes({ where: { id: quoteId, token } }).$fragment(`
