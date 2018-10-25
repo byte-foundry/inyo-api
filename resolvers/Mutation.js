@@ -673,7 +673,7 @@ const Mutation = {
     }
   },
   acceptQuote: async (parent, { id, token }, ctx) => {
-    const quote = await ctx.db.quote({ id, where: { token } });
+    const quote = await ctx.db.quote({where: {id, token } });
 
     if (!quote || quote.status !== 'SENT') {
       throw new Error(`No quote with id '${id}' has been found`);
@@ -688,8 +688,8 @@ const Mutation = {
 
     return result;
   },
-  rejectQuote: async () => {
-    const quote = await ctx.db.quote({ where: { id: quoteId, token } });
+  rejectQuote: async (parent, {id, token}, ctx) => {
+    const quote = await ctx.db.quote({ where: { id, token } });
 
     if (quote.status !== 'SENT') {
       throw new Error('This quote has already been verified.');
