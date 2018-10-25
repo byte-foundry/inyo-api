@@ -432,6 +432,13 @@ const Mutation = {
     const {sections} = item.section.option;
     const {quote} = item.section.option;
     const {customer} = quote;
+	  const sectionsToSend = sections.map(
+			section => section.items
+			  .filter(item => item.status === 'PENDING')
+			  .map(item => ({
+				name: item.name,
+				unit: item.unit,
+			  })));
 
 	  try {
 		await sendTaskValidationEmail({
@@ -440,16 +447,10 @@ const Mutation = {
 		  customerName: String(customer.firstName + ' ' + customer.lastName).trim(),
 		  projectName: quote.name,
 		  itemName: item.name,
-		  sections: sections.map(
-			section => section.items
-			  .filter(item => item.status === 'PENDING')
-			  .map(item => ({
-				name: item.name,
-				unit: item.unit,
-			  })),
-		  ),
+		  sections: sectionsToSend,
 		  quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
 		});
+		  console.log(sectionsToSend);
 		  console.log(`${Date.now().toLocaleString('fr-FR')}: Task validation email sent to ${customer.email}`);
 	  }
 	  catch (error) {
@@ -536,7 +537,7 @@ const Mutation = {
 			  user: String(user.firstName + ' ' + user.lastName).trim(),
 			  customerName: String(quote.customer.firstName + ' ' + quote.customer.lastName).trim(),
 			  projectName: quote.name,
-			  quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
+			  quoteUrl: `${inyoQuoteBaseUrl}/app/quotes/${quote.id}/view/${quote.token}`,
 			  items,
 			});
 		  console.log(`${Date.now().toLocaleString('fr-FR')}: Amendment Email sent to ${quote.customer.email}`);
