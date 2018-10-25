@@ -713,7 +713,7 @@ const Mutation = {
       throw new Error('This quote has already been verified.');
     }
 
-    return ctx.db.updateQuote({
+    const result = ctx.db.updateQuote({
       where: {id},
       data: {status: 'REJECTED'},
     })
@@ -735,6 +735,7 @@ const Mutation = {
 	  }
 
     sendMetric({metric: 'inyo.quote.rejected'});
+	  return result;
   },
   acceptAmendment: async (parent, { quoteId, token }, ctx) => {
     const [quote] = await ctx.db.quotes({ where: { id: quoteId, token } }).$fragment(`
