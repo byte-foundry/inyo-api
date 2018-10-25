@@ -85,4 +85,6 @@ async function setupQuoteReminderEmail({
 module.exports = {
   sendQuoteEmail,
   setupQuoteReminderEmail,
+	sendAcceptedQuoteEmail,
+	sendRejectedQuoteEmail,
 }
