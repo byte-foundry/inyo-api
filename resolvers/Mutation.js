@@ -356,10 +356,10 @@ const Mutation = {
       user: `${user.firstName} ${user.lastName}`,
       quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
     });
-		  console.log(`${Date.now().toISOString()}: Quote Email sent to ${quote.customer.email}`);
+		  console.log(`${new Date().toISOString()}: Quote Email sent to ${quote.customer.email}`);
 	}
 	catch (error) {
-		  console.log(`${Date.now().toISOString()}: Quote Email not sent with error ${error}`);
+		  console.log(`${new Date().toISOString()}: Quote Email not sent with error ${error}`);
 	}
 
     try {
@@ -372,10 +372,10 @@ const Mutation = {
       quoteId: quote.id,
       quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
     }, ctx);
-		  console.log(`${Date.now().toISOString()}: Quote reminder setup finished`);
+		  console.log(`${new Date().toISOString()}: Quote reminder setup finished`);
 	}
 	catch (error) {
-		  console.log(`${Date.now().toISOString()}: Quote reminder setup errored with error ${error}`);
+		  console.log(`${new Date().toISOString()}: Quote reminder setup errored with error ${error}`);
 	}
 
     // send mail with token
@@ -452,10 +452,10 @@ const Mutation = {
 		  ).filter(section => section.timeLeft > 0),
 		  quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
 		});
-		  console.log(`${Date.now().toISOString()}: Task validation email sent to ${customer.email}`);
+		  console.log(`${new Date().toISOString()}: Task validation email sent to ${customer.email}`);
 	  }
 	  catch (error) {
-		  console.log(`${Date.now().toISOString()}: Task validation email not because with error ${error}`);
+		  console.log(`${new Date().toISOString()}: Task validation email not because with error ${error}`);
 	  }
 
     sendMetric({metric: 'inyo.item.validated'});
@@ -541,10 +541,10 @@ const Mutation = {
 			  quoteUrl: `${inyoQuoteBaseUrl}/app/quotes/${quote.id}/view/${quote.token}`,
 			  items,
 			});
-		  console.log(`${Date.now().toISOString()}: Amendment Email sent to ${quote.customer.email}`);
+		  console.log(`${new Date().toISOString()}: Amendment Email sent to ${quote.customer.email}`);
 	  }
 	  catch (error) {
-		  console.log(`${Date.now().toISOString()}: Amendment Email not sent with error ${error}`);
+		  console.log(`${new Date().toISOString()}: Amendment Email not sent with error ${error}`);
 	  }
 
 	  try {
@@ -556,10 +556,10 @@ const Mutation = {
 		  quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
 		  items,
 		}, ctx);
-		  console.log(`${Date.now().toISOString()}: Amendment reminder setup finished with id`);
+		  console.log(`${new Date().toISOString()}: Amendment reminder setup finished with id`);
 	  }
 	  catch (error) {
-		  console.log(`${Date.now().toISOString()}: Amendment reminder not setup with error ${error}`);
+		  console.log(`${new Date().toISOString()}: Amendment reminder not setup with error ${error}`);
 	  }
 
     sendMetric({metric: 'inyo.amendment.sent'});
@@ -679,10 +679,10 @@ const Mutation = {
 			  quoteUrl: `${inyoQuoteBaseUrl}/quote/${quote.id}/see`,
 		  });
 
-		  console.log(`${Date.now().toISOString()}: Acceptance quote email sent to ${user.email}`);
+		  console.log(`${new Date().toISOString()}: Acceptance quote email sent to ${user.email}`);
 	  }
 	  catch(error) {
-		  console.log(`${Date.now().toISOString()}: Acceptance quote email not sent with error ${error}`);
+		  console.log(`${new Date().toISOString()}: Acceptance quote email not sent with error ${error}`);
 	  }
 
     sendMetric({metric: 'inyo.quote.accepted'});
@@ -728,10 +728,10 @@ const Mutation = {
 			  quoteUrl: `${inyoQuoteBaseUrl}/quote/${quote.id}/see`,
 		  });
 
-		  console.log(`${Date.now().toISOString()}: Rejection quote email sent to ${user.owner.email}`);
+		  console.log(`${new Date().toISOString()}: Rejection quote email sent to ${user.owner.email}`);
 	  }
 	  catch(error) {
-		  console.log(`${Date.now().toISOString()}: Rejection quote email not sent with error ${error}`);
+		  console.log(`${new Date().toISOString()}: Rejection quote email not sent with error ${error}`);
 	  }
 
     sendMetric({metric: 'inyo.quote.rejected'});
