@@ -4,7 +4,7 @@ const moment = require('moment');
 
 
 async function sendQuoteEmail({email, user, customerName, projectName, quoteUrl}) {
-    return sendEmail({email, data: {user, customerName, projectName}, templateId: 'd-5055ed1a146348d9bd8cc440bf1160d8'});
+    return sendEmail({email, data: {user, customerName, projectName, quoteUrl}, templateId: 'd-5055ed1a146348d9bd8cc440bf1160d8'});
 }
 
 async function setupQuoteReminderEmail({
@@ -69,7 +69,7 @@ async function setupQuoteReminderEmail({
       });
     }
     catch (errors) {
-      //Here we should do something to store the errors 
+      //Here we should do something to store the errors
     }
   });
 }
