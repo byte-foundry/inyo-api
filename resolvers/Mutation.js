@@ -639,7 +639,7 @@ const Mutation = {
     }
 
     const result = await ctx.db.updateQuote({
-      id,
+      where: {id},
       status: 'ACCEPTED',
     })
 
@@ -655,7 +655,7 @@ const Mutation = {
     }
 
     return ctx.db.updateQuote({
-      id,
+      where: {id},
       status: 'REJECTED',
     })
   },
