@@ -116,6 +116,9 @@ type Quote {
   issuedAt: DateTime
   createdAt: DateTime!
   updatedAt: DateTime!
+
+  acceptedQuotesLogs: [Log!]! @relation(name: "AcceptedQuotesLogs")
+  acceptedAmendmentsLogs: [Log!]! @relation(name: "AcceptedAmendmentsLogs")
 }
 
 type Company {
@@ -154,4 +157,12 @@ type Reminder {
   type: ReminderType!
   sendingDate: DateTime!
   status: ReminderStatus @default(value: PENDING)
+}
+
+type Log {
+  ip: String!
+
+  acceptedQuotes: [Quote!]! @relation(name: "AcceptedQuotesLogs")
+  acceptedAmendments: [Quote!]! @relation(name: "AcceptedAmendmentsLogs")
+  createdAt: DateTime!
 }

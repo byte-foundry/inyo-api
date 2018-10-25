@@ -664,9 +664,14 @@ const Mutation = {
       throw new Error(`No quote with id '${id}' has been found`);
     }
 
-    const result = await ctx.db.updateQuote({
-      where: {id},
-      data: {status: 'ACCEPTED'},
+	const result = await ctx.db.updateQuote({
+		where: { id },
+		data: {
+			status: 'ACCEPTED',
+			acceptedQuotesLogs: {
+				create: { ip: ctx.ip },
+			},
+		},
     })
 
 	  const user = quote.customer.serviceCompany.owner;
@@ -776,6 +781,13 @@ const Mutation = {
         pendingUnit: null,
       },
     });
+
+	ctx.db.createLog({
+		ip: ctx.ip,
+		acceptedAmendment: {
+			connect: { id: quote.id },
+		},
+	});
 
     return ctx.db.quote({ id: quoteId });
   },

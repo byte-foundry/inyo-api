@@ -10,9 +10,14 @@ const server = new GraphQLServer({
   typeDefs: 'schema.graphql',
   resolvers,
   context: req => {
+    const { request } = req;
+	const xForwardedFor = (request.headers['x-forwarded-for'] || '').replace(/:\d+$/, '');
+	const ip = xForwardedFor || request.connection.remoteAddress;
+
     return {
       ...req,
       db: prisma,
+	  ip,
     }
   },
 })
