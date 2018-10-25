@@ -33,7 +33,7 @@ type Mutation {
 
   # Add section to one of the quote's option
   addSection(optionId: ID!, name: String!, items: [ItemInput!]): Section!
-  # Update 
+  # Update
   updateSection(id: ID!, name: String!): Section
   # Remove section
   removeSection(id: ID!): Section
@@ -168,6 +168,8 @@ enum ItemStatus {
   FINISHED
   UPDATED
   UPDATED_SENT
+  ADDED
+  ADDED_SENT
 }
 
 union Author = User | Customer

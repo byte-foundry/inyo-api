@@ -219,17 +219,27 @@ const Mutation = {
     return ctx.db.deleteSection({ id });
   },
   addItem: async (parent, { sectionId, name, description, unitPrice, unit, vatRate }, ctx) => {
-    const sections = await ctx.db.user({ id: getUserId(ctx) }).company().customers().quotes().options().sections({ where: { id: sectionId } });
+	const [section] = await ctx.db.sections({ where: {
+		id: sectionId,
+		option: {
+			quote: {
+				issuer: {
+					owner: { id: getUserId(ctx) },
+				},
+			},
+		},
+	}  });
 
-    if (!sections.length) {
+    if (section) {
       throw new Error(`No section with id '${sectionId}' has been found`);
-    }
+	}
 
     return ctx.db.createItem({
       section: {
         connect: { id: sectionId },
       },
-      name,
+	  name,
+	  status: quote.status === 'ACCEPTED' ? 'ADDED' : 'PENDING',
       description,
       unitPrice,
       unit,
@@ -301,7 +311,7 @@ const Mutation = {
       where: { id },
       data: {
         pendingUnit: unit,
-        status: 'UPDATED',
+        status: item.status === 'ADDED' ? 'ADDED' : 'UPDATED',
         comments: {
           create: {
             text: comment.text,
@@ -473,7 +483,13 @@ const Mutation = {
         }
         options {
           sections {
-            items(where: { status: UPDATED }) {
+            items(where: {
+				OR: [{
+					status: ADDED
+				}, {
+					status: UPDATED
+				}]
+			}) {
               id
               name
               unit
@@ -514,8 +530,17 @@ const Mutation = {
     ), []);
 
     await ctx.db.updateManyItems({
+		where: {
+		  id_in: items.filter(item => item.status === 'ADDED').map(item => item.id),
+		},
+		data: {
+		  status: 'ADDED_SENT',
+		},
+	});
+
+    await ctx.db.updateManyItems({
       where: {
-        id_in: items.map(item => item.id),
+        id_in: items.filter(item => item.status === 'UPDATED').map(item => item.id),
       },
       data: {
         status: 'UPDATED_SENT',
@@ -578,20 +603,32 @@ const Mutation = {
 
     if (!item) {
       throw new Error(`No item with id '${id}' has been found`);
-    }
+	}
 
-    if (item.status !== 'UPDATED_SENT' || item.section.option.quote.status !== 'ACCEPTED') {
-      throw new Error(`Item '${id}' cannot be updated in this item or quote state.`);
-    }
+	if (item.section.option.quote.status !== 'ACCEPTED') {
+		throw new Error(`Item '${id}' cannot be updated in this quote state.`);
+	}
 
-    const result = await ctx.db.updateItem({
-      where: { id },
-      data: {
-        status: 'PENDING',
-        unit: item.pendingUnit,
-        pendingUnit: null,
-      },
-    });
+	let result;
+	if (item.status === 'ADDED_SENT') {
+		result = await ctx.db.updateItem({
+			where: { id },
+			data: { status: 'PENDING' },
+		});
+	}
+	else if (item.status === 'UPDATED_SENT') {
+		result = await ctx.db.updateItem({
+			where: { id },
+			data: {
+				status: 'PENDING',
+				unit: item.pendingUnit,
+				pendingUnit: null,
+			},
+		});
+	}
+	else {
+		throw new Error(`Item '${id}' cannot be updated in this state.`);
+    }
 
     sendMetric({metric: 'inyo.item.accepted'});
 
@@ -615,21 +652,25 @@ const Mutation = {
       }
     `);
 
-    if (!item) {
-      throw new Error(`No item with id '${id}' has been found`);
-    }
+	if (item.section.option.quote.status !== 'ACCEPTED') {
+		throw new Error(`Item '${id}' cannot be updated in this quote state.`);
+	}
 
-    if (item.status !== 'UPDATED_SENT' || item.section.option.quote.status !== 'ACCEPTED') {
-      throw new Error(`Item '${id}' cannot be updated in this item or quote state.`);
+	if (item.status === 'ADDED_SENT') {
+		return await ctx.db.removeItem({ id });
+	}
+	else if (item.status === 'UPDATED_SENT') {
+		return await ctx.db.updateItem({
+			where: { id },
+			data: {
+				status: 'PENDING',
+				pendingUnit: null,
+			},
+		});
+	}
+	else {
+		throw new Error(`Item '${id}' cannot be updated in this state.`);
     }
-
-    return ctx.db.updateItem({
-      where: { id },
-      data: {
-        status: 'PENDING',
-        pendingUnit: null,
-      },
-    });
   },
   acceptQuote: async (parent, { id, token }, ctx) => {
     const quote = await ctx.db.quote({ id, where: { token } });

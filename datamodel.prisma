@@ -42,6 +42,8 @@ enum ItemStatus {
   FINISHED
   UPDATED
   UPDATED_SENT
+  ADDED
+  ADDED_SENT
 }
 
 enum ReminderType {
