@@ -602,18 +602,7 @@ const Mutation = {
     });
   },
   acceptQuote: async (parent, { id, token }, ctx) => {
-    const quote = await ctx.db.quote({ id, where: { token } }).$fragment(`
-      fragment quoteWithItem on Quote {
-        status
-        options {
-          sections {
-            items {
-              id
-            }
-          }
-        }
-      }
-    `)
+    const quote = await ctx.db.quote({ id, where: { token } });
 
     if (!quote || quote.status !== 'SENT') {
       throw new Error(`No quote with id '${id}' has been found`);
@@ -629,7 +618,7 @@ const Mutation = {
     return result;
   },
   rejectQuote: async () => {
-    const quote = ctx.db.quote({ id, where: { token } })
+    const quote = await ctx.db.quote({ where: { id: quoteId, token } });
 
     if (quote.status !== 'SENT') {
       throw new Error('This quote has already been verified.');
@@ -639,6 +628,82 @@ const Mutation = {
       id,
       status: 'REJECTED',
     })
+  },
+  acceptAmendment: async (parent, { quoteId }, ctx) => {
+    const [quote] = await ctx.db.quotes({ where: { id: quoteId, token } }).$fragment(`
+      fragment quoteWithItem on Quote {
+        status
+        options {
+          sections {
+            items {
+              id
+              pendingUnit
+            }
+          }
+        }
+      }
+    `);
+
+    if (!quote) {
+      throw new Error(`Quote '${id}' has not been found.`)
+    }
+
+    if (quote.status !== 'ACCEPTED') {
+      throw new Error(`Quote '${id}' cannot be updated in this state.`);
+    }
+
+    const items = quote.options.reduce((ids, option) => ids.concat(
+      option.sections.reduce((ids, section) => ids.concat(
+        section.items.map(item => item.id)
+      ), []),
+    ), []);
+
+    await ctx.db.updateManyItems({
+      where: {
+        id_in: items.map(item => item.id),
+      },
+      data: {
+        status: 'PENDING',
+        unit: items.map(item => item.pendingUnit),
+        pendingUnit: null,
+      },
+    });
+
+    return ctx.db.quote({ id: quoteId });
+  },
+  rejectAmendment: async (parent, { quoteId, token }, ctx) => {
+    const [quote] = await ctx.db.quotes({ where: { id: quoteId, token } }).$fragment(`
+      fragment quoteWithItem on Quote {
+        status
+        options {
+          sections {
+            items {
+              id
+            }
+          }
+        }
+      }
+    `);
+
+    if (!quote) {
+      throw new Error(`Quote '${id}' has not been found.`)
+    }
+
+    if (quote.status !== 'ACCEPTED') {
+      throw new Error(`Quote '${quoteId}' cannot be rejected in this state.`);
+    }
+
+    await ctx.db.updateManyItems({
+      where: {
+        id_in: items.map(item => item.id),
+      },
+      data: {
+        status: 'PENDING',
+        pendingUnit: null,
+      },
+    });
+
+    return ctx.db.quote({ id: quoteId });
   },
 }
 

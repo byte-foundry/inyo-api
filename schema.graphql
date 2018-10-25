@@ -61,6 +61,10 @@ type Mutation {
   rejectItem(id: ID!, token: String!): Item!
   # Customer can reject invoice, SENT -> REJECTED
   rejectQuote(id: ID!, token: String!): Quote!
+  # Accept amendment, all items goes UPDATED_SENT -> PENDING, pendingUnit becomes unit
+  acceptAmendment(quoteId: ID!, token: String!): Quote
+  # Reject amendment, all items goes UPDATED_SENT -> PENDING
+  rejectAmendment(quoteId: ID!, token: String!): Quote
 }
 
 input CommentInput {
