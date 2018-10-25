@@ -434,14 +434,17 @@ const Mutation = {
     const {customer} = quote;
 
 	  const sectionsTosend = sections.map(
-			section => {return section.items
+		  section => {
+			  console.log(section.itms);
+			  return section.items
 			  .filter(item => item.status === 'PENDING')
 			  .map(item => {
+				  console.log(item);
 				  return {
 					name: item.name,
 					unit: item.unit,
 				  }
-			  });
+			  }),
 			});
 	  try {
 		await sendTaskValidationEmail({
@@ -453,8 +456,6 @@ const Mutation = {
 		  sections: sectionsTosend,
 		  quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
 		});
-		  console.log(sectionsTosend);
-		  console.log(sections);
 		  console.log(`${Date.now().toLocaleString('fr-FR')}: Task validation email sent to ${customer.email}`);
 	  }
 	  catch (error) {
