@@ -444,7 +444,7 @@ const Mutation = {
 					name: item.name,
 					unit: item.unit,
 				  }
-			  }),
+			  });
 			});
 	  try {
 		await sendTaskValidationEmail({
