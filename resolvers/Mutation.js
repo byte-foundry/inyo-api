@@ -433,14 +433,7 @@ const Mutation = {
     const {quote} = item.section.option;
     const {customer} = quote;
 
-	  try {
-		await sendTaskValidationEmail({
-		  email: customer.email,
-		  user: String(user.firstName + ' ' + user.lastName).trim(),
-		  customerName: String(customer.firstName + ' ' + customer.lastName).trim(),
-		  projectName: quote.name,
-		  itemName: item.name,
-		  sections: sections.map(
+	  const sectionsTosend = sections.map(
 			section => section.items
 			  .filter(item => item.status === 'PENDING')
 			  .map(item => {
@@ -449,9 +442,18 @@ const Mutation = {
 					unit: item.unit,
 				  }
 			  }),
-		  ),
+		  );
+	  try {
+		await sendTaskValidationEmail({
+		  email: customer.email,
+		  user: String(user.firstName + ' ' + user.lastName).trim(),
+		  customerName: String(customer.firstName + ' ' + customer.lastName).trim(),
+		  projectName: quote.name,
+		  itemName: item.name,
+		  sections: sectionsTosend,
 		  quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
 		});
+		  console.log(sectionsTosend);
 		  console.log(`${Date.now().toLocaleString('fr-FR')}: Task validation email sent to ${customer.email}`);
 	  }
 	  catch (error) {
