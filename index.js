@@ -4,6 +4,8 @@ const bodyParser = require('body-parser')
 const { prisma } = require('./generated/prisma-client')
 const { resolvers } = require('./resolvers')
 
+const {sendEmail} = require('./emails/SendEmail.js');
+
 const server = new GraphQLServer({
   typeDefs: 'schema.graphql',
   resolvers,
@@ -22,20 +24,22 @@ server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
   }
 
   const reminder = await ctx.db.reminder({ id: req.body.data.reminderId });
-  
+
   try {
-    sendEmail(req.body.data);
-    ctx.db.updateReminder({
+    await sendEmail(req.body.data);
+    await ctx.db.updateReminder({
       where: { id: reminder.id },
       status: 'SENT',
     });
+	  console.log(`${new Date().toISOString()}: Reminder with id ${reminder.id} sent`);
     res.status(204).send();
   }
   catch (error) {
-    ctx.db.updateReminder({
+    await ctx.db.updateReminder({
       where: { id: reminder.id },
       status: 'ERROR',
     });
+	  console.log(`${new Date().toISOString()}: Reminder with id ${reminder.id} not sent with error ${error}`);
     res.status(500).send({
       message: 'Something wrong happened!',
     });

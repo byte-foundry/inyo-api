@@ -676,7 +676,7 @@ const Mutation = {
 			  user: `${user.firstName} ${user.lastName}`,
 			  customerName: `${quote.customer.firstName} ${quote.customer.lastName}`,
 			  projectName: quote.name,
-			  quoteUrl: `${inyoQuoteBaseUrl}/quote/${quote.id}/see`,
+			  quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/see`,
 		  });
 
 		  console.log(`${new Date().toISOString()}: Acceptance quote email sent to ${user.email}`);
@@ -725,7 +725,7 @@ const Mutation = {
 			  user: `${user.firstName} ${user.lastName}`,
 			  customerName: `${quote.customer.firstName} ${quote.customer.lastName}`,
 			  projectName: quote.name,
-			  quoteUrl: `${inyoQuoteBaseUrl}/quote/${quote.id}/see`,
+			  quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/see`,
 		  });
 
 		  console.log(`${new Date().toISOString()}: Rejection quote email sent to ${user.owner.email}`);
