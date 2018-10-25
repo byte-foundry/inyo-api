@@ -348,14 +348,21 @@ const Mutation = {
 
     //sending the quote via sendgrid
     //this use the quote template
-    sendQuoteEmail({
+	try {
+    await sendQuoteEmail({
       email: quote.customer.email,
       customerName: quote.customer.name,
       projectName: quote.name,
       user: `${user.firstName} ${user.lastName}`,
       quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
     });
+		  console.log(`${Date.now().toLocaleString()}: Quote Email sent to ${quote.customer.email}`);
+	}
+	catch (error) {
+		  console.log(`${Date.now().toLocaleString()}: Quote Email not sent with error ${error}`);
+	}
 
+    try {
     setupQuoteReminderEmail({
       email: quote.customer.email,
       customerName: quote.customer.name,
@@ -365,6 +372,11 @@ const Mutation = {
       quoteId: quote.id,
       quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
     }, ctx);
+		  console.log(`${Date.now().toLocaleString()}: Quote reminder setup finished`);
+	}
+	catch (error) {
+		  console.log(`${Date.now().toLocaleString()}: Quote reminder setup errored with error ${error}`);
+	}
 
     // send mail with token
 
