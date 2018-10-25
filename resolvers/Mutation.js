@@ -669,7 +669,7 @@ const Mutation = {
       data: {status: 'ACCEPTED'},
     })
 
-	  const user = quote.customer.serviceCompany.owner.email;
+	  const user = quote.customer.serviceCompany.owner;
 	  try {
 		  await sendAcceptedQuoteEmail({
 			  email: user.email,
@@ -718,7 +718,7 @@ const Mutation = {
       data: {status: 'REJECTED'},
     })
 
-	  const user = quote.customer.serviceCompany.owner.email;
+	  const user = quote.customer.serviceCompany.owner;
 	  try {
 		  await sendRejectedQuoteEmail({
 			  email: user.email,
