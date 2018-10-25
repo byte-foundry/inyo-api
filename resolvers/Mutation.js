@@ -640,7 +640,7 @@ const Mutation = {
 
     const result = await ctx.db.updateQuote({
       where: {id},
-      status: 'ACCEPTED',
+      data: {status: 'ACCEPTED'},
     })
 
     sendMetric({metric: 'inyo.quote.created'});
@@ -656,7 +656,7 @@ const Mutation = {
 
     return ctx.db.updateQuote({
       where: {id},
-      status: 'REJECTED',
+      data: {status: 'REJECTED'},
     })
   },
   acceptAmendment: async (parent, { quoteId, token }, ctx) => {
