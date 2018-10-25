@@ -434,7 +434,7 @@ const Mutation = {
     const {customer} = quote;
 
 	  try {
-		sendTaskValidationEmail({
+		await sendTaskValidationEmail({
 		  email: customer.email,
 		  user: String(user.firstName + ' ' + user.lastName).trim(),
 		  customerName: String(customer.firstName + ' ' + customer.lastName).trim(),
