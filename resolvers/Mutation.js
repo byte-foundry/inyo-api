@@ -448,7 +448,7 @@ const Mutation = {
 				unit: item.unit,
 			  })),
 		  ),
-		  quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
+		  quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
 		});
 		  console.log(`${Date.now().toLocaleString('fr-FR')}: Task validation email sent to ${customer.email}`);
 	  }
