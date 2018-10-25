@@ -2,20 +2,14 @@ const { hash, compare } = require('bcrypt')
 const { sign } = require('jsonwebtoken')
 const uuid = require('uuid/v4')
 const moment = require('moment');
-const StatsD = require('hot-shots');
 
 const { APP_SECRET, getUserId } = require('../utils')
+const { sendMetric } = require('../stats');
 const {sendQuoteEmail, setupQuoteReminderEmail} = require('../emails/QuoteEmail');
 const {sendTaskValidationEmail} = require('../emails/TaskEmail');
 const sendAmendmentEmail = () => {};
 
 const inyoQuoteBaseUrl = 'https://app.inyo.com/app/quotes';
-const stats = new StatsD();
-
-stats.socket.on('error', function (exception) {
-   return console.log ("error event in socket.send(): " + exception);
-});
-
 
 const Mutation = {
   signup: async (parent, { email, password, firstName, lastName, company = {}}, ctx) => {
@@ -33,7 +27,7 @@ const Mutation = {
       },
     });
 
-    stats.increment('inyo.user.created');
+    sendMetric({metric: 'inyo.user.created'});
 
     return {
       token: sign({ userId: user.id }, APP_SECRET),
@@ -142,7 +136,7 @@ const Mutation = {
       status: 'DRAFT',
     })
 
-    stats.increment('inyo.quote.created');
+    sendMetric({metric: 'inyo.quote.created'});
 
     return result;
   },
@@ -319,7 +313,7 @@ const Mutation = {
       },
     });
 
-    stats.increment('inyo.item.updated');
+    sendMetric({metric: 'inyo.item.updated'});
 
     return result;
   },
@@ -343,7 +337,7 @@ const Mutation = {
         }
       }
     `);
-    
+
     if (!quote) {
       throw new Error(`No quote '${id}' has been found`);
     }
@@ -374,7 +368,7 @@ const Mutation = {
 
     // send mail with token
 
-    stats.increment('inyo.quote.sent');
+    sendMetric({metric: 'inyo.quote.sent'});
 
     return ctx.db.updateQuote({
       where: { id },
@@ -444,7 +438,7 @@ const Mutation = {
       quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
     });
 
-    stats.increment('inyo.item.validated');
+    sendMetric({metric: 'inyo.item.validated'});
 
     return ctx.db.updateItem({
       where: { id },
@@ -514,8 +508,8 @@ const Mutation = {
       },
     });
 
-    items.forEach(() => stats.increment('inyo.item.updated_sent'));
-    
+    sendMetric({metric: 'inyo.item.updated_sent', count: items.length});
+
     sendAmendmentEmail({
       email: quote.customer.email,
       user: String(user.firstName + ' ' + user.lastName).trim(),
@@ -524,7 +518,7 @@ const Mutation = {
       items,
     });
 
-    stats.increment('inyo.amendment.sent');
+    sendMetric({metric: 'inyo.amendment.sent'});
 
     return ctx.db.quote({ id: quoteId });
   },
@@ -563,7 +557,7 @@ const Mutation = {
       },
     });
 
-    stats.increment('inyo.item.accepted');
+    sendMetric({metric: 'inyo.item.accepted'});
 
     return result;
   },
@@ -613,7 +607,7 @@ const Mutation = {
       status: 'ACCEPTED',
     })
 
-    stats.increment('inyo.quote.created');
+    sendMetric({metric: 'inyo.quote.created'});
 
     return result;
   },

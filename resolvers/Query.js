@@ -1,8 +1,5 @@
-const StatsD = require('hot-shots');
-
+const { sendMetric } = require('../stats');
 const { getUserId } = require('../utils')
-
-const stats = new StatsD();
 
 const Query = {
   me: (root, args, ctx) => ctx.db.user({ id: getUserId(ctx) }),
@@ -16,17 +13,17 @@ const Query = {
         return null;
       }
 
-      stats.increment('inyo.quote.viewed.total');
+      sendMetric({metric: 'inyo.quote.viewed.total'});
 
       if (quote.viewedByCustomer) {
         await ctx.db.updateQuote({
           where: { id },
           data: { viewedByCustomer: true },
         });
-  
+
         quote.viewedByCustomer = true;
 
-        stats.increment('inyo.quote.viewed.unique');
+        sendMetric({metric: 'inyo.quote.viewed.unique'});
       }
 
       return quote;
