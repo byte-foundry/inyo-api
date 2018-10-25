@@ -61,6 +61,6 @@ async function setupAmendmentReminderEmail({
 }
 
 module.exports = {
-  sendQuoteEmail,
-  setupQuoteReminderEmail,
+  sendAmendmentEmail,
+  setupAmendmentReminderEmail,
 }
