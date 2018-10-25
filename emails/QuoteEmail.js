@@ -26,27 +26,27 @@ async function setupQuoteReminderEmail({
   const endDate = moment(issueDate).add(3, 'months');
   const dates = [
     /*after10days*/{
-      date: moment(issueDate).add(10, 'days'),
+      date: moment(issueDate).add(1, 'minutes'),
       templateId: 'd-8228bc7ebb18488baf2e850a54268e23',
       reminderType: 'QUOTE_AFTER_10_DAYS',
     },
-    /*after15days*/{
-      date: moment(issueDate).add(15, 'days'),
+    /*after15minutes*/{
+      date: moment(issueDate).add(2, 'minutes'),
       templateId: 'd-a1bc360655554aea9f3af64024865c54',
       reminderType: 'QUOTE_AFTER_15_DAYS',
     },
-    /*after20days*/{
-      date: moment(issueDate).add(20, 'days'),
+    /*after20minutes*/{
+      date: moment(issueDate).add(3, 'minutes'),
       templateId: 'd-fd44a9b741854602b967d1a56e792f5d',
       reminderType: 'QUOTE_AFTER_20_DAYS',
     },
     /*fiveDaysLeft*/{
-      date: moment(endDate).subtract(5, 'days'),
+      date: moment(endDate).subtract(4, 'minutes'),
       templateId: 'd-7d05e3c2c619442585b31c4facdd8524',
       reminderType: 'QUOTE_5_DAYS_LEFT',
     },
     /*twoDaysLeft*/{
-      date: moment(endDate).subtract(2, 'days'),
+      date: moment(endDate).subtract(5, 'minutes'),
       templateId: 'd-12dd15d3e7604ed99442d9cc1785f18a',
       reminderType: 'QUOTE_2_DAYS_LEFT',
     },
