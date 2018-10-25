@@ -435,7 +435,7 @@ const Mutation = {
 
 	  const sectionsTosend = sections.map(
 		  section => {
-			  console.log(section.itms);
+			  console.log(section.items);
 			  return section.items
 			  .filter(item => item.status === 'PENDING')
 			  .map(item => {
