@@ -449,7 +449,7 @@ const Mutation = {
 					  .filter(item => item.status === 'PENDING')
 					  .reduce((acc, item) => acc + item.unit, 0),
 			  }),
-		  ),
+		  ).filter(section => section.timeLeft > 0),
 		  quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
 		});
 		  console.log(`${Date.now().toLocaleString('fr-FR')}: Task validation email sent to ${customer.email}`);
