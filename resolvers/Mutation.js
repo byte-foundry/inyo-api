@@ -640,7 +640,25 @@ const Mutation = {
     });
   },
   acceptQuote: async (parent, { id, token }, ctx) => {
-    const [quote] = await ctx.db.quotes({where: {id, token } });
+    const [quote] = await ctx.db.quotes({where: {id, token } }).$fragment(`
+      fragment CustomerUserWithQuote on Quote {
+        status
+		id
+		name
+		customer {
+			serviceCompany {
+				owner {
+					firstName
+					lastName
+					email
+				}
+			}
+			firstName
+			lastName
+		}
+      }
+    `);
+;
 
     if (!quote || quote.status !== 'SENT') {
       throw new Error(`No quote with id '${id}' has been found`);
@@ -651,7 +669,7 @@ const Mutation = {
       data: {status: 'ACCEPTED'},
     })
 
-	  const user = quote.customer.serviceCompany.owner.email;
+	  const user = await quote.customer.serviceCompany.owner.email;
 	  try {
 		  await sendAcceptedQuoteEmail({
 			  email: user.email,
@@ -672,7 +690,24 @@ const Mutation = {
     return result;
   },
   rejectQuote: async (parent, {id, token}, ctx) => {
-    const [quote] = await ctx.db.quotes({ where: { id, token } });
+    const [quote] = await ctx.db.quotes({ where: { id, token } }).$fragment(`
+      fragment CustomerUserWithQuote on Quote {
+        status
+		id
+		name
+		customer {
+			serviceCompany {
+				owner {
+					firstName
+					lastName
+					email
+				}
+			}
+			firstName
+			lastName
+		}
+      }
+    `);
 
     if (quote.status !== 'SENT') {
       throw new Error('This quote has already been verified.');
