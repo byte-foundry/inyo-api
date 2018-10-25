@@ -651,7 +651,7 @@ const Mutation = {
       data: {status: 'ACCEPTED'},
     })
 
-	  const user = quote.issuer.owner.email;
+	  const user = quote.customer.serviceCompany.owner.email;
 	  try {
 		  await sendAcceptedQuoteEmail({
 			  email: user.email,
@@ -661,7 +661,7 @@ const Mutation = {
 			  quoteUrl: `${inyoQuoteBaseUrl}/quote/${quote.id}/see`,
 		  });
 
-		  console.log(`${Date.now().dateString}: Acceptance quote email sent to ${quote.issuer.owner.email}`);
+		  console.log(`${Date.now().dateString}: Acceptance quote email sent to ${user.email}`);
 	  }
 	  catch(error) {
 		  console.log(`${Date.now().dateString}: Acceptance quote email not sent with error ${error}`);
@@ -683,7 +683,7 @@ const Mutation = {
       data: {status: 'REJECTED'},
     })
 
-	  const user = quote.issuer.owner.email;
+	  const user = quote.customer.serviceCompany.owner.email;
 	  try {
 		  await sendRejectedQuoteEmail({
 			  email: user.email,
@@ -693,7 +693,7 @@ const Mutation = {
 			  quoteUrl: `${inyoQuoteBaseUrl}/quote/${quote.id}/see`,
 		  });
 
-		  console.log(`${Date.now().dateString}: Rejection quote email sent to ${quote.issuer.owner.email}`);
+		  console.log(`${Date.now().dateString}: Rejection quote email sent to ${user.owner.email}`);
 	  }
 	  catch(error) {
 		  console.log(`${Date.now().dateString}: Rejection quote email not sent with error ${error}`);
