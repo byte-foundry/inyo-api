@@ -405,6 +405,7 @@ const Mutation = {
         section {
           option {
             sections {
+				name
               items {
                 name
                 unit
@@ -442,12 +443,12 @@ const Mutation = {
 		  projectName: quote.name,
 		  itemName: item.name,
 		  sections: sections.map(
-			section => section.items
-			  .filter(item => item.status === 'PENDING')
-			  .map(item => ({
-				name: item.name,
-				unit: item.unit,
-			  })),
+			  section => ({
+				  name: section.name,
+				  timeLeft: section.items
+					  .filter(item => item.status === 'PENDING')
+					  .reduce((acc, item) => acc + item.unit, 0),
+			  }),
 		  ),
 		  quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
 		});
