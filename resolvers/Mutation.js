@@ -2,7 +2,7 @@ const { hash, compare } = require('bcrypt')
 const { sign } = require('jsonwebtoken')
 const uuid = require('uuid/v4')
 const moment = require('moment');
-const { StatsD } = require('node-dogstatsd');
+const StatsD = require('hot-shots');
 
 const { APP_SECRET, getUserId } = require('../utils')
 const {sendQuoteEmail, setupQuoteReminderEmail} = require('../emails/QuoteEmail');
@@ -11,6 +11,11 @@ const sendAmendmentEmail = () => {};
 
 const inyoQuoteBaseUrl = 'https://app.inyo.com/app/quotes';
 const stats = new StatsD();
+
+stats.socket.on('error', function (exception) {
+   return console.log ("error event in socket.send(): " + exception);
+});
+
 
 const Mutation = {
   signup: async (parent, { email, password, firstName, lastName, company = {}}, ctx) => {

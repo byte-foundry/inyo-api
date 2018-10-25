@@ -1,4 +1,4 @@
-const { StatsD } = require('node-dogstatsd');
+const StatsD = require('hot-shots');
 
 const { getUserId } = require('../utils')
 
