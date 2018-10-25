@@ -7,7 +7,7 @@ const { APP_SECRET, getUserId } = require('../utils')
 const { sendMetric } = require('../stats');
 const {sendQuoteEmail, setupQuoteReminderEmail} = require('../emails/QuoteEmail');
 const {sendTaskValidationEmail} = require('../emails/TaskEmail');
-const sendAmendmentEmail = () => {};
+const {sendAmendmentEmail, setupAmendmentReminderEmail} = require('../emails/AmendmentEmail');
 
 const inyoQuoteBaseUrl = 'https://app.inyo.com/app/quotes';
 
@@ -451,6 +451,8 @@ const Mutation = {
     const user = await ctx.db.user({ id: getUserId(ctx) });
     const quote = await ctx.db.quote({ id: quoteId }).$fragment(`
       fragment quoteWithItems on Quote {
+	    id
+	    token
         status
         customer {
           email
@@ -510,13 +512,35 @@ const Mutation = {
 
     sendMetric({metric: 'inyo.item.updated_sent', count: items.length});
 
-    sendAmendmentEmail({
-      email: quote.customer.email,
-      user: String(user.firstName + ' ' + user.lastName).trim(),
-      customerName: String(quote.customer.firstName + ' ' + quote.customer.lastName).trim(),
-      projectName: quote.name,
-      items,
-    });
+	  try {
+		  await sendAmendmentEmail({
+			  email: quote.customer.email,
+			  user: String(user.firstName + ' ' + user.lastName).trim(),
+			  customerName: String(quote.customer.firstName + ' ' + quote.customer.lastName).trim(),
+			  projectName: quote.name,
+			  quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
+			  items,
+			});
+		  console.log(`${Date.now().toLocaleString()}: Amendment Email sent to ${quote.customer.email}`);
+	  }
+	  catch (error) {
+		  console.log(`${Date.now().toLocaleString()}: Amendment Email not sent with error ${error}`);
+	  }
+
+	  try {
+		await setupAmendmentReminderEmail({
+		  email: quote.customer.email,
+		  user: String(user.firstName + ' ' + user.lastName).trim(),
+		  customerName: String(quote.customer.firstName + ' ' + quote.customer.lastName).trim(),
+		  projectName: quote.name,
+		  quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
+		  items,
+		}, ctx);
+		  console.log(`${Date.now().toLocaleString()}: Amendment reminder setup finished with id`);
+	  }
+	  catch (error) {
+		  console.log(`${Date.now().toLocaleString()}: Amendment reminder not setup with error ${error}`);
+	  }
 
     sendMetric({metric: 'inyo.amendment.sent'});
 
