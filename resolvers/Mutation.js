@@ -356,10 +356,10 @@ const Mutation = {
       user: `${user.firstName} ${user.lastName}`,
       quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
     });
-		  console.log(`${Date.now().toLocaleString()}: Quote Email sent to ${quote.customer.email}`);
+		  console.log(`${Date.now().toLocaleString('fr-FR')}: Quote Email sent to ${quote.customer.email}`);
 	}
 	catch (error) {
-		  console.log(`${Date.now().toLocaleString()}: Quote Email not sent with error ${error}`);
+		  console.log(`${Date.now().toLocaleString('fr-FR')}: Quote Email not sent with error ${error}`);
 	}
 
     try {
@@ -372,10 +372,10 @@ const Mutation = {
       quoteId: quote.id,
       quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
     }, ctx);
-		  console.log(`${Date.now().toLocaleString()}: Quote reminder setup finished`);
+		  console.log(`${Date.now().toLocaleString('fr-FR')}: Quote reminder setup finished`);
 	}
 	catch (error) {
-		  console.log(`${Date.now().toLocaleString()}: Quote reminder setup errored with error ${error}`);
+		  console.log(`${Date.now().toLocaleString('fr-FR')}: Quote reminder setup errored with error ${error}`);
 	}
 
     // send mail with token
@@ -433,22 +433,28 @@ const Mutation = {
     const {quote} = item.section.option;
     const {customer} = quote;
 
-    sendTaskValidationEmail({
-      email: customer.email,
-      user: String(user.firstName + ' ' + user.lastName).trim(),
-      customerName: String(customer.firstName + ' ' + customer.lastName).trim(),
-      projectName: quote.name,
-      itemName: item.name,
-      sections: sections.map(
-        section => section.items
-          .filter(item => item.status === 'PENDING')
-          .map(item => ({
-            name: item.name,
-            unit: item.unit,
-          })),
-      ),
-      quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
-    });
+	  try {
+		sendTaskValidationEmail({
+		  email: customer.email,
+		  user: String(user.firstName + ' ' + user.lastName).trim(),
+		  customerName: String(customer.firstName + ' ' + customer.lastName).trim(),
+		  projectName: quote.name,
+		  itemName: item.name,
+		  sections: sections.map(
+			section => section.items
+			  .filter(item => item.status === 'PENDING')
+			  .map(item => ({
+				name: item.name,
+				unit: item.unit,
+			  })),
+		  ),
+		  quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
+		});
+		  console.log(`${Date.now().toLocaleString('fr-FR')}: Task validation email sent to ${customer.email}`);
+	  }
+	  catch (error) {
+		  console.log(`${Date.now().toLocaleString('fr-FR')}: Task validation email not because with error ${error}`);
+	  }
 
     sendMetric({metric: 'inyo.item.validated'});
 
@@ -533,10 +539,10 @@ const Mutation = {
 			  quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
 			  items,
 			});
-		  console.log(`${Date.now().toLocaleString()}: Amendment Email sent to ${quote.customer.email}`);
+		  console.log(`${Date.now().toLocaleString('fr-FR')}: Amendment Email sent to ${quote.customer.email}`);
 	  }
 	  catch (error) {
-		  console.log(`${Date.now().toLocaleString()}: Amendment Email not sent with error ${error}`);
+		  console.log(`${Date.now().toLocaleString('fr-FR')}: Amendment Email not sent with error ${error}`);
 	  }
 
 	  try {
@@ -548,10 +554,10 @@ const Mutation = {
 		  quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
 		  items,
 		}, ctx);
-		  console.log(`${Date.now().toLocaleString()}: Amendment reminder setup finished with id`);
+		  console.log(`${Date.now().toLocaleString('fr-FR')}: Amendment reminder setup finished with id`);
 	  }
 	  catch (error) {
-		  console.log(`${Date.now().toLocaleString()}: Amendment reminder not setup with error ${error}`);
+		  console.log(`${Date.now().toLocaleString('fr-FR')}: Amendment reminder not setup with error ${error}`);
 	  }
 
     sendMetric({metric: 'inyo.amendment.sent'});
