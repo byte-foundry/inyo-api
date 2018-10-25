@@ -623,7 +623,7 @@ const Mutation = {
       status: 'REJECTED',
     })
   },
-  acceptAmendment: async (parent, { quoteId }, ctx) => {
+  acceptAmendment: async (parent, { quoteId, token }, ctx) => {
     const [quote] = await ctx.db.quotes({ where: { id: quoteId, token } }).$fragment(`
       fragment quoteWithItem on Quote {
         status
