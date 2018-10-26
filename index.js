@@ -22,6 +22,10 @@ const server = new GraphQLServer({
   },
 })
 
+server.express.get('/send-reminder', (req, res) => {
+	return res.status(200).send('bonjour');
+})
+
 server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
   // look for X-Ph-Signature in ctx
   if (process.env.POSTHOOK_SIGNATURE !== req.get('X-Ph-Signature')) {
