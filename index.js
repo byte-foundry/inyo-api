@@ -6,6 +6,8 @@ const { resolvers } = require('./resolvers')
 
 const {sendEmail} = require('./emails/SendEmail.js');
 
+const PORT = process.env.PORT;
+
 const server = new GraphQLServer({
   typeDefs: 'schema.graphql',
   resolvers,
@@ -66,12 +68,12 @@ if (process.env.APOLLO_ENGINE_KEY) {
   })
 
   engine.listen(
-    { port: 4000, httpServer, graphqlPaths: ['/'] },
+    { port: PORT, httpServer, graphqlPaths: ['/'] },
     () =>
       console.log(
-        `Server with Apollo Engine is running on http://localhost:4000`,
+        `Server with Apollo Engine is running on http://localhost:${PORT}`,
       ),
   )
 } else {
-  server.start({ tracing: 'enabled' }, () => console.log('Server is running on http://localhost:4000'))
+  server.start({ port: PORT, tracing: 'enabled' }, () => console.log(`Server with Apollo Engine is running on http://localhost:${PORT}`);
 }
