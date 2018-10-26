@@ -236,6 +236,14 @@ const Mutation = {
 			option {
 				quote {
 					status
+					customer {
+						serviceCompany {
+							owner {
+								defaultDailyPrice
+								defaultVatRate
+							}
+						}
+					}
 				}
 			}
 		}
@@ -245,6 +253,8 @@ const Mutation = {
       throw new Error(`No section with id '${sectionId}' has been found`);
 	}
 
+	const { defaultDailyPrice, defaultVatRate } = section.option.quote.customer.serviceCompany.owner;
+
     return ctx.db.createItem({
       section: {
         connect: { id: sectionId },
@@ -252,9 +262,9 @@ const Mutation = {
 	  name,
 	  status: section.option.quote.status === 'ACCEPTED' ? 'ADDED' : 'PENDING',
       description,
-      unitPrice,
+      unitPrice: unitPrice || defaultDailyPrice,
       unit,
-      vatRate,
+      vatRate: vatRate || defaultVatRate,
     });
   },
   updateItem: async (parent, { id, name, description, unitPrice, unit, vatRate }, ctx) => {
