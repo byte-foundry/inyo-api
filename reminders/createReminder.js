@@ -65,7 +65,7 @@ function createReminder({
     });
 
     req.write(JSON.stringify({
-      path: '/',
+      path: '/send-reminder',
       postAt: postDate,
       data: `
         mutation sendEmailRightNow() {
