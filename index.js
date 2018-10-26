@@ -36,15 +36,11 @@ server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
 	// look for X-Ph-Signature in ctx
 	const hmacSignature = hmac.update(JSON.stringify(req.body)).digest('hex');
 
-	console.log(req.body);
-	console.log(JSON.stringify(req.body));
-	console.log(hmacSignature);
-	console.log(req.get('x-ph-signature'));
 	if (hmacSignature !== req.get('x-ph-signature')) {
 		throw new Error('The signature has not been verified.');
 	}
 
-	const reminder = await prisma.reminder({id: req.body.data.reminderId});
+	const reminder = await prisma.reminder({id: JSON.parse(req.body.data).reminderId});
 
 	try {
 		await sendEmail(req.body.data);
