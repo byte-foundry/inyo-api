@@ -30,7 +30,7 @@ server.express.get('/send-reminder', (req, res) => {
 
 server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
   // look for X-Ph-Signature in ctx
-	console.log(req.get('X-Ph.Signature'));
+	console.log(req.headers);
   if (process.env.POSTHOOK_SIGNATURE !== req.get('X-Ph-Signature')) {
     throw new Error('The signature has not been verified.');
   }
