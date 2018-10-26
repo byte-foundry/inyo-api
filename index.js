@@ -36,6 +36,7 @@ server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
 	// look for X-Ph-Signature in ctx
 	const hmacSignature = hmac.update(JSON.stringify(req.body)).digest('hex');
 
+	console.log(req.body);
 	console.log(JSON.stringify(req.body));
 	console.log(hmacSignature);
 	console.log(req.get('x-ph-signature'));
