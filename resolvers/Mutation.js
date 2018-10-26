@@ -223,14 +223,25 @@ const Mutation = {
 		id: sectionId,
 		option: {
 			quote: {
-				issuer: {
-					owner: { id: getUserId(ctx) },
+				customer: {
+					serviceCompany: {
+						owner: { id: getUserId(ctx) },
+					},
 				},
 			},
 		},
-	}  });
+	}  }).$fragment(`
+		fragment SectionWithQuote on Section {
+			id
+			option {
+				quote {
+					status
+				}
+			}
+		}
+	`);
 
-    if (section) {
+    if (!section) {
       throw new Error(`No section with id '${sectionId}' has been found`);
 	}
 
@@ -239,7 +250,7 @@ const Mutation = {
         connect: { id: sectionId },
       },
 	  name,
-	  status: quote.status === 'ACCEPTED' ? 'ADDED' : 'PENDING',
+	  status: section.option.quote.status === 'ACCEPTED' ? 'ADDED' : 'PENDING',
       description,
       unitPrice,
       unit,
@@ -500,6 +511,7 @@ const Mutation = {
 			}) {
               id
               name
+			  status
               unit
               pendingUnit
               comments {
