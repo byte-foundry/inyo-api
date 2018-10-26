@@ -75,5 +75,5 @@ if (process.env.APOLLO_ENGINE_KEY) {
       ),
   )
 } else {
-  server.start({ port: PORT, tracing: 'enabled' }, () => console.log(`Server with Apollo Engine is running on http://localhost:${PORT}`);
+  server.start({ port: PORT, tracing: 'enabled' }, () => console.log(`Server with Apollo Engine is running on http://localhost:${PORT}`));
 }
