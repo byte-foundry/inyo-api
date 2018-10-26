@@ -34,11 +34,11 @@ server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
     throw new Error('The signature has not been verified.');
   }
 
-  const reminder = await ctx.db.reminder({ id: req.body.data.reminderId });
+  const reminder = await prisma.reminder({ id: req.body.data.reminderId });
 
   try {
     await sendEmail(req.body.data);
-    await ctx.db.updateReminder({
+    await prisma.updateReminder({
       where: { id: reminder.id },
       status: 'SENT',
     });
@@ -46,7 +46,7 @@ server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
     res.status(204).send();
   }
   catch (error) {
-    await ctx.db.updateReminder({
+    await prisma.updateReminder({
       where: { id: reminder.id },
       status: 'ERROR',
     });
