@@ -75,7 +75,7 @@ async function setupQuoteReminderEmail({
         postHookId: data.data.id,
         type: reminderType,
         sendingDate: date.format(),
-        status: 'SENT',
+        status: 'PENDING',
       });
 	  console.log(`${new Date().toISOString()}: Reminder with posthood id ${data.data.id} of type ${reminderType} created`);
     }
