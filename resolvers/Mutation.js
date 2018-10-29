@@ -9,7 +9,7 @@ const {sendQuoteEmail, setupQuoteReminderEmail, sendAcceptedQuoteEmail, sendReje
 const {sendTaskValidationEmail} = require('../emails/TaskEmail');
 const {sendAmendmentEmail, setupAmendmentReminderEmail} = require('../emails/AmendmentEmail');
 
-const inyoQuoteBaseUrl = 'https://app.inyo.com/app/quotes';
+const inyoQuoteBaseUrl = 'https://app.inyo.me/app/quotes';
 
 const Mutation = {
   signup: async (parent, { email, password, firstName, lastName, company = {}}, ctx) => {
