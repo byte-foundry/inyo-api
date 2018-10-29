@@ -67,22 +67,21 @@ async function setupQuoteReminderEmail({
         },
         postDate: date.format(),
       });
-		console.log(data);
 
       const reminder = await ctx.db.createReminder({
         quote: {
           connect: quoteId,
         },
-        postHookId: data.id,
+        postHookId: data.data.id,
         type: reminderType,
         sendingDate: date.format(),
         status: 'SENT',
       });
-	  console.log(`${new Date().toISOString()}: Reminder with posthood id ${data.postHookId} of type ${reminderType} created`);
+	  console.log(`${new Date().toISOString()}: Reminder with posthood id ${data.data.id} of type ${reminderType} created`);
     }
     catch (error) {
       //Here we should do something to store the errors
-	  console.log(`${new Date().toISOString()}: Reminder with posthood id ${data.postHookId} of type ${reminderType} not created with error ${error}`);
+	  console.log(`${new Date().toISOString()}: Reminder with posthood id ${data.data.id} of type ${reminderType} not created with error ${error}`);
     }
   });
 }
