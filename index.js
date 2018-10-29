@@ -46,7 +46,7 @@ server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
 		throw new Error('The signature has not been verified.');
 	}
 
-	const reminder = await prisma.reminder({where: {postHookId: req.body.id}});
+	const [reminder] = await prisma.reminders({where: {postHookId: req.body.id}});
 
 	try {
 		await sendEmail(req.body.data);
