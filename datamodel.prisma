@@ -144,8 +144,8 @@ type User {
   firstName: String
   lastName: String
   company: Company! @relation(name: "CompanyOwner")
-  defaultDailyPrice: Int
-  defaultVatRate: Int
+  defaultDailyPrice: Int @default(value: 350)
+  defaultVatRate: Int @default(value: 20)
   createdAt: DateTime!
   updatedAt: DateTime!
 }

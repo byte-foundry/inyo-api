@@ -14,14 +14,12 @@ const inyoQuoteBaseUrl = 'https://app.inyo.com/app/quotes';
 const Mutation = {
   signup: async (parent, { email, password, firstName, lastName, company = {}}, ctx) => {
     const hashedPassword = await hash(password, 10)
-    const defaultDailyPrice = 350;
 
     const user = await ctx.db.createUser({
       email,
       password: hashedPassword,
       firstName,
       lastName,
-      defaultDailyPrice,
       company: {
         create: company,
       },
