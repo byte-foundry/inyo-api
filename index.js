@@ -52,7 +52,9 @@ server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
 		await sendEmail(req.body.data);
 		await prisma.updateReminder({
 			where: {id: reminder.id},
-			status: 'SENT',
+			data: {
+				status: 'SENT',
+			},
 		});
 		console.log(
 			`${new Date().toISOString()}: Reminder with id ${reminder.id} sent`,
@@ -62,7 +64,9 @@ server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
 	catch (error) {
 		await prisma.updateReminder({
 			where: {id: reminder.id},
-			status: 'ERROR',
+			data: {
+				status: 'ERROR',
+			},
 		});
 		console.log(
 			`${new Date().toISOString()}: Reminder with id ${
