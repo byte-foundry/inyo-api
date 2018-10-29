@@ -751,8 +751,10 @@ const Mutation = {
 					 status: 'CANCELED',
 				 }
 			 });
+		  console.log(`${new Date().toISOString()}: reminder with id ${reminder.id} canceled`);
 		 }
 		 catch (error) {
+		  console.log(`${new Date().toISOString()}: reminder with id ${reminder.id} not canceled with error ${error}`);
 		 }
 	 });
 

@@ -18,8 +18,6 @@ function cancelReminder(
     const req = https.request(options, function (res) {
       const chunks = [];
 
-      console.log(res.statusCode);
-
       if (res.statusCode === 400) {
         // Bad request
         // Alert us
