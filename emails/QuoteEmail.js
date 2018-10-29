@@ -79,7 +79,7 @@ async function setupQuoteReminderEmail({
       });
 	  console.log(`${new Date().toISOString()}: Reminder with posthood id ${data.postHookId} of type ${reminderType} created`);
     }
-    catch (errors) {
+    catch (error) {
       //Here we should do something to store the errors
 	  console.log(`${new Date().toISOString()}: Reminder with posthood id ${data.postHookId} of type ${reminderType} not created with error ${error}`);
     }
