@@ -21,6 +21,7 @@ async function setupQuoteReminderEmail({
   customerName,
   projectName,
   quoteUrl,
+	quoteId,
   issueDate
 }, ctx) {
   const endDate = moment(issueDate).add(3, 'months');
@@ -53,8 +54,9 @@ async function setupQuoteReminderEmail({
   ];
 
   dates.forEach(async ({date, templateId, reminderType}) => {
+    let data;
     try {
-      const data = await createReminder({
+      data = await createReminder({
         email,
         templateId,
         data: {
