@@ -55,15 +55,26 @@ const Query = {
             },
           },
         },
-      });
+	  });
+
+	  const customer = await ctx.db.quote({ token }).customer();
 
       await ctx.db.updateManyComments({
         where: { id_in: comments.map(comment => comment.id) },
-        data: { viewedByCustomer: true },
+        data: {
+			viewedByCustomer: true,
+			views: {
+				create: {
+					customer: { connect: { id: customer.id } }
+				},
+			},
+		},
       });
 
       return comments.map(comment => ({...comment, viewedByCustomer: true}));
-    }
+	}
+
+	const userId = getUserId(ctx);
 
     const comments = await ctx.db.comments({
       where: {
@@ -74,7 +85,7 @@ const Query = {
               quote: {
                 customer: {
                   serviceCompany: {
-                    owner: { id: getUserId(ctx) },
+                    owner: { id: userId },
                   },
                 },
               },
@@ -85,8 +96,15 @@ const Query = {
     });
 
     await ctx.db.updateManyComments({
-      where: { id_in: comments.map(comment => comment.id) },
-      data: { viewedByUser: true },
+		where: { id_in: comments.map(comment => comment.id) },
+		data: {
+			viewedByUser: true,
+			views: {
+				create: {
+					user: { connect: { id: userId } }
+				},
+			},
+		},
     });
 
     return comments.map(comment => ({
