@@ -3,7 +3,7 @@ const moment = require('moment');
 const issueDate = moment();
 const [{date, templateId}] = [
 	{
-	  date: moment(issueDate).add(1, 'minutes'),
+	  date: moment(issueDate).add(2, 'minutes'),
 	  templateId: 'd-8228bc7ebb18488baf2e850a54268e23',
 	  reminderType: 'QUOTE_AFTER_10_DAYS',
 	},
