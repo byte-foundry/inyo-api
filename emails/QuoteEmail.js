@@ -67,6 +67,7 @@ async function setupQuoteReminderEmail({
         },
         postDate: date.format(),
       });
+		console.log(data);
 
       const reminder = await ctx.db.createReminder({
         quote: {
