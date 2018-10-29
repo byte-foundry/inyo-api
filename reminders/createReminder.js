@@ -67,17 +67,13 @@ function createReminder({
     req.write(JSON.stringify({
       path: '/send-reminder',
       postAt: postDate,
-      data: `
-        mutation sendEmailRightNow() {
-          sendEmail(
-            email: "${email}",
-            templateId: "${templateId}",
-            data: ${JSON.stringify(JSON.stringify( // stringified twice to put it as a string param
-              data
-            ))},
-          )
-        }
-      `,
+      data:
+	  {
+		email,
+		templateId,
+		data,
+	}
+      ,
     }));
     req.end();
   });
