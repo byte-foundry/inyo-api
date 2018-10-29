@@ -60,6 +60,7 @@ enum ReminderStatus {
   PENDING
   SENT
   ERROR
+  CANCELED
 }
 
 type Comment {

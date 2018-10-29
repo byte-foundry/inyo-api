@@ -8,6 +8,7 @@ const { sendMetric } = require('../stats');
 const {sendQuoteEmail, setupQuoteReminderEmail, sendAcceptedQuoteEmail, sendRejectedQuoteEmail} = require('../emails/QuoteEmail');
 const {sendTaskValidationEmail} = require('../emails/TaskEmail');
 const {sendAmendmentEmail, setupAmendmentReminderEmail} = require('../emails/AmendmentEmail');
+const cancelReminder = require('../reminders/cancelReminder');
 
 const inyoQuoteBaseUrl = 'https://app.inyo.me/app/quotes';
 
@@ -706,6 +707,12 @@ const Mutation = {
         status
 		id
 		name
+		reminders(where: {
+			status: PENDING
+		}) {
+			id
+			postHookId
+		}
 		customer {
 			serviceCompany {
 				owner {
@@ -734,6 +741,20 @@ const Mutation = {
 			},
 		},
     })
+
+	 quote.reminders.forEach(async (reminder) => {
+		 try {
+			 cancelReminder(reminder.postHookId);
+			 ctx.db.updateReminder({
+				 where: {id: reminder.id},
+				 data: {
+					 status: 'CANCELED',
+				 }
+			 });
+		 }
+		 catch (error) {
+		 }
+	 });
 
 	  const user = quote.customer.serviceCompany.owner;
 	  try {
