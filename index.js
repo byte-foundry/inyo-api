@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const {prisma} = require('./generated/prisma-client');
 const {resolvers} = require('./resolvers');
 
-const {sendEmail} = require('./emails/SendEmail.js');
+const sendEmail = require('./emails/SendEmail.js');
 
 const PORT = process.env.PORT;
 
