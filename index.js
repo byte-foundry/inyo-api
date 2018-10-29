@@ -59,7 +59,8 @@ server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
 		console.log(
 			`${new Date().toISOString()}: Reminder with id ${reminder.id} sent`,
 		);
-		res.status(204).send();
+		// posthook wants a 200 not a 204
+		res.status(200).send();
 	}
 	catch (error) {
 		await prisma.updateReminder({
