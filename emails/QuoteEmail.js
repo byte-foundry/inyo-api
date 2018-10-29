@@ -72,7 +72,7 @@ async function setupQuoteReminderEmail({
         quote: {
           connect: quoteId,
         },
-        postHookId: data.postHookId,
+        postHookId: data.id,
         type: reminderType,
         sendingDate: date.format(),
         status: 'SENT',
