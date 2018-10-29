@@ -174,7 +174,7 @@ enum ItemStatus {
 
 union Viewer = User | Customer
 
-type CommentView implements View {
+type CommentView {
 	viewer: Viewer!
 	viewedAt: DateTime!
 }
