@@ -9,7 +9,7 @@ type Query {
 }
 
 type Mutation {
-  signup(email: String!, password: String!, firstName: String, lastName: String, company: CompanyInput): AuthPayload!
+  signup(email: String!, password: String!, firstName: String!, lastName: String!, company: CompanyInput): AuthPayload!
   login(email: String!, password: String!): AuthPayload!
 
   # Update user profile and his company
@@ -250,8 +250,8 @@ type Company {
 type User {
   id: ID!
   email: String!
-  firstName: String
-  lastName: String
+  firstName: String!
+  lastName: String!
   company: Company!
   defaultDailyPrice: Int
   defaultVatRate: Int

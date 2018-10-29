@@ -151,8 +151,8 @@ type User {
   id: ID! @unique
   email: String! @unique
   password: String!
-  firstName: String
-  lastName: String
+  firstName: String!
+  lastName: String!
   company: Company! @relation(name: "CompanyOwner")
   defaultDailyPrice: Int @default(value: 350)
   defaultVatRate: Int @default(value: 20)
