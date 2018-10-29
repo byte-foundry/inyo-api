@@ -6,6 +6,7 @@ const Comment = {
 
     return user || customer;
   },
+  views: (node, args, ctx) => ctx.db.comment({ id: node.id }).views(),
   createdAt: node => node.createdAt,
 }
 

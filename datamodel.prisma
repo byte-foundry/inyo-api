@@ -20,6 +20,7 @@ type Customer {
   rm: String
   serviceCompany: Company! @relation(name: "CompanyCustomers")
   quotes: [Quote!]! @relation(name: "CustomerQuotes")
+  commentViews: [CommentView!]! @relation(name: "CommentViewCustomer")
 }
 
 enum QuoteStatus {
@@ -62,6 +63,14 @@ enum ReminderStatus {
   ERROR
 }
 
+type CommentView {
+	id: ID! @unique
+	user: User @relation(name: "CommentViewUser")
+	customer: Customer @relation(name: "CommentViewCustomer")
+	comment: Comment @relation(name: "CommentViews")
+	createdAt: DateTime!
+}
+
 type Comment {
   id: ID! @unique
   text: String!
@@ -69,6 +78,7 @@ type Comment {
   authorCustomer: Customer
   viewedByUser: Boolean! @default(value: false)
   viewedByCustomer: Boolean! @default(value: false)
+  views: [CommentView!]! @relation(name: "CommentViews")
   item: Item! @relation(name: "ItemComments")
   createdAt: DateTime!
 }
@@ -146,6 +156,7 @@ type User {
   company: Company! @relation(name: "CompanyOwner")
   defaultDailyPrice: Int @default(value: 350)
   defaultVatRate: Int @default(value: 20)
+  commentViews: [CommentView!]! @relation(name: "CommentViewUser")
   createdAt: DateTime!
   updatedAt: DateTime!
 }

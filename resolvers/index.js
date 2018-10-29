@@ -11,6 +11,8 @@ const { Customer } = require('./Customer')
 const { Address } = require('./Address')
 const { Author } = require('./Author')
 const { Comment } = require('./Comment')
+const { Viewer } = require('./Viewer')
+const { CommentView } = require('./CommentView')
 
 const resolvers = {
   Query,
@@ -26,6 +28,8 @@ const resolvers = {
   Address,
   Author,
   Comment,
+  Viewer,
+  CommentView,
 }
 
 module.exports = {
