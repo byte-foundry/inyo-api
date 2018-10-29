@@ -70,7 +70,7 @@ async function setupQuoteReminderEmail({
 
       const reminder = await ctx.db.createReminder({
         quote: {
-          connect: quoteId,
+          connect: {id: quoteId},
         },
         postHookId: data.data.id,
         type: reminderType,
