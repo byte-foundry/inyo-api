@@ -388,7 +388,7 @@ const Mutation = {
 	try {
     await sendQuoteEmail({
       email: quote.customer.email,
-      customerName: `${quote.customer.firstName ? quote.customer.firstName : ''}${quote.customer.lastName ? ' ' + quote.customer.lastName : ''},
+      customerName: `${quote.customer.firstName ? quote.customer.firstName : ''}${quote.customer.lastName ? ' ' + quote.customer.lastName : ''}`,
       projectName: quote.name,
       user: `${user.firstName} ${user.lastName}`,
       quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
