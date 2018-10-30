@@ -12,8 +12,19 @@ type Mutation {
   signup(email: String!, password: String!, firstName: String!, lastName: String!, company: CompanyInput): AuthPayload!
   login(email: String!, password: String!): AuthPayload!
 
-  # Update user profile and his company
-  updateUser(email: String, firstName: String, lastName: String, defaultDailyPrice: Int, defaultVatRate: Int, company: CompanyInput): User
+	# Update user profile and his company
+	updateUser(
+		email: String,
+		firstName: String,
+		lastName: String,
+		defaultDailyPrice: Int,
+		defaultVatRate: Int,
+		workingFields: [String!],
+		jobType: JobType,
+		interestedFeatures: [String!],
+		hasUpcomingProject: Boolean,
+		company: CompanyInput,
+	): User
 
   # Create a new customer inside the user's company
   createCustomer(email: String!): Customer!
@@ -247,6 +258,13 @@ type Company {
   quotes: [Quote!]!
 }
 
+enum JobType {
+	TEAM
+	FULLTIME_INDIVIDUAL
+	PARTTIME_INDIVIDUAL
+	NOT_FREELANCER
+}
+
 type User {
   id: ID!
   email: String!
@@ -255,4 +273,8 @@ type User {
   company: Company!
   defaultDailyPrice: Int
   defaultVatRate: Int
+  workingFields: [String!]!
+  jobType: JobType
+  interestedFeatures: [String!]!
+  hasUpcomingProject: Boolean
 }

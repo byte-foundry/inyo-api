@@ -63,6 +63,13 @@ enum ReminderStatus {
   ERROR
 }
 
+enum JobType {
+	TEAM
+	FULLTIME_INDIVIDUAL
+	PARTTIME_INDIVIDUAL
+	NOT_FREELANCER
+}
+
 type CommentView {
 	id: ID! @unique
 	user: User @relation(name: "CommentViewUser")
@@ -157,6 +164,10 @@ type User {
   defaultDailyPrice: Int @default(value: 350)
   defaultVatRate: Int @default(value: 20)
   commentViews: [CommentView!]! @relation(name: "CommentViewUser")
+  workingFields: [String!]!
+  jobType: JobType
+  interestedFeatures: [String!]!
+  hasUpcomingProject: Boolean
   createdAt: DateTime!
   updatedAt: DateTime!
 }
