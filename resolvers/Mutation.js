@@ -652,7 +652,7 @@ const Mutation = {
       throw new Error(`Item '${id}' cannot be updated in this quote state.`);
     }
 
-	  quote.reminders.forEach(async (reminder) => {
+	  item.section.option.quote.reminders.forEach(async (reminder) => {
 	    try {
 	   	 await cancelReminder(reminder.postHookId);
 	   	 await ctx.db.updateReminder({
