@@ -916,16 +916,18 @@ const Mutation = {
       }
     });
 
-    await ctx.db.updateManyItems({
-      where: {
-        id_in: items.map(item => item.id),
-      },
-      data: {
-        status: 'PENDING',
-        unit: items.map(item => item.pendingUnit),
-        pendingUnit: null,
-      },
-    });
+    await Promise.all(items.map(async (item) => {
+      await ctx.db.updateItem({
+        where: {
+          id: item.id,
+        },
+        data: {
+          status: 'PENDING',
+          unit: item.pendingUnit,
+          pendingUnit: null,
+        },
+      });
+    }));
 
     ctx.db.createLog({
       ip: ctx.ip,
