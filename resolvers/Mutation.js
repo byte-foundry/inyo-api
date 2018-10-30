@@ -16,22 +16,29 @@ const Mutation = {
   signup: async (parent, { email, password, firstName, lastName, company = {}}, ctx) => {
     const hashedPassword = await hash(password, 10)
 
-    const user = await ctx.db.createUser({
-      email,
-      password: hashedPassword,
-      firstName,
-      lastName,
-      company: {
+    try {
+      const user = await ctx.db.createUser({
+        email,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        company: {
         create: company,
-      },
-    });
+        },
+      });
 
-    sendMetric({metric: 'inyo.user.created'});
+      sendMetric({metric: 'inyo.user.created'});
 
-    return {
-      token: sign({ userId: user.id }, APP_SECRET),
-      user,
+		  console.log(`${new Date().toISOString()}: user with email ${email} created`);
+
+      return {
+        token: sign({ userId: user.id }, APP_SECRET),
+        user,
+      }
     }
+	  catch (error) {
+		  console.log(`${new Date().toISOString()}: user with email ${email} not created with error ${error}`);
+	  }
   },
   login: async (parent, { email, password }, ctx) => {
     const user = await ctx.db.user({ email })
@@ -744,8 +751,8 @@ const Mutation = {
 
 	 quote.reminders.forEach(async (reminder) => {
 		 try {
-			 cancelReminder(reminder.postHookId);
-			 ctx.db.updateReminder({
+			 await cancelReminder(reminder.postHookId);
+			 await ctx.db.updateReminder({
 				 where: {id: reminder.id},
 				 data: {
 					 status: 'CANCELED',
