@@ -885,9 +885,9 @@ const Mutation = {
       throw new Error(`Quote '${id}' cannot be updated in this state.`);
     }
 
-    const items = quote.options.reduce((ids, option) => ids.concat(
+    const itemsId = quote.options.reduce((ids, option) => ids.concat(
       option.sections.reduce((ids, section) => ids.concat(
-        section.items.map(item => item.id)
+        section.items.map(item => ({id: item.id, pendingUnit: item.pendingUnit}))
       ), []),
     ), []);
 
@@ -909,7 +909,7 @@ const Mutation = {
 
     await ctx.db.updateManyItems({
       where: {
-        id_in: items.map(item => item.id),
+        id_in: items.map(item => item),
       },
       data: {
         status: 'PENDING',
