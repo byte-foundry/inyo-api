@@ -868,7 +868,16 @@ const Mutation = {
         }
         options {
           sections {
-            items {
+            items(where: {
+              OR: [
+                {
+                  status: UPDATED_SENT
+                },
+                {
+                  status: ADDED_SENT
+                }
+              ]
+            }) {
               id
               pendingUnit
             }
@@ -885,7 +894,7 @@ const Mutation = {
       throw new Error(`Quote '${id}' cannot be updated in this state.`);
     }
 
-    const itemsId = quote.options.reduce((ids, option) => ids.concat(
+    const items = quote.options.reduce((ids, option) => ids.concat(
       option.sections.reduce((ids, section) => ids.concat(
         section.items.map(item => ({id: item.id, pendingUnit: item.pendingUnit}))
       ), []),
@@ -909,7 +918,7 @@ const Mutation = {
 
     await ctx.db.updateManyItems({
       where: {
-        id_in: items.map(item => item),
+        id_in: items.map(item => item.id),
       },
       data: {
         status: 'PENDING',
@@ -939,13 +948,28 @@ const Mutation = {
         }
         options {
           sections {
-            items {
+            items(where: {
+              OR: [
+                {
+                  status: UPDATED_SENT
+                },
+                {
+                  status: ADDED_SENT
+                }
+              ]
+            }) {
               id
             }
           }
         }
       }
     `);
+
+    const itemIds = quote.options.reduce((ids, option) => ids.concat(
+      option.sections.reduce((ids, section) => ids.concat(
+        section.items.map(item => item.id)
+      ), []),
+    ), []);
 
     if (!quote) {
       throw new Error(`Quote '${id}' has not been found.`)
@@ -973,7 +997,7 @@ const Mutation = {
 
     await ctx.db.updateManyItems({
       where: {
-        id_in: items.map(item => item.id),
+        id_in: itemIds,
       },
       data: {
         status: 'PENDING',
