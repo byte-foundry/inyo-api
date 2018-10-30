@@ -71,9 +71,9 @@ const Mutation = {
         lastName,
         defaultVatRate,
 		defaultDailyPrice,
-		workingFields,
+		workingFields: { set: workingFields },
 		jobType,
-		interestedFeatures,
+		interestedFeatures: { set: interestedFeatures },
 		hasUpcomingProject,
         company: company && {
           update: {
