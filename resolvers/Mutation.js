@@ -4,6 +4,7 @@ const uuid = require('uuid/v4')
 const moment = require('moment');
 
 const { APP_SECRET, getUserId } = require('../utils')
+const { processUpload } = require('../files');
 const { sendMetric } = require('../stats');
 const {sendQuoteEmail, setupQuoteReminderEmail, sendAcceptedQuoteEmail, sendRejectedQuoteEmail} = require('../emails/QuoteEmail');
 const {sendTaskValidationEmail} = require('../emails/TaskEmail');
@@ -61,7 +62,12 @@ const Mutation = {
 		interestedFeatures,
 		hasUpcomingProject,
   }, ctx) => {
-    const userId = getUserId(ctx);
+	const userId = getUserId(ctx);
+
+	let logo;
+	if (company && company.logo) {
+		logo = await processUpload(company.logo, ctx, userId);
+	}
 
     return ctx.db.updateUser({
       where: { id: userId },
@@ -83,7 +89,8 @@ const Mutation = {
                 create: company.address,
                 update: company.address,
               },
-            },
+			},
+			logo: { connect: { id: logo.id } },
           },
         },
       },

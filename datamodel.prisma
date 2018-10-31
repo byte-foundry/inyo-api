@@ -151,6 +151,7 @@ type Company {
   rcsCity: String
   rm: String
   vat: String
+  logo: File @relation(name: "CompanyLogo")
   customers: [Customer!]! @relation(name: "CompanyCustomers")
 }
 
@@ -187,4 +188,13 @@ type Log {
   acceptedQuotes: [Quote!]! @relation(name: "AcceptedQuotesLogs")
   acceptedAmendments: [Quote!]! @relation(name: "AcceptedAmendmentsLogs")
   createdAt: DateTime!
+}
+
+type File {
+	id: ID! @unique
+	filename: String!
+	mimetype: String!
+	encoding: String!
+	url: String!
+	createdAt: DateTime!
 }

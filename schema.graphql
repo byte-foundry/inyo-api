@@ -1,5 +1,6 @@
 scalar DateTime
 scalar Json
+scalar Upload
 
 type Query {
   me: User
@@ -100,6 +101,7 @@ input CompanyInput {
   rcsCity: String
   rm: String
   vat: String
+  logo: Upload
 }
 
 input CustomerInput {
@@ -254,6 +256,7 @@ type Company {
   rcsCity: String
   rm: String
   vat: String
+  logo: File
   customers: [Customer!]!
   quotes: [Quote!]!
 }
@@ -277,4 +280,11 @@ type User {
   jobType: JobType
   interestedFeatures: [String!]!
   hasUpcomingProject: Boolean
+}
+
+type File {
+	filename: String!
+	mimetype: String!
+	encoding: String!
+	url: String!
 }
