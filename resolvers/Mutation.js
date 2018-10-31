@@ -90,7 +90,7 @@ const Mutation = {
                 update: company.address,
               },
 			},
-			logo: { connect: { id: logo.id } },
+			logo: logo && { connect: { id: logo.id } },
           },
         },
       },
