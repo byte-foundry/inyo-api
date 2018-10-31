@@ -452,6 +452,7 @@ const Mutation = {
             quote {
               id
               token
+              name
               customer {
                 firstName
                 lastName
@@ -757,6 +758,13 @@ const Mutation = {
 			}
 			firstName
 			lastName
+      options {
+        sections {
+          items {
+            name
+          }
+        }
+      }
 		}
       }
     `);
@@ -800,6 +808,7 @@ const Mutation = {
 			  customerName: `${quote.customer.firstName} ${quote.customer.lastName}`,
 			  projectName: quote.name,
 			  quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/see`,
+        firstTask: quote.options[0].sections[0].items[0].name,
 		  });
 
 		  console.log(`${new Date().toISOString()}: Acceptance quote email sent to ${user.email}`);
