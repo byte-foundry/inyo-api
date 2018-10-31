@@ -370,6 +370,8 @@ const Mutation = {
         status
         customer {
           name
+          firstName
+          lastName
           email
         }
       }
@@ -388,7 +390,7 @@ const Mutation = {
 	try {
     await sendQuoteEmail({
       email: quote.customer.email,
-      customerName: `${quote.customer.firstName ? quote.customer.firstName : ''}${quote.customer.lastName ? ' ' + quote.customer.lastName : ''}`,
+      customerName: String(`${quote.customer.firstName} ${quote.customer.lastName}`).trim(),
       projectName: quote.name,
       user: `${user.firstName} ${user.lastName}`,
       quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
