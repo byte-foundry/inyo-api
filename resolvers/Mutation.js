@@ -740,32 +740,32 @@ const Mutation = {
     const [quote] = await ctx.db.quotes({where: {id, token } }).$fragment(`
       fragment CustomerUserWithQuote on Quote {
         status
-		id
-		name
-		reminders(where: {
-			status: PENDING
-		}) {
-			id
-			postHookId
-		}
-		customer {
-			serviceCompany {
-				owner {
-					firstName
-					lastName
-					email
-				}
-			}
-			firstName
-			lastName
-      options {
-        sections {
-          items {
-            name
+        id
+        name
+        reminders(where: {
+          status: PENDING
+        }) {
+          id
+          postHookId
+        }
+        options {
+          sections {
+            items {
+              name
+            }
           }
         }
-      }
-		}
+        customer {
+          serviceCompany {
+            owner {
+              firstName
+              lastName
+              email
+            }
+          }
+          firstName
+          lastName
+        }
       }
     `);
 ;
