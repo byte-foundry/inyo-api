@@ -149,8 +149,8 @@ type Address {
 # Represents a company or an individual that is going to receive an invoice
 type Customer {
   id: ID!
-  firstName: String
-  lastName: String
+  firstName: String!
+  lastName: String!
   name: String
   email: String!
   address: Address

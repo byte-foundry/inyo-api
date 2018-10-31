@@ -10,8 +10,8 @@ type Address {
 type Customer {
   id: ID! @unique
   name: String
-  firstName: String
-  lastName: String
+  firstName: String!
+  lastName: String!
   email: String!
   address: Address
   phone: String
