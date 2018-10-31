@@ -6,7 +6,7 @@ type Query {
   me: User
   customer(id: ID!): Customer
   quote(id: ID!, token: String): Quote
-  itemComments(id: ID!, token: String): [Comment!]!
+  itemComments(itemId: ID!, token: String): [Comment!]!
 }
 
 type Mutation {
