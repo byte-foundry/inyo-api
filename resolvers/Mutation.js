@@ -560,10 +560,11 @@ const Mutation = {
       option.sections.reduce((ids, section) => ids.concat(
         section.items.map(item => ({
           ...item,
-          comments: item.comments.map(comment => ({
+          // This return the last comment made on the item
+          comment: item.comments.map(comment => ({
             ...comment,
             author: item.authorUser || item.authorCustomer,
-          }))
+          })).slice(-1)[0],
         }))
       ), []),
     ), []);
@@ -588,7 +589,6 @@ const Mutation = {
 
     sendMetric({metric: 'inyo.item.updated_sent', count: items.length});
 
-    console.log(items);
 	  try {
 		  await sendAmendmentEmail({
 			  email: quote.customer.email,
