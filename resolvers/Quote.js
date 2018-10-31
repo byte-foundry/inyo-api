@@ -11,6 +11,7 @@ const Quote = {
           sections {
             items {
               unitPrice
+              unit
             }
           }
         }
@@ -20,7 +21,7 @@ const Quote = {
     return quote.options.reduce(
       (sum, option) => sum + option.sections.reduce(
         (sum, section) => sum + section.items.reduce(
-          (sum, item) => sum + item.unitPrice * item.unit,
+          (sum, item) => sum + (item.unitPrice * item.unit),
           0
         ),
         0
