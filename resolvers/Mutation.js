@@ -527,7 +527,7 @@ const Mutation = {
 			}) {
               id
               name
-			  status
+              status
               unit
               pendingUnit
               comments {
@@ -560,7 +560,10 @@ const Mutation = {
       option.sections.reduce((ids, section) => ids.concat(
         section.items.map(item => ({
           ...item,
-          author: item.authorUser || item.authorCustomer,
+          comments: item.comments.map(comment => ({
+            ...comment,
+            author: item.authorUser || item.authorCustomer,
+          }))
         }))
       ), []),
     ), []);
@@ -585,6 +588,7 @@ const Mutation = {
 
     sendMetric({metric: 'inyo.item.updated_sent', count: items.length});
 
+    console.log(items);
 	  try {
 		  await sendAmendmentEmail({
 			  email: quote.customer.email,
