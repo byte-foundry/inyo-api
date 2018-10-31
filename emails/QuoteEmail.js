@@ -7,8 +7,8 @@ async function sendQuoteEmail({email, user, customerName, projectName, quoteUrl}
     return sendEmail({email, data: {user, customerName, projectName, quoteUrl}, templateId: 'd-5055ed1a146348d9bd8cc440bf1160d8'});
 }
 
-async function sendAcceptedQuoteEmail({email, user, customerName, projectName, quoteUrl}) {
-    return sendEmail({email, data: {user, customerName, projectName, quoteUrl}, templateId: 'd-0afe9632303d40ec82a2eb9362328a57'});
+async function sendAcceptedQuoteEmail({email, user, customerName, projectName, quoteUrl, firstTask}) {
+    return sendEmail({email, data: {user, customerName, projectName, quoteUrl, firstTask}, templateId: 'd-0afe9632303d40ec82a2eb9362328a57'});
 }
 
 async function sendRejectedQuoteEmail({email, user, customerName, projectName, quoteUrl}) {
@@ -21,6 +21,7 @@ async function setupQuoteReminderEmail({
   customerName,
   projectName,
   quoteUrl,
+	quoteId,
   issueDate
 }, ctx) {
   const endDate = moment(issueDate).add(3, 'months');
@@ -53,8 +54,9 @@ async function setupQuoteReminderEmail({
   ];
 
   dates.forEach(async ({date, templateId, reminderType}) => {
+    let data;
     try {
-      const data = await createReminder({
+      data = await createReminder({
         email,
         templateId,
         data: {
@@ -68,16 +70,18 @@ async function setupQuoteReminderEmail({
 
       const reminder = await ctx.db.createReminder({
         quote: {
-          connect: quoteId,
+          connect: {id: quoteId},
         },
-        postHookId: data.postHookId,
+        postHookId: data.data.id,
         type: reminderType,
         sendingDate: date.format(),
-        status: 'SENT',
+        status: 'PENDING',
       });
+      console.log(`${new Date().toISOString()}: Reminder with posthook id ${data.data.id} of type ${reminderType} created`);
     }
-    catch (errors) {
+    catch (error) {
       //Here we should do something to store the errors
+      console.log(`${new Date().toISOString()}: Reminder with posthook id ${data.data.id} of type ${reminderType} not created with error ${error}`);
     }
   });
 }

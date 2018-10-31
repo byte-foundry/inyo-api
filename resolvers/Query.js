@@ -42,12 +42,12 @@ const Query = {
 
     return quote;
   },
-  itemComments: async (root, { id, token }, ctx) => {
+  itemComments: async (root, { itemId, token }, ctx) => {
     if (token) {
       const comments = await ctx.db.comments({
         where: {
           item: {
-            id,
+            id: itemId,
             section: {
               option: {
                 quote: { token },
@@ -79,7 +79,7 @@ const Query = {
     const comments = await ctx.db.comments({
       where: {
         item: {
-          id,
+          id: itemId,
           section: {
             option: {
               quote: {

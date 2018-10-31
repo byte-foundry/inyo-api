@@ -9,29 +9,37 @@ const { sendMetric } = require('../stats');
 const {sendQuoteEmail, setupQuoteReminderEmail, sendAcceptedQuoteEmail, sendRejectedQuoteEmail} = require('../emails/QuoteEmail');
 const {sendTaskValidationEmail} = require('../emails/TaskEmail');
 const {sendAmendmentEmail, setupAmendmentReminderEmail} = require('../emails/AmendmentEmail');
+const cancelReminder = require('../reminders/cancelReminder');
 
-const inyoQuoteBaseUrl = 'https://app.inyo.com/app/quotes';
+const inyoQuoteBaseUrl = 'https://app.inyo.me/app/quotes';
 
 const Mutation = {
   signup: async (parent, { email, password, firstName, lastName, company = {}}, ctx) => {
     const hashedPassword = await hash(password, 10)
 
-    const user = await ctx.db.createUser({
-      email,
-      password: hashedPassword,
-      firstName,
-      lastName,
-      company: {
+    try {
+      const user = await ctx.db.createUser({
+        email,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        company: {
         create: company,
-      },
-    });
+        },
+      });
 
-    sendMetric({metric: 'inyo.user.created'});
+      sendMetric({metric: 'inyo.user.created'});
 
-    return {
-      token: sign({ userId: user.id }, APP_SECRET),
-      user,
+		  console.log(`${new Date().toISOString()}: user with email ${email} created`);
+
+      return {
+        token: sign({ userId: user.id }, APP_SECRET),
+        user,
+      }
     }
+	  catch (error) {
+		  console.log(`${new Date().toISOString()}: user with email ${email} not created with error ${error}`);
+	  }
   },
   login: async (parent, { email, password }, ctx) => {
     const user = await ctx.db.user({ email })
@@ -384,6 +392,8 @@ const Mutation = {
         status
         customer {
           name
+          firstName
+          lastName
           email
         }
       }
@@ -402,7 +412,7 @@ const Mutation = {
 	try {
     await sendQuoteEmail({
       email: quote.customer.email,
-      customerName: quote.customer.name,
+      customerName: String(`${quote.customer.firstName} ${quote.customer.lastName}`).trim(),
       projectName: quote.name,
       user: `${user.firstName} ${user.lastName}`,
       quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
@@ -466,6 +476,7 @@ const Mutation = {
             quote {
               id
               token
+              name
               customer {
                 firstName
                 lastName
@@ -541,7 +552,7 @@ const Mutation = {
 			}) {
               id
               name
-			  status
+              status
               unit
               pendingUnit
               comments {
@@ -574,7 +585,11 @@ const Mutation = {
       option.sections.reduce((ids, section) => ids.concat(
         section.items.map(item => ({
           ...item,
-          author: item.authorUser || item.authorCustomer,
+          // This return the last comment made on the item
+          comment: item.comments.map(comment => ({
+            ...comment,
+            author: item.authorUser || item.authorCustomer,
+          })).slice(-1)[0],
         }))
       ), []),
     ), []);
@@ -605,7 +620,7 @@ const Mutation = {
 			  user: String(user.firstName + ' ' + user.lastName).trim(),
 			  customerName: String(quote.customer.firstName + ' ' + quote.customer.lastName).trim(),
 			  projectName: quote.name,
-			  quoteUrl: `${inyoQuoteBaseUrl}/app/quotes/${quote.id}/view/${quote.token}`,
+			  quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
 			  items,
 			});
 		  console.log(`${new Date().toISOString()}: Amendment Email sent to ${quote.customer.email}`);
@@ -615,14 +630,15 @@ const Mutation = {
 	  }
 
 	  try {
-		await setupAmendmentReminderEmail({
-		  email: quote.customer.email,
-		  user: String(user.firstName + ' ' + user.lastName).trim(),
-		  customerName: String(quote.customer.firstName + ' ' + quote.customer.lastName).trim(),
-		  projectName: quote.name,
-		  quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
-		  items,
-		}, ctx);
+      await setupAmendmentReminderEmail({
+        email: quote.customer.email,
+        user: String(user.firstName + ' ' + user.lastName).trim(),
+        customerName: String(quote.customer.firstName + ' ' + quote.customer.lastName).trim(),
+        projectName: quote.name,
+        quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
+        quoteId: quote.id,
+        items,
+      }, ctx);
 		  console.log(`${new Date().toISOString()}: Amendment reminder setup finished with id`);
 	  }
 	  catch (error) {
@@ -645,6 +661,12 @@ const Mutation = {
           option {
             quote {
               status
+              reminders(where: {
+                status: PENDING
+              }) {
+                id
+                postHookId
+              }
             }
           }
         }
@@ -653,31 +675,47 @@ const Mutation = {
 
     if (!item) {
       throw new Error(`No item with id '${id}' has been found`);
-	}
+    }
 
-	if (item.section.option.quote.status !== 'ACCEPTED') {
-		throw new Error(`Item '${id}' cannot be updated in this quote state.`);
-	}
+    if (item.section.option.quote.status !== 'ACCEPTED') {
+      throw new Error(`Item '${id}' cannot be updated in this quote state.`);
+    }
 
-	let result;
-	if (item.status === 'ADDED_SENT') {
-		result = await ctx.db.updateItem({
-			where: { id },
-			data: { status: 'PENDING' },
-		});
-	}
-	else if (item.status === 'UPDATED_SENT') {
-		result = await ctx.db.updateItem({
-			where: { id },
-			data: {
-				status: 'PENDING',
-				unit: item.pendingUnit,
-				pendingUnit: null,
-			},
-		});
-	}
-	else {
-		throw new Error(`Item '${id}' cannot be updated in this state.`);
+	  item.section.option.quote.reminders.forEach(async (reminder) => {
+	    try {
+	   	 await cancelReminder(reminder.postHookId);
+	   	 await ctx.db.updateReminder({
+	   		 where: {id: reminder.id},
+	   		 data: {
+	   			 status: 'CANCELED',
+	   		 }
+	   	 });
+	     console.log(`${new Date().toISOString()}: reminder with id ${reminder.id} canceled`);
+	    }
+	    catch (error) {
+	     console.log(`${new Date().toISOString()}: reminder with id ${reminder.id} not canceled with error ${error}`);
+	    }
+	  });
+
+    let result;
+    if (item.status === 'ADDED_SENT') {
+      result = await ctx.db.updateItem({
+        where: { id },
+        data: { status: 'PENDING' },
+      });
+    }
+    else if (item.status === 'UPDATED_SENT') {
+      result = await ctx.db.updateItem({
+        where: { id },
+        data: {
+          status: 'PENDING',
+          unit: item.pendingUnit,
+          pendingUnit: null,
+        },
+      });
+    }
+    else {
+      throw new Error(`Item '${id}' cannot be updated in this state.`);
     }
 
     sendMetric({metric: 'inyo.item.accepted'});
@@ -726,19 +764,32 @@ const Mutation = {
     const [quote] = await ctx.db.quotes({where: {id, token } }).$fragment(`
       fragment CustomerUserWithQuote on Quote {
         status
-		id
-		name
-		customer {
-			serviceCompany {
-				owner {
-					firstName
-					lastName
-					email
-				}
-			}
-			firstName
-			lastName
-		}
+        id
+        name
+        reminders(where: {
+          status: PENDING
+        }) {
+          id
+          postHookId
+        }
+        options {
+          sections {
+            items {
+              name
+            }
+          }
+        }
+        customer {
+          serviceCompany {
+            owner {
+              firstName
+              lastName
+              email
+            }
+          }
+          firstName
+          lastName
+        }
       }
     `);
 ;
@@ -757,6 +808,22 @@ const Mutation = {
 		},
     })
 
+	 quote.reminders.forEach(async (reminder) => {
+		 try {
+			 await cancelReminder(reminder.postHookId);
+			 await ctx.db.updateReminder({
+				 where: {id: reminder.id},
+				 data: {
+					 status: 'CANCELED',
+				 }
+			 });
+		  console.log(`${new Date().toISOString()}: reminder with id ${reminder.id} canceled`);
+		 }
+		 catch (error) {
+		  console.log(`${new Date().toISOString()}: reminder with id ${reminder.id} not canceled with error ${error}`);
+		 }
+	 });
+
 	  const user = quote.customer.serviceCompany.owner;
 	  try {
 		  await sendAcceptedQuoteEmail({
@@ -765,6 +832,7 @@ const Mutation = {
 			  customerName: `${quote.customer.firstName} ${quote.customer.lastName}`,
 			  projectName: quote.name,
 			  quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/see`,
+        firstTask: quote.options[0].sections[0].items[0].name,
 		  });
 
 		  console.log(`${new Date().toISOString()}: Acceptance quote email sent to ${user.email}`);
@@ -829,9 +897,24 @@ const Mutation = {
     const [quote] = await ctx.db.quotes({ where: { id: quoteId, token } }).$fragment(`
       fragment quoteWithItem on Quote {
         status
+        reminders(where: {
+          status: PENDING
+        }) {
+          id
+          postHookId
+        }
         options {
           sections {
-            items {
+            items(where: {
+              OR: [
+                {
+                  status: UPDATED_SENT
+                },
+                {
+                  status: ADDED_SENT
+                }
+              ]
+            }) {
               id
               pendingUnit
             }
@@ -850,27 +933,45 @@ const Mutation = {
 
     const items = quote.options.reduce((ids, option) => ids.concat(
       option.sections.reduce((ids, section) => ids.concat(
-        section.items.map(item => item.id)
+        section.items.map(item => ({id: item.id, pendingUnit: item.pendingUnit}))
       ), []),
     ), []);
 
-    await ctx.db.updateManyItems({
-      where: {
-        id_in: items.map(item => item.id),
-      },
-      data: {
-        status: 'PENDING',
-        unit: items.map(item => item.pendingUnit),
-        pendingUnit: null,
-      },
+    quote.reminders.forEach(async (reminder) => {
+      try {
+        await cancelReminder(reminder.postHookId);
+        await ctx.db.updateReminder({
+          where: {id: reminder.id},
+          data: {
+            status: 'CANCELED',
+          }
+        });
+       console.log(`${new Date().toISOString()}: reminder with id ${reminder.id} canceled`);
+      }
+      catch (error) {
+       console.log(`${new Date().toISOString()}: reminder with id ${reminder.id} not canceled with error ${error}`);
+      }
     });
 
-	ctx.db.createLog({
-		ip: ctx.ip,
-		acceptedAmendment: {
-			connect: { id: quote.id },
-		},
-	});
+    await Promise.all(items.map(async (item) => {
+      await ctx.db.updateItem({
+        where: {
+          id: item.id,
+        },
+        data: {
+          status: 'PENDING',
+          unit: item.pendingUnit,
+          pendingUnit: null,
+        },
+      });
+    }));
+
+    ctx.db.createLog({
+      ip: ctx.ip,
+      acceptedAmendment: {
+        connect: { id: quote.id },
+      },
+    });
 
     return ctx.db.quote({ id: quoteId });
   },
@@ -878,15 +979,36 @@ const Mutation = {
     const [quote] = await ctx.db.quotes({ where: { id: quoteId, token } }).$fragment(`
       fragment quoteWithItem on Quote {
         status
+        reminders(where: {
+          status: PENDING
+        }) {
+          id
+          postHookId
+        }
         options {
           sections {
-            items {
+            items(where: {
+              OR: [
+                {
+                  status: UPDATED_SENT
+                },
+                {
+                  status: ADDED_SENT
+                }
+              ]
+            }) {
               id
             }
           }
         }
       }
     `);
+
+    const itemIds = quote.options.reduce((ids, option) => ids.concat(
+      option.sections.reduce((ids, section) => ids.concat(
+        section.items.map(item => item.id)
+      ), []),
+    ), []);
 
     if (!quote) {
       throw new Error(`Quote '${id}' has not been found.`)
@@ -896,9 +1018,25 @@ const Mutation = {
       throw new Error(`Quote '${quoteId}' cannot be rejected in this state.`);
     }
 
+    quote.reminders.forEach(async (reminder) => {
+      try {
+        await cancelReminder(reminder.postHookId);
+        await ctx.db.updateReminder({
+          where: {id: reminder.id},
+          data: {
+            status: 'CANCELED',
+          }
+        });
+       console.log(`${new Date().toISOString()}: reminder with id ${reminder.id} canceled`);
+      }
+      catch (error) {
+       console.log(`${new Date().toISOString()}: reminder with id ${reminder.id} not canceled with error ${error}`);
+      }
+    });
+
     await ctx.db.updateManyItems({
       where: {
-        id_in: items.map(item => item.id),
+        id_in: itemIds,
       },
       data: {
         status: 'PENDING',

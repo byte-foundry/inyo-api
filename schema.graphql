@@ -236,7 +236,7 @@ type Quote {
   customer: Customer!
   status: QuoteStatus!
   options: [Option!]!
-  total: Int,
+  total: Float,
   viewedByCustomer: Boolean!
   issuedAt: DateTime
   createdAt: DateTime!

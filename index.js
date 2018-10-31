@@ -3,12 +3,8 @@ const {ApolloEngine} = require('apollo-engine');
 const bodyParser = require('body-parser');
 const {prisma} = require('./generated/prisma-client');
 const {resolvers} = require('./resolvers');
-const hmac = require('crypto').createHmac(
-	'sha256',
-	process.env.POSTHOOK_SIGNATURE,
-);
 
-const {sendEmail} = require('./emails/SendEmail.js');
+const sendEmail = require('./emails/SendEmail.js');
 
 const PORT = process.env.PORT;
 
@@ -33,30 +29,45 @@ const server = new GraphQLServer({
 server.express.get('/send-reminder', (req, res) => res.status(200).send('bonjour'));
 
 server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
+	const hmac = require('crypto').createHmac(
+		'sha256',
+		process.env.POSTHOOK_SIGNATURE,
+	);
+	console.log('############ SEND REMINDER CALLED ##########');
 	// look for X-Ph-Signature in ctx
-	const hmacSignature = hmac.update(JSON.stringify(req.body)).digest('hex');
+	hmac.update(JSON.stringify(req.body))
+	console.log('############ HMAC UPDATE DONE ##########');
+	const hmacSignature = hmac.digest('hex');
+	console.log('############ HMAC PREPARING TO COMPARE##########');
+	console.log(`check: ${hmacSignature}, sent: ${req.get('x-ph-signature')}`);
+
 
 	if (hmacSignature !== req.get('x-ph-signature')) {
 		throw new Error('The signature has not been verified.');
 	}
 
-	const reminder = await prisma.reminder({id: JSON.parse(req.body.data).reminderId});
+	const [reminder] = await prisma.reminders({where: {postHookId: req.body.id}});
 
 	try {
 		await sendEmail(req.body.data);
 		await prisma.updateReminder({
 			where: {id: reminder.id},
-			status: 'SENT',
+			data: {
+				status: 'SENT',
+			},
 		});
 		console.log(
 			`${new Date().toISOString()}: Reminder with id ${reminder.id} sent`,
 		);
-		res.status(204).send();
+		// posthook wants a 200 not a 204
+		res.status(200).send();
 	}
 	catch (error) {
 		await prisma.updateReminder({
 			where: {id: reminder.id},
-			status: 'ERROR',
+			data: {
+				status: 'ERROR',
+			},
 		});
 		console.log(
 			`${new Date().toISOString()}: Reminder with id ${

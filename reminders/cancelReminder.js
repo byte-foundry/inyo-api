@@ -1,17 +1,14 @@
 const https = require('https');
 
-function createReminder({
-  email,
-  templateId,
-  data,
-  postDate,
-}) {
+function cancelReminder(
+	postHookId
+) {
   return new Promise((resolve, reject) => {
 
     const options = {
-      method: "POST",
+      method: "DELETE",
       hostname: "api.posthook.io",
-      path: "/v1/hooks",
+		path: `/v1/hooks/${postHookId}`,
       headers: {
         "Content-Type": "application/json",
         "X-API-Key": process.env.POSTHOOK_API_KEY
@@ -62,19 +59,8 @@ function createReminder({
       });
     });
 
-    req.write(JSON.stringify({
-      path: '/send-reminder',
-      postAt: postDate,
-      data:
-	  {
-		email,
-		templateId,
-		data,
-	}
-      ,
-    }));
     req.end();
   });
 }
 
-module.exports = createReminder;
+module.exports = cancelReminder;

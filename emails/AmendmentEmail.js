@@ -13,6 +13,7 @@ async function setupAmendmentReminderEmail({
   customerName,
   projectName,
   quoteUrl,
+  quoteId,
   issueDate,
 	items,
 }, ctx) {
@@ -25,7 +26,7 @@ async function setupAmendmentReminderEmail({
     /*after10days*/{
       date: moment(issueDate).add(10, 'days'),
       templateId: 'd-9f2a00fcf53142fbaa9a1a34cee0ff59',
-      reminderType: 'QUOTE_AFTER_10_DAYS',
+      reminderType: 'AMENDMENT_AFTER_10_DAYS',
     },
   ];
 
@@ -38,24 +39,27 @@ async function setupAmendmentReminderEmail({
           user,
           customerName,
           projectName,
-			quoteUrl,
-			items,
+          quoteUrl,
+          items,
         },
         postDate: date.format(),
       });
 
       const reminder = await ctx.db.createReminder({
         quote: {
-          connect: quoteId,
+          connect: {id: quoteId},
         },
-        postHookId: data.postHookId,
+        postHookId: data.data.id,
         type: reminderType,
         sendingDate: date.format(),
-        status: 'SENT',
+        status: 'PENDING',
       });
+
+      console.log(`${new Date().toISOString()}: Reminder with posthook id ${data.data.id} of type ${reminderType} created`);
     }
-    catch (errors) {
+    catch (error) {
       //Here we should do something to store the errors
+      console.log(`${new Date().toISOString()}: Reminder with posthook id ${data.data.id} of type ${reminderType} not created with error ${error}`);
     }
   });
 }

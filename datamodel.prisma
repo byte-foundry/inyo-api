@@ -61,6 +61,7 @@ enum ReminderStatus {
   PENDING
   SENT
   ERROR
+  CANCELED
 }
 
 enum JobType {
