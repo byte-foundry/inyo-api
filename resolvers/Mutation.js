@@ -598,7 +598,7 @@ const Mutation = {
 			  user: String(user.firstName + ' ' + user.lastName).trim(),
 			  customerName: String(quote.customer.firstName + ' ' + quote.customer.lastName).trim(),
 			  projectName: quote.name,
-			  quoteUrl: `${inyoQuoteBaseUrl}/app/quotes/${quote.id}/view/${quote.token}`,
+			  quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
 			  items,
 			});
 		  console.log(`${new Date().toISOString()}: Amendment Email sent to ${quote.customer.email}`);
