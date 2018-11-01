@@ -425,6 +425,15 @@ const Mutation = {
           firstName
           lastName
           email
+          serviceCompany {
+            siret
+            name
+            address {
+              street
+              city
+              country
+            }
+          }
         }
       }
     `);
@@ -434,8 +443,21 @@ const Mutation = {
 		}
 
 		if (quote.status !== 'DRAFT') {
-			throw new Error('This invoice has already been sent.');
+			throw new Error('This quote has already been sent.');
 		}
+
+		const {serviceCompany} = quote.customer;
+
+		if (
+			!serviceCompany.siret
+			|| !serviceCompany.name
+			|| !serviceCompany.address.street
+			|| !serviceCompany.address.city
+			|| !serviceCompany.address.country
+		) {
+			throw new Error('NEED_MORE_INFOS: can\'t send quote without company info');
+		}
+
 
 		// sending the quote via sendgrid
 		// this use the quote template
