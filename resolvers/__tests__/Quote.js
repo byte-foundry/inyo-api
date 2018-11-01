@@ -1,4 +1,4 @@
-import { Quote } from '../Quote';
+import {Quote} from '../Quote';
 
 describe('Quote resolver', () => {
 	it('should give you the right amount for the total', async () => {
@@ -41,7 +41,7 @@ describe('Quote resolver', () => {
 						$fragment: () => mockQuote,
 					}),
 				},
-			}
+			},
 		);
 
 		expect(total).toBe(28);

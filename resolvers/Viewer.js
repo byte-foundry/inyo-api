@@ -1,13 +1,12 @@
 const Viewer = {
 	__resolveType(obj, context, info) {
-		if(obj.name) {
+		if (obj.name) {
 			return 'Customer';
-		} else {
-			return 'User';
 		}
+		return 'User';
 	},
-}
+};
 
 module.exports = {
 	Viewer,
-}
+};

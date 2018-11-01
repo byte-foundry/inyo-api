@@ -3,8 +3,8 @@ const File = {
 	mimetype: node => node.mimetype,
 	encoding: node => node.encoding,
 	url: node => node.url,
-}
+};
 
 module.exports = {
 	File,
-}
+};
