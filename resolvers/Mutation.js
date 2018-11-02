@@ -1149,7 +1149,7 @@ const Mutation = {
 								create: {
 									viewer: {
 										connect: {id: customer.id}
-									}
+									},
 									viewedAt: moment().format()
 								}
 							}
