@@ -399,7 +399,6 @@ const Mutation = {
 								user: {
 									connect: {id: userId},
 								},
-								viewedAt: moment().format(),
 							}
 						}
 					},
@@ -1150,7 +1149,6 @@ const Mutation = {
 									customer: {
 										connect: {id: customer.id}
 									},
-									viewedAt: moment().format()
 								}
 							}
 						}
@@ -1189,7 +1187,6 @@ const Mutation = {
 								user: {
 									connect: {id: userId}
 								},
-								viewedAt: moment().format()
 							}
 						}
 					}
