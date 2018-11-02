@@ -357,6 +357,7 @@ const Mutation = {
 	},
 	updateValidatedItem: async (parent, {id, unit, comment}, ctx) => {
 		const userId = getUserId(ctx);
+		const me = await ctx.db.user({id: userId});
 		const items = await ctx.db.user({id: userId}).company().customers().quotes()
 			.options()
 			.sections()
@@ -394,6 +395,12 @@ const Mutation = {
 						authorUser: {
 							connect: {id: userId},
 						},
+						views: {
+							create: {
+								viewer: me,
+								viewedAt: moment().format(),
+							}
+						}
 					},
 				},
 			},
@@ -1106,6 +1113,89 @@ const Mutation = {
 		});
 
 		return ctx.db.quote({id: quoteId});
+	},
+	postComment: async (parent, {itemId, token, comment}, ctx) => {
+		if (token) {
+			const [item] = await ctx.db.items({
+				where: {
+					id: itemId,
+					section: {
+						option: {
+							quote: {token},
+						},
+					},
+				}
+			});
+
+			if (!item) {
+				throw new Error(`Item with Id '${itemId}' in quote with token '${token}' has not been found`);
+			}
+
+			const customer = await ctx.db.quote({token}).customer();
+
+			const result = ctx.db.updateItem({
+				where: {
+					id: itemId,
+				},
+				data: {
+					comments: {
+						create: {
+							text: comment.text,
+							authorUser: {
+								connect: {id: userId},
+							},
+							views: {
+								create: {
+									viewer: customer,
+									viewedAt: moment().format()
+								}
+							}
+						}
+					}
+				}
+			});
+
+			sendMetric({metric: 'inyo.comment.postedByCustomer'});
+
+			return result;
+		}
+
+		const userId = getUserId(ctx);
+		const me = await ctx.db.user({id: userId});
+		const items = await ctx.db.user({id: userId}).company().customers().quotes()
+			.options()
+			.sections()
+			.items({where: {itemId}});
+
+		if (!items.length) {
+			throw new Error(`No item with id '${id}' has been found`);
+		}
+
+		const result = ctx.db.updateItem({
+			where: {
+				id: itemId,
+			},
+			data: {
+				comments: {
+					create: {
+						text: comment.text,
+						authorUser: {
+							connect: {id: userId},
+						},
+						views: {
+							create: {
+								viewer: me,
+								viewedAt: moment().format()
+							}
+						}
+					}
+				}
+			}
+		});
+
+		sendMetric({metric: 'inyo.comment.postedByUser'});
+
+		return result;
 	},
 };
 

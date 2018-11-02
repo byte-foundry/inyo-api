@@ -77,6 +77,9 @@ type Mutation {
   acceptAmendment(quoteId: ID!, token: String!): Quote
   # Reject amendment, all items goes UPDATED_SENT -> PENDING
   rejectAmendment(quoteId: ID!, token: String!): Quote
+
+	#post a comment on an item
+	postComment(itemId: ID!, token: String, comment: CommentInput!): Item
 }
 
 input CommentInput {
