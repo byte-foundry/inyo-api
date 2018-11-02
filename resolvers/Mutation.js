@@ -1141,7 +1141,7 @@ const Mutation = {
 					comments: {
 						create: {
 							text: comment.text,
-							authorUser: {
+							authorCustomer: {
 								connect: {id: customer.id},
 							},
 							views: {
