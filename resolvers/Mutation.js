@@ -396,7 +396,7 @@ const Mutation = {
 						},
 						views: {
 							create: {
-								viewer: {
+								user: {
 									connect: {id: userId},
 								},
 								viewedAt: moment().format(),
@@ -1147,7 +1147,7 @@ const Mutation = {
 							},
 							views: {
 								create: {
-									viewer: {
+									customer: {
 										connect: {id: customer.id}
 									},
 									viewedAt: moment().format()
@@ -1186,7 +1186,7 @@ const Mutation = {
 						},
 						views: {
 							create: {
-								viewer: {
+								user: {
 									connect: {id: userId}
 								},
 								viewedAt: moment().format()
