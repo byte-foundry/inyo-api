@@ -357,7 +357,6 @@ const Mutation = {
 	},
 	updateValidatedItem: async (parent, {id, unit, comment}, ctx) => {
 		const userId = getUserId(ctx);
-		const me = await ctx.db.user({id: userId});
 		const items = await ctx.db.user({id: userId}).company().customers().quotes()
 			.options()
 			.sections()
@@ -397,7 +396,9 @@ const Mutation = {
 						},
 						views: {
 							create: {
-								viewer: me,
+								viewer: {
+									connect: {id: userId},
+								},
 								viewedAt: moment().format(),
 							}
 						}
@@ -1142,11 +1143,13 @@ const Mutation = {
 						create: {
 							text: comment.text,
 							authorUser: {
-								connect: {id: userId},
+								connect: {id: customer.id},
 							},
 							views: {
 								create: {
-									viewer: customer,
+									viewer: {
+										connect: {id: customer.id}
+									}
 									viewedAt: moment().format()
 								}
 							}
@@ -1161,7 +1164,6 @@ const Mutation = {
 		}
 
 		const userId = getUserId(ctx);
-		const me = await ctx.db.user({id: userId});
 		const items = await ctx.db.user({id: userId}).company().customers().quotes()
 			.options()
 			.sections()
@@ -1184,7 +1186,9 @@ const Mutation = {
 						},
 						views: {
 							create: {
-								viewer: me,
+								viewer: {
+									connect: {id: userId}
+								},
 								viewedAt: moment().format()
 							}
 						}
