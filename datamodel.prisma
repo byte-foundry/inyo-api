@@ -126,7 +126,7 @@ type Quote {
   template: QuoteTemplate @default(value: BLANK)
   customer: Customer! @relation(name: "CustomerQuotes")
   # this token is a way to restrict access to anyone else than the customer
-  token: String!
+  token: String! @unique
   status: QuoteStatus! @default(value: DRAFT)
   options: [Option!]! @relation(name: "QuoteOptions", onDelete: CASCADE)
   viewedByCustomer: Boolean! @default(value: false)
