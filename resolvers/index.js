@@ -2,6 +2,7 @@ const {Query} = require('./Query');
 const {Mutation} = require('./Mutation');
 const {AuthPayload} = require('./AuthPayload');
 const {User} = require('./User');
+const {Settings} = require('./User');
 const {Company} = require('./Company');
 const {Item} = require('./Item');
 const {Section} = require('./Section');
@@ -20,6 +21,7 @@ const resolvers = {
 	Mutation,
 	AuthPayload,
 	User,
+	Settings,
 	Company,
 	Item,
 	Section,

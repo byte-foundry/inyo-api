@@ -10,6 +10,7 @@ const User = {
 	jobType: node => node.jobType,
 	interestedFeatures: node => node.interestedFeatures,
 	hasUpcomingProject: node => node.hasUpcomingProject,
+	settings: (node, args, ctx) => ctx.db.user({id: node.id}).settings(),
 };
 
 module.exports = {

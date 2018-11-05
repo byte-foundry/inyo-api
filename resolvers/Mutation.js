@@ -27,7 +27,7 @@ const Mutation = {
 	signup: async (
 		parent,
 		{
-			email, password, firstName, lastName, company = {},
+			email, password, firstName, lastName, company = {}, settings = {},
 		},
 		ctx,
 	) => {
@@ -41,6 +41,9 @@ const Mutation = {
 				lastName,
 				company: {
 					create: company,
+				},
+				settings: {
+					create: settings,
 				},
 			});
 
@@ -94,6 +97,7 @@ const Mutation = {
 			jobType,
 			interestedFeatures,
 			hasUpcomingProject,
+			settings,
 		},
 		ctx,
 	) => {
@@ -128,6 +132,9 @@ const Mutation = {
 						},
 						logo: logo && {connect: {id: logo.id}},
 					},
+				},
+				settings: settings && {
+					update: settings,
 				},
 			},
 		});

@@ -290,6 +290,10 @@ enum JobType {
 	NOT_FREELANCER
 }
 
+type Settings {
+	askItemFinishConfirmation: Boolean!
+}
+
 type User {
 	id: ID!
 	email: String!
@@ -302,6 +306,7 @@ type User {
 	jobType: JobType
 	interestedFeatures: [String!]!
 	hasUpcomingProject: Boolean
+	settings: Settings!
 }
 
 type File {

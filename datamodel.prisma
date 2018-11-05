@@ -156,6 +156,11 @@ type Company {
 	customers: [Customer!]! @relation(name: "CompanyCustomers")
 }
 
+type Settings {
+	user: User! @relation(name: "UserSettings")
+	askItemFinishConfirmation: Boolean! @default(value: true)
+}
+
 type User {
 	id: ID! @unique
 	email: String! @unique
@@ -170,6 +175,7 @@ type User {
 	jobType: JobType
 	interestedFeatures: [String!]!
 	hasUpcomingProject: Boolean
+	settings: Settings! @relation(name: "UserSettings")
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }
