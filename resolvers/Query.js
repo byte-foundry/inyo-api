@@ -62,19 +62,20 @@ const Query = {
 
 			const customer = await ctx.db.quote({token}).customer();
 
-			await ctx.db.updateManyComments({
-				where: {id_in: comments.map(comment => comment.id)},
-				data: {
-					viewedByCustomer: true,
-					views: {
-						create: {
-							customer: {connect: {id: customer.id}},
+			await Promise.all(
+				comments.map(comment => ctx.db.updateComment({
+					where: {id: comment.id},
+					data: {
+						views: {
+							create: {
+								customer: {connect: {id: customer.id}},
+							},
 						},
 					},
-				},
-			});
+				})),
+			);
 
-			return comments.map(comment => ({...comment, viewedByCustomer: true}));
+			return comments;
 		}
 
 		const userId = getUserId(ctx);
@@ -98,22 +99,20 @@ const Query = {
 			},
 		});
 
-		await ctx.db.updateManyComments({
-			where: {id_in: comments.map(comment => comment.id)},
-			data: {
-				viewedByUser: true,
-				views: {
-					create: {
-						user: {connect: {id: userId}},
+		await Promise.all(
+			comments.map(comment => ctx.db.updateComment({
+				where: {id: comment.id},
+				data: {
+					views: {
+						create: {
+							user: {connect: {id: userId}},
+						},
 					},
 				},
-			},
-		});
+			})),
+		);
 
-		return comments.map(comment => ({
-			...comment,
-			viewedByUser: true,
-		}));
+		return comments;
 	},
 };
 
