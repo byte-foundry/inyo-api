@@ -1340,7 +1340,7 @@ const Mutation = {
 			.quotes()
 			.options()
 			.sections()
-			.items({where: {itemId}});
+			.items({where: {id: itemId}});
 
 		if (!items.length) {
 			throw new Error(`No item with id '${itemId}' has been found`);
