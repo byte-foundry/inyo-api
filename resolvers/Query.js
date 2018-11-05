@@ -3,7 +3,10 @@ const {getUserId} = require('../utils');
 
 const Query = {
 	me: (root, args, ctx) => ctx.db.user({id: getUserId(ctx)}),
-	customer: (root, {id}, ctx) => ctx.db.user({id: getUserId(ctx)}).company().customer({id}),
+	customer: (root, {id}, ctx) => ctx.db
+		.user({id: getUserId(ctx)})
+		.company()
+		.customer({id}),
 	quote: async (root, {id, token}, ctx) => {
 		// public access with a secret token inserted in a mail
 		if (token) {
@@ -55,9 +58,9 @@ const Query = {
 						},
 					},
 				},
-	  });
+			});
 
-	  const customer = await ctx.db.quote({token}).customer();
+			const customer = await ctx.db.quote({token}).customer();
 
 			await ctx.db.updateManyComments({
 				where: {id_in: comments.map(comment => comment.id)},

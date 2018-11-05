@@ -2,7 +2,8 @@
 	"extends": ["airbnb-base"],
 	"env": {
 		"es6": true,
-		"browser": true
+		"node": true,
+		"jest/globals": true
 	},
 	"parser": "babel-eslint",
 	"parserOptions": {
@@ -54,7 +55,7 @@
 
 		"import/extensions": 1
 	},
-	"plugins": ["prettier"],
+	"plugins": ["prettier", "jest"],
 	"settings": {
 		"import/resolver": {
 			"node": {

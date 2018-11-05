@@ -1,8 +1,6 @@
 const https = require('https');
 
-function cancelReminder(
-	postHookId,
-) {
+function cancelReminder(postHookId) {
 	return new Promise((resolve, reject) => {
 		const options = {
 			method: 'DELETE',

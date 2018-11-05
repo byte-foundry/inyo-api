@@ -11,7 +11,8 @@ const Company = {
 	vat: node => node.vat,
 	customers: (node, args, ctx) => ctx.db.company({id: node.id}).customers(),
 	quotes: async (node, args, ctx) => {
-		const customers = await ctx.db.company({id: node.id}).customers().$fragment(`
+		const customers = await ctx.db.company({id: node.id}).customers()
+			.$fragment(`
       fragment CustomerQuotes on Customer {
         quotes {
           id
@@ -26,10 +27,12 @@ const Company = {
       }
     `);
 
-		return customers.map(customer => customer.quotes).reduce(
-			(quotes, quotesPerCustomer) => quotes.concat(quotesPerCustomer),
-			[],
-		);
+		return customers
+			.map(customer => customer.quotes)
+			.reduce(
+				(quotes, quotesPerCustomer) => quotes.concat(quotesPerCustomer),
+				[],
+			);
 	},
 };
 

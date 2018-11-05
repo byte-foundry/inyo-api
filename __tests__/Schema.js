@@ -8,9 +8,11 @@ import {graphql} from 'graphql';
 
 import schema from '../schema.graphql';
 
+const gql = String.raw;
+
 const getUserTest = {
 	id: 'Get User',
-	query: `
+	query: gql`
 		query {
 			me {
 				id
@@ -55,7 +57,7 @@ describe('Schema', () => {
 			id, query, variables, context: ctx, expected,
 		} = obj;
 
-		test(`query: ${id}`, async () => await expect(
+		test(`query: ${id}`, () => expect(
 			graphql(mockSchema, query, null, {ctx}, variables),
 		).resolves.toEqual(expected));
 	});

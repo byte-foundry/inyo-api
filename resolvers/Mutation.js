@@ -3,22 +3,34 @@ const {sign} = require('jsonwebtoken');
 const uuid = require('uuid/v4');
 const moment = require('moment');
 
+const gql = String.raw;
+
 const {APP_SECRET, getUserId} = require('../utils');
 const {processUpload} = require('../files');
 const {sendMetric} = require('../stats');
 const {
-	sendQuoteEmail, setupQuoteReminderEmail, sendAcceptedQuoteEmail, sendRejectedQuoteEmail,
+	sendQuoteEmail,
+	setupQuoteReminderEmail,
+	sendAcceptedQuoteEmail,
+	sendRejectedQuoteEmail,
 } = require('../emails/QuoteEmail');
 const {sendTaskValidationEmail} = require('../emails/TaskEmail');
-const {sendAmendmentEmail, setupAmendmentReminderEmail} = require('../emails/AmendmentEmail');
+const {
+	sendAmendmentEmail,
+	setupAmendmentReminderEmail,
+} = require('../emails/AmendmentEmail');
 const cancelReminder = require('../reminders/cancelReminder');
 
 const inyoQuoteBaseUrl = 'https://app.inyo.me/app/quotes';
 
 const Mutation = {
-	signup: async (parent, {
-		email, password, firstName, lastName, company = {},
-	}, ctx) => {
+	signup: async (
+		parent,
+		{
+			email, password, firstName, lastName, company = {},
+		},
+		ctx,
+	) => {
 		const hashedPassword = await hash(password, 10);
 
 		try {
@@ -34,17 +46,23 @@ const Mutation = {
 
 			sendMetric({metric: 'inyo.user.created'});
 
-		  console.log(`${new Date().toISOString()}: user with email ${email} created`);
+			console.log(
+				`${new Date().toISOString()}: user with email ${email} created`,
+			);
 
 			return {
 				token: sign({userId: user.id}, APP_SECRET),
 				user,
 			};
 		}
-	  catch (error) {
-		  console.log(`${new Date().toISOString()}: user with email ${email} not created with error ${error}`);
-	  }
+		catch (error) {
+			console.log(
+				`${new Date().toISOString()}: user with email ${email} not created with error ${error}`,
+			);
+			throw error;
+		}
 	},
+
 	login: async (parent, {email, password}, ctx) => {
 		const user = await ctx.db.user({email});
 
@@ -63,18 +81,22 @@ const Mutation = {
 			user,
 		};
 	},
-	updateUser: async (parent, {
-		email,
-		firstName,
-		lastName,
-		company,
-		defaultVatRate,
-		defaultDailyPrice,
-		workingFields,
-		jobType,
-		interestedFeatures,
-		hasUpcomingProject,
-	}, ctx) => {
+	updateUser: async (
+		parent,
+		{
+			email,
+			firstName,
+			lastName,
+			company,
+			defaultVatRate,
+			defaultDailyPrice,
+			workingFields,
+			jobType,
+			interestedFeatures,
+			hasUpcomingProject,
+		},
+		ctx,
+	) => {
 		const userId = getUserId(ctx);
 
 		let logo;
@@ -126,18 +148,29 @@ const Mutation = {
 			},
 		});
 	},
-	createQuote: async (parent, {
-		customerId, customer, name, template, option,
-	}, ctx) => {
+	createQuote: async (
+		parent,
+		{
+			customerId, customer, name, template, option,
+		},
+		ctx,
+	) => {
 		const userCompany = await ctx.db.user({id: getUserId(ctx)}).company();
 
 		if (!customerId && !customer) {
-			throw new Error('You must define either a customer or set an existing customer id.');
+			throw new Error(
+				'You must define either a customer or set an existing customer id.',
+			);
 		}
 
 		const variables = {};
 
-		if (!customerId) {
+		if (customerId) {
+			variables.customer = {
+				connect: {id: customerId},
+			};
+		}
+		else {
 			variables.customer = {
 				create: {
 					...customer,
@@ -146,11 +179,6 @@ const Mutation = {
 						create: {...customer.address},
 					},
 				},
-			};
-		}
-		else {
-			variables.customer = {
-				connect: {id: customerId},
 			};
 		}
 
@@ -163,7 +191,8 @@ const Mutation = {
 				create: {
 					...option,
 					name: 'A',
-					sections: option && option.sections && {
+					sections: option
+						&& option.sections && {
 						create: option.sections.map(section => ({
 							...section,
 							items: section.items && {
@@ -181,11 +210,23 @@ const Mutation = {
 		return result;
 	},
 	updateQuote: async (parent, {id, name, option}, ctx) => {
-		const [quote] = await ctx.db.user({id: getUserId(ctx)}).company().customers().quotes({where: {id}});
+		const [quote] = await ctx.db
+			.user({id: getUserId(ctx)})
+			.company()
+			.customers()
+			.quotes({where: {id}})
+			.$fragment(gql`
+			fragment QuoteWithOption on Quote {
+				id
+				options {
+					id
+				}
+			}
+		`);
 
 		if (option) {
 			await ctx.db.updateOption({
-				where: {id: option.id},
+				where: {id: quote.options[0].id},
 				update: option,
 			});
 		}
@@ -196,7 +237,11 @@ const Mutation = {
 		});
 	},
 	removeQuote: async (parent, {id}, ctx) => {
-		const quotes = await ctx.db.user({id: getUserId(ctx)}).company().customers().quotes({where: {id}});
+		const quotes = await ctx.db
+			.user({id: getUserId(ctx)})
+			.company()
+			.customers()
+			.quotes({where: {id}});
 
 		if (!quotes.length) {
 			return null;
@@ -225,8 +270,16 @@ const Mutation = {
 	//   });
 	// },
 	addSection: async (parent, {optionId, name, items = []}, ctx) => {
-		const option = await ctx.db.user({id: getUserId(ctx)}).company().customers().quotes()
+		const options = await ctx.db
+			.user({id: getUserId(ctx)})
+			.company()
+			.customers()
+			.quotes()
 			.options({where: {id: optionId}});
+
+		if (!options.length) {
+			throw new Error(`No section with id '${optionId}' has been found`);
+		}
 
 		return ctx.db.createSection({
 			option: {
@@ -237,7 +290,11 @@ const Mutation = {
 		});
 	},
 	updateSection: async (parent, {id, name}, ctx) => {
-		const sections = await ctx.db.user({id: getUserId(ctx)}).company().customers().quotes()
+		const sections = await ctx.db
+			.user({id: getUserId(ctx)})
+			.company()
+			.customers()
+			.quotes()
 			.options()
 			.sections({where: {id}});
 
@@ -251,7 +308,11 @@ const Mutation = {
 		});
 	},
 	removeSection: async (parent, {id}, ctx) => {
-		const sections = await ctx.db.user({id: getUserId(ctx)}).company().customers().quotes()
+		const sections = await ctx.db
+			.user({id: getUserId(ctx)})
+			.company()
+			.customers()
+			.quotes()
 			.options()
 			.sections({where: {id}});
 
@@ -261,9 +322,13 @@ const Mutation = {
 
 		return ctx.db.deleteSection({id});
 	},
-	addItem: async (parent, {
-		sectionId, name, description, unitPrice, unit, vatRate,
-	}, ctx) => {
+	addItem: async (
+		parent,
+		{
+			sectionId, name, description, unitPrice, unit, vatRate,
+		},
+		ctx,
+	) => {
 		const [section] = await ctx.db.sections({
 			where: {
 				id: sectionId,
@@ -277,47 +342,58 @@ const Mutation = {
 					},
 				},
 			},
-		}).$fragment(`
-		fragment SectionWithQuote on Section {
-			id
-			option {
-				quote {
-					status
-					customer {
-						serviceCompany {
-							owner {
-								defaultDailyPrice
-								defaultVatRate
+		}).$fragment(gql`
+			fragment SectionWithQuote on Section {
+				id
+				option {
+					quote {
+						status
+						customer {
+							serviceCompany {
+								owner {
+									defaultDailyPrice
+									defaultVatRate
+								}
 							}
 						}
 					}
 				}
 			}
-		}
-	`);
+		`);
 
 		if (!section) {
 			throw new Error(`No section with id '${sectionId}' has been found`);
 		}
 
-		const {defaultDailyPrice, defaultVatRate} = section.option.quote.customer.serviceCompany.owner;
+		const {
+			defaultDailyPrice,
+			defaultVatRate,
+		} = section.option.quote.customer.serviceCompany.owner;
 
 		return ctx.db.createItem({
 			section: {
 				connect: {id: sectionId},
 			},
-	  name,
-	  status: section.option.quote.status === 'ACCEPTED' ? 'ADDED' : 'PENDING',
+			name,
+			status: section.option.quote.status === 'ACCEPTED' ? 'ADDED' : 'PENDING',
 			description,
 			unitPrice: unitPrice || defaultDailyPrice,
 			unit,
 			vatRate: vatRate || defaultVatRate,
 		});
 	},
-	updateItem: async (parent, {
-		id, name, description, unitPrice, unit, vatRate,
-	}, ctx) => {
-		const items = await ctx.db.user({id: getUserId(ctx)}).company().customers().quotes()
+	updateItem: async (
+		parent,
+		{
+			id, name, description, unitPrice, unit, vatRate,
+		},
+		ctx,
+	) => {
+		const items = await ctx.db
+			.user({id: getUserId(ctx)})
+			.company()
+			.customers()
+			.quotes()
 			.options()
 			.sections()
 			.items({where: {id}});
@@ -326,18 +402,18 @@ const Mutation = {
 			throw new Error(`No item with id '${id}' has been found`);
 		}
 
-		const item = await ctx.db.item({id}).$fragment(`
-      fragment ItemWithQuote on Item {
-        status
-        section {
-          option {
-            quote {
-              status
-            }
-          }
-        }
-      }
-    `);
+		const item = await ctx.db.item({id}).$fragment(gql`
+			fragment ItemWithQuote on Item {
+				status
+				section {
+					option {
+						quote {
+							status
+						}
+					}
+				}
+			}
+		`);
 
 		if (item.section.option.quote.status !== 'DRAFT') {
 			throw new Error(`Item '${id}' cannot be updated in this quote state.`);
@@ -357,7 +433,11 @@ const Mutation = {
 	},
 	updateValidatedItem: async (parent, {id, unit, comment}, ctx) => {
 		const userId = getUserId(ctx);
-		const items = await ctx.db.user({id: userId}).company().customers().quotes()
+		const items = await ctx.db
+			.user({id: userId})
+			.company()
+			.customers()
+			.quotes()
 			.options()
 			.sections()
 			.items({where: {id}});
@@ -366,18 +446,18 @@ const Mutation = {
 			throw new Error(`No item with id '${id}' has been found`);
 		}
 
-		const item = await ctx.db.item({id}).$fragment(`
-      fragment ValidatedItemWithQuote on Item {
-        status
-        section {
-          option {
-            quote {
-              status
-            }
-          }
-        }
-      }
-    `);
+		const item = await ctx.db.item({id}).$fragment(gql`
+			fragment ValidatedItemWithQuote on Item {
+				status
+				section {
+					option {
+						quote {
+							status
+						}
+					}
+				}
+			}
+		`);
 
 		if (item.section.option.quote.status !== 'ACCEPTED') {
 			throw new Error(`Item '${id}' cannot be updated in this quote state.`);
@@ -399,8 +479,8 @@ const Mutation = {
 								user: {
 									connect: {id: userId},
 								},
-							}
-						}
+							},
+						},
 					},
 				},
 			},
@@ -411,39 +491,43 @@ const Mutation = {
 		return result;
 	},
 	removeItem: async (parent, {id}, ctx) => {
-		const item = await ctx.db.user({id: getUserId(ctx)}).company().customers().quotes()
+		const item = await ctx.db
+			.user({id: getUserId(ctx)})
+			.company()
+			.customers()
+			.quotes()
 			.options()
 			.sections()
 			.items({where: {id}});
 
 		return ctx.db.deleteItem({id});
 	},
-	sendQuote: async (parent, {id, customer}, ctx) => {
+	sendQuote: async (parent, {id}, ctx) => {
 		const user = await ctx.db.user({id: getUserId(ctx)});
 		// todo: verify quote ownership
-		const quote = await ctx.db.quote({id}).$fragment(`
-      fragment QuoteWithCustomer on Quote {
-        id
-        name
-        token
-        status
-        customer {
-          name
-          firstName
-          lastName
-          email
-          serviceCompany {
-            siret
-            name
-            address {
-              street
-              city
-              country
-            }
-          }
-        }
-      }
-    `);
+		const quote = await ctx.db.quote({id}).$fragment(gql`
+			fragment QuoteWithCustomer on Quote {
+				id
+				name
+				token
+				status
+				customer {
+					name
+					firstName
+					lastName
+					email
+					serviceCompany {
+						siret
+						name
+						address {
+							street
+							city
+							country
+						}
+					}
+				}
+			}
+		`);
 
 		if (!quote) {
 			throw new Error(`No quote '${id}' has been found`);
@@ -462,40 +546,52 @@ const Mutation = {
 			|| !serviceCompany.address.city
 			|| !serviceCompany.address.country
 		) {
-			throw new Error('NEED_MORE_INFOS: can\'t send quote without company info');
+			throw new Error("NEED_MORE_INFOS: can't send quote without company info");
 		}
-
 
 		// sending the quote via sendgrid
 		// this use the quote template
 		try {
 			await sendQuoteEmail({
 				email: quote.customer.email,
-				customerName: String(`${quote.customer.firstName} ${quote.customer.lastName}`).trim(),
+				customerName: String(
+					`${quote.customer.firstName} ${quote.customer.lastName}`,
+				).trim(),
 				projectName: quote.name,
 				user: `${user.firstName} ${user.lastName}`,
 				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
 			});
-		  console.log(`${new Date().toISOString()}: Quote Email sent to ${quote.customer.email}`);
+			console.log(
+				`${new Date().toISOString()}: Quote Email sent to ${
+					quote.customer.email
+				}`,
+			);
 		}
 		catch (error) {
-		  console.log(`${new Date().toISOString()}: Quote Email not sent with error ${error}`);
+			console.log(
+				`${new Date().toISOString()}: Quote Email not sent with error ${error}`,
+			);
 		}
 
 		try {
-			setupQuoteReminderEmail({
-				email: quote.customer.email,
-				customerName: quote.customer.name,
-				projectName: quote.name,
-				user: `${user.firstName} ${user.lastName}`,
-				issueDate: moment().format(),
-				quoteId: quote.id,
-				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
-			}, ctx);
-		  console.log(`${new Date().toISOString()}: Quote reminder setup finished`);
+			setupQuoteReminderEmail(
+				{
+					email: quote.customer.email,
+					customerName: quote.customer.name,
+					projectName: quote.name,
+					user: `${user.firstName} ${user.lastName}`,
+					issueDate: moment().format(),
+					quoteId: quote.id,
+					quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
+				},
+				ctx,
+			);
+			console.log(`${new Date().toISOString()}: Quote reminder setup finished`);
 		}
 		catch (error) {
-		  console.log(`${new Date().toISOString()}: Quote reminder setup errored with error ${error}`);
+			console.log(
+				`${new Date().toISOString()}: Quote reminder setup errored with error ${error}`,
+			);
 		}
 
 		// send mail with token
@@ -512,7 +608,11 @@ const Mutation = {
 	},
 	finishItem: async (parent, {id}, ctx) => {
 		const user = await ctx.db.user({id: getUserId(ctx)});
-		const items = await ctx.db.user({id: user.id}).company().customers().quotes()
+		const items = await ctx.db
+			.user({id: user.id})
+			.company()
+			.customers()
+			.quotes()
 			.options()
 			.sections()
 			.items({where: {id}});
@@ -521,37 +621,40 @@ const Mutation = {
 			throw new Error(`No item with id '${id}' has been found`);
 		}
 
-		const item = await ctx.db.item({id}).$fragment(`
-      fragment ItemWithQuote on Item {
-        name
-        status
-        section {
-          option {
-            sections {
+		const item = await ctx.db.item({id}).$fragment(gql`
+			fragment ItemWithQuote on Item {
 				name
-              items {
-                name
-                unit
 				status
-              }
-            }
-            quote {
-              id
-              token
-              name
-              customer {
-                firstName
-                lastName
-                email
-              }
-              status
-            }
-          }
-        }
-      }
-    `);
+				section {
+					option {
+						sections {
+							name
+							items {
+								name
+								unit
+								status
+							}
+						}
+						quote {
+							id
+							token
+							name
+							customer {
+								firstName
+								lastName
+								email
+							}
+							status
+						}
+					}
+				}
+			}
+		`);
 
-		if (item.section.option.quote.status !== 'ACCEPTED' || item.status !== 'PENDING') {
+		if (
+			item.section.option.quote.status !== 'ACCEPTED'
+			|| item.status !== 'PENDING'
+		) {
 			throw new Error(`Item '${id}' cannot be finished.`);
 		}
 
@@ -559,28 +662,36 @@ const Mutation = {
 		const {quote} = item.section.option;
 		const {customer} = quote;
 
-	  try {
+		try {
 			await sendTaskValidationEmail({
-		  email: customer.email,
-		  user: String(`${user.firstName} ${user.lastName}`).trim(),
-		  customerName: String(`${customer.firstName} ${customer.lastName}`).trim(),
-		  projectName: quote.name,
-		  itemName: item.name,
-		  sections: sections.map(
-			  section => ({
-				  name: section.name,
-				  timeLeft: section.items
-					  .filter(item => item.status === 'PENDING')
-					  .reduce((acc, item) => acc + item.unit, 0),
-			  }),
-		  ).filter(section => section.timeLeft > 0),
-		  quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
+				email: customer.email,
+				user: String(`${user.firstName} ${user.lastName}`).trim(),
+				customerName: String(
+					`${customer.firstName} ${customer.lastName}`,
+				).trim(),
+				projectName: quote.name,
+				itemName: item.name,
+				sections: sections
+					.map(section => ({
+						name: section.name,
+						timeLeft: section.items
+							.filter(item => item.status === 'PENDING')
+							.reduce((acc, item) => acc + item.unit, 0),
+					}))
+					.filter(section => section.timeLeft > 0),
+				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
 			});
-		  console.log(`${new Date().toISOString()}: Task validation email sent to ${customer.email}`);
-	  }
-	  catch (error) {
-		  console.log(`${new Date().toISOString()}: Task validation email not because with error ${error}`);
-	  }
+			console.log(
+				`${new Date().toISOString()}: Task validation email sent to ${
+					customer.email
+				}`,
+			);
+		}
+		catch (error) {
+			console.log(
+				`${new Date().toISOString()}: Task validation email not because with error ${error}`,
+			);
+		}
 
 		sendMetric({metric: 'inyo.item.validated'});
 
@@ -593,81 +704,89 @@ const Mutation = {
 	},
 	sendAmendment: async (parent, {quoteId}, ctx) => {
 		const user = await ctx.db.user({id: getUserId(ctx)});
-		const quote = await ctx.db.quote({id: quoteId}).$fragment(`
-      fragment quoteWithItems on Quote {
-	    id
-	    token
-        status
-        customer {
-          email
-          firstName
-          lastName
-        }
-        options {
-          sections {
-            items(where: {
-				OR: [{
-					status: ADDED
-				}, {
-					status: UPDATED
-				}]
-			}) {
-              id
-              name
-              status
-              unit
-              pendingUnit
-              comments {
-                text
-                authorUser {
-                  firstName
-                  lastName
-                }
-                authorCustomer {
-                  name
-                  firstName
-                  lastName
-                }
-              }
-            }
-          }
-        }
-      }
-    `);
+		const quote = await ctx.db.quote({id: quoteId}).$fragment(gql`
+			fragment quoteWithItems on Quote {
+				id
+				token
+				status
+				customer {
+					email
+					firstName
+					lastName
+				}
+				options {
+					sections {
+						items(where: {OR: [{status: ADDED}, {status: UPDATED}]}) {
+							id
+							name
+							status
+							unit
+							pendingUnit
+							comments {
+								text
+								authorUser {
+									firstName
+									lastName
+								}
+								authorCustomer {
+									name
+									firstName
+									lastName
+								}
+							}
+						}
+					}
+				}
+			}
+		`);
 
 		if (!quote) {
-			throw new Error(`No quote with id '${id}' has been found`);
+			throw new Error(`No quote with id '${quoteId}' has been found`);
 		}
 
 		if (quote.status !== 'ACCEPTED') {
-			throw new Error(`An amendment for quote '${id}' can't be sent in this state.`);
+			throw new Error(
+				`An amendment for quote '${quoteId}' can't be sent in this state.`,
+			);
 		}
 
-		const items = quote.options.reduce((ids, option) => ids.concat(
-			option.sections.reduce((ids, section) => ids.concat(
-				section.items.map(item => ({
-					...item,
-					// This return the last comment made on the item
-					comment: item.comments.map(comment => ({
-						...comment,
-						author: item.authorUser || item.authorCustomer,
-					})).slice(-1)[0],
-				})),
-			), []),
-		), []);
+		const items = quote.options.reduce(
+			(ids, option) => ids.concat(
+				option.sections.reduce(
+					(ids, section) => ids.concat(
+						section.items.map(item => ({
+							...item,
+							// This return the last comment made on the item
+							comment: item.comments
+								.map(comment => ({
+									...comment,
+									author: item.authorUser || item.authorCustomer,
+								}))
+								.slice(-1)[0],
+						})),
+					),
+					[],
+				),
+			),
+			[],
+		);
 
 		await ctx.db.updateManyItems({
 			where: {
-		  id_in: items.filter(item => item.status === 'ADDED').map(item => item.id),
+				id_in: items
+					.filter(item => item.status === 'ADDED')
+					.map(item => item.id),
 			},
 			data: {
-		  status: 'ADDED_SENT',
+				status: 'ADDED_SENT',
 			},
 		});
 
 		await ctx.db.updateManyItems({
 			where: {
-				id_in: items.filter(item => item.status === 'UPDATED').map(item => item.id),
+				id_in: items
+					.filter(item => item.status === 'UPDATED')
+					.map(item => item.id),
 			},
 			data: {
 				status: 'UPDATED_SENT',
@@ -676,36 +795,53 @@ const Mutation = {
 
 		sendMetric({metric: 'inyo.item.updated_sent', count: items.length});
 
-	  try {
-		  await sendAmendmentEmail({
-			  email: quote.customer.email,
-			  user: String(`${user.firstName} ${user.lastName}`).trim(),
-			  customerName: String(`${quote.customer.firstName} ${quote.customer.lastName}`).trim(),
-			  projectName: quote.name,
-			  quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
-			  items,
-			});
-		  console.log(`${new Date().toISOString()}: Amendment Email sent to ${quote.customer.email}`);
-	  }
-	  catch (error) {
-		  console.log(`${new Date().toISOString()}: Amendment Email not sent with error ${error}`);
-	  }
-
-	  try {
-			await setupAmendmentReminderEmail({
+		try {
+			await sendAmendmentEmail({
 				email: quote.customer.email,
 				user: String(`${user.firstName} ${user.lastName}`).trim(),
-				customerName: String(`${quote.customer.firstName} ${quote.customer.lastName}`).trim(),
+				customerName: String(
+					`${quote.customer.firstName} ${quote.customer.lastName}`,
+				).trim(),
 				projectName: quote.name,
-				quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
-				quoteId: quote.id,
+				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
 				items,
-			}, ctx);
-		  console.log(`${new Date().toISOString()}: Amendment reminder setup finished with id`);
-	  }
-	  catch (error) {
-		  console.log(`${new Date().toISOString()}: Amendment reminder not setup with error ${error}`);
-	  }
+			});
+			console.log(
+				`${new Date().toISOString()}: Amendment Email sent to ${
+					quote.customer.email
+				}`,
+			);
+		}
+		catch (error) {
+			console.log(
+				`${new Date().toISOString()}: Amendment Email not sent with error ${error}`,
+			);
+		}
+
+		try {
+			await setupAmendmentReminderEmail(
+				{
+					email: quote.customer.email,
+					user: String(`${user.firstName} ${user.lastName}`).trim(),
+					customerName: String(
+						`${quote.customer.firstName} ${quote.customer.lastName}`,
+					).trim(),
+					projectName: quote.name,
+					quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
+					quoteId: quote.id,
+					items,
+				},
+				ctx,
+			);
+			console.log(
+				`${new Date().toISOString()}: Amendment reminder setup finished with id`,
+			);
+		}
+		catch (error) {
+			console.log(
+				`${new Date().toISOString()}: Amendment reminder not setup with error ${error}`,
+			);
+		}
 
 		sendMetric({metric: 'inyo.amendment.sent'});
 
@@ -717,25 +853,23 @@ const Mutation = {
 				id,
 				section: {option: {quote: {token}}},
 			},
-		}).$fragment(`
-      fragment ItemWithQuote on Item {
-        status
-        pendingUnit
-        section {
-          option {
-            quote {
-              status
-              reminders(where: {
-                status: PENDING
-              }) {
-                id
-                postHookId
-              }
-            }
-          }
-        }
-      }
-    `);
+		}).$fragment(gql`
+			fragment ItemWithQuote on Item {
+				status
+				pendingUnit
+				section {
+					option {
+						quote {
+							status
+							reminders(where: {status: PENDING}) {
+								id
+								postHookId
+							}
+						}
+					}
+				}
+			}
+		`);
 
 		if (!item) {
 			throw new Error(`No item with id '${id}' has been found`);
@@ -745,21 +879,29 @@ const Mutation = {
 			throw new Error(`Item '${id}' cannot be updated in this quote state.`);
 		}
 
-	  item.section.option.quote.reminders.forEach(async (reminder) => {
-	    try {
-	   	 await cancelReminder(reminder.postHookId);
-	   	 await ctx.db.updateReminder({
-	   		 where: {id: reminder.id},
-	   		 data: {
-	   			 status: 'CANCELED',
-	   		 },
-	   	 });
-	     console.log(`${new Date().toISOString()}: reminder with id ${reminder.id} canceled`);
-	    }
-	    catch (error) {
-	     console.log(`${new Date().toISOString()}: reminder with id ${reminder.id} not canceled with error ${error}`);
-	    }
-	  });
+		item.section.option.quote.reminders.forEach(async (reminder) => {
+			try {
+				await cancelReminder(reminder.postHookId);
+				await ctx.db.updateReminder({
+					where: {id: reminder.id},
+					data: {
+						status: 'CANCELED',
+					},
+				});
+				console.log(
+					`${new Date().toISOString()}: reminder with id ${
+						reminder.id
+					} canceled`,
+				);
+			}
+			catch (error) {
+				console.log(
+					`${new Date().toISOString()}: reminder with id ${
+						reminder.id
+					} not canceled with error ${error}`,
+				);
+			}
+		});
 
 		let result;
 
@@ -793,29 +935,29 @@ const Mutation = {
 				id,
 				section: {option: {quote: {token}}},
 			},
-		}).$fragment(`
-      fragment ItemWithQuote on Item {
-        status
-        pendingUnit
-        section {
-          option {
-            quote {
-              status
-            }
-          }
-        }
-      }
-    `);
+		}).$fragment(gql`
+			fragment ItemWithQuote on Item {
+				status
+				pendingUnit
+				section {
+					option {
+						quote {
+							status
+						}
+					}
+				}
+			}
+		`);
 
 		if (item.section.option.quote.status !== 'ACCEPTED') {
 			throw new Error(`Item '${id}' cannot be updated in this quote state.`);
 		}
 
 		if (item.status === 'ADDED_SENT') {
-			return await ctx.db.removeItem({id});
+			return ctx.db.removeItem({id});
 		}
 		if (item.status === 'UPDATED_SENT') {
-			return await ctx.db.updateItem({
+			return ctx.db.updateItem({
 				where: {id},
 				data: {
 					status: 'PENDING',
@@ -823,42 +965,38 @@ const Mutation = {
 				},
 			});
 		}
-
 		throw new Error(`Item '${id}' cannot be updated in this state.`);
 	},
 	acceptQuote: async (parent, {id, token}, ctx) => {
-		const [quote] = await ctx.db.quotes({where: {id, token}}).$fragment(`
-      fragment CustomerUserWithQuote on Quote {
-        status
-        id
-        name
-        reminders(where: {
-          status: PENDING
-        }) {
-          id
-          postHookId
-        }
-        options {
-          sections {
-            items {
-              name
-            }
-          }
-        }
-        customer {
-          serviceCompany {
-            owner {
-              firstName
-              lastName
-              email
-            }
-          }
-          firstName
-          lastName
-        }
-      }
-    `);
-
+		const [quote] = await ctx.db.quotes({where: {id, token}}).$fragment(gql`
+			fragment CustomerUserWithQuote on Quote {
+				status
+				id
+				name
+				reminders(where: {status: PENDING}) {
+					id
+					postHookId
+				}
+				options {
+					sections {
+						items {
+							name
+						}
+					}
+				}
+				customer {
+					serviceCompany {
+						owner {
+							firstName
+							lastName
+							email
+						}
+					}
+					firstName
+					lastName
+				}
+			}
+		`);
 
 		if (!quote || quote.status !== 'SENT') {
 			throw new Error(`No quote with id '${id}' has been found`);
@@ -874,63 +1012,77 @@ const Mutation = {
 			},
 		});
 
-	 quote.reminders.forEach(async (reminder) => {
-		 try {
-			 await cancelReminder(reminder.postHookId);
-			 await ctx.db.updateReminder({
-				 where: {id: reminder.id},
-				 data: {
-					 status: 'CANCELED',
-				 },
-			 });
-		  console.log(`${new Date().toISOString()}: reminder with id ${reminder.id} canceled`);
-		 }
-		 catch (error) {
-		  console.log(`${new Date().toISOString()}: reminder with id ${reminder.id} not canceled with error ${error}`);
-		 }
-	 });
+		quote.reminders.forEach(async (reminder) => {
+			try {
+				await cancelReminder(reminder.postHookId);
+				await ctx.db.updateReminder({
+					where: {id: reminder.id},
+					data: {
+						status: 'CANCELED',
+					},
+				});
+				console.log(
+					`${new Date().toISOString()}: reminder with id ${
+						reminder.id
+					} canceled`,
+				);
+			}
+			catch (error) {
+				console.log(
+					`${new Date().toISOString()}: reminder with id ${
+						reminder.id
+					} not canceled with error ${error}`,
+				);
+			}
+		});
 
-	  const user = quote.customer.serviceCompany.owner;
+		const user = quote.customer.serviceCompany.owner;
 
-	  try {
-		  await sendAcceptedQuoteEmail({
-			  email: user.email,
-			  user: `${user.firstName} ${user.lastName}`,
-			  customerName: `${quote.customer.firstName} ${quote.customer.lastName}`,
-			  projectName: quote.name,
-			  quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/see`,
+		try {
+			await sendAcceptedQuoteEmail({
+				email: user.email,
+				user: `${user.firstName} ${user.lastName}`,
+				customerName: `${quote.customer.firstName} ${quote.customer.lastName}`,
+				projectName: quote.name,
+				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/see`,
 				firstTask: quote.options[0].sections[0].items[0].name,
-		  });
+			});
 
-		  console.log(`${new Date().toISOString()}: Acceptance quote email sent to ${user.email}`);
-	  }
-	  catch (error) {
-		  console.log(`${new Date().toISOString()}: Acceptance quote email not sent with error ${error}`);
-	  }
+			console.log(
+				`${new Date().toISOString()}: Acceptance quote email sent to ${
+					user.email
+				}`,
+			);
+		}
+		catch (error) {
+			console.log(
+				`${new Date().toISOString()}: Acceptance quote email not sent with error ${error}`,
+			);
+		}
 
 		sendMetric({metric: 'inyo.quote.accepted'});
 
 		return result;
 	},
 	rejectQuote: async (parent, {id, token}, ctx) => {
-		const [quote] = await ctx.db.quotes({where: {id, token}}).$fragment(`
-      fragment CustomerUserWithQuote on Quote {
-        status
-		id
-		name
-		customer {
-			serviceCompany {
-				owner {
+		const [quote] = await ctx.db.quotes({where: {id, token}}).$fragment(gql`
+			fragment CustomerUserWithQuote on Quote {
+				status
+				id
+				name
+				customer {
+					serviceCompany {
+						owner {
+							firstName
+							lastName
+							email
+						}
+					}
 					firstName
 					lastName
-					email
 				}
 			}
-			firstName
-			lastName
-		}
-      }
-    `);
+		`);
 
 		if (quote.status !== 'SENT') {
 			throw new Error('This quote has already been verified.');
@@ -941,69 +1093,74 @@ const Mutation = {
 			data: {status: 'REJECTED'},
 		});
 
-	  const user = quote.customer.serviceCompany.owner;
+		const user = quote.customer.serviceCompany.owner;
 
-	  try {
-		  await sendRejectedQuoteEmail({
-			  email: user.email,
-			  user: `${user.firstName} ${user.lastName}`,
-			  customerName: `${quote.customer.firstName} ${quote.customer.lastName}`,
-			  projectName: quote.name,
-			  quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/see`,
-		  });
+		try {
+			await sendRejectedQuoteEmail({
+				email: user.email,
+				user: `${user.firstName} ${user.lastName}`,
+				customerName: `${quote.customer.firstName} ${quote.customer.lastName}`,
+				projectName: quote.name,
+				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/see`,
+			});
 
-		  console.log(`${new Date().toISOString()}: Rejection quote email sent to ${user.owner.email}`);
-	  }
-	  catch (error) {
-		  console.log(`${new Date().toISOString()}: Rejection quote email not sent with error ${error}`);
-	  }
+			console.log(
+				`${new Date().toISOString()}: Rejection quote email sent to ${
+					user.owner.email
+				}`,
+			);
+		}
+		catch (error) {
+			console.log(
+				`${new Date().toISOString()}: Rejection quote email not sent with error ${error}`,
+			);
+		}
 
 		sendMetric({metric: 'inyo.quote.rejected'});
-	  return result;
+		return result;
 	},
 	acceptAmendment: async (parent, {quoteId, token}, ctx) => {
-		const [quote] = await ctx.db.quotes({where: {id: quoteId, token}}).$fragment(`
-      fragment quoteWithItem on Quote {
-        status
-        reminders(where: {
-          status: PENDING
-        }) {
-          id
-          postHookId
-        }
-        options {
-          sections {
-            items(where: {
-              OR: [
-                {
-                  status: UPDATED_SENT
-                },
-                {
-                  status: ADDED_SENT
-                }
-              ]
-            }) {
-              id
-              pendingUnit
-            }
-          }
-        }
-      }
-    `);
+		const [quote] = await ctx.db.quotes({where: {id: quoteId, token}})
+			.$fragment(gql`
+			fragment quoteWithItem on Quote {
+				status
+				reminders(where: {status: PENDING}) {
+					id
+					postHookId
+				}
+				options {
+					sections {
+						items(where: {OR: [{status: UPDATED_SENT}, {status: ADDED_SENT}]}) {
+							id
+							pendingUnit
+						}
+					}
+				}
+			}
+		`);
 
 		if (!quote) {
-			throw new Error(`Quote '${id}' has not been found.`);
+			throw new Error(`Quote '${quoteId}' has not been found.`);
 		}
 
 		if (quote.status !== 'ACCEPTED') {
-			throw new Error(`Quote '${id}' cannot be updated in this state.`);
+			throw new Error(`Quote '${quoteId}' cannot be updated in this state.`);
 		}
 
-		const items = quote.options.reduce((ids, option) => ids.concat(
-			option.sections.reduce((ids, section) => ids.concat(
-				section.items.map(item => ({id: item.id, pendingUnit: item.pendingUnit})),
-			), []),
-		), []);
+		const items = quote.options.reduce(
+			(ids, option) => ids.concat(
+				option.sections.reduce(
+					(ids, section) => ids.concat(
+						section.items.map(item => ({
+							id: item.id,
+							pendingUnit: item.pendingUnit,
+						})),
+					),
+					[],
+				),
+			),
+			[],
+		);
 
 		quote.reminders.forEach(async (reminder) => {
 			try {
@@ -1014,25 +1171,35 @@ const Mutation = {
 						status: 'CANCELED',
 					},
 				});
-				console.log(`${new Date().toISOString()}: reminder with id ${reminder.id} canceled`);
+				console.log(
+					`${new Date().toISOString()}: reminder with id ${
+						reminder.id
+					} canceled`,
+				);
 			}
 			catch (error) {
-				console.log(`${new Date().toISOString()}: reminder with id ${reminder.id} not canceled with error ${error}`);
+				console.log(
+					`${new Date().toISOString()}: reminder with id ${
+						reminder.id
+					} not canceled with error ${error}`,
+				);
 			}
 		});
 
-		await Promise.all(items.map(async (item) => {
-			await ctx.db.updateItem({
-				where: {
-					id: item.id,
-				},
-				data: {
-					status: 'PENDING',
-					unit: item.pendingUnit,
-					pendingUnit: null,
-				},
-			});
-		}));
+		await Promise.all(
+			items.map(async (item) => {
+				await ctx.db.updateItem({
+					where: {
+						id: item.id,
+					},
+					data: {
+						status: 'PENDING',
+						unit: item.pendingUnit,
+						pendingUnit: null,
+					},
+				});
+			}),
+		);
 
 		ctx.db.createLog({
 			ip: ctx.ip,
@@ -1044,42 +1211,36 @@ const Mutation = {
 		return ctx.db.quote({id: quoteId});
 	},
 	rejectAmendment: async (parent, {quoteId, token}, ctx) => {
-		const [quote] = await ctx.db.quotes({where: {id: quoteId, token}}).$fragment(`
-      fragment quoteWithItem on Quote {
-        status
-        reminders(where: {
-          status: PENDING
-        }) {
-          id
-          postHookId
-        }
-        options {
-          sections {
-            items(where: {
-              OR: [
-                {
-                  status: UPDATED_SENT
-                },
-                {
-                  status: ADDED_SENT
-                }
-              ]
-            }) {
-              id
-            }
-          }
-        }
-      }
-    `);
+		const [quote] = await ctx.db.quotes({where: {id: quoteId, token}})
+			.$fragment(gql`
+			fragment quoteWithItem on Quote {
+				status
+				reminders(where: {status: PENDING}) {
+					id
+					postHookId
+				}
+				options {
+					sections {
+						items(where: {OR: [{status: UPDATED_SENT}, {status: ADDED_SENT}]}) {
+							id
+						}
+					}
+				}
+			}
+		`);
 
-		const itemIds = quote.options.reduce((ids, option) => ids.concat(
-			option.sections.reduce((ids, section) => ids.concat(
-				section.items.map(item => item.id),
-			), []),
-		), []);
+		const itemIds = quote.options.reduce(
+			(ids, option) => ids.concat(
+				option.sections.reduce(
+					(ids, section) => ids.concat(section.items.map(item => item.id)),
+					[],
+				),
+			),
+			[],
+		);
 
 		if (!quote) {
-			throw new Error(`Quote '${id}' has not been found.`);
+			throw new Error(`Quote '${quoteId}' has not been found.`);
 		}
 
 		if (quote.status !== 'ACCEPTED') {
@@ -1095,10 +1256,18 @@ const Mutation = {
 						status: 'CANCELED',
 					},
 				});
-				console.log(`${new Date().toISOString()}: reminder with id ${reminder.id} canceled`);
+				console.log(
+					`${new Date().toISOString()}: reminder with id ${
+						reminder.id
+					} canceled`,
+				);
 			}
 			catch (error) {
-				console.log(`${new Date().toISOString()}: reminder with id ${reminder.id} not canceled with error ${error}`);
+				console.log(
+					`${new Date().toISOString()}: reminder with id ${
+						reminder.id
+					} not canceled with error ${error}`,
+				);
 			}
 		});
 
@@ -1124,11 +1293,13 @@ const Mutation = {
 							quote: {token},
 						},
 					},
-				}
+				},
 			});
 
 			if (!item) {
-				throw new Error(`Item with Id '${itemId}' in quote with token '${token}' has not been found`);
+				throw new Error(
+					`Item with Id '${itemId}' in quote with token '${token}' has not been found`,
+				);
 			}
 
 			const customer = await ctx.db.quote({token}).customer();
@@ -1147,13 +1318,13 @@ const Mutation = {
 							views: {
 								create: {
 									customer: {
-										connect: {id: customer.id}
+										connect: {id: customer.id},
 									},
-								}
-							}
-						}
-					}
-				}
+								},
+							},
+						},
+					},
+				},
 			});
 
 			sendMetric({metric: 'inyo.comment.postedByCustomer'});
@@ -1162,13 +1333,17 @@ const Mutation = {
 		}
 
 		const userId = getUserId(ctx);
-		const items = await ctx.db.user({id: userId}).company().customers().quotes()
+		const items = await ctx.db
+			.user({id: userId})
+			.company()
+			.customers()
+			.quotes()
 			.options()
 			.sections()
 			.items({where: {itemId}});
 
 		if (!items.length) {
-			throw new Error(`No item with id '${id}' has been found`);
+			throw new Error(`No item with id '${itemId}' has been found`);
 		}
 
 		const result = ctx.db.updateItem({
@@ -1185,13 +1360,13 @@ const Mutation = {
 						views: {
 							create: {
 								user: {
-									connect: {id: userId}
+									connect: {id: userId},
 								},
-							}
-						}
-					}
-				}
-			}
+							},
+						},
+					},
+				},
+			},
 		});
 
 		sendMetric({metric: 'inyo.comment.postedByUser'});

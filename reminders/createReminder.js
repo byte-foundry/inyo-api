@@ -1,10 +1,7 @@
 const https = require('https');
 
 function createReminder({
-	email,
-	templateId,
-	data,
-	postDate,
+	email, templateId, data, postDate,
 }) {
 	return new Promise((resolve, reject) => {
 		const options = {
@@ -62,17 +59,17 @@ function createReminder({
 			});
 		});
 
-		req.write(JSON.stringify({
-			path: '/send-reminder',
-			postAt: postDate,
-			data:
-	  {
-	  	email,
-	  	templateId,
-	  	data,
-	  }
-			,
-		}));
+		req.write(
+			JSON.stringify({
+				path: '/send-reminder',
+				postAt: postDate,
+				data: {
+					email,
+					templateId,
+					data,
+				},
+			}),
+		);
 		req.end();
 	});
 }
