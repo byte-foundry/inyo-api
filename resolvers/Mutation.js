@@ -6,6 +6,7 @@ const moment = require('moment');
 const gql = String.raw;
 
 const {APP_SECRET, getUserId} = require('../utils');
+const {NotFoundError, InsufficientDataError} = require('../errors');
 const {processUpload} = require('../files');
 const {sendMetric} = require('../stats');
 const {
@@ -70,7 +71,7 @@ const Mutation = {
 		const user = await ctx.db.user({email});
 
 		if (!user) {
-			throw new Error(`No user found for email: ${email}`);
+			throw new NotFoundError(`No user found for email: ${email}`);
 		}
 
 		const valid = await compare(password, user.password);
@@ -165,7 +166,7 @@ const Mutation = {
 		const userCompany = await ctx.db.user({id: getUserId(ctx)}).company();
 
 		if (!customerId && !customer) {
-			throw new Error(
+			throw new InsufficientDataError(
 				'You must define either a customer or set an existing customer id.',
 			);
 		}
@@ -369,7 +370,9 @@ const Mutation = {
 		`);
 
 		if (!section) {
-			throw new Error(`No section with id '${sectionId}' has been found`);
+			throw new NotFoundError(
+				`No section with id '${sectionId}' has been found`,
+			);
 		}
 
 		const {
@@ -406,7 +409,7 @@ const Mutation = {
 			.items({where: {id}});
 
 		if (!items.length) {
-			throw new Error(`No item with id '${id}' has been found`);
+			throw new NotFoundError(`No item with id '${id}' has been found`);
 		}
 
 		const item = await ctx.db.item({id}).$fragment(gql`
@@ -450,7 +453,7 @@ const Mutation = {
 			.items({where: {id}});
 
 		if (!items.length) {
-			throw new Error(`No item with id '${id}' has been found`);
+			throw new NotFoundError(`No item with id '${id}' has been found`);
 		}
 
 		const item = await ctx.db.item({id}).$fragment(gql`
@@ -537,7 +540,7 @@ const Mutation = {
 		`);
 
 		if (!quote) {
-			throw new Error(`No quote '${id}' has been found`);
+			throw new NotFoundError(`No quote '${id}' has been found`);
 		}
 
 		if (quote.status !== 'DRAFT') {
@@ -553,7 +556,9 @@ const Mutation = {
 			|| !serviceCompany.address.city
 			|| !serviceCompany.address.country
 		) {
-			throw new Error("NEED_MORE_INFOS: can't send quote without company info");
+			throw new InsufficientDataError(
+				"NEED_MORE_INFOS: can't send quote without company info",
+			);
 		}
 
 		// sending the quote via sendgrid
@@ -625,7 +630,7 @@ const Mutation = {
 			.items({where: {id}});
 
 		if (!items.length) {
-			throw new Error(`No item with id '${id}' has been found`);
+			throw new NotFoundError(`No item with id '${id}' has been found`);
 		}
 
 		const item = await ctx.db.item({id}).$fragment(gql`
@@ -748,7 +753,7 @@ const Mutation = {
 		`);
 
 		if (!quote) {
-			throw new Error(`No quote with id '${quoteId}' has been found`);
+			throw new NotFoundError(`No quote with id '${quoteId}' has been found`);
 		}
 
 		if (quote.status !== 'ACCEPTED') {
@@ -879,7 +884,7 @@ const Mutation = {
 		`);
 
 		if (!item) {
-			throw new Error(`No item with id '${id}' has been found`);
+			throw new NotFoundError(`No item with id '${id}' has been found`);
 		}
 
 		if (item.section.option.quote.status !== 'ACCEPTED') {
@@ -1006,7 +1011,7 @@ const Mutation = {
 		`);
 
 		if (!quote || quote.status !== 'SENT') {
-			throw new Error(`No quote with id '${id}' has been found`);
+			throw new NotFoundError(`No quote with id '${id}' has been found`);
 		}
 
 		const result = await ctx.db.updateQuote({
@@ -1147,7 +1152,7 @@ const Mutation = {
 		`);
 
 		if (!quote) {
-			throw new Error(`Quote '${quoteId}' has not been found.`);
+			throw new NotFoundError(`Quote '${quoteId}' has not been found.`);
 		}
 
 		if (quote.status !== 'ACCEPTED') {
@@ -1247,7 +1252,7 @@ const Mutation = {
 		);
 
 		if (!quote) {
-			throw new Error(`Quote '${quoteId}' has not been found.`);
+			throw new NotFoundError(`Quote '${quoteId}' has not been found.`);
 		}
 
 		if (quote.status !== 'ACCEPTED') {
@@ -1304,7 +1309,7 @@ const Mutation = {
 			});
 
 			if (!item) {
-				throw new Error(
+				throw new NotFoundError(
 					`Item with Id '${itemId}' in quote with token '${token}' has not been found`,
 				);
 			}
@@ -1350,7 +1355,7 @@ const Mutation = {
 			.items({where: {id: itemId}});
 
 		if (!items.length) {
-			throw new Error(`No item with id '${itemId}' has been found`);
+			throw new NotFoundError(`No item with id '${itemId}' has been found`);
 		}
 
 		const result = ctx.db.updateItem({

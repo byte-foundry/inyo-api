@@ -1,12 +1,8 @@
 const {verify} = require('jsonwebtoken');
 
-const APP_SECRET = 'appsecret321';
+const {AuthError} = require('./errors');
 
-class AuthError extends Error {
-	constructor() {
-		super('Not authorized');
-	}
-}
+const APP_SECRET = 'appsecret321';
 
 function getUserId(context) {
 	const Authorization = context.request.get('Authorization');

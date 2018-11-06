@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"format": "prettier-eslint ./__tests__/**.js ./resolvers/**.js ./reminders/**.js ./emails/**.js .eslintrc .babelrc schema.graphql --write",
+		"format": "prettier-eslint *.js ./__tests__/**.js ./resolvers/**.js ./reminders/**.js ./emails/**.js .eslintrc .babelrc schema.graphql --write",
 		"test": "jest"
 	},
 	"keywords": [],
@@ -13,7 +13,9 @@
 	"dependencies": {
 		"@sendgrid/client": "^6.3.0",
 		"apollo-engine": "^1.1.2",
+		"apollo-errors": "^1.9.0",
 		"bcrypt": "^3.0.2",
+		"body-parser": "^1.18.3",
 		"graphql": "^14.0.2",
 		"graphql-yoga": "^1.16.7",
 		"jsonwebtoken": "^8.3.0",
