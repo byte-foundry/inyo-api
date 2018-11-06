@@ -44,6 +44,10 @@ const Query = {
 			},
 		});
 
+		if (!quote) {
+			throw new NotFoundError(`Quote '${id}' has not been found`);
+		}
+
 		return quote;
 	},
 	itemComments: async (root, {itemId, token}, ctx) => {

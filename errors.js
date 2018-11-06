@@ -1,16 +1,20 @@
-const {createError} = require('apollo-errors');
+class AuthError extends Error {
+	constructor(message = 'Not authorized') {
+		super(message);
+	}
+}
 
-const AuthError = createError('AuthError', {
-	message: 'Not authorized',
-});
+class InsufficientDataError extends Error {
+	constructor(message = 'Missing required data') {
+		super(message);
+	}
+}
 
-const InsufficientDataError = createError('InsufficientDataError', {
-	message: 'Missing required data',
-});
-
-const NotFoundError = createError('NotFoundError', {
-	message: 'Not found',
-});
+class NotFoundError extends Error {
+	constructor(message = 'Not found') {
+		super(message);
+	}
+}
 
 module.exports = {
 	AuthError,

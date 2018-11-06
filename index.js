@@ -1,6 +1,5 @@
 const {GraphQLServer} = require('graphql-yoga');
 const {ApolloEngine} = require('apollo-engine');
-const {formatError} = require('apollo-errors');
 const bodyParser = require('body-parser');
 
 const {prisma} = require('./generated/prisma-client');
@@ -98,7 +97,6 @@ if (process.env.APOLLO_ENGINE_KEY) {
 			port: PORT,
 			httpServer,
 			graphqlPaths: ['/'],
-			formatError,
 		},
 		() => console.log(
 			`Server with Apollo Engine is running on http://localhost:${PORT}`,
@@ -106,7 +104,7 @@ if (process.env.APOLLO_ENGINE_KEY) {
 	);
 }
 else {
-	server.start({port: PORT, tracing: 'enabled', formatError}, () => console.log(
+	server.start({port: PORT, tracing: 'enabled'}, () => console.log(
 		`Server with Apollo Engine is running on http://localhost:${PORT}`,
 	));
 }
