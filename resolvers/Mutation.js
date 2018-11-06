@@ -375,7 +375,7 @@ const Mutation = {
 			);
 		}
 
-		if (item.section.option.quote.status === 'SENT') {
+		if (section.option.quote.status === 'SENT') {
 			throw new Error(`Item cannot be added in this quote state.`);
 		}
 
