@@ -375,6 +375,10 @@ const Mutation = {
 			);
 		}
 
+		if (item.section.option.quote.status === 'SENT') {
+			throw new Error(`Item cannot be added in this quote state.`);
+		}
+
 		const {
 			defaultDailyPrice,
 			defaultVatRate,
@@ -471,6 +475,10 @@ const Mutation = {
 
 		if (item.section.option.quote.status !== 'ACCEPTED') {
 			throw new Error(`Item '${id}' cannot be updated in this quote state.`);
+		}
+
+		if (item.status === 'FINISHED') {
+			throw new Error(`Item '${id}' cannot be updated in this state.`);
 		}
 
 		const result = await ctx.db.updateItem({
