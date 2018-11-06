@@ -63,7 +63,13 @@ type Mutation {
 	removeSection(id: ID!): Section
 
 	# Add an item to a section
-	addItem(sectionId: ID!, name: String!): Item!
+	addItem(
+		sectionId: ID!
+		name: String!
+		unitPrice: Int
+		unit: Float
+		vatRate: Int
+	): Item!
 	# Update item properties
 	updateItem(
 		id: ID!
