@@ -13,6 +13,7 @@
 	"dependencies": {
 		"@sendgrid/client": "^6.3.0",
 		"apollo-engine": "^1.1.2",
+		"apollo-server": "^2.1.0",
 		"bcrypt": "^3.0.2",
 		"body-parser": "^1.18.3",
 		"graphql": "^14.0.2",
