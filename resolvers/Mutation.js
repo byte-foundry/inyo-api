@@ -376,7 +376,7 @@ const Mutation = {
 		}
 
 		if (section.option.quote.status === 'SENT') {
-			throw new Error(`Item cannot be added in this quote state.`);
+			throw new Error('Item cannot be added in this quote state.');
 		}
 
 		const {
@@ -974,7 +974,7 @@ const Mutation = {
 		}
 
 		if (item.status === 'ADDED_SENT') {
-			return ctx.db.removeItem({id});
+			return ctx.db.deleteItem({id});
 		}
 		if (item.status === 'UPDATED_SENT') {
 			return ctx.db.updateItem({
