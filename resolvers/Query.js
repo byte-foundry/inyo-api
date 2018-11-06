@@ -1,3 +1,4 @@
+const {NotFoundError} = require('../errors');
 const {sendMetric} = require('../stats');
 const {getUserId} = require('../utils');
 
@@ -13,7 +14,7 @@ const Query = {
 			const [quote] = await ctx.db.quotes({where: {id, token}});
 
 			if (!quote) {
-				return null;
+				throw new NotFoundError(`Quote '${id}' has not been found`);
 			}
 
 			sendMetric({metric: 'inyo.quote.viewed.total'});
