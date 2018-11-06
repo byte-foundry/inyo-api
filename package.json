@@ -38,7 +38,8 @@
 		"jest-transform-graphql": "^2.1.0",
 		"lint-staged": "^8.0.4",
 		"prettier-eslint": "^8.8.2",
-		"prettier-eslint-cli": "^4.7.1"
+		"prettier-eslint-cli": "^4.7.1",
+		"prisma": "^1.19.3"
 	},
 	"jest": {
 		"transform": {
@@ -52,7 +53,7 @@
 		}
 	},
 	"lint-staged": {
-		"*.{js,json,css,md,eslintrc,babelrc,.graphql}": [
+		"*.{js,json,css,md,eslintrc,babelrc,graphql}": [
 			"prettier-eslint --write",
 			"git add"
 		],
