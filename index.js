@@ -1,21 +1,22 @@
 const {GraphQLServer} = require('graphql-yoga');
 const {ApolloEngine} = require('apollo-engine');
 const bodyParser = require('body-parser');
+
 const {prisma} = require('./generated/prisma-client');
 const {resolvers} = require('./resolvers');
-
 const sendEmail = require('./emails/SendEmail.js');
 
-const PORT = process.env.PORT;
+const {PORT} = process.env;
 
 const server = new GraphQLServer({
 	typeDefs: 'schema.graphql',
 	resolvers,
 	context: (req) => {
 		const {request} = req;
-		const xForwardedFor = (
-			request.headers['x-forwarded-for'] || ''
-		).replace(/:\d+$/, '');
+		const xForwardedFor = (request.headers['x-forwarded-for'] || '').replace(
+			/:\d+$/,
+			'',
+		);
 		const ip = xForwardedFor || request.connection.remoteAddress;
 
 		return {
@@ -33,14 +34,15 @@ server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
 		'sha256',
 		process.env.POSTHOOK_SIGNATURE,
 	);
+
 	console.log('############ SEND REMINDER CALLED ##########');
 	// look for X-Ph-Signature in ctx
-	hmac.update(JSON.stringify(req.body))
+	hmac.update(JSON.stringify(req.body));
 	console.log('############ HMAC UPDATE DONE ##########');
 	const hmacSignature = hmac.digest('hex');
+
 	console.log('############ HMAC PREPARING TO COMPARE##########');
 	console.log(`check: ${hmacSignature}, sent: ${req.get('x-ph-signature')}`);
-
 
 	if (hmacSignature !== req.get('x-ph-signature')) {
 		throw new Error('The signature has not been verified.');
@@ -90,9 +92,16 @@ if (process.env.APOLLO_ENGINE_KEY) {
 		cacheControl: true,
 	});
 
-	engine.listen({port: PORT, httpServer, graphqlPaths: ['/']}, () => console.log(
-		`Server with Apollo Engine is running on http://localhost:${PORT}`,
-	));
+	engine.listen(
+		{
+			port: PORT,
+			httpServer,
+			graphqlPaths: ['/'],
+		},
+		() => console.log(
+			`Server with Apollo Engine is running on http://localhost:${PORT}`,
+		),
+	);
 }
 else {
 	server.start({port: PORT, tracing: 'enabled'}, () => console.log(

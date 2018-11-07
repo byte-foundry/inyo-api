@@ -10,8 +10,8 @@ type Address {
 type Customer {
   id: ID! @unique
   name: String
-  firstName: String
-  lastName: String
+  firstName: String!
+  lastName: String!
   email: String!
   address: Address
   phone: String
@@ -20,6 +20,7 @@ type Customer {
   rm: String
   serviceCompany: Company! @relation(name: "CompanyCustomers")
   quotes: [Quote!]! @relation(name: "CustomerQuotes")
+  commentViews: [CommentView!]! @relation(name: "CommentViewCustomer")
 }
 
 enum QuoteStatus {
@@ -63,6 +64,21 @@ enum ReminderStatus {
   CANCELED
 }
 
+enum JobType {
+  TEAM
+  FULLTIME_INDIVIDUAL
+  PARTTIME_INDIVIDUAL
+  NOT_FREELANCER
+}
+
+type CommentView {
+  id: ID! @unique
+  user: User @relation(name: "CommentViewUser")
+  customer: Customer @relation(name: "CommentViewCustomer")
+  comment: Comment @relation(name: "CommentViews")
+  createdAt: DateTime!
+}
+
 type Comment {
   id: ID! @unique
   text: String!
@@ -70,6 +86,7 @@ type Comment {
   authorCustomer: Customer
   viewedByUser: Boolean! @default(value: false)
   viewedByCustomer: Boolean! @default(value: false)
+  views: [CommentView!]! @relation(name: "CommentViews")
   item: Item! @relation(name: "ItemComments")
   createdAt: DateTime!
 }
@@ -109,7 +126,7 @@ type Quote {
   template: QuoteTemplate @default(value: BLANK)
   customer: Customer! @relation(name: "CustomerQuotes")
   # this token is a way to restrict access to anyone else than the customer
-  token: String!
+  token: String! @unique
   status: QuoteStatus! @default(value: DRAFT)
   options: [Option!]! @relation(name: "QuoteOptions", onDelete: CASCADE)
   viewedByCustomer: Boolean! @default(value: false)
@@ -135,18 +152,31 @@ type Company {
   rcsCity: String
   rm: String
   vat: String
+  logo: File @relation(name: "CompanyLogo")
   customers: [Customer!]! @relation(name: "CompanyCustomers")
+}
+
+type Settings {
+  user: User! @relation(name: "UserSettings")
+  askItemFinishConfirmation: Boolean! @default(value: true)
+  askSendQuoteConfirmation: Boolean! @default(value: true)
 }
 
 type User {
   id: ID! @unique
   email: String! @unique
   password: String!
-  firstName: String
-  lastName: String
+  firstName: String!
+  lastName: String!
   company: Company! @relation(name: "CompanyOwner")
   defaultDailyPrice: Int @default(value: 350)
   defaultVatRate: Int @default(value: 20)
+  commentViews: [CommentView!]! @relation(name: "CommentViewUser")
+  workingFields: [String!]!
+  jobType: JobType
+  interestedFeatures: [String!]!
+  hasUpcomingProject: Boolean
+  settings: Settings! @relation(name: "UserSettings")
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -165,5 +195,14 @@ type Log {
 
   acceptedQuotes: [Quote!]! @relation(name: "AcceptedQuotesLogs")
   acceptedAmendments: [Quote!]! @relation(name: "AcceptedAmendmentsLogs")
+  createdAt: DateTime!
+}
+
+type File {
+  id: ID! @unique
+  filename: String!
+  mimetype: String!
+  encoding: String!
+  url: String!
   createdAt: DateTime!
 }

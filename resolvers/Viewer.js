@@ -1,4 +1,4 @@
-const Author = {
+const Viewer = {
 	__resolveType(obj, context, info) {
 		if (obj.name) {
 			return 'Customer';
@@ -8,5 +8,5 @@ const Author = {
 };
 
 module.exports = {
-	Author,
+	Viewer,
 };

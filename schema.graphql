@@ -1,250 +1,325 @@
 scalar DateTime
 scalar Json
+scalar Upload
 
 type Query {
-  me: User
-  customer(id: ID!): Customer
-  quote(id: ID!, token: String): Quote
-  itemComments(itemId: ID!, token: String): [Comment!]!
+	me: User
+	customer(id: ID!): Customer
+	quote(id: ID!, token: String): Quote
+	itemComments(itemId: ID!, token: String): [Comment!]!
 }
 
 type Mutation {
-  signup(email: String!, password: String!, firstName: String, lastName: String, company: CompanyInput): AuthPayload!
-  login(email: String!, password: String!): AuthPayload!
+	signup(
+		email: String!
+		password: String!
+		firstName: String!
+		lastName: String!
+		company: CompanyInput
+	): AuthPayload!
+	login(email: String!, password: String!): AuthPayload!
 
-  # Update user profile and his company
-  updateUser(email: String, firstName: String, lastName: String, defaultDailyPrice: Int, defaultVatRate: Int, company: CompanyInput): User
+	# Update user profile and his company
+	updateUser(
+		email: String
+		firstName: String
+		lastName: String
+		defaultDailyPrice: Int
+		defaultVatRate: Int
+		workingFields: [String!]
+		jobType: JobType
+		interestedFeatures: [String!]
+		hasUpcomingProject: Boolean
+		company: CompanyInput
+	): User
 
-  # Create a new customer inside the user's company
-  createCustomer(email: String!): Customer!
+	# Create a new customer inside the user's company
+	createCustomer(email: String!): Customer!
 
-  # Create a new quote for a customer of the user's company
-  createQuote(customerId: ID, customer: CustomerInput, name: String, template: QuoteTemplate, option: OptionInput): Quote!
-  # Update quote
-  updateQuote(id: ID!, name: String!, option: OptionInput): Quote
-  # Remove quote
-  removeQuote(id: ID!): Quote
+	# Create a new quote for a customer of the user's company
+	createQuote(
+		customerId: ID
+		customer: CustomerInput
+		name: String
+		template: QuoteTemplate
+		option: OptionInput
+	): Quote!
+	# Update quote
+	updateQuote(id: ID!, name: String!, option: OptionInput): Quote
+	# Remove quote
+	removeQuote(id: ID!): Quote
 
-  # Add an option to the quote
-  # addOption(quoteId: ID!, name: String!, sections: [SectionInput!]): Option!
-  updateOption(id: ID!, proposal: Json!): Option
-  # Remove an option
-  # removeOption(id: ID!): Option
+	# Add an option to the quote
+	# addOption(quoteId: ID!, name: String!, sections: [SectionInput!]): Option!
+	updateOption(id: ID!, proposal: Json!): Option
+	# Remove an option
+	# removeOption(id: ID!): Option
 
-  # Add section to one of the quote's option
-  addSection(optionId: ID!, name: String!, items: [ItemInput!]): Section!
-  # Update
-  updateSection(id: ID!, name: String!): Section
-  # Remove section
-  removeSection(id: ID!): Section
+	# Add section to one of the quote's option
+	addSection(optionId: ID!, name: String!, items: [ItemInput!]): Section!
+	# Update
+	updateSection(id: ID!, name: String!): Section
+	# Remove section
+	removeSection(id: ID!): Section
 
-  # Add an item to a section
-  addItem(sectionId: ID!, name: String!): Item!
-  # Update item properties
-  updateItem(id: ID!, name: String, description: String, unitPrice: Int, unit: Float, vatRate: Int): Item
-  # Update an already validated item
-  updateValidatedItem(id: ID!, unit: Float! comment: CommentInput!): Item
-  # Remove an item
-  removeItem(id: ID!): Item
-  # Finish an item
-  finishItem(id: ID!): Item
-  # Send an amendment with all the updated items
-  sendAmendment(quoteId: ID!): Quote
+	# Add an item to a section
+	addItem(
+		sectionId: ID!
+		name: String!
+		unitPrice: Int
+		unit: Float
+		vatRate: Int
+		description: String
+	): Item!
+	# Update item properties
+	updateItem(
+		id: ID!
+		name: String
+		description: String
+		unitPrice: Int
+		unit: Float
+		vatRate: Int
+	): Item
+	# Update an already validated item
+	updateValidatedItem(id: ID!, unit: Float!, comment: CommentInput!): Item
+	# Remove an item
+	removeItem(id: ID!): Item
+	# Finish an item
+	finishItem(id: ID!): Item
+	# Send an amendment with all the updated items
+	sendAmendment(quoteId: ID!): Quote
 
-  # Send quote to validation, DRAFT -> SENT
-  sendQuote(id: ID!): Quote!
-  # Customer can accept quote, SENT -> ACCEPTED
-  acceptQuote(id: ID!, token: String!): Quote!
-  # Accept a single item from a sent quote
-  acceptItem(id: ID!, token: String!): Item!
-  # Reject a single item from a sent quote
-  rejectItem(id: ID!, token: String!): Item!
-  # Customer can reject invoice, SENT -> REJECTED
-  rejectQuote(id: ID!, token: String!): Quote!
-  # Accept amendment, all items goes UPDATED_SENT -> PENDING, pendingUnit becomes unit
-  acceptAmendment(quoteId: ID!, token: String!): Quote
-  # Reject amendment, all items goes UPDATED_SENT -> PENDING
-  rejectAmendment(quoteId: ID!, token: String!): Quote
+	# Send quote to validation, DRAFT -> SENT
+	sendQuote(id: ID!): Quote!
+	# Customer can accept quote, SENT -> ACCEPTED
+	acceptQuote(id: ID!, token: String!): Quote!
+	# Accept a single item from a sent quote
+	acceptItem(id: ID!, token: String!): Item!
+	# Reject a single item from a sent quote
+	rejectItem(id: ID!, token: String!): Item!
+	# Customer can reject invoice, SENT -> REJECTED
+	rejectQuote(id: ID!, token: String!): Quote!
+	# Accept amendment, all items goes UPDATED_SENT -> PENDING, pendingUnit becomes unit
+	acceptAmendment(quoteId: ID!, token: String!): Quote
+	# Reject amendment, all items goes UPDATED_SENT -> PENDING
+	rejectAmendment(quoteId: ID!, token: String!): Quote
+
+	#post a comment on an item
+	postComment(itemId: ID!, token: String, comment: CommentInput!): Item
 }
 
 input CommentInput {
-  text: String!
+	text: String!
 }
 
 input AddressInput {
-  street: String
-  city: String
-  postalCode: String
-  country: String
+	street: String
+	city: String
+	postalCode: String
+	country: String
 }
 
 input CompanyInput {
-  name: String
-  email: String
-  address: AddressInput
-  phone: String
-  type: String
-  siret: String
-  rcs: String
-  rcsCity: String
-  rm: String
-  vat: String
+	name: String
+	email: String
+	address: AddressInput
+	phone: String
+	type: String
+	siret: String
+	rcs: String
+	rcsCity: String
+	rm: String
+	vat: String
+	logo: Upload
 }
 
 input CustomerInput {
-  name: String!
-  firstName: String!
-  lastName: String!
-  email: String!
-  address: AddressInput
-  phone: String
-  siret: String
-  rcs: String
-  rm: String
+	name: String!
+	firstName: String!
+	lastName: String!
+	email: String!
+	address: AddressInput
+	phone: String
+	siret: String
+	rcs: String
+	rm: String
 }
 
 input ItemInput {
-  name: String!
-  description: String
-  unitPrice: Int
-  unit: Float
-  vatRate: Int
+	name: String!
+	description: String
+	unitPrice: Int
+	unit: Float
+	vatRate: Int
 }
 
 input SectionInput {
-  name: String!
-  items: [ItemInput!]!
+	name: String!
+	items: [ItemInput!]!
 }
 
 input OptionInput {
-  proposal: Json
-  sections: [SectionInput!]!
+	proposal: Json
+	sections: [SectionInput!]!
 }
 
 type AuthPayload {
-  token: String!
-  user: User!
+	token: String!
+	user: User!
 }
 
 type Address {
-  street: String
-  city: String
-  postalCode: String
-  country: String
+	street: String
+	city: String
+	postalCode: String
+	country: String
 }
 
 # Represents a company or an individual that is going to receive an invoice
 type Customer {
-  id: ID!
-  firstName: String
-  lastName: String
-  name: String
-  email: String!
-  address: Address
-  phone: String
-  siret: String
-  rcs: String
-  rm: String
-  vat: String
+	id: ID!
+	firstName: String!
+	lastName: String!
+	name: String
+	email: String!
+	address: Address
+	phone: String
+	siret: String
+	rcs: String
+	rm: String
+	vat: String
 }
 
 enum QuoteStatus {
-  DRAFT
-  SENT
-  ACCEPTED
-  REJECTED
-  INVOICED
-  INVOICED_ACCEPTED
+	DRAFT
+	SENT
+	ACCEPTED
+	REJECTED
+	INVOICED
+	INVOICED_ACCEPTED
 }
 
 enum QuoteTemplate {
-  BLANK
-  WEBSITE
-  IDENTITY
+	BLANK
+	WEBSITE
+	IDENTITY
 }
 
 enum ItemStatus {
-  PENDING
-  FINISHED
-  UPDATED
-  UPDATED_SENT
-  ADDED
-  ADDED_SENT
+	PENDING
+	FINISHED
+	UPDATED
+	UPDATED_SENT
+	ADDED
+	ADDED_SENT
+}
+
+union Viewer = User | Customer
+
+type CommentView {
+	viewer: Viewer!
+	viewedAt: DateTime!
 }
 
 union Author = User | Customer
 
 type Comment {
-  id: ID!
-  text: String!
-  author: Author!
-  createdAt: DateTime!
+	id: ID!
+	text: String!
+	author: Author!
+	views: [CommentView!]!
+	createdAt: DateTime!
 }
 
 type Item {
-  id: ID!
-  name: String!
-  description: String
-  unitPrice: Int!
-  # when unit has been changed but not yet validated
-  pendingUnit: Float
-  unit: Float
-  comments: [Comment!]!
-  vatRate: Int!
-  status: ItemStatus!
+	id: ID!
+	name: String!
+	description: String
+	unitPrice: Int!
+	# when unit has been changed but not yet validated
+	pendingUnit: Float
+	unit: Float
+	comments: [Comment!]!
+	vatRate: Int!
+	status: ItemStatus!
 }
 
 type Section {
-  id: ID!
-  name: String!
-  items: [Item!]!
+	id: ID!
+	name: String!
+	items: [Item!]!
 }
 
 type Option {
-  id: ID!
-  name: String!
-  proposal: Json
-  sections: [Section!]!
+	id: ID!
+	name: String!
+	proposal: Json
+	sections: [Section!]!
 }
 
 type Quote {
-  id: ID!
-  name: String!
-  template: QuoteTemplate
-  issuer: Company!
-  customer: Customer!
-  status: QuoteStatus!
-  options: [Option!]!
-  total: Float,
-  viewedByCustomer: Boolean!
-  issuedAt: DateTime
-  createdAt: DateTime!
-  updatedAt: DateTime!
+	id: ID!
+	name: String!
+	template: QuoteTemplate
+	issuer: Company!
+	customer: Customer!
+	status: QuoteStatus!
+	options: [Option!]!
+	total: Float
+	viewedByCustomer: Boolean!
+	issuedAt: DateTime
+	createdAt: DateTime!
+	updatedAt: DateTime!
 }
 
 type Company {
-  id: ID!
-  name: String
-  owner: User!
-  email: String
-  address: Address
-  phone: String
-  type: String
-  siret: String
-  rcs: String
-  rcsCity: String
-  rm: String
-  vat: String
-  customers: [Customer!]!
-  quotes: [Quote!]!
+	id: ID!
+	name: String
+	owner: User!
+	email: String
+	address: Address
+	phone: String
+	type: String
+	siret: String
+	rcs: String
+	rcsCity: String
+	rm: String
+	vat: String
+	logo: File
+	customers: [Customer!]!
+	quotes: [Quote!]!
+}
+
+enum JobType {
+	TEAM
+	FULLTIME_INDIVIDUAL
+	PARTTIME_INDIVIDUAL
+	NOT_FREELANCER
+}
+
+type Settings {
+	askItemFinishConfirmation: Boolean!
+	askSendQuoteConfirmation: Boolean!
 }
 
 type User {
-  id: ID!
-  email: String!
-  firstName: String
-  lastName: String
-  company: Company!
-  defaultDailyPrice: Int
-  defaultVatRate: Int
+	id: ID!
+	email: String!
+	firstName: String!
+	lastName: String!
+	company: Company!
+	defaultDailyPrice: Int
+	defaultVatRate: Int
+	workingFields: [String!]!
+	jobType: JobType
+	interestedFeatures: [String!]!
+	hasUpcomingProject: Boolean
+	settings: Settings!
+}
+
+type File {
+	filename: String!
+	mimetype: String!
+	encoding: String!
+	url: String!
 }
