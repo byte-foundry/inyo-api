@@ -299,6 +299,7 @@ enum JobType {
 
 type Settings {
 	askItemFinishConfirmation: Boolean!
+	askSendQuoteConfirmation: Boolean!
 }
 
 type User {
