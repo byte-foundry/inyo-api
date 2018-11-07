@@ -19,7 +19,7 @@ const Query = {
 
 			sendMetric({metric: 'inyo.quote.viewed.total'});
 
-			if (quote.viewedByCustomer) {
+			if (!quote.viewedByCustomer) {
 				await ctx.db.updateQuote({
 					where: {id},
 					data: {viewedByCustomer: true},
