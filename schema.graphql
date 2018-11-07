@@ -134,6 +134,11 @@ input CompanyInput {
 	logo: Upload
 }
 
+input SettingsInput {
+	askSendQuoteConfirmation: Boolean
+	askItemFinishConfirmation: Boolean
+}
+
 input CustomerInput {
 	name: String!
 	firstName: String!
