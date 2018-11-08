@@ -9,6 +9,7 @@ const Company = {
 	rcs: node => node.rcs,
 	rm: node => node.rm,
 	vat: node => node.vat,
+	logo: (node, args, ctx) => ctx.db.company({id: node.id}).logo(),
 	customers: (node, args, ctx) => ctx.db.company({id: node.id}).customers(),
 	quotes: async (node, args, ctx) => {
 		const customers = await ctx.db.company({id: node.id}).customers()
