@@ -20,6 +20,7 @@ const {
 	sendAmendmentEmail,
 	setupAmendmentReminderEmail,
 } = require('../emails/AmendmentEmail');
+const {sendNewCommentEmail} = require('../emails/CommentEmail');
 const cancelReminder = require('../reminders/cancelReminder');
 
 const inyoQuoteBaseUrl = 'https://app.inyo.me/app/quotes';
@@ -1334,13 +1335,34 @@ const Mutation = {
 			const [item] = await ctx.db.items({
 				where: {
 					id: itemId,
-					section: {
-						option: {
-							quote: {token},
-						},
-					},
+					section: {option: {quote: {token}}},
 				},
-			});
+			}).$fragment(gql`
+				fragment ItemAndAuthors on Item {
+					id
+					name
+					section {
+						option {
+							quote {
+								id
+								name
+								token
+								customer {
+									id
+									firstName
+									lastName
+									email
+									serviceCompany {
+										owner {
+											email
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			`);
 
 			if (!item) {
 				throw new NotFoundError(
@@ -1349,6 +1371,8 @@ const Mutation = {
 			}
 
 			const customer = await ctx.db.quote({token}).customer();
+			const user = customer.serviceCompany.owner;
+			const {quote} = item.section.option;
 
 			const result = ctx.db.updateItem({
 				where: {
@@ -1373,24 +1397,74 @@ const Mutation = {
 				},
 			});
 
+			try {
+				await sendNewCommentEmail({
+					email: user.email,
+					userName: String(`${user.firstName} ${user.lastName}`).trim(),
+					customerName: String(
+						`${customer.firstName} ${customer.lastName}`,
+					).trim(),
+					projectName: quote.name,
+					itemName: item.name,
+					comment,
+					quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
+				});
+				console.log(`New comment email sent to ${user.email}`);
+			}
+			catch (error) {
+				console.log(`New comment email not because with error ${error}`);
+			}
+
 			sendMetric({metric: 'inyo.comment.postedByCustomer'});
 
 			return result;
 		}
 
 		const userId = getUserId(ctx);
-		const items = await ctx.db
+		const [item] = await ctx.db
 			.user({id: userId})
 			.company()
 			.customers()
 			.quotes()
 			.options()
 			.sections()
-			.items({where: {id: itemId}});
+			.items({where: {id: itemId}})
+			.$fragment(gql`
+			fragment ItemAndAuthors on Item {
+				id
+				name
+				section {
+					option {
+						quote {
+							id
+							name
+							token
+							customer {
+								id
+								firstName
+								lastName
+								email
+								serviceCompany {
+									owner {
+										firstName
+										lastName
+										email
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		`);
 
-		if (!items.length) {
+		if (!item) {
 			throw new NotFoundError(`No item with id '${itemId}' has been found`);
 		}
+
+		const {quote} = item.section.option;
+		const {customer} = quote;
+		const user = customer.serviceCompany.owner;
 
 		const result = ctx.db.updateItem({
 			where: {
@@ -1414,6 +1488,24 @@ const Mutation = {
 				},
 			},
 		});
+
+		try {
+			await sendNewCommentEmail({
+				email: customer.email,
+				userName: String(`${user.firstName} ${user.lastName}`).trim(),
+				customerName: String(
+					`${customer.firstName} ${customer.lastName}`,
+				).trim(),
+				projectName: quote.name,
+				itemName: item.name,
+				comment,
+				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
+			});
+			console.log(`New comment email sent to ${customer.email}`);
+		}
+		catch (error) {
+			console.log(`New comment email not because with error ${error}`);
+		}
 
 		sendMetric({metric: 'inyo.comment.postedByUser'});
 
