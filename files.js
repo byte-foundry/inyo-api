@@ -7,7 +7,13 @@ const s3 = new AWS.S3({params: {Bucket: bucket}});
 const storeUpload = async ({stream, prefix, filename}) => {
 	const path = `${prefix}/${filename}`;
 
-	return s3.upload({Key: path, Body: stream}).promise();
+	return s3
+		.upload({
+			ACL: 'public-read',
+			Key: path,
+			Body: stream,
+		})
+		.promise();
 };
 
 const processUpload = async (upload, ctx, prefix) => {
