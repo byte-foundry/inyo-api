@@ -141,8 +141,9 @@ input SettingsInput {
 
 input CustomerInput {
 	name: String!
-	firstName: String!
-	lastName: String!
+	title: Title
+	firstName: String
+	lastName: String
 	email: String!
 	address: AddressInput
 	phone: String
@@ -184,8 +185,9 @@ type Address {
 # Represents a company or an individual that is going to receive an invoice
 type Customer {
 	id: ID!
-	firstName: String!
-	lastName: String!
+	title: Title
+	firstName: String
+	lastName: String
 	name: String
 	email: String!
 	address: Address
@@ -294,6 +296,11 @@ type Company {
 	logo: File
 	customers: [Customer!]!
 	quotes: [Quote!]!
+}
+
+enum Title {
+	MONSIEUR
+	MADAME
 }
 
 enum JobType {
