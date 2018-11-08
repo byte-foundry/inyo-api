@@ -251,14 +251,18 @@ const Mutation = {
 		});
 	},
 	removeQuote: async (parent, {id}, ctx) => {
-		const quotes = await ctx.db
+		const [quote] = await ctx.db
 			.user({id: getUserId(ctx)})
 			.company()
 			.customers()
 			.quotes({where: {id}});
 
-		if (!quotes.length) {
-			return null;
+		if (!quote) {
+			throw new NotFoundError(`Quote '${id}' has not been found.`);
+		}
+
+		if (quote.status !== 'DRAFT') {
+			throw new Error('Deleting an already accepted quote is not possible');
 		}
 
 		return ctx.db.deleteQuote({id});
