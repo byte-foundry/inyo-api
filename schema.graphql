@@ -318,8 +318,8 @@ type Settings {
 type User {
 	id: ID!
 	email: String!
-	firstName: String!
-	lastName: String!
+	firstName: String
+	lastName: String
 	company: Company!
 	defaultDailyPrice: Int
 	defaultVatRate: Int
