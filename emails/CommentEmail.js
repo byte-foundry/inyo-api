@@ -3,7 +3,8 @@ const sendEmail = require('./SendEmail.js');
 async function sendNewCommentEmail({
 	email,
 	user,
-	customerName,
+	authorName,
+	recipientName,
 	itemName,
 	projectName,
 	comment,
@@ -13,7 +14,8 @@ async function sendNewCommentEmail({
 		email,
 		data: {
 			user,
-			customerName,
+			authorName,
+			recipientName,
 			projectName,
 			itemName,
 			comment,

@@ -1400,8 +1400,8 @@ const Mutation = {
 			try {
 				await sendNewCommentEmail({
 					email: user.email,
-					userName: String(`${user.firstName} ${user.lastName}`).trim(),
-					customerName: String(
+					recipentName: String(`${user.firstName} ${user.lastName}`).trim(),
+					authorName: String(
 						`${customer.firstName} ${customer.lastName}`,
 					).trim(),
 					projectName: quote.name,
@@ -1492,10 +1492,10 @@ const Mutation = {
 		try {
 			await sendNewCommentEmail({
 				email: customer.email,
-				userName: String(`${user.firstName} ${user.lastName}`).trim(),
-				customerName: String(
+				recipentName: String(
 					`${customer.firstName} ${customer.lastName}`,
 				).trim(),
+				authorName: String(`${user.firstName} ${user.lastName}`).trim(),
 				projectName: quote.name,
 				itemName: item.name,
 				comment,
