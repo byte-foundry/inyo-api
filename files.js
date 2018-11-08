@@ -1,29 +1,13 @@
-const fs = require('fs');
+const AWS = require('aws-sdk');
 
 const isProd = process.env.NODE_ENV === 'production';
-const bucket = isProd ? 'inyo' : 'inyo-dev';
+const bucket = isProd ? 'inyo-prod' : 'inyo-dev';
+const s3 = new AWS.S3({params: {Bucket: bucket}});
 
 const storeUpload = async ({stream, prefix, filename}) => {
 	const path = `${prefix}/${filename}`;
 
-	return new Promise((resolve, reject) => {
-		const localPath = `../files/${bucket}/${path}`;
-
-		fs.mkdir(localPath, {recursive: true}, (err) => {
-			if (err) reject(err);
-
-			fs.writeFile(localPath, stream, (err2) => {
-				if (err2) reject(err2);
-
-				resolve({
-					Location: `https://somewhere.over.the.rainbow/${path}`,
-					ETag: 'whatever',
-					Bucket: bucket,
-					Key: path,
-				});
-			});
-		});
-	});
+	return s3.upload({Key: path, Body: stream}).promise();
 };
 
 const processUpload = async (upload, ctx, prefix) => {
