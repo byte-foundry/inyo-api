@@ -584,7 +584,7 @@ const Mutation = {
 					` ${titleToCivilite[quote.customer.title]} ${
 						quote.customer.firstName
 					} ${quote.customer.lastName}`,
-				).trimEnd(),
+				).trimRight(),
 				projectName: quote.name,
 				user: `${user.firstName} ${user.lastName}`,
 				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
@@ -699,7 +699,7 @@ const Mutation = {
 					` ${titleToCivilite[quote.customer.title]} ${
 						quote.customer.firstName
 					} ${quote.customer.lastName}`,
-				).trimEnd(),
+				).trimRight(),
 				projectName: quote.name,
 				itemName: item.name,
 				sections: sections
@@ -835,7 +835,7 @@ const Mutation = {
 					` ${titleToCivilite[quote.customer.title]} ${
 						quote.customer.firstName
 					} ${quote.customer.lastName}`,
-				).trimEnd(),
+				).trimRight(),
 				projectName: quote.name,
 				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
 				items,
@@ -861,7 +861,7 @@ const Mutation = {
 						` ${titleToCivilite[quote.customer.title]} ${
 							quote.customer.firstName
 						} ${quote.customer.lastName}`,
-					).trimEnd(),
+					).trimRight(),
 					projectName: quote.name,
 					quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
 					quoteId: quote.id,
@@ -1083,7 +1083,7 @@ const Mutation = {
 					` ${titleToCivilite[quote.customer.title]} ${
 						quote.customer.firstName
 					} ${quote.customer.lastName}`,
-				).trimEnd(),
+				).trimRight(),
 				projectName: quote.name,
 				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/see`,
 				firstTask: quote.options[0].sections[0].items[0].name,
@@ -1145,7 +1145,7 @@ const Mutation = {
 					` ${titleToCivilite[quote.customer.title]} ${
 						quote.customer.firstName
 					} ${quote.customer.lastName}`,
-				).trimEnd(),
+				).trimRight(),
 				projectName: quote.name,
 				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/see`,
 			});
