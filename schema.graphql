@@ -31,6 +31,7 @@ type Mutation {
 		interestedFeatures: [String!]
 		hasUpcomingProject: Boolean
 		company: CompanyInput
+		settings: SettingsInput
 	): User
 
 	# Create a new customer inside the user's company
@@ -133,10 +134,16 @@ input CompanyInput {
 	logo: Upload
 }
 
+input SettingsInput {
+	askSendQuoteConfirmation: Boolean
+	askItemFinishConfirmation: Boolean
+}
+
 input CustomerInput {
 	name: String!
-	firstName: String!
-	lastName: String!
+	title: Title
+	firstName: String
+	lastName: String
 	email: String!
 	address: AddressInput
 	phone: String
@@ -178,8 +185,9 @@ type Address {
 # Represents a company or an individual that is going to receive an invoice
 type Customer {
 	id: ID!
-	firstName: String!
-	lastName: String!
+	title: Title
+	firstName: String
+	lastName: String
 	name: String
 	email: String!
 	address: Address
@@ -290,6 +298,11 @@ type Company {
 	quotes: [Quote!]!
 }
 
+enum Title {
+	MONSIEUR
+	MADAME
+}
+
 enum JobType {
 	TEAM
 	FULLTIME_INDIVIDUAL
@@ -305,8 +318,8 @@ type Settings {
 type User {
 	id: ID!
 	email: String!
-	firstName: String!
-	lastName: String!
+	firstName: String
+	lastName: String
 	company: Company!
 	defaultDailyPrice: Int
 	defaultVatRate: Int

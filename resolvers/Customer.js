@@ -8,6 +8,7 @@ const Customer = {
 	rcs: node => node.rcs,
 	rm: node => node.rm,
 	vat: node => node.vat,
+	title: node => node.title,
 };
 
 module.exports = {

@@ -20,9 +20,15 @@ const {
 	sendAmendmentEmail,
 	setupAmendmentReminderEmail,
 } = require('../emails/AmendmentEmail');
+const {sendNewCommentEmail} = require('../emails/CommentEmail');
 const cancelReminder = require('../reminders/cancelReminder');
 
 const inyoQuoteBaseUrl = 'https://app.inyo.me/app/quotes';
+
+const titleToCivilite = {
+	MONSIEUR: 'M.',
+	MADAME: 'Mme',
+};
 
 const Mutation = {
 	signup: async (
@@ -531,6 +537,7 @@ const Mutation = {
 				status
 				customer {
 					name
+					title
 					firstName
 					lastName
 					email
@@ -575,8 +582,10 @@ const Mutation = {
 			await sendQuoteEmail({
 				email: quote.customer.email,
 				customerName: String(
-					`${quote.customer.firstName} ${quote.customer.lastName}`,
-				).trim(),
+					` ${titleToCivilite[quote.customer.title]} ${
+						quote.customer.firstName
+					} ${quote.customer.lastName}`,
+				).trimRight(),
 				projectName: quote.name,
 				user: `${user.firstName} ${user.lastName}`,
 				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
@@ -660,6 +669,7 @@ const Mutation = {
 							token
 							name
 							customer {
+								title
 								firstName
 								lastName
 								email
@@ -687,8 +697,10 @@ const Mutation = {
 				email: customer.email,
 				user: String(`${user.firstName} ${user.lastName}`).trim(),
 				customerName: String(
-					`${customer.firstName} ${customer.lastName}`,
-				).trim(),
+					` ${titleToCivilite[quote.customer.title]} ${
+						quote.customer.firstName
+					} ${quote.customer.lastName}`,
+				).trimRight(),
 				projectName: quote.name,
 				itemName: item.name,
 				sections: sections
@@ -731,6 +743,7 @@ const Mutation = {
 				status
 				customer {
 					email
+					title
 					firstName
 					lastName
 				}
@@ -820,8 +833,10 @@ const Mutation = {
 				email: quote.customer.email,
 				user: String(`${user.firstName} ${user.lastName}`).trim(),
 				customerName: String(
-					`${quote.customer.firstName} ${quote.customer.lastName}`,
-				).trim(),
+					` ${titleToCivilite[quote.customer.title]} ${
+						quote.customer.firstName
+					} ${quote.customer.lastName}`,
+				).trimRight(),
 				projectName: quote.name,
 				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
 				items,
@@ -844,8 +859,10 @@ const Mutation = {
 					email: quote.customer.email,
 					user: String(`${user.firstName} ${user.lastName}`).trim(),
 					customerName: String(
-						`${quote.customer.firstName} ${quote.customer.lastName}`,
-					).trim(),
+						` ${titleToCivilite[quote.customer.title]} ${
+							quote.customer.firstName
+						} ${quote.customer.lastName}`,
+					).trimRight(),
 					projectName: quote.name,
 					quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
 					quoteId: quote.id,
@@ -1012,6 +1029,7 @@ const Mutation = {
 							email
 						}
 					}
+					title
 					firstName
 					lastName
 				}
@@ -1062,7 +1080,11 @@ const Mutation = {
 			await sendAcceptedQuoteEmail({
 				email: user.email,
 				user: `${user.firstName} ${user.lastName}`,
-				customerName: `${quote.customer.firstName} ${quote.customer.lastName}`,
+				customerName: String(
+					` ${titleToCivilite[quote.customer.title]} ${
+						quote.customer.firstName
+					} ${quote.customer.lastName}`,
+				).trimRight(),
 				projectName: quote.name,
 				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/see`,
 				firstTask: quote.options[0].sections[0].items[0].name,
@@ -1098,6 +1120,7 @@ const Mutation = {
 							email
 						}
 					}
+					title
 					firstName
 					lastName
 				}
@@ -1119,7 +1142,11 @@ const Mutation = {
 			await sendRejectedQuoteEmail({
 				email: user.email,
 				user: `${user.firstName} ${user.lastName}`,
-				customerName: `${quote.customer.firstName} ${quote.customer.lastName}`,
+				customerName: String(
+					` ${titleToCivilite[quote.customer.title]} ${
+						quote.customer.firstName
+					} ${quote.customer.lastName}`,
+				).trimRight(),
 				projectName: quote.name,
 				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/see`,
 			});
@@ -1308,13 +1335,34 @@ const Mutation = {
 			const [item] = await ctx.db.items({
 				where: {
 					id: itemId,
-					section: {
-						option: {
-							quote: {token},
-						},
-					},
+					section: {option: {quote: {token}}},
 				},
-			});
+			}).$fragment(gql`
+				fragment ItemAndAuthors on Item {
+					id
+					name
+					section {
+						option {
+							quote {
+								id
+								name
+								token
+								customer {
+									id
+									firstName
+									lastName
+									email
+									serviceCompany {
+										owner {
+											email
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			`);
 
 			if (!item) {
 				throw new NotFoundError(
@@ -1323,6 +1371,8 @@ const Mutation = {
 			}
 
 			const customer = await ctx.db.quote({token}).customer();
+			const user = customer.serviceCompany.owner;
+			const {quote} = item.section.option;
 
 			const result = ctx.db.updateItem({
 				where: {
@@ -1347,24 +1397,74 @@ const Mutation = {
 				},
 			});
 
+			try {
+				await sendNewCommentEmail({
+					email: user.email,
+					recipentName: String(`${user.firstName} ${user.lastName}`).trim(),
+					authorName: String(
+						`${customer.firstName} ${customer.lastName}`,
+					).trim(),
+					projectName: quote.name,
+					itemName: item.name,
+					comment,
+					quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
+				});
+				console.log(`New comment email sent to ${user.email}`);
+			}
+			catch (error) {
+				console.log(`New comment email not because with error ${error}`);
+			}
+
 			sendMetric({metric: 'inyo.comment.postedByCustomer'});
 
 			return result;
 		}
 
 		const userId = getUserId(ctx);
-		const items = await ctx.db
+		const [item] = await ctx.db
 			.user({id: userId})
 			.company()
 			.customers()
 			.quotes()
 			.options()
 			.sections()
-			.items({where: {id: itemId}});
+			.items({where: {id: itemId}})
+			.$fragment(gql`
+			fragment ItemAndAuthors on Item {
+				id
+				name
+				section {
+					option {
+						quote {
+							id
+							name
+							token
+							customer {
+								id
+								firstName
+								lastName
+								email
+								serviceCompany {
+									owner {
+										firstName
+										lastName
+										email
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		`);
 
-		if (!items.length) {
+		if (!item) {
 			throw new NotFoundError(`No item with id '${itemId}' has been found`);
 		}
+
+		const {quote} = item.section.option;
+		const {customer} = quote;
+		const user = customer.serviceCompany.owner;
 
 		const result = ctx.db.updateItem({
 			where: {
@@ -1388,6 +1488,24 @@ const Mutation = {
 				},
 			},
 		});
+
+		try {
+			await sendNewCommentEmail({
+				email: customer.email,
+				recipentName: String(
+					`${customer.firstName} ${customer.lastName}`,
+				).trim(),
+				authorName: String(`${user.firstName} ${user.lastName}`).trim(),
+				projectName: quote.name,
+				itemName: item.name,
+				comment,
+				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
+			});
+			console.log(`New comment email sent to ${customer.email}`);
+		}
+		catch (error) {
+			console.log(`New comment email not because with error ${error}`);
+		}
 
 		sendMetric({metric: 'inyo.comment.postedByUser'});
 

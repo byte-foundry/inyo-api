@@ -6,12 +6,20 @@ type Address {
   country: String
 }
 
+enum Title {
+	MONSIEUR
+	MADAME
+	MADEMOISELLE
+	MONDAMOISEAU
+}
+
 # Represents a company or an individual that is going to receive an invoice
 type Customer {
   id: ID! @unique
   name: String
-  firstName: String!
-  lastName: String!
+	title: Title
+  firstName: String
+  lastName: String
   email: String!
   address: Address
   phone: String
