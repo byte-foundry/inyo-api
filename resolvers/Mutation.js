@@ -24,6 +24,11 @@ const cancelReminder = require('../reminders/cancelReminder');
 
 const inyoQuoteBaseUrl = 'https://app.inyo.me/app/quotes';
 
+const titleToCivilite = {
+	MONSIEUR: 'M.',
+	MADAME: 'Mme',
+};
+
 const Mutation = {
 	signup: async (
 		parent,
@@ -531,6 +536,7 @@ const Mutation = {
 				status
 				customer {
 					name
+					title
 					firstName
 					lastName
 					email
@@ -575,8 +581,10 @@ const Mutation = {
 			await sendQuoteEmail({
 				email: quote.customer.email,
 				customerName: String(
-					`${quote.customer.firstName} ${quote.customer.lastName}`,
-				).trim(),
+					` ${titleToCivilite[quote.customer.title]} ${
+						quote.customer.firstName
+					} ${quote.customer.lastName}`,
+				).trimEnd(),
 				projectName: quote.name,
 				user: `${user.firstName} ${user.lastName}`,
 				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
@@ -660,6 +668,7 @@ const Mutation = {
 							token
 							name
 							customer {
+								title
 								firstName
 								lastName
 								email
@@ -687,8 +696,10 @@ const Mutation = {
 				email: customer.email,
 				user: String(`${user.firstName} ${user.lastName}`).trim(),
 				customerName: String(
-					`${customer.firstName} ${customer.lastName}`,
-				).trim(),
+					` ${titleToCivilite[quote.customer.title]} ${
+						quote.customer.firstName
+					} ${quote.customer.lastName}`,
+				).trimEnd(),
 				projectName: quote.name,
 				itemName: item.name,
 				sections: sections
@@ -731,6 +742,7 @@ const Mutation = {
 				status
 				customer {
 					email
+					title
 					firstName
 					lastName
 				}
@@ -820,8 +832,10 @@ const Mutation = {
 				email: quote.customer.email,
 				user: String(`${user.firstName} ${user.lastName}`).trim(),
 				customerName: String(
-					`${quote.customer.firstName} ${quote.customer.lastName}`,
-				).trim(),
+					` ${titleToCivilite[quote.customer.title]} ${
+						quote.customer.firstName
+					} ${quote.customer.lastName}`,
+				).trimEnd(),
 				projectName: quote.name,
 				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
 				items,
@@ -844,8 +858,10 @@ const Mutation = {
 					email: quote.customer.email,
 					user: String(`${user.firstName} ${user.lastName}`).trim(),
 					customerName: String(
-						`${quote.customer.firstName} ${quote.customer.lastName}`,
-					).trim(),
+						` ${titleToCivilite[quote.customer.title]} ${
+							quote.customer.firstName
+						} ${quote.customer.lastName}`,
+					).trimEnd(),
 					projectName: quote.name,
 					quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
 					quoteId: quote.id,
@@ -1012,6 +1028,7 @@ const Mutation = {
 							email
 						}
 					}
+					title
 					firstName
 					lastName
 				}
@@ -1062,7 +1079,11 @@ const Mutation = {
 			await sendAcceptedQuoteEmail({
 				email: user.email,
 				user: `${user.firstName} ${user.lastName}`,
-				customerName: `${quote.customer.firstName} ${quote.customer.lastName}`,
+				customerName: String(
+					` ${titleToCivilite[quote.customer.title]} ${
+						quote.customer.firstName
+					} ${quote.customer.lastName}`,
+				).trimEnd(),
 				projectName: quote.name,
 				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/see`,
 				firstTask: quote.options[0].sections[0].items[0].name,
@@ -1098,6 +1119,7 @@ const Mutation = {
 							email
 						}
 					}
+					title
 					firstName
 					lastName
 				}
@@ -1119,7 +1141,11 @@ const Mutation = {
 			await sendRejectedQuoteEmail({
 				email: user.email,
 				user: `${user.firstName} ${user.lastName}`,
-				customerName: `${quote.customer.firstName} ${quote.customer.lastName}`,
+				customerName: String(
+					` ${titleToCivilite[quote.customer.title]} ${
+						quote.customer.firstName
+					} ${quote.customer.lastName}`,
+				).trimEnd(),
 				projectName: quote.name,
 				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/see`,
 			});
