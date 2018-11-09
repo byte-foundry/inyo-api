@@ -267,11 +267,18 @@ const Mutation = {
 		});
 	},
 	removeQuote: async (parent, {id}, ctx) => {
-		const [quote] = await ctx.db
-			.user({id: getUserId(ctx)})
-			.company()
-			.customers()
-			.quotes({where: {id}});
+		const [quote] = await ctx.db.quotes({
+			where: {
+				id,
+				customer: {
+					serviceCompany: {
+						owner: {
+							id: getUserId(ctx),
+						},
+					},
+				},
+			},
+		});
 
 		if (!quote) {
 			throw new NotFoundError(`Quote '${id}' has not been found.`);
