@@ -1,9 +1,9 @@
 type Address {
-  id: ID! @unique
-  street: String
-  city: String
-  postalCode: String
-  country: String
+	id: ID! @unique
+	street: String
+	city: String
+	postalCode: String
+	country: String
 }
 
 enum Title {
@@ -15,202 +15,204 @@ enum Title {
 
 # Represents a company or an individual that is going to receive an invoice
 type Customer {
-  id: ID! @unique
-  name: String
+	id: ID! @unique
+	name: String
 	title: Title
-  firstName: String
-  lastName: String
-  email: String!
-  address: Address
-  phone: String
-  siret: String
-  rcs: String
-  rm: String
-  serviceCompany: Company! @relation(name: "CompanyCustomers")
-  quotes: [Quote!]! @relation(name: "CustomerQuotes")
-  commentViews: [CommentView!]! @relation(name: "CommentViewCustomer")
+	firstName: String
+	lastName: String
+	email: String!
+	address: Address
+	phone: String
+	siret: String
+	rcs: String
+	rm: String
+	serviceCompany: Company! @relation(name: "CompanyCustomers")
+	quotes: [Quote!]! @relation(name: "CustomerQuotes")
+	commentViews: [CommentView!]! @relation(name: "CommentViewCustomer")
 }
 
 enum QuoteStatus {
-  DRAFT
-  SENT
-  ACCEPTED
-  REJECTED
-  INVOICED
-  INVOICED_ACCEPTED
+	DRAFT
+	SENT
+	ACCEPTED
+	REJECTED
+	INVOICED
+	INVOICED_ACCEPTED
 }
 
 enum QuoteTemplate {
-  BLANK
-  WEBSITE
-  IDENTITY
+	BLANK
+	WEBSITE
+	IDENTITY
 }
 
 enum ItemStatus {
-  PENDING
-  FINISHED
-  UPDATED
-  UPDATED_SENT
-  ADDED
-  ADDED_SENT
+	PENDING
+	FINISHED
+	UPDATED
+	UPDATED_SENT
+	ADDED
+	ADDED_SENT
 }
 
 enum ReminderType {
-  QUOTE_AFTER_10_DAYS
-  QUOTE_AFTER_15_DAYS
-  QUOTE_AFTER_20_DAYS
-  QUOTE_5_DAYS_LEFT
-  QUOTE_2_DAYS_LEFT
-  AMENDMENT_AFTER_5_DAYS
-  AMENDMENT_AFTER_10_DAYS
+	QUOTE_AFTER_10_DAYS
+	QUOTE_AFTER_15_DAYS
+	QUOTE_AFTER_20_DAYS
+	QUOTE_5_DAYS_LEFT
+	QUOTE_2_DAYS_LEFT
+	AMENDMENT_AFTER_5_DAYS
+	AMENDMENT_AFTER_10_DAYS
 }
 
 enum ReminderStatus {
-  PENDING
-  SENT
-  ERROR
-  CANCELED
+	PENDING
+	SENT
+	ERROR
+	CANCELED
 }
 
 enum JobType {
-  TEAM
-  FULLTIME_INDIVIDUAL
-  PARTTIME_INDIVIDUAL
-  NOT_FREELANCER
+	TEAM
+	FULLTIME_INDIVIDUAL
+	PARTTIME_INDIVIDUAL
+	NOT_FREELANCER
 }
 
 type CommentView {
-  id: ID! @unique
-  user: User @relation(name: "CommentViewUser")
-  customer: Customer @relation(name: "CommentViewCustomer")
-  comment: Comment @relation(name: "CommentViews")
-  createdAt: DateTime!
+	id: ID! @unique
+	user: User @relation(name: "CommentViewUser")
+	customer: Customer @relation(name: "CommentViewCustomer")
+	comment: Comment @relation(name: "CommentViews")
+	createdAt: DateTime!
 }
 
 type Comment {
-  id: ID! @unique
-  text: String!
-  authorUser: User
-  authorCustomer: Customer
-  viewedByUser: Boolean! @default(value: false)
-  viewedByCustomer: Boolean! @default(value: false)
-  views: [CommentView!]! @relation(name: "CommentViews")
-  item: Item! @relation(name: "ItemComments")
-  createdAt: DateTime!
+	id: ID! @unique
+	text: String!
+	authorUser: User
+	authorCustomer: Customer
+	viewedByUser: Boolean! @default(value: false)
+	viewedByCustomer: Boolean! @default(value: false)
+	views: [CommentView!]! @relation(name: "CommentViews", onDelete: CASCADE)
+	item: Item! @relation(name: "ItemComments")
+	createdAt: DateTime!
 }
 
 type Item {
-  id: ID! @unique
-  name: String!
-  description: String @default(value: "")
-  unitPrice: Int! @default(value: 0)
-  # when unit has been changed but not yet validated
-  pendingUnit: Float
-  unit: Float @default(value: 0)
-  comments: [Comment!]! @relation(name: "ItemComments")
-  vatRate: Int! @default(value: 0)
-  status: ItemStatus! @default(value: PENDING)
-  section: Section! @relation(name: "SectionItems")
+	id: ID! @unique
+	name: String!
+	description: String @default(value: "")
+	unitPrice: Int! @default(value: 0)
+	# when unit has been changed but not yet validated
+	pendingUnit: Float
+	unit: Float @default(value: 0)
+	comments: [Comment!]! @relation(name: "ItemComments", onDelete: CASCADE)
+	vatRate: Int! @default(value: 0)
+	status: ItemStatus! @default(value: PENDING)
+	section: Section! @relation(name: "SectionItems")
 }
 
 type Section {
-  id: ID! @unique
-  name: String!
-  items: [Item!]! @relation(name: "SectionItems", onDelete: CASCADE)
-  option: Option! @relation(name: "OptionSections")
+	id: ID! @unique
+	name: String!
+	items: [Item!]! @relation(name: "SectionItems", onDelete: CASCADE)
+	option: Option! @relation(name: "OptionSections")
 }
 
 type Option {
-  id: ID! @unique
-  name: String!
-  proposal: Json! @default(value: "{}")
-  sections: [Section!]! @relation(name: "OptionSections", onDelete: CASCADE)
-  quote: Quote! @relation(name: "QuoteOptions")
+	id: ID! @unique
+	name: String!
+	proposal: Json! @default(value: "{}")
+	sections: [Section!]! @relation(name: "OptionSections", onDelete: CASCADE)
+	quote: Quote! @relation(name: "QuoteOptions")
 }
 
 type Quote {
-  id: ID! @unique
-  name: String!
-  template: QuoteTemplate @default(value: BLANK)
-  customer: Customer! @relation(name: "CustomerQuotes")
-  # this token is a way to restrict access to anyone else than the customer
-  token: String! @unique
-  status: QuoteStatus! @default(value: DRAFT)
-  options: [Option!]! @relation(name: "QuoteOptions", onDelete: CASCADE)
-  viewedByCustomer: Boolean! @default(value: false)
-  reminders: [Reminder!]! @relation(name: "QuoteReminders", onDelete: CASCADE)
-  issuedAt: DateTime
-  createdAt: DateTime!
-  updatedAt: DateTime!
+	id: ID! @unique
+	name: String!
+	template: QuoteTemplate @default(value: BLANK)
+	customer: Customer! @relation(name: "CustomerQuotes")
+	# this token is a way to restrict access to anyone else than the customer
+	token: String! @unique
+	status: QuoteStatus! @default(value: DRAFT)
+	options: [Option!]! @relation(name: "QuoteOptions", onDelete: CASCADE)
+	viewedByCustomer: Boolean! @default(value: false)
+	reminders: [Reminder!]! @relation(name: "QuoteReminders", onDelete: CASCADE)
+	issuedAt: DateTime
+	createdAt: DateTime!
+	updatedAt: DateTime!
 
-  acceptedQuotesLogs: [Log!]! @relation(name: "AcceptedQuotesLogs")
-  acceptedAmendmentsLogs: [Log!]! @relation(name: "AcceptedAmendmentsLogs")
+	acceptedQuotesLogs: [Log!]!
+		@relation(name: "AcceptedQuotesLogs", onDelete: CASCADE)
+	acceptedAmendmentsLogs: [Log!]!
+		@relation(name: "AcceptedAmendmentsLogs", onDelete: CASCADE)
 }
 
 type Company {
-  id: ID! @unique
-  name: String
-  owner: User! @relation(name: "CompanyOwner")
-  email: String
-  address: Address
-  phone: String
-  type: String
-  siret: String
-  rcs: String
-  rcsCity: String
-  rm: String
-  vat: String
-  logo: File @relation(name: "CompanyLogo")
-  customers: [Customer!]! @relation(name: "CompanyCustomers")
+	id: ID! @unique
+	name: String
+	owner: User! @relation(name: "CompanyOwner")
+	email: String
+	address: Address
+	phone: String
+	type: String
+	siret: String
+	rcs: String
+	rcsCity: String
+	rm: String
+	vat: String
+	logo: File @relation(name: "CompanyLogo")
+	customers: [Customer!]! @relation(name: "CompanyCustomers")
 }
 
 type Settings {
-  user: User! @relation(name: "UserSettings")
-  askItemFinishConfirmation: Boolean! @default(value: true)
-  askSendQuoteConfirmation: Boolean! @default(value: true)
+	user: User! @relation(name: "UserSettings")
+	askItemFinishConfirmation: Boolean! @default(value: true)
+	askSendQuoteConfirmation: Boolean! @default(value: true)
 }
 
 type User {
-  id: ID! @unique
-  email: String! @unique
-  password: String!
-  firstName: String!
-  lastName: String!
-  company: Company! @relation(name: "CompanyOwner")
-  defaultDailyPrice: Int @default(value: 350)
-  defaultVatRate: Int @default(value: 20)
-  commentViews: [CommentView!]! @relation(name: "CommentViewUser")
-  workingFields: [String!]!
-  jobType: JobType
-  interestedFeatures: [String!]!
-  hasUpcomingProject: Boolean
-  settings: Settings! @relation(name: "UserSettings")
-  createdAt: DateTime!
-  updatedAt: DateTime!
+	id: ID! @unique
+	email: String! @unique
+	password: String!
+	firstName: String!
+	lastName: String!
+	company: Company! @relation(name: "CompanyOwner")
+	defaultDailyPrice: Int @default(value: 350)
+	defaultVatRate: Int @default(value: 20)
+	commentViews: [CommentView!]! @relation(name: "CommentViewUser")
+	workingFields: [String!]!
+	jobType: JobType
+	interestedFeatures: [String!]!
+	hasUpcomingProject: Boolean
+	settings: Settings! @relation(name: "UserSettings")
+	createdAt: DateTime!
+	updatedAt: DateTime!
 }
 
 type Reminder {
-  id: ID! @unique
-  quote: Quote! @relation(name: "QuoteReminders")
-  postHookId: String!
-  type: ReminderType!
-  sendingDate: DateTime!
-  status: ReminderStatus @default(value: PENDING)
+	id: ID! @unique
+	quote: Quote! @relation(name: "QuoteReminders")
+	postHookId: String!
+	type: ReminderType!
+	sendingDate: DateTime!
+	status: ReminderStatus @default(value: PENDING)
 }
 
 type Log {
-  ip: String!
+	ip: String!
 
-  acceptedQuotes: [Quote!]! @relation(name: "AcceptedQuotesLogs")
-  acceptedAmendments: [Quote!]! @relation(name: "AcceptedAmendmentsLogs")
-  createdAt: DateTime!
+	acceptedQuotes: [Quote!]! @relation(name: "AcceptedQuotesLogs")
+	acceptedAmendments: [Quote!]! @relation(name: "AcceptedAmendmentsLogs")
+	createdAt: DateTime!
 }
 
 type File {
-  id: ID! @unique
-  filename: String!
-  mimetype: String!
-  encoding: String!
-  url: String!
-  createdAt: DateTime!
+	id: ID! @unique
+	filename: String!
+	mimetype: String!
+	encoding: String!
+	url: String!
+	createdAt: DateTime!
 }
