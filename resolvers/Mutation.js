@@ -1,5 +1,5 @@
 const {hash, compare} = require('bcrypt');
-const {sign} = require('jsonwebtoken');
+const {sign, verify} = require('jsonwebtoken');
 const uuid = require('uuid/v4');
 const moment = require('moment');
 
@@ -21,6 +21,7 @@ const {
 	setupAmendmentReminderEmail,
 } = require('../emails/AmendmentEmail');
 const {sendNewCommentEmail} = require('../emails/CommentEmail');
+const {sendResetPasswordEmail} = require('../emails/UserEmail');
 const cancelReminder = require('../reminders/cancelReminder');
 
 const inyoQuoteBaseUrl = 'https://app.inyo.me/app/quotes';
@@ -71,6 +72,40 @@ const Mutation = {
 			);
 			throw error;
 		}
+	},
+	sendResetPassword: async (parent, {email}) => {
+		try {
+			const resetToken = sign({email}, APP_SECRET, {expiresIn: 2 * 60 * 60});
+
+			sendResetPasswordEmail({
+				email,
+				resetUrl: `https://inyo.me/reset/${resetToken}`,
+			});
+		}
+		catch (err) {
+			throw new Error(
+				'Something went wrong went resetting password, please try again.',
+			);
+		}
+
+		return true;
+	},
+	checkResetPassword: async (parent, {resetToken}) => {
+		// throws if expired or malformed
+		await verify(resetToken, APP_SECRET);
+
+		return true;
+	},
+	resetPassword: async (parent, {resetToken, newPassword}, ctx) => {
+		// throws if expired or malformed
+		const {email} = await verify(resetToken, APP_SECRET);
+
+		const hashedPassword = await hash(newPassword, 10);
+
+		return ctx.db.updateUser({
+			where: {email},
+			data: {password: hashedPassword},
+		});
 	},
 
 	login: async (parent, {email, password}, ctx) => {
