@@ -1400,7 +1400,7 @@ const Mutation = {
 					section: {option: {quote: {token}}},
 				},
 			}).$fragment(gql`
-				fragment ItemAndAuthors on Item {
+				fragment ItemAndAuthorsForUser on Item {
 					id
 					name
 					section {
@@ -1432,9 +1432,9 @@ const Mutation = {
 				);
 			}
 
-			const customer = await ctx.db.quote({token}).customer();
-			const user = customer.serviceCompany.owner;
 			const {quote} = item.section.option;
+			const {customer} = quote;
+			const user = customer.serviceCompany.owner;
 
 			const result = ctx.db.updateItem({
 				where: {
@@ -1469,7 +1469,7 @@ const Mutation = {
 					projectName: quote.name,
 					itemName: item.name,
 					comment,
-					quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
+					quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/see`,
 				});
 				console.log(`New comment email sent to ${user.email}`);
 			}
@@ -1483,16 +1483,15 @@ const Mutation = {
 		}
 
 		const userId = getUserId(ctx);
-		const [item] = await ctx.db
-			.user({id: userId})
-			.company()
-			.customers()
-			.quotes()
-			.options()
-			.sections()
-			.items({where: {id: itemId}})
-			.$fragment(gql`
-			fragment ItemAndAuthors on Item {
+		const [item] = await ctx.db.items({
+			where: {
+				id: itemId,
+				section: {
+					option: {quote: {customer: {serviceCompany: {owner: {id: userId}}}}},
+				},
+			},
+		}).$fragment(gql`
+			fragment ItemAndAuthorsForCustomer on Item {
 				id
 				name
 				section {
