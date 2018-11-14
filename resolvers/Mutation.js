@@ -352,22 +352,65 @@ const Mutation = {
 	//     id,
 	//   });
 	// },
-	addSection: async (parent, {optionId, name, items = []}, ctx) => {
-		const options = await ctx.db
-			.user({id: getUserId(ctx)})
-			.company()
-			.customers()
-			.quotes()
-			.options({where: {id: optionId}});
+	addSection: async (parent, {
+		optionId, projectId, name, items = [],
+	}, ctx) => {
+		if (projectId && optionId) {
+			throw new Error('You can define only optionId or projectId');
+		}
 
-		if (!options.length) {
-			throw new Error(`No section with id '${optionId}' has been found`);
+		let variables = {};
+
+		if (projectId) {
+			const [project] = await ctx.db.projects({
+				where: {
+					id: projectId,
+					customer: {
+						serviceCompany: {
+							owner: {
+								id: getUserId(ctx),
+							},
+						},
+					},
+				},
+			});
+
+			if (project) {
+				throw new Error(`Project '${projectId}' has not been found.`);
+			}
+
+			variables = {
+				project: {connect: projectId},
+			};
+		}
+
+		if (optionId) {
+			const [option] = await ctx.db.options({
+				where: {
+					id: optionId,
+					quote: {
+						customer: {
+							serviceCompany: {
+								owner: {
+									id: getUserId(ctx),
+								},
+							},
+						},
+					},
+				},
+			});
+
+			if (option) {
+				throw new Error(`Option '${optionId}' has not been found.`);
+			}
+
+			variables = {
+				option: {connect: optionId},
+			};
 		}
 
 		return ctx.db.createSection({
-			option: {
-				connect: {id: optionId},
-			},
+			...variables,
 			name,
 			items: {create: items},
 		});
