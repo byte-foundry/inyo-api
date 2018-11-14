@@ -380,7 +380,7 @@ const Mutation = {
 			}
 
 			variables = {
-				project: {connect: projectId},
+				project: {connect: {id: projectId}},
 			};
 		}
 		else if (optionId) {
@@ -404,7 +404,7 @@ const Mutation = {
 			}
 
 			variables = {
-				option: {connect: optionId},
+				option: {connect: {id: optionId}},
 			};
 		}
 
