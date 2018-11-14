@@ -59,7 +59,7 @@ type Mutation {
 	# Update project
 	updateProject(id: ID!, name: String!): Project
 	# Remove project
-	removeProject(id: ID!): ProjectStatus
+	removeProject(id: ID!): Project
 
 	# Create a new quote for a customer of the user's company
 	createQuote(
