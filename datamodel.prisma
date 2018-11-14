@@ -28,6 +28,7 @@ type Customer {
 	rm: String
 	serviceCompany: Company! @relation(name: "CompanyCustomers")
 	quotes: [Quote!]! @relation(name: "CustomerQuotes")
+	projects: [Project!]! @relation(name: "CustomerProjects")
 	commentViews: [CommentView!]! @relation(name: "CommentViewCustomer")
 }
 
@@ -41,6 +42,18 @@ enum QuoteStatus {
 }
 
 enum QuoteTemplate {
+	BLANK
+	WEBSITE
+	IDENTITY
+}
+
+enum ProjectStatus {
+	DRAFT
+	ONGOING
+	FINISHED
+}
+
+enum ProjectTemplate {
 	BLANK
 	WEBSITE
 	IDENTITY
@@ -103,7 +116,7 @@ type Item {
 	id: ID! @unique
 	name: String!
 	description: String @default(value: "")
-	unitPrice: Int! @default(value: 0)
+	unitPrice: Int @default(value: 0)
 	# when unit has been changed but not yet validated
 	pendingUnit: Float
 	unit: Float @default(value: 0)
@@ -117,7 +130,8 @@ type Section {
 	id: ID! @unique
 	name: String!
 	items: [Item!]! @relation(name: "SectionItems", onDelete: CASCADE)
-	option: Option! @relation(name: "OptionSections")
+	option: Option @relation(name: "OptionSections")
+	project: Project @relation(name: "ProjectSections")
 }
 
 type Option {
@@ -149,6 +163,27 @@ type Quote {
 		@relation(name: "AcceptedAmendmentsLogs", onDelete: CASCADE)
 }
 
+type Project {
+	id: ID! @unique
+	name: String!
+	template: ProjectTemplate @default(value: BLANK)
+	customer: Customer! @relation(name: "CustomerProjects")
+	# this token is a way to restrict access to anyone else than the customer
+	token: String! @unique
+	status: ProjectStatus! @default(value: DRAFT)
+	sections: [Section!]! @relation(name: "ProjectSections", onDelete: CASCADE)
+	viewedByCustomer: Boolean! @default(value: false)
+	# reminders: [Reminder!]! @relation(name: "QuoteReminders", onDelete: CASCADE)
+	issuedAt: DateTime
+	createdAt: DateTime!
+	updatedAt: DateTime!
+
+	# acceptedQuotesLogs: [Log!]!
+	# 	@relation(name: "AcceptedQuotesLogs", onDelete: CASCADE)
+	# acceptedAmendmentsLogs: [Log!]!
+	# 	@relation(name: "AcceptedAmendmentsLogs", onDelete: CASCADE)
+}
+
 type Company {
 	id: ID! @unique
 	name: String
@@ -169,7 +204,7 @@ type Company {
 type Settings {
 	user: User! @relation(name: "UserSettings")
 	askItemFinishConfirmation: Boolean! @default(value: true)
-	askSendQuoteConfirmation: Boolean! @default(value: true)
+	askSendQuoteConfirmation: Boolean @default(value: true)
 }
 
 type User {

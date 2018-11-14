@@ -24,6 +24,10 @@ const {sendNewCommentEmail} = require('../emails/CommentEmail');
 const {sendResetPasswordEmail} = require('../emails/UserEmail');
 const cancelReminder = require('../reminders/cancelReminder');
 
+const {createProject} = require('./createProject');
+const {updateProject} = require('./updateProject');
+const {removeProject} = require('./removeProject');
+
 const inyoQuoteBaseUrl = 'https://app.inyo.me/app/quotes';
 
 const titleToCivilite = {
@@ -213,6 +217,9 @@ const Mutation = {
 			},
 		});
 	},
+	createProject,
+	updateProject,
+	removeProject,
 	createQuote: async (
 		parent,
 		{

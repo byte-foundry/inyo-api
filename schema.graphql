@@ -11,6 +11,7 @@ type Query {
 	customer(id: ID!): Customer
 	quote(id: ID!, token: String): Quote
 		@deprecated(reason: "Quotes are not used anymore.")
+	project(id: ID!, token: String): Project
 	itemComments(itemId: ID!, token: String): [Comment!]!
 }
 
@@ -46,6 +47,19 @@ type Mutation {
 
 	# Create a new customer inside the user's company
 	createCustomer(email: String!): Customer!
+
+	# Create a new project for a customer of the user's company
+	createProject(
+		customerId: ID
+		customer: CustomerInput
+		name: String
+		template: ProjectTemplate
+		sections: [SectionInput!]
+	): Project!
+	# Update project
+	updateProject(id: ID!, name: String!): Project
+	# Remove project
+	removeProject(id: ID!): ProjectStatus
 
 	# Create a new quote for a customer of the user's company
 	createQuote(
@@ -225,6 +239,12 @@ enum QuoteStatus {
 	INVOICED_ACCEPTED
 }
 
+enum ProjectStatus {
+	DRAFT
+	ONGOING
+	FINISHED
+}
+
 enum QuoteTemplate {
 	BLANK
 	WEBSITE
@@ -298,6 +318,21 @@ type Quote {
 	updatedAt: DateTime!
 }
 
+type Project {
+	id: ID!
+	name: String!
+	template: ProjectTemplate
+	issuer: Company!
+	customer: Customer!
+	status: ProjectStatus!
+	options: [Option!]!
+	total: Float
+	viewedByCustomer: Boolean!
+	issuedAt: DateTime
+	createdAt: DateTime!
+	updatedAt: DateTime!
+}
+
 type Company {
 	id: ID!
 	name: String
@@ -314,6 +349,7 @@ type Company {
 	logo: File
 	customers: [Customer!]!
 	quotes: [Quote!]! @deprecated(reason: "Quotes are not used anymore.")
+	projects: [Project!]!
 }
 
 enum Title {
