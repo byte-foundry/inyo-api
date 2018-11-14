@@ -375,7 +375,7 @@ const Mutation = {
 				},
 			});
 
-			if (project) {
+			if (!project) {
 				throw new Error(`Project '${projectId}' has not been found.`);
 			}
 
@@ -383,8 +383,7 @@ const Mutation = {
 				project: {connect: projectId},
 			};
 		}
-
-		if (optionId) {
+		else if (optionId) {
 			const [option] = await ctx.db.options({
 				where: {
 					id: optionId,
@@ -400,7 +399,7 @@ const Mutation = {
 				},
 			});
 
-			if (option) {
+			if (!option) {
 				throw new Error(`Option '${optionId}' has not been found.`);
 			}
 
