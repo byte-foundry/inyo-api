@@ -84,7 +84,12 @@ type Mutation {
 	# removeOption(id: ID!): Option
 
 	# Add section to one of the quote's option
-	addSection(optionId: ID!, name: String!, items: [ItemInput!]): Section!
+	addSection(
+		optionId: ID
+		projectId: ID
+		name: String!
+		items: [ItemInput!]
+	): Section!
 	# Update
 	updateSection(id: ID!, name: String!): Section
 	# Remove section
