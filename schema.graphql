@@ -245,6 +245,12 @@ enum ProjectStatus {
 	FINISHED
 }
 
+enum ProjectTemplate {
+	BLANK
+	WEBSITE
+	IDENTITY
+}
+
 enum QuoteTemplate {
 	BLANK
 	WEBSITE
