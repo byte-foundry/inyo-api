@@ -331,7 +331,7 @@ type Project {
 	issuer: Company!
 	customer: Customer!
 	status: ProjectStatus!
-	options: [Option!]!
+	sections: [Section!]!
 	total: Float
 	viewedByCustomer: Boolean!
 	issuedAt: DateTime
