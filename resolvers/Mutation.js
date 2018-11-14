@@ -376,7 +376,7 @@ const Mutation = {
 			});
 
 			if (!project) {
-				throw new Error(`Project '${projectId}' has not been found.`);
+				throw new NotFoundError(`Project '${projectId}' has not been found.`);
 			}
 
 			variables = {
@@ -400,7 +400,7 @@ const Mutation = {
 			});
 
 			if (!option) {
-				throw new Error(`Option '${optionId}' has not been found.`);
+				throw new NotFoundError(`Option '${optionId}' has not been found.`);
 			}
 
 			variables = {
@@ -415,16 +415,40 @@ const Mutation = {
 		});
 	},
 	updateSection: async (parent, {id, name}, ctx) => {
-		const sections = await ctx.db
-			.user({id: getUserId(ctx)})
-			.company()
-			.customers()
-			.quotes()
-			.options()
-			.sections({where: {id}});
+		const [section] = await ctx.db.sections({
+			where: {
+				id,
+				OR: [
+					{
+						option: {
+							quote: {
+								customer: {
+									serviceCompany: {
+										owner: {
+											id: getUserId(ctx),
+										},
+									},
+								},
+							},
+						},
+					},
+					{
+						project: {
+							customer: {
+								serviceCompany: {
+									owner: {
+										id: getUserId(ctx),
+									},
+								},
+							},
+						},
+					},
+				],
+			},
+		});
 
-		if (!sections.length) {
-			throw new Error(`No section with id '${id}' has been found`);
+		if (!section) {
+			throw new NotFoundError(`Section '${id}' has not been found.`);
 		}
 
 		return ctx.db.updateSection({
@@ -433,16 +457,40 @@ const Mutation = {
 		});
 	},
 	removeSection: async (parent, {id}, ctx) => {
-		const sections = await ctx.db
-			.user({id: getUserId(ctx)})
-			.company()
-			.customers()
-			.quotes()
-			.options()
-			.sections({where: {id}});
+		const [section] = await ctx.db.sections({
+			where: {
+				id,
+				OR: [
+					{
+						option: {
+							quote: {
+								customer: {
+									serviceCompany: {
+										owner: {
+											id: getUserId(ctx),
+										},
+									},
+								},
+							},
+						},
+					},
+					{
+						project: {
+							customer: {
+								serviceCompany: {
+									owner: {
+										id: getUserId(ctx),
+									},
+								},
+							},
+						},
+					},
+				],
+			},
+		});
 
-		if (!sections.length) {
-			return null;
+		if (!section) {
+			throw new NotFoundError(`Section '${id}' has not been found.`);
 		}
 
 		return ctx.db.deleteSection({id});
@@ -457,18 +505,31 @@ const Mutation = {
 		const [section] = await ctx.db.sections({
 			where: {
 				id: sectionId,
-				option: {
-					quote: {
-						customer: {
-							serviceCompany: {
-								owner: {id: getUserId(ctx)},
+				OR: [
+					{
+						option: {
+							quote: {
+								customer: {
+									serviceCompany: {
+										owner: {id: getUserId(ctx)},
+									},
+								},
 							},
 						},
 					},
-				},
+					{
+						project: {
+							customer: {
+								serviceCompany: {
+									owner: {id: getUserId(ctx)},
+								},
+							},
+						},
+					},
+				],
 			},
 		}).$fragment(gql`
-			fragment SectionWithQuote on Section {
+			fragment SectionWithQuoteAndProject on Section {
 				id
 				option {
 					quote {
@@ -483,6 +544,9 @@ const Mutation = {
 						}
 					}
 				}
+				project {
+					status
+				}
 			}
 		`);
 
@@ -491,6 +555,24 @@ const Mutation = {
 				`No section with id '${sectionId}' has been found`,
 			);
 		}
+
+		// PROJECT
+
+		if (section.project) {
+			if (section.project.status === 'FINISHED') {
+				throw new Error('Item cannot be added in this project state.');
+			}
+
+			return ctx.db.createItem({
+				section: {connect: {id: sectionId}},
+				name,
+				status: 'PENDING',
+				description,
+				unit,
+			});
+		}
+
+		// QUOTE
 
 		if (section.option.quote.status === 'SENT') {
 			throw new Error('Item cannot be added in this quote state.');
@@ -520,21 +602,38 @@ const Mutation = {
 		},
 		ctx,
 	) => {
-		const items = await ctx.db
-			.user({id: getUserId(ctx)})
-			.company()
-			.customers()
-			.quotes()
-			.options()
-			.sections()
-			.items({where: {id}});
-
-		if (!items.length) {
-			throw new NotFoundError(`No item with id '${id}' has been found`);
-		}
-
-		const item = await ctx.db.item({id}).$fragment(gql`
-			fragment ItemWithQuote on Item {
+		const [item] = await ctx.db.items({
+			where: {
+				id,
+				OR: [
+					{
+						section: {
+							option: {
+								quote: {
+									customer: {
+										serviceCompany: {
+											owner: {id: getUserId(ctx)},
+										},
+									},
+								},
+							},
+						},
+					},
+					{
+						section: {
+							project: {
+								customer: {
+									serviceCompany: {
+										owner: {id: getUserId(ctx)},
+									},
+								},
+							},
+						},
+					},
+				],
+			},
+		}).$fragment(gql`
+			fragment ItemWithQuoteAndProject on Item {
 				status
 				section {
 					option {
@@ -542,9 +641,38 @@ const Mutation = {
 							status
 						}
 					}
+					project {
+						status
+					}
 				}
 			}
 		`);
+
+		if (!item) {
+			throw new NotFoundError(`Item '${id}' has not been found.`);
+		}
+
+		// PROJECT
+
+		if (item.section.project) {
+			if (item.section.project.status !== 'DRAFT') {
+				throw new Error(
+					`Item '${id}' cannot be updated in this project state.`,
+				);
+			}
+
+			return ctx.db.updateItem({
+				where: {id},
+				data: {
+					name,
+					description,
+					unit,
+					status: 'PENDING',
+				},
+			});
+		}
+
+		// QUOTE
 
 		if (item.section.option.quote.status !== 'DRAFT') {
 			throw new Error(`Item '${id}' cannot be updated in this quote state.`);
@@ -626,14 +754,41 @@ const Mutation = {
 		return result;
 	},
 	removeItem: async (parent, {id}, ctx) => {
-		const item = await ctx.db
-			.user({id: getUserId(ctx)})
-			.company()
-			.customers()
-			.quotes()
-			.options()
-			.sections()
-			.items({where: {id}});
+		const [item] = await ctx.db.items({
+			where: {
+				id,
+				OR: [
+					{
+						section: {
+							option: {
+								quote: {
+									customer: {
+										serviceCompany: {
+											owner: {id: getUserId(ctx)},
+										},
+									},
+								},
+							},
+						},
+					},
+					{
+						section: {
+							project: {
+								customer: {
+									serviceCompany: {
+										owner: {id: getUserId(ctx)},
+									},
+								},
+							},
+						},
+					},
+				],
+			},
+		});
+
+		if (!item) {
+			throw new NotFoundError(`Item '${id}' has not been found.`);
+		}
 
 		return ctx.db.deleteItem({id});
 	},
