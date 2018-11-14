@@ -903,21 +903,38 @@ const Mutation = {
 	},
 	finishItem: async (parent, {id}, ctx) => {
 		const user = await ctx.db.user({id: getUserId(ctx)});
-		const items = await ctx.db
-			.user({id: user.id})
-			.company()
-			.customers()
-			.quotes()
-			.options()
-			.sections()
-			.items({where: {id}});
-
-		if (!items.length) {
-			throw new NotFoundError(`No item with id '${id}' has been found`);
-		}
-
-		const item = await ctx.db.item({id}).$fragment(gql`
-			fragment ItemWithQuote on Item {
+		const [item] = await ctx.db.items({
+			where: {
+				id,
+				OR: [
+					{
+						section: {
+							option: {
+								quote: {
+									customer: {
+										serviceCompany: {
+											owner: {id: getUserId(ctx)},
+										},
+									},
+								},
+							},
+						},
+					},
+					{
+						section: {
+							project: {
+								customer: {
+									serviceCompany: {
+										owner: {id: getUserId(ctx)},
+									},
+								},
+							},
+						},
+					},
+				],
+			},
+		}).$fragment(gql`
+			fragment ItemWithQuoteAndProject on Item {
 				name
 				status
 				section {
@@ -943,9 +960,74 @@ const Mutation = {
 							status
 						}
 					}
+					project {
+						id
+						token
+						name
+						customer {
+							title
+							firstName
+							lastName
+							email
+						}
+						status
+						sections {
+							name
+							items {
+								name
+								unit
+								status
+							}
+						}
+					}
 				}
 			}
 		`);
+
+		if (!item) {
+			throw new NotFoundError(`Item '${id}' has not been found.`);
+		}
+
+		// PROJECT
+
+		if (item.section.project) {
+			const {project} = item.section;
+
+			if (project.status === 'FINISHED' || item.status !== 'PENDING') {
+				throw new Error(`Item '${id}' cannot be finished.`);
+			}
+
+			const {sections, customer} = project;
+
+			try {
+				await sendTaskValidationEmail({
+					email: customer.email,
+					user: String(`${user.firstName} ${user.lastName}`).trim(),
+					customerName: String(
+						` ${titleToCivilite[customer.title]} ${customer.firstName} ${
+							customer.lastName
+						}`,
+					).trimRight(),
+					projectName: project.name,
+					itemName: item.name,
+					sections: sections
+						.map(section => ({
+							name: section.name,
+							timeLeft: section.items
+								.filter(item => item.status === 'PENDING')
+								.reduce((acc, item) => acc + item.unit, 0),
+						}))
+						.filter(section => section.timeLeft > 0),
+					projectUrl: `${inyoQuoteBaseUrl}/${project.id}/view/${project.token}`,
+				});
+				console.log(`Task validation email sent to ${customer.email}`);
+			}
+			catch (error) {
+				console.log(`Task validation email not because with error ${error}`);
+			}
+		}
+
+		// QUOTE
 
 		if (
 			item.section.option.quote.status !== 'ACCEPTED'
@@ -954,8 +1036,7 @@ const Mutation = {
 			throw new Error(`Item '${id}' cannot be finished.`);
 		}
 
-		const {sections} = item.section.option;
-		const {quote} = item.section.option;
+		const {sections, quote} = item.section.option;
 		const {customer} = quote;
 
 		try {
@@ -979,16 +1060,10 @@ const Mutation = {
 					.filter(section => section.timeLeft > 0),
 				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
 			});
-			console.log(
-				`${new Date().toISOString()}: Task validation email sent to ${
-					customer.email
-				}`,
-			);
+			console.log(`Task validation email sent to ${customer.email}`);
 		}
 		catch (error) {
-			console.log(
-				`${new Date().toISOString()}: Task validation email not because with error ${error}`,
-			);
+			console.log(`Task validation email not because with error ${error}`);
 		}
 
 		sendMetric({metric: 'inyo.item.validated'});
