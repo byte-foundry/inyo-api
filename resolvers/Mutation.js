@@ -29,6 +29,7 @@ const {updateProject} = require('./updateProject');
 const {removeProject} = require('./removeProject');
 
 const inyoQuoteBaseUrl = 'https://app.inyo.me/app/quotes';
+const inyoProjectBaseUrl = 'https://app.inyo.me/app/quotes';
 
 const titleToCivilite = {
 	MONSIEUR: 'M.',
@@ -1706,7 +1707,9 @@ const Mutation = {
 			const [item] = await ctx.db.items({
 				where: {
 					id: itemId,
-					section: {option: {quote: {token}}},
+					section: {
+						OR: [{option: {quote: {token}}}, {project: {token}}],
+					},
 				},
 			}).$fragment(gql`
 				fragment ItemAndAuthorsForUser on Item {
@@ -1731,24 +1734,44 @@ const Mutation = {
 								}
 							}
 						}
+						project {
+							id
+							name
+							token
+							customer {
+								id
+								firstName
+								lastName
+								email
+								serviceCompany {
+									owner {
+										email
+									}
+								}
+							}
+						}
 					}
 				}
 			`);
 
 			if (!item) {
-				throw new NotFoundError(
-					`Item with Id '${itemId}' in quote with token '${token}' has not been found`,
-				);
+				throw new NotFoundError(`Item '${itemId}' has not been found`);
 			}
 
-			const {quote} = item.section.option;
-			const {customer} = quote;
+			const {project, option: {quote} = {}} = item.section;
+			let customer;
+
+			if (project) {
+				({customer} = project);
+			}
+			else {
+				({customer} = quote);
+			}
+
 			const user = customer.serviceCompany.owner;
 
 			const result = ctx.db.updateItem({
-				where: {
-					id: itemId,
-				},
+				where: {id: itemId},
 				data: {
 					comments: {
 						create: {
@@ -1775,10 +1798,13 @@ const Mutation = {
 					authorName: String(
 						`${customer.firstName} ${customer.lastName}`,
 					).trim(),
-					projectName: quote.name,
+					projectName: project ? project.name : quote.name,
 					itemName: item.name,
 					comment,
-					quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/see`,
+					quoteUrl: quote ? `${inyoQuoteBaseUrl}/${quote.id}/see` : undefined,
+					projectUrl: quote
+						? `${inyoProjectBaseUrl}/${project.id}/see`
+						: undefined,
 				});
 				console.log(`New comment email sent to ${user.email}`);
 			}
@@ -1796,7 +1822,14 @@ const Mutation = {
 			where: {
 				id: itemId,
 				section: {
-					option: {quote: {customer: {serviceCompany: {owner: {id: userId}}}}},
+					OR: [
+						{
+							option: {
+								quote: {customer: {serviceCompany: {owner: {id: userId}}}},
+							},
+							project: {customer: {serviceCompany: {owner: {id: userId}}}},
+						},
+					],
 				},
 			},
 		}).$fragment(gql`
@@ -1824,22 +1857,46 @@ const Mutation = {
 							}
 						}
 					}
+					project {
+						id
+						name
+						token
+						customer {
+							id
+							firstName
+							lastName
+							email
+							serviceCompany {
+								owner {
+									firstName
+									lastName
+									email
+								}
+							}
+						}
+					}
 				}
 			}
 		`);
 
 		if (!item) {
-			throw new NotFoundError(`No item with id '${itemId}' has been found`);
+			throw new NotFoundError(`Item '${itemId}' has not been found.`);
 		}
 
-		const {quote} = item.section.option;
-		const {customer} = quote;
+		const {project, option: {quote} = {}} = item.section;
+		let customer;
+
+		if (project) {
+			({customer} = project);
+		}
+		else {
+			({customer} = quote);
+		}
+
 		const user = customer.serviceCompany.owner;
 
 		const result = ctx.db.updateItem({
-			where: {
-				id: itemId,
-			},
+			where: {id: itemId},
 			data: {
 				comments: {
 					create: {
@@ -1866,10 +1923,15 @@ const Mutation = {
 					`${customer.firstName} ${customer.lastName}`,
 				).trim(),
 				authorName: String(`${user.firstName} ${user.lastName}`).trim(),
-				projectName: quote.name,
+				projectName: project ? project.name : quote.name,
 				itemName: item.name,
 				comment,
-				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
+				quoteUrl: quote
+					? `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`
+					: undefined,
+				projectUrl: quote
+					? `${inyoQuoteBaseUrl}/${project.id}/view/${project.token}`
+					: undefined,
 			});
 			console.log(`New comment email sent to ${customer.email}`);
 		}

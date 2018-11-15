@@ -8,6 +8,7 @@ async function sendNewCommentEmail({
 	projectName,
 	comment,
 	quoteUrl,
+	projectUrl,
 }) {
 	return sendEmail({
 		email,
@@ -18,6 +19,7 @@ async function sendNewCommentEmail({
 			itemName,
 			comment,
 			quoteUrl,
+			projectUrl,
 		},
 		templateId: 'd-47a3e2b14b2847bc85459703c333d459',
 	});
