@@ -142,6 +142,9 @@ type Mutation {
 	rejectAmendment(quoteId: ID!, token: String!): Quote
 		@deprecated(reason: "Quotes are not used anymore.")
 
+	# Send project, DRAFT -> ONGOING
+	sendProject(id: ID!): Project!
+
 	#post a comment on an item
 	postComment(itemId: ID!, token: String, comment: CommentInput!): Item
 }
