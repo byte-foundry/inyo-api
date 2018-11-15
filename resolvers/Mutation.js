@@ -1229,10 +1229,12 @@ const Mutation = {
 		const [item] = await ctx.db.items({
 			where: {
 				id,
-				section: {option: {quote: {token}}},
+				section: {
+					OR: [{option: {quote: {token}}}, {project: {token}}],
+				},
 			},
 		}).$fragment(gql`
-			fragment ItemWithQuote on Item {
+			fragment ItemWithQuoteAndProject on Item {
 				status
 				pendingUnit
 				section {
@@ -1245,12 +1247,30 @@ const Mutation = {
 							}
 						}
 					}
+					project {
+						status
+						# reminders(where: {status: PENDING}) {
+						# 	id
+						# 	postHookId
+						# }
+					}
 				}
 			}
 		`);
 
 		if (!item) {
-			throw new NotFoundError(`No item with id '${id}' has been found`);
+			throw new NotFoundError(`Item '${id}' has not been found.`);
+		}
+
+		// PROJECT
+		if (item.section.project) {
+			const {project} = item.section;
+
+			if (project.status !== 'ONGOING') {
+				throw new Error(
+					`Item '${id}' cannot be accepted in this project state.`,
+				);
+			}
 		}
 
 		if (item.section.option.quote.status !== 'ACCEPTED') {
