@@ -1263,22 +1263,29 @@ const Mutation = {
 			throw new NotFoundError(`Item '${id}' has not been found.`);
 		}
 
-		// PROJECT
-		if (item.section.project) {
-			const {project} = item.section;
+		const {project, option: {quote} = {}} = item.section;
+		let reminders = [];
 
+		// PROJECT
+		if (project) {
 			if (project.status !== 'ONGOING') {
 				throw new Error(
 					`Item '${id}' cannot be accepted in this project state.`,
 				);
 			}
+
+			// ({reminders} = project);
+		}
+		// QUOTE
+		else if (quote) {
+			if (quote.status !== 'ACCEPTED') {
+				throw new Error(`Item '${id}' cannot be updated in this quote state.`);
+			}
+
+			({reminders} = quote);
 		}
 
-		if (item.section.option.quote.status !== 'ACCEPTED') {
-			throw new Error(`Item '${id}' cannot be updated in this quote state.`);
-		}
-
-		item.section.option.quote.reminders.forEach(async (reminder) => {
+		reminders.forEach(async (reminder) => {
 			try {
 				await cancelReminder(reminder.postHookId);
 				await ctx.db.updateReminder({
@@ -1287,17 +1294,12 @@ const Mutation = {
 						status: 'CANCELED',
 					},
 				});
-				console.log(
-					`${new Date().toISOString()}: reminder with id ${
-						reminder.id
-					} canceled`,
-				);
+				console.log(`Reminder with id ${reminder.id} canceled`);
 			}
 			catch (error) {
 				console.log(
-					`${new Date().toISOString()}: reminder with id ${
-						reminder.id
-					} not canceled with error ${error}`,
+					`Reminder with id ${reminder.id} not canceled with error`,
+					error,
 				);
 			}
 		});
