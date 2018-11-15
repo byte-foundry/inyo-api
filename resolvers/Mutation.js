@@ -27,6 +27,7 @@ const cancelReminder = require('../reminders/cancelReminder');
 const {createProject} = require('./createProject');
 const {updateProject} = require('./updateProject');
 const {removeProject} = require('./removeProject');
+const {sendProject} = require('./sendProject');
 
 const inyoQuoteBaseUrl = 'https://app.inyo.me/app/quotes';
 const inyoProjectBaseUrl = 'https://app.inyo.me/app/quotes';
@@ -221,6 +222,7 @@ const Mutation = {
 	createProject,
 	updateProject,
 	removeProject,
+	sendProject,
 	createQuote: async (
 		parent,
 		{
