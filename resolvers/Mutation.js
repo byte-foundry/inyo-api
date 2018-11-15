@@ -1331,10 +1331,12 @@ const Mutation = {
 		const [item] = await ctx.db.items({
 			where: {
 				id,
-				section: {option: {quote: {token}}},
+				section: {
+					OR: [{option: {quote: {token}}}, {project: {token}}],
+				},
 			},
 		}).$fragment(gql`
-			fragment ItemWithQuote on Item {
+			fragment ItemWithQuoteAndProject on Item {
 				status
 				pendingUnit
 				section {
@@ -1343,11 +1345,19 @@ const Mutation = {
 							status
 						}
 					}
+					project {
+						status
+					}
 				}
 			}
 		`);
 
-		if (item.section.option.quote.status !== 'ACCEPTED') {
+		// PROJECT
+		if (item.section.project && item.section.project.status !== 'ONGOING') {
+			throw new Error(`Item '${id}' cannot be updated in this project state.`);
+		}
+		// QUOTE
+		else if (item.section.option.quote.status !== 'ACCEPTED') {
 			throw new Error(`Item '${id}' cannot be updated in this quote state.`);
 		}
 
