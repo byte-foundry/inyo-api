@@ -173,15 +173,13 @@ type Project {
 	status: ProjectStatus! @default(value: DRAFT)
 	sections: [Section!]! @relation(name: "ProjectSections", onDelete: CASCADE)
 	viewedByCustomer: Boolean! @default(value: false)
-	# reminders: [Reminder!]! @relation(name: "QuoteReminders", onDelete: CASCADE)
+	# reminders: [Reminder!]! @relation(name: "ProjectReminders", onDelete: CASCADE)
 	issuedAt: DateTime
 	createdAt: DateTime!
 	updatedAt: DateTime!
 
-	# acceptedQuotesLogs: [Log!]!
-	# 	@relation(name: "AcceptedQuotesLogs", onDelete: CASCADE)
-	# acceptedAmendmentsLogs: [Log!]!
-	# 	@relation(name: "AcceptedAmendmentsLogs", onDelete: CASCADE)
+	# acceptedProjectLogs: [Log!]!
+	# 	@relation(name: "ProjectQuotesLogs", onDelete: CASCADE)
 }
 
 type Company {
@@ -204,7 +202,8 @@ type Company {
 type Settings {
 	user: User! @relation(name: "UserSettings")
 	askItemFinishConfirmation: Boolean! @default(value: true)
-	askSendQuoteConfirmation: Boolean @default(value: true)
+	askSendQuoteConfirmation: Boolean! @default(value: true)
+	askSendProjectConfirmation: Boolean @default(value: true)
 }
 
 type User {
