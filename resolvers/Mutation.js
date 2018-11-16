@@ -1880,7 +1880,8 @@ const Mutation = {
 			throw new NotFoundError(`Item '${itemId}' has not been found.`);
 		}
 
-		const {project, option: {quote} = {}} = item.section;
+		const {project, option} = item.section;
+		const {quote} = option || {};
 		let customer;
 
 		if (project) {
