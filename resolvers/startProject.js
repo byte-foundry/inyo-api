@@ -12,7 +12,7 @@ const titleToCivilite = {
 	MADAME: 'Mme',
 };
 
-const sendProject = async (parent, {id}, ctx) => {
+const startProject = async (parent, {id}, ctx) => {
 	const [project] = await ctx.db.projects({
 		where: {
 			id,
@@ -109,5 +109,5 @@ const sendProject = async (parent, {id}, ctx) => {
 };
 
 module.exports = {
-	sendProject,
+	startProject,
 };
