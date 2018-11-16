@@ -1806,7 +1806,7 @@ const Mutation = {
 					itemName: item.name,
 					comment,
 					quoteUrl: quote ? `${inyoQuoteBaseUrl}/${quote.id}/see` : undefined,
-					projectUrl: quote
+					projectUrl: project
 						? `${inyoProjectBaseUrl}/${project.id}/see`
 						: undefined,
 				});
@@ -1831,6 +1831,8 @@ const Mutation = {
 							option: {
 								quote: {customer: {serviceCompany: {owner: {id: userId}}}},
 							},
+						},
+						{
 							project: {customer: {serviceCompany: {owner: {id: userId}}}},
 						},
 					],
