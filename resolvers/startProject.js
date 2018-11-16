@@ -1,14 +1,9 @@
-const moment = require('moment');
-
 const gql = String.raw;
 
 const {getUserId} = require('../utils');
 const {NotFoundError, InsufficientDataError} = require('../errors');
 const {sendMetric} = require('../stats');
-const {
-	sendQuoteEmail: sendProjectEmail,
-	setupQuoteReminderEmail: setupProjectReminderEmail,
-} = require('../emails/QuoteEmail');
+const {sendProjectStartedEmail} = require('../emails/ProjectEmail');
 
 const inyoProjectBaseUrl = 'https://app.inyo.me/app/projects';
 
@@ -85,7 +80,7 @@ const sendProject = async (parent, {id}, ctx) => {
 	// sending the quote via sendgrid
 	// this use the quote template
 	try {
-		await sendProjectEmail({
+		await sendProjectStartedEmail({
 			email: customer.email,
 			customerName: String(
 				` ${titleToCivilite[customer.title]} ${customer.firstName} ${
@@ -94,34 +89,13 @@ const sendProject = async (parent, {id}, ctx) => {
 			).trimRight(),
 			projectName: project.name,
 			user: `${user.firstName} ${user.lastName}`,
-			projectUrl: `${inyoProjectBaseUrl}/${project.id}/view/${project.token}`,
+			url: `${inyoProjectBaseUrl}/${project.id}/view/${project.token}`,
 		});
 		console.log(`Project email sent to ${customer.email}`);
 	}
 	catch (error) {
-		console.log('Project email not sent with error', error);
+		console.log('Error: Project email not sent', error);
 	}
-
-	try {
-		setupProjectReminderEmail(
-			{
-				email: customer.email,
-				customerName: customer.name,
-				projectName: project.name,
-				user: `${user.firstName} ${user.lastName}`,
-				issueDate: moment().format(),
-				projectId: project.id,
-				quoteUrl: `${inyoProjectBaseUrl}/${project.id}/view/${project.token}`,
-			},
-			ctx,
-		);
-		console.log('Project reminder setup finished');
-	}
-	catch (error) {
-		console.log('Project reminder setup errored with error', error);
-	}
-
-	// send mail with token
 
 	sendMetric({metric: 'inyo.project.sent'});
 

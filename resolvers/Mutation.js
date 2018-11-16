@@ -222,7 +222,7 @@ const Mutation = {
 	createProject,
 	updateProject,
 	removeProject,
-	sendProject,
+	startProject,
 	createQuote: async (
 		parent,
 		{
