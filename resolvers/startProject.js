@@ -65,18 +65,6 @@ const startProject = async (parent, {id}, ctx) => {
 	const {serviceCompany} = customer;
 	const user = serviceCompany.owner;
 
-	if (
-		!serviceCompany.siret
-		|| !serviceCompany.name
-		|| !serviceCompany.address.street
-		|| !serviceCompany.address.city
-		|| !serviceCompany.address.country
-	) {
-		throw new InsufficientDataError(
-			"It's not possible to send a project without company info",
-		);
-	}
-
 	// sending the quote via sendgrid
 	// this use the quote template
 	try {
