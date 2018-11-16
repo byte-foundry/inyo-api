@@ -383,7 +383,7 @@ type Settings {
 	askItemFinishConfirmation: Boolean!
 	askSendQuoteConfirmation: Boolean!
 		@deprecated(reason: "Quote are not used anymore.")
-	askSendProjectConfirmation: Boolean!
+	askStartProjectConfirmation: Boolean!
 }
 
 type User {
