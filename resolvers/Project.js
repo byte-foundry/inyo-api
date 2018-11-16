@@ -7,6 +7,22 @@ const Project = {
 		.project({id: node.id})
 		.customer()
 		.serviceCompany(),
+	total: async (node, args, ctx) => {
+		const {sections} = await ctx.db.project({id: node.id}).$fragment(`
+			fragment ProjectUnits on Project {
+				sections {
+					items {
+						unit
+					}
+				}
+			}
+		`);
+
+		return sections.reduce(
+			(sum, section) => sum + section.items.reduce((itemSum, item) => itemSum + item.unit, 0),
+			0,
+		);
+	},
 	status: node => node.status,
 	sections: (node, args, ctx) => ctx.db.project({id: node.id}).sections(),
 	viewedByCustomer: node => node.viewedByCustomer,
