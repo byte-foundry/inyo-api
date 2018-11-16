@@ -1252,10 +1252,10 @@ const Mutation = {
 					}
 					project {
 						status
-						# reminders(where: {status: PENDING}) {
-						# 	id
-						# 	postHookId
-						# }
+						reminders(where: {status: PENDING}) {
+							id
+							postHookId
+						}
 					}
 				}
 			}
@@ -1276,7 +1276,7 @@ const Mutation = {
 				);
 			}
 
-			// ({reminders} = project);
+			({reminders} = project);
 		}
 		// QUOTE
 		else if (quote) {

@@ -173,7 +173,7 @@ type Project {
 	status: ProjectStatus! @default(value: DRAFT)
 	sections: [Section!]! @relation(name: "ProjectSections", onDelete: CASCADE)
 	viewedByCustomer: Boolean! @default(value: false)
-	# reminders: [Reminder!]! @relation(name: "ProjectReminders", onDelete: CASCADE)
+	reminders: [Reminder!]! @relation(name: "ProjectReminders", onDelete: CASCADE)
 	issuedAt: DateTime
 	createdAt: DateTime!
 	updatedAt: DateTime!
@@ -227,7 +227,8 @@ type User {
 
 type Reminder {
 	id: ID! @unique
-	quote: Quote! @relation(name: "QuoteReminders")
+	project: Project @relation(name: "ProjectReminders")
+	quote: Quote @relation(name: "QuoteReminders")
 	postHookId: String!
 	type: ReminderType!
 	sendingDate: DateTime!
