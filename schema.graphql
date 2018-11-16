@@ -275,6 +275,11 @@ enum ItemStatus {
 	ADDED_SENT
 }
 
+enum Reviewer {
+	USER
+	CUSTOMER
+}
+
 union Viewer = User | Customer
 
 type CommentView {
@@ -303,6 +308,7 @@ type Item {
 	comments: [Comment!]!
 	vatRate: Int!
 	status: ItemStatus!
+	reviewer: Reviewer!
 }
 
 type Section {

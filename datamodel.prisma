@@ -92,6 +92,11 @@ enum JobType {
 	NOT_FREELANCER
 }
 
+enum Reviewer {
+	USER
+	CUSTOMER
+}
+
 type CommentView {
 	id: ID! @unique
 	user: User @relation(name: "CommentViewUser")
@@ -124,6 +129,7 @@ type Item {
 	vatRate: Int! @default(value: 0)
 	status: ItemStatus! @default(value: PENDING)
 	section: Section! @relation(name: "SectionItems")
+	reviewer: Reviewer! @default(value: USER)
 }
 
 type Section {
