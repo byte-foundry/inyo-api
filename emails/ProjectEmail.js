@@ -4,7 +4,7 @@ async function sendProjectStartedEmail({email, ...data}) {
 	return sendEmail({
 		email,
 		data,
-		templateId: 'd-5055ed1a146348d9bd8cc440bf1160d8',
+		templateId: 'd-651e0ed5b1a84b69bfa6479217417fd7',
 	});
 }
 

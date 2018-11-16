@@ -1,7 +1,7 @@
 const gql = String.raw;
 
 const {getUserId} = require('../utils');
-const {NotFoundError, InsufficientDataError} = require('../errors');
+const {NotFoundError} = require('../errors');
 const {sendMetric} = require('../stats');
 const {sendProjectStartedEmail} = require('../emails/ProjectEmail');
 
