@@ -173,13 +173,9 @@ type Project {
 	status: ProjectStatus! @default(value: DRAFT)
 	sections: [Section!]! @relation(name: "ProjectSections", onDelete: CASCADE)
 	viewedByCustomer: Boolean! @default(value: false)
-	# reminders: [Reminder!]! @relation(name: "ProjectReminders", onDelete: CASCADE)
 	issuedAt: DateTime
 	createdAt: DateTime!
 	updatedAt: DateTime!
-
-	# acceptedProjectLogs: [Log!]!
-	# 	@relation(name: "ProjectQuotesLogs", onDelete: CASCADE)
 }
 
 type Company {

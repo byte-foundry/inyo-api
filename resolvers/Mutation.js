@@ -1252,10 +1252,6 @@ const Mutation = {
 					}
 					project {
 						status
-						# reminders(where: {status: PENDING}) {
-						# 	id
-						# 	postHookId
-						# }
 					}
 				}
 			}
@@ -1266,7 +1262,6 @@ const Mutation = {
 		}
 
 		const {project, option: {quote} = {}} = item.section;
-		let reminders = [];
 
 		// PROJECT
 		if (project) {
@@ -1275,8 +1270,6 @@ const Mutation = {
 					`Item '${id}' cannot be accepted in this project state.`,
 				);
 			}
-
-			// ({reminders} = project);
 		}
 		// QUOTE
 		else if (quote) {
@@ -1284,27 +1277,25 @@ const Mutation = {
 				throw new Error(`Item '${id}' cannot be updated in this quote state.`);
 			}
 
-			({reminders} = quote);
+			quote.reminders.forEach(async (reminder) => {
+				try {
+					await cancelReminder(reminder.postHookId);
+					await ctx.db.updateReminder({
+						where: {id: reminder.id},
+						data: {
+							status: 'CANCELED',
+						},
+					});
+					console.log(`Reminder with id ${reminder.id} canceled`);
+				}
+				catch (error) {
+					console.log(
+						`Reminder with id ${reminder.id} not canceled with error`,
+						error,
+					);
+				}
+			});
 		}
-
-		reminders.forEach(async (reminder) => {
-			try {
-				await cancelReminder(reminder.postHookId);
-				await ctx.db.updateReminder({
-					where: {id: reminder.id},
-					data: {
-						status: 'CANCELED',
-					},
-				});
-				console.log(`Reminder with id ${reminder.id} canceled`);
-			}
-			catch (error) {
-				console.log(
-					`Reminder with id ${reminder.id} not canceled with error`,
-					error,
-				);
-			}
-		});
 
 		let result;
 
