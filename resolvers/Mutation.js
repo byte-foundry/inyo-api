@@ -1935,7 +1935,7 @@ const Mutation = {
 				quoteUrl: quote
 					? `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`
 					: undefined,
-				projectUrl: quote
+				projectUrl: project
 					? `${inyoQuoteBaseUrl}/${project.id}/view/${project.token}`
 					: undefined,
 			});
