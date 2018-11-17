@@ -3887,6 +3887,13 @@ graphql-deduplicator@^2.0.1:
   resolved "https://registry.yarnpkg.com/graphql-deduplicator/-/graphql-deduplicator-2.0.1.tgz#20c6b39e3a6f096b46dfc8491432818739c0ee37"
   integrity sha512-up9Bli3LEki/INLf+KyknHHf9mFKWjZBMIarfdI2YKvfWQPLsG4i2KwMCienzXoXmgbLx47aKVaUB5fswRNR2g==
 
+graphql-directive-deprecated@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/graphql-directive-deprecated/-/graphql-directive-deprecated-2.0.1.tgz#0144656a12b283bc108fd58b85de787e8d00aaad"
+  integrity sha512-RUdxJj9htWTPinMUqBcj7IeJLZ+DiXEbayhAZpLhQR3mTxWtTHlavgldMnnuHf1LiOo70IGUWb7zoaAss2amRg==
+  dependencies:
+    graphql-tools "^4.0.0"
+
 graphql-extensions@^0.0.x, graphql-extensions@~0.0.9:
   version "0.0.10"
   resolved "https://registry.yarnpkg.com/graphql-extensions/-/graphql-extensions-0.0.10.tgz#34bdb2546d43f6a5bc89ab23c295ec0466c6843d"

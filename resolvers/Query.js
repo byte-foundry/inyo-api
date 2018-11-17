@@ -8,6 +8,48 @@ const Query = {
 		.user({id: getUserId(ctx)})
 		.company()
 		.customer({id}),
+	project: async (root, {id, token}, ctx) => {
+		// public access with a secret token inserted in a mail
+		if (token) {
+			const [project] = await ctx.db.projects({where: {id, token}});
+
+			if (!project) {
+				throw new NotFoundError(`Project '${id}' has not been found`);
+			}
+
+			sendMetric({metric: 'inyo.project.viewed.total'});
+
+			if (!project.viewedByCustomer) {
+				await ctx.db.updateProject({
+					where: {id},
+					data: {viewedByCustomer: true},
+				});
+
+				project.viewedByCustomer = true;
+
+				sendMetric({metric: 'inyo.project.viewed.unique'});
+			}
+
+			return project;
+		}
+
+		const [project] = await ctx.db.projects({
+			where: {
+				id,
+				customer: {
+					serviceCompany: {
+						owner: {id: getUserId(ctx)},
+					},
+				},
+			},
+		});
+
+		if (!project) {
+			throw new NotFoundError(`Project '${id}' has not been found`);
+		}
+
+		return project;
+	},
 	quote: async (root, {id, token}, ctx) => {
 		// public access with a secret token inserted in a mail
 		if (token) {
@@ -56,16 +98,28 @@ const Query = {
 				where: {
 					item: {
 						id: itemId,
-						section: {
-							option: {
-								quote: {token},
+						OR: [
+							{
+								section: {
+									option: {
+										quote: {token},
+									},
+								},
 							},
-						},
+							{
+								section: {
+									project: {token},
+								},
+							},
+						],
 					},
 				},
 			});
 
-			const customer = await ctx.db.quote({token}).customer();
+			const quoteCustomer = await ctx.db.quote({token}).customer();
+			const projectCustomer = await ctx.db.project({token}).customer();
+
+			const customer = projectCustomer || quoteCustomer;
 
 			await Promise.all(
 				comments.map(comment => ctx.db.updateComment({
@@ -90,15 +144,28 @@ const Query = {
 				item: {
 					id: itemId,
 					section: {
-						option: {
-							quote: {
-								customer: {
-									serviceCompany: {
-										owner: {id: userId},
+						OR: [
+							{
+								option: {
+									quote: {
+										customer: {
+											serviceCompany: {
+												owner: {id: userId},
+											},
+										},
 									},
 								},
 							},
-						},
+							{
+								project: {
+									customer: {
+										serviceCompany: {
+											owner: {id: userId},
+										},
+									},
+								},
+							},
+						],
 					},
 				},
 			},
