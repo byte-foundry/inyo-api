@@ -1,5 +1,5 @@
 const {hash, compare} = require('bcrypt');
-const {sign} = require('jsonwebtoken');
+const {sign, verify} = require('jsonwebtoken');
 const uuid = require('uuid/v4');
 const moment = require('moment');
 
@@ -15,15 +15,22 @@ const {
 	sendAcceptedQuoteEmail,
 	sendRejectedQuoteEmail,
 } = require('../emails/QuoteEmail');
-const {sendTaskValidationEmail} = require('../emails/TaskEmail');
 const {
 	sendAmendmentEmail,
 	setupAmendmentReminderEmail,
 } = require('../emails/AmendmentEmail');
 const {sendNewCommentEmail} = require('../emails/CommentEmail');
+const {sendResetPasswordEmail} = require('../emails/UserEmail');
 const cancelReminder = require('../reminders/cancelReminder');
 
+const {createProject} = require('./createProject');
+const {updateProject} = require('./updateProject');
+const {removeProject} = require('./removeProject');
+const {startProject} = require('./startProject');
+const {finishItem} = require('./finishItem');
+
 const inyoQuoteBaseUrl = 'https://app.inyo.me/app/quotes';
+const inyoProjectBaseUrl = 'https://app.inyo.me/app/projects';
 
 const titleToCivilite = {
 	MONSIEUR: 'M.',
@@ -72,6 +79,40 @@ const Mutation = {
 			throw error;
 		}
 	},
+	sendResetPassword: async (parent, {email}) => {
+		try {
+			const resetToken = sign({email}, APP_SECRET, {expiresIn: 2 * 60 * 60});
+
+			sendResetPasswordEmail({
+				email,
+				resetUrl: `https://inyo.me/reset/${resetToken}`,
+			});
+		}
+		catch (err) {
+			throw new Error(
+				'Something went wrong went resetting password, please try again.',
+			);
+		}
+
+		return true;
+	},
+	checkResetPassword: async (parent, {resetToken}) => {
+		// throws if expired or malformed
+		await verify(resetToken, APP_SECRET);
+
+		return true;
+	},
+	resetPassword: async (parent, {resetToken, newPassword}, ctx) => {
+		// throws if expired or malformed
+		const {email} = await verify(resetToken, APP_SECRET);
+
+		const hashedPassword = await hash(newPassword, 10);
+
+		return ctx.db.updateUser({
+			where: {email},
+			data: {password: hashedPassword},
+		});
+	},
 
 	login: async (parent, {email, password}, ctx) => {
 		const user = await ctx.db.user({email});
@@ -90,6 +131,22 @@ const Mutation = {
 			token: sign({userId: user.id}, APP_SECRET),
 			user,
 		};
+	},
+	updatePassword: async (parent, {oldPassword, newPassword}, ctx) => {
+		const user = await ctx.db.user({id: getUserId(ctx)});
+
+		const valid = await compare(oldPassword, user.password);
+
+		if (!valid) {
+			throw new Error('Invalid password');
+		}
+
+		const hashedPassword = await hash(newPassword, 10);
+
+		return ctx.db.updateUser({
+			where: {id: user.id},
+			data: {password: hashedPassword},
+		});
 	},
 	updateUser: async (
 		parent,
@@ -162,6 +219,10 @@ const Mutation = {
 			},
 		});
 	},
+	createProject,
+	updateProject,
+	removeProject,
+	startProject,
 	createQuote: async (
 		parent,
 		{
@@ -251,14 +312,25 @@ const Mutation = {
 		});
 	},
 	removeQuote: async (parent, {id}, ctx) => {
-		const quotes = await ctx.db
-			.user({id: getUserId(ctx)})
-			.company()
-			.customers()
-			.quotes({where: {id}});
+		const [quote] = await ctx.db.quotes({
+			where: {
+				id,
+				customer: {
+					serviceCompany: {
+						owner: {
+							id: getUserId(ctx),
+						},
+					},
+				},
+			},
+		});
 
-		if (!quotes.length) {
-			return null;
+		if (!quote) {
+			throw new NotFoundError(`Quote '${id}' has not been found.`);
+		}
+
+		if (quote.status !== 'DRAFT') {
+			throw new Error('Deleting an already accepted quote is not possible');
 		}
 
 		return ctx.db.deleteQuote({id});
@@ -283,37 +355,103 @@ const Mutation = {
 	//     id,
 	//   });
 	// },
-	addSection: async (parent, {optionId, name, items = []}, ctx) => {
-		const options = await ctx.db
-			.user({id: getUserId(ctx)})
-			.company()
-			.customers()
-			.quotes()
-			.options({where: {id: optionId}});
+	addSection: async (parent, {
+		optionId, projectId, name, items = [],
+	}, ctx) => {
+		if (projectId && optionId) {
+			throw new Error('You can define only optionId or projectId');
+		}
 
-		if (!options.length) {
-			throw new Error(`No section with id '${optionId}' has been found`);
+		let variables = {};
+
+		if (projectId) {
+			const [project] = await ctx.db.projects({
+				where: {
+					id: projectId,
+					customer: {
+						serviceCompany: {
+							owner: {
+								id: getUserId(ctx),
+							},
+						},
+					},
+				},
+			});
+
+			if (!project) {
+				throw new NotFoundError(`Project '${projectId}' has not been found.`);
+			}
+
+			variables = {
+				project: {connect: {id: projectId}},
+			};
+		}
+		else if (optionId) {
+			const [option] = await ctx.db.options({
+				where: {
+					id: optionId,
+					quote: {
+						customer: {
+							serviceCompany: {
+								owner: {
+									id: getUserId(ctx),
+								},
+							},
+						},
+					},
+				},
+			});
+
+			if (!option) {
+				throw new NotFoundError(`Option '${optionId}' has not been found.`);
+			}
+
+			variables = {
+				option: {connect: {id: optionId}},
+			};
 		}
 
 		return ctx.db.createSection({
-			option: {
-				connect: {id: optionId},
-			},
+			...variables,
 			name,
 			items: {create: items},
 		});
 	},
 	updateSection: async (parent, {id, name}, ctx) => {
-		const sections = await ctx.db
-			.user({id: getUserId(ctx)})
-			.company()
-			.customers()
-			.quotes()
-			.options()
-			.sections({where: {id}});
+		const [section] = await ctx.db.sections({
+			where: {
+				id,
+				OR: [
+					{
+						option: {
+							quote: {
+								customer: {
+									serviceCompany: {
+										owner: {
+											id: getUserId(ctx),
+										},
+									},
+								},
+							},
+						},
+					},
+					{
+						project: {
+							customer: {
+								serviceCompany: {
+									owner: {
+										id: getUserId(ctx),
+									},
+								},
+							},
+						},
+					},
+				],
+			},
+		});
 
-		if (!sections.length) {
-			throw new Error(`No section with id '${id}' has been found`);
+		if (!section) {
+			throw new NotFoundError(`Section '${id}' has not been found.`);
 		}
 
 		return ctx.db.updateSection({
@@ -322,16 +460,40 @@ const Mutation = {
 		});
 	},
 	removeSection: async (parent, {id}, ctx) => {
-		const sections = await ctx.db
-			.user({id: getUserId(ctx)})
-			.company()
-			.customers()
-			.quotes()
-			.options()
-			.sections({where: {id}});
+		const [section] = await ctx.db.sections({
+			where: {
+				id,
+				OR: [
+					{
+						option: {
+							quote: {
+								customer: {
+									serviceCompany: {
+										owner: {
+											id: getUserId(ctx),
+										},
+									},
+								},
+							},
+						},
+					},
+					{
+						project: {
+							customer: {
+								serviceCompany: {
+									owner: {
+										id: getUserId(ctx),
+									},
+								},
+							},
+						},
+					},
+				],
+			},
+		});
 
-		if (!sections.length) {
-			return null;
+		if (!section) {
+			throw new NotFoundError(`Section '${id}' has not been found.`);
 		}
 
 		return ctx.db.deleteSection({id});
@@ -339,25 +501,38 @@ const Mutation = {
 	addItem: async (
 		parent,
 		{
-			sectionId, name, description, unitPrice, unit, vatRate,
+			sectionId, name, description, unitPrice, unit, vatRate, reviewer,
 		},
 		ctx,
 	) => {
 		const [section] = await ctx.db.sections({
 			where: {
 				id: sectionId,
-				option: {
-					quote: {
-						customer: {
-							serviceCompany: {
-								owner: {id: getUserId(ctx)},
+				OR: [
+					{
+						option: {
+							quote: {
+								customer: {
+									serviceCompany: {
+										owner: {id: getUserId(ctx)},
+									},
+								},
 							},
 						},
 					},
-				},
+					{
+						project: {
+							customer: {
+								serviceCompany: {
+									owner: {id: getUserId(ctx)},
+								},
+							},
+						},
+					},
+				],
 			},
 		}).$fragment(gql`
-			fragment SectionWithQuote on Section {
+			fragment SectionWithQuoteAndProject on Section {
 				id
 				option {
 					quote {
@@ -372,6 +547,9 @@ const Mutation = {
 						}
 					}
 				}
+				project {
+					status
+				}
 			}
 		`);
 
@@ -380,6 +558,25 @@ const Mutation = {
 				`No section with id '${sectionId}' has been found`,
 			);
 		}
+
+		// PROJECT
+
+		if (section.project) {
+			if (section.project.status === 'FINISHED') {
+				throw new Error('Item cannot be added in this project state.');
+			}
+
+			return ctx.db.createItem({
+				section: {connect: {id: sectionId}},
+				name,
+				status: 'PENDING',
+				reviewer,
+				description,
+				unit,
+			});
+		}
+
+		// QUOTE
 
 		if (section.option.quote.status === 'SENT') {
 			throw new Error('Item cannot be added in this quote state.');
@@ -405,25 +602,42 @@ const Mutation = {
 	updateItem: async (
 		parent,
 		{
-			id, name, description, unitPrice, unit, vatRate,
+			id, name, description, unitPrice, unit, vatRate, reviewer,
 		},
 		ctx,
 	) => {
-		const items = await ctx.db
-			.user({id: getUserId(ctx)})
-			.company()
-			.customers()
-			.quotes()
-			.options()
-			.sections()
-			.items({where: {id}});
-
-		if (!items.length) {
-			throw new NotFoundError(`No item with id '${id}' has been found`);
-		}
-
-		const item = await ctx.db.item({id}).$fragment(gql`
-			fragment ItemWithQuote on Item {
+		const [item] = await ctx.db.items({
+			where: {
+				id,
+				OR: [
+					{
+						section: {
+							option: {
+								quote: {
+									customer: {
+										serviceCompany: {
+											owner: {id: getUserId(ctx)},
+										},
+									},
+								},
+							},
+						},
+					},
+					{
+						section: {
+							project: {
+								customer: {
+									serviceCompany: {
+										owner: {id: getUserId(ctx)},
+									},
+								},
+							},
+						},
+					},
+				],
+			},
+		}).$fragment(gql`
+			fragment ItemWithQuoteAndProject on Item {
 				status
 				section {
 					option {
@@ -431,9 +645,39 @@ const Mutation = {
 							status
 						}
 					}
+					project {
+						status
+					}
 				}
 			}
 		`);
+
+		if (!item) {
+			throw new NotFoundError(`Item '${id}' has not been found.`);
+		}
+
+		// PROJECT
+
+		if (item.section.project) {
+			if (item.section.project.status !== 'DRAFT') {
+				throw new Error(
+					`Item '${id}' cannot be updated in this project state.`,
+				);
+			}
+
+			return ctx.db.updateItem({
+				where: {id},
+				data: {
+					name,
+					description,
+					unit,
+					status: 'PENDING',
+					reviewer,
+				},
+			});
+		}
+
+		// QUOTE
 
 		if (item.section.option.quote.status !== 'DRAFT') {
 			throw new Error(`Item '${id}' cannot be updated in this quote state.`);
@@ -515,14 +759,41 @@ const Mutation = {
 		return result;
 	},
 	removeItem: async (parent, {id}, ctx) => {
-		const item = await ctx.db
-			.user({id: getUserId(ctx)})
-			.company()
-			.customers()
-			.quotes()
-			.options()
-			.sections()
-			.items({where: {id}});
+		const [item] = await ctx.db.items({
+			where: {
+				id,
+				OR: [
+					{
+						section: {
+							option: {
+								quote: {
+									customer: {
+										serviceCompany: {
+											owner: {id: getUserId(ctx)},
+										},
+									},
+								},
+							},
+						},
+					},
+					{
+						section: {
+							project: {
+								customer: {
+									serviceCompany: {
+										owner: {id: getUserId(ctx)},
+									},
+								},
+							},
+						},
+					},
+				],
+			},
+		});
+
+		if (!item) {
+			throw new NotFoundError(`Item '${id}' has not been found.`);
+		}
 
 		return ctx.db.deleteItem({id});
 	},
@@ -635,105 +906,7 @@ const Mutation = {
 			},
 		});
 	},
-	finishItem: async (parent, {id}, ctx) => {
-		const user = await ctx.db.user({id: getUserId(ctx)});
-		const items = await ctx.db
-			.user({id: user.id})
-			.company()
-			.customers()
-			.quotes()
-			.options()
-			.sections()
-			.items({where: {id}});
-
-		if (!items.length) {
-			throw new NotFoundError(`No item with id '${id}' has been found`);
-		}
-
-		const item = await ctx.db.item({id}).$fragment(gql`
-			fragment ItemWithQuote on Item {
-				name
-				status
-				section {
-					option {
-						sections {
-							name
-							items {
-								name
-								unit
-								status
-							}
-						}
-						quote {
-							id
-							token
-							name
-							customer {
-								title
-								firstName
-								lastName
-								email
-							}
-							status
-						}
-					}
-				}
-			}
-		`);
-
-		if (
-			item.section.option.quote.status !== 'ACCEPTED'
-			|| item.status !== 'PENDING'
-		) {
-			throw new Error(`Item '${id}' cannot be finished.`);
-		}
-
-		const {sections} = item.section.option;
-		const {quote} = item.section.option;
-		const {customer} = quote;
-
-		try {
-			await sendTaskValidationEmail({
-				email: customer.email,
-				user: String(`${user.firstName} ${user.lastName}`).trim(),
-				customerName: String(
-					` ${titleToCivilite[quote.customer.title]} ${
-						quote.customer.firstName
-					} ${quote.customer.lastName}`,
-				).trimRight(),
-				projectName: quote.name,
-				itemName: item.name,
-				sections: sections
-					.map(section => ({
-						name: section.name,
-						timeLeft: section.items
-							.filter(item => item.status === 'PENDING')
-							.reduce((acc, item) => acc + item.unit, 0),
-					}))
-					.filter(section => section.timeLeft > 0),
-				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
-			});
-			console.log(
-				`${new Date().toISOString()}: Task validation email sent to ${
-					customer.email
-				}`,
-			);
-		}
-		catch (error) {
-			console.log(
-				`${new Date().toISOString()}: Task validation email not because with error ${error}`,
-			);
-		}
-
-		sendMetric({metric: 'inyo.item.validated'});
-
-		return ctx.db.updateItem({
-			where: {id},
-			data: {
-				status: 'FINISHED',
-			},
-		});
-	},
+	finishItem,
 	sendAmendment: async (parent, {quoteId}, ctx) => {
 		const user = await ctx.db.user({id: getUserId(ctx)});
 		const quote = await ctx.db.quote({id: quoteId}).$fragment(gql`
@@ -888,10 +1061,12 @@ const Mutation = {
 		const [item] = await ctx.db.items({
 			where: {
 				id,
-				section: {option: {quote: {token}}},
+				section: {
+					OR: [{option: {quote: {token}}}, {project: {token}}],
+				},
 			},
 		}).$fragment(gql`
-			fragment ItemWithQuote on Item {
+			fragment ItemWithQuoteAndProject on Item {
 				status
 				pendingUnit
 				section {
@@ -904,41 +1079,52 @@ const Mutation = {
 							}
 						}
 					}
+					project {
+						status
+					}
 				}
 			}
 		`);
 
 		if (!item) {
-			throw new NotFoundError(`No item with id '${id}' has been found`);
+			throw new NotFoundError(`Item '${id}' has not been found.`);
 		}
 
-		if (item.section.option.quote.status !== 'ACCEPTED') {
-			throw new Error(`Item '${id}' cannot be updated in this quote state.`);
-		}
+		const {project, option: {quote} = {}} = item.section;
 
-		item.section.option.quote.reminders.forEach(async (reminder) => {
-			try {
-				await cancelReminder(reminder.postHookId);
-				await ctx.db.updateReminder({
-					where: {id: reminder.id},
-					data: {
-						status: 'CANCELED',
-					},
-				});
-				console.log(
-					`${new Date().toISOString()}: reminder with id ${
-						reminder.id
-					} canceled`,
+		// PROJECT
+		if (project) {
+			if (project.status !== 'ONGOING') {
+				throw new Error(
+					`Item '${id}' cannot be accepted in this project state.`,
 				);
 			}
-			catch (error) {
-				console.log(
-					`${new Date().toISOString()}: reminder with id ${
-						reminder.id
-					} not canceled with error ${error}`,
-				);
+		}
+		// QUOTE
+		else if (quote) {
+			if (quote.status !== 'ACCEPTED') {
+				throw new Error(`Item '${id}' cannot be updated in this quote state.`);
 			}
-		});
+
+			quote.reminders.forEach(async (reminder) => {
+				try {
+					await cancelReminder(reminder.postHookId);
+					await ctx.db.updateReminder({
+						where: {id: reminder.id},
+						data: {
+							status: 'CANCELED',
+						},
+					});
+					console.log(`Reminder with id ${reminder.id} canceled`);
+				}
+				catch (error) {
+					console.log(
+						`Reminder with id ${reminder.id} not canceled with error`,
+						error,
+					);
+				}
+			});
+		}
 
 		let result;
 
@@ -970,10 +1156,12 @@ const Mutation = {
 		const [item] = await ctx.db.items({
 			where: {
 				id,
-				section: {option: {quote: {token}}},
+				section: {
+					OR: [{option: {quote: {token}}}, {project: {token}}],
+				},
 			},
 		}).$fragment(gql`
-			fragment ItemWithQuote on Item {
+			fragment ItemWithQuoteAndProject on Item {
 				status
 				pendingUnit
 				section {
@@ -982,11 +1170,19 @@ const Mutation = {
 							status
 						}
 					}
+					project {
+						status
+					}
 				}
 			}
 		`);
 
-		if (item.section.option.quote.status !== 'ACCEPTED') {
+		// PROJECT
+		if (item.section.project && item.section.project.status !== 'ONGOING') {
+			throw new Error(`Item '${id}' cannot be updated in this project state.`);
+		}
+		// QUOTE
+		else if (item.section.option.quote.status !== 'ACCEPTED') {
 			throw new Error(`Item '${id}' cannot be updated in this quote state.`);
 		}
 
@@ -1335,7 +1531,9 @@ const Mutation = {
 			const [item] = await ctx.db.items({
 				where: {
 					id: itemId,
-					section: {option: {quote: {token}}},
+					section: {
+						OR: [{option: {quote: {token}}}, {project: {token}}],
+					},
 				},
 			}).$fragment(gql`
 				fragment ItemAndAuthorsForUser on Item {
@@ -1360,24 +1558,45 @@ const Mutation = {
 								}
 							}
 						}
+						project {
+							id
+							name
+							token
+							customer {
+								id
+								firstName
+								lastName
+								email
+								serviceCompany {
+									owner {
+										email
+									}
+								}
+							}
+						}
 					}
 				}
 			`);
 
 			if (!item) {
-				throw new NotFoundError(
-					`Item with Id '${itemId}' in quote with token '${token}' has not been found`,
-				);
+				throw new NotFoundError(`Item '${itemId}' has not been found`);
 			}
 
-			const {quote} = item.section.option;
-			const {customer} = quote;
+			const {project, option} = item.section;
+			const {quote} = option || {};
+			let customer;
+
+			if (project) {
+				({customer} = project);
+			}
+			else {
+				({customer} = quote);
+			}
+
 			const user = customer.serviceCompany.owner;
 
 			const result = ctx.db.updateItem({
-				where: {
-					id: itemId,
-				},
+				where: {id: itemId},
 				data: {
 					comments: {
 						create: {
@@ -1404,10 +1623,13 @@ const Mutation = {
 					authorName: String(
 						`${customer.firstName} ${customer.lastName}`,
 					).trim(),
-					projectName: quote.name,
+					projectName: project ? project.name : quote.name,
 					itemName: item.name,
 					comment,
-					quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/see`,
+					quoteUrl: quote ? `${inyoQuoteBaseUrl}/${quote.id}/see` : undefined,
+					projectUrl: project
+						? `${inyoProjectBaseUrl}/${project.id}/see`
+						: undefined,
 				});
 				console.log(`New comment email sent to ${user.email}`);
 			}
@@ -1425,7 +1647,16 @@ const Mutation = {
 			where: {
 				id: itemId,
 				section: {
-					option: {quote: {customer: {serviceCompany: {owner: {id: userId}}}}},
+					OR: [
+						{
+							option: {
+								quote: {customer: {serviceCompany: {owner: {id: userId}}}},
+							},
+						},
+						{
+							project: {customer: {serviceCompany: {owner: {id: userId}}}},
+						},
+					],
 				},
 			},
 		}).$fragment(gql`
@@ -1453,22 +1684,47 @@ const Mutation = {
 							}
 						}
 					}
+					project {
+						id
+						name
+						token
+						customer {
+							id
+							firstName
+							lastName
+							email
+							serviceCompany {
+								owner {
+									firstName
+									lastName
+									email
+								}
+							}
+						}
+					}
 				}
 			}
 		`);
 
 		if (!item) {
-			throw new NotFoundError(`No item with id '${itemId}' has been found`);
+			throw new NotFoundError(`Item '${itemId}' has not been found.`);
 		}
 
-		const {quote} = item.section.option;
-		const {customer} = quote;
+		const {project, option} = item.section;
+		const {quote} = option || {};
+		let customer;
+
+		if (project) {
+			({customer} = project);
+		}
+		else {
+			({customer} = quote);
+		}
+
 		const user = customer.serviceCompany.owner;
 
 		const result = ctx.db.updateItem({
-			where: {
-				id: itemId,
-			},
+			where: {id: itemId},
 			data: {
 				comments: {
 					create: {
@@ -1495,10 +1751,15 @@ const Mutation = {
 					`${customer.firstName} ${customer.lastName}`,
 				).trim(),
 				authorName: String(`${user.firstName} ${user.lastName}`).trim(),
-				projectName: quote.name,
+				projectName: project ? project.name : quote.name,
 				itemName: item.name,
 				comment,
-				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
+				quoteUrl: quote
+					? `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`
+					: undefined,
+				projectUrl: project
+					? `${inyoQuoteBaseUrl}/${project.id}/view/${project.token}`
+					: undefined,
 			});
 			console.log(`New comment email sent to ${customer.email}`);
 		}

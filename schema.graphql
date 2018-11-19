@@ -2,10 +2,16 @@ scalar DateTime
 scalar Json
 scalar Upload
 
+directive @deprecated(
+	reason: String = "No longer supported"
+) on FIELD_DEFINITION | ENUM_VALUE
+
 type Query {
 	me: User
 	customer(id: ID!): Customer
 	quote(id: ID!, token: String): Quote
+		@deprecated(reason: "Quotes are not used anymore.")
+	project(id: ID!, token: String): Project
 	itemComments(itemId: ID!, token: String): [Comment!]!
 }
 
@@ -17,7 +23,12 @@ type Mutation {
 		lastName: String!
 		company: CompanyInput
 	): AuthPayload!
+	sendResetPassword(email: String!): Boolean
+	checkResetPassword(resetToken: String!): Boolean
+	resetPassword(resetToken: String!, newPassword: String!): User
 	login(email: String!, password: String!): AuthPayload!
+
+	updatePassword(oldPassword: String!, newPassword: String!): User
 
 	# Update user profile and his company
 	updateUser(
@@ -37,6 +48,19 @@ type Mutation {
 	# Create a new customer inside the user's company
 	createCustomer(email: String!): Customer!
 
+	# Create a new project for a customer of the user's company
+	createProject(
+		customerId: ID
+		customer: CustomerInput
+		name: String
+		template: ProjectTemplate
+		sections: [SectionInput!]
+	): Project!
+	# Update project
+	updateProject(id: ID!, name: String!): Project
+	# Remove project
+	removeProject(id: ID!): Project
+
 	# Create a new quote for a customer of the user's company
 	createQuote(
 		customerId: ID
@@ -44,20 +68,28 @@ type Mutation {
 		name: String
 		template: QuoteTemplate
 		option: OptionInput
-	): Quote!
+	): Quote! @deprecated(reason: "Quotes are not used anymore.")
 	# Update quote
 	updateQuote(id: ID!, name: String!, option: OptionInput): Quote
+		@deprecated(reason: "Quotes are not used anymore.")
 	# Remove quote
 	removeQuote(id: ID!): Quote
+		@deprecated(reason: "Quotes are not used anymore.")
 
 	# Add an option to the quote
 	# addOption(quoteId: ID!, name: String!, sections: [SectionInput!]): Option!
 	updateOption(id: ID!, proposal: Json!): Option
+		@deprecated(reason: "Quotes are not used anymore.")
 	# Remove an option
 	# removeOption(id: ID!): Option
 
 	# Add section to one of the quote's option
-	addSection(optionId: ID!, name: String!, items: [ItemInput!]): Section!
+	addSection(
+		optionId: ID
+		projectId: ID
+		name: String!
+		items: [ItemInput!]
+	): Section!
 	# Update
 	updateSection(id: ID!, name: String!): Section
 	# Remove section
@@ -89,21 +121,29 @@ type Mutation {
 	finishItem(id: ID!): Item
 	# Send an amendment with all the updated items
 	sendAmendment(quoteId: ID!): Quote
+		@deprecated(reason: "Quotes are not used anymore.")
 
 	# Send quote to validation, DRAFT -> SENT
-	sendQuote(id: ID!): Quote!
+	sendQuote(id: ID!): Quote! @deprecated(reason: "Quotes are not used anymore.")
 	# Customer can accept quote, SENT -> ACCEPTED
 	acceptQuote(id: ID!, token: String!): Quote!
+		@deprecated(reason: "Quotes are not used anymore.")
 	# Accept a single item from a sent quote
 	acceptItem(id: ID!, token: String!): Item!
 	# Reject a single item from a sent quote
 	rejectItem(id: ID!, token: String!): Item!
 	# Customer can reject invoice, SENT -> REJECTED
 	rejectQuote(id: ID!, token: String!): Quote!
+		@deprecated(reason: "Quotes are not used anymore.")
 	# Accept amendment, all items goes UPDATED_SENT -> PENDING, pendingUnit becomes unit
 	acceptAmendment(quoteId: ID!, token: String!): Quote
+		@deprecated(reason: "Quotes are not used anymore.")
 	# Reject amendment, all items goes UPDATED_SENT -> PENDING
 	rejectAmendment(quoteId: ID!, token: String!): Quote
+		@deprecated(reason: "Quotes are not used anymore.")
+
+	# Send project, DRAFT -> ONGOING
+	startProject(id: ID!): Project!
 
 	#post a comment on an item
 	postComment(itemId: ID!, token: String, comment: CommentInput!): Item
@@ -135,8 +175,9 @@ input CompanyInput {
 }
 
 input SettingsInput {
-	askSendQuoteConfirmation: Boolean
 	askItemFinishConfirmation: Boolean
+	askSendQuoteConfirmation: Boolean
+	askSendProjectConfirmation: Boolean
 }
 
 input CustomerInput {
@@ -207,6 +248,18 @@ enum QuoteStatus {
 	INVOICED_ACCEPTED
 }
 
+enum ProjectStatus {
+	DRAFT
+	ONGOING
+	FINISHED
+}
+
+enum ProjectTemplate {
+	BLANK
+	WEBSITE
+	IDENTITY
+}
+
 enum QuoteTemplate {
 	BLANK
 	WEBSITE
@@ -220,6 +273,11 @@ enum ItemStatus {
 	UPDATED_SENT
 	ADDED
 	ADDED_SENT
+}
+
+enum Reviewer {
+	USER
+	CUSTOMER
 }
 
 union Viewer = User | Customer
@@ -250,6 +308,7 @@ type Item {
 	comments: [Comment!]!
 	vatRate: Int!
 	status: ItemStatus!
+	reviewer: Reviewer!
 }
 
 type Section {
@@ -280,6 +339,21 @@ type Quote {
 	updatedAt: DateTime!
 }
 
+type Project {
+	id: ID!
+	name: String!
+	template: ProjectTemplate
+	issuer: Company!
+	customer: Customer!
+	status: ProjectStatus!
+	sections: [Section!]!
+	total: Float
+	viewedByCustomer: Boolean!
+	issuedAt: DateTime
+	createdAt: DateTime!
+	updatedAt: DateTime!
+}
+
 type Company {
 	id: ID!
 	name: String
@@ -295,7 +369,8 @@ type Company {
 	vat: String
 	logo: File
 	customers: [Customer!]!
-	quotes: [Quote!]!
+	quotes: [Quote!]! @deprecated(reason: "Quotes are not used anymore.")
+	projects: [Project!]!
 }
 
 enum Title {
@@ -313,6 +388,8 @@ enum JobType {
 type Settings {
 	askItemFinishConfirmation: Boolean!
 	askSendQuoteConfirmation: Boolean!
+		@deprecated(reason: "Quote are not used anymore.")
+	askStartProjectConfirmation: Boolean!
 }
 
 type User {
@@ -322,6 +399,7 @@ type User {
 	lastName: String
 	company: Company!
 	defaultDailyPrice: Int
+		@deprecated(reason: "Price was only needed for the deprecated Quote.")
 	defaultVatRate: Int
 	workingFields: [String!]!
 	jobType: JobType

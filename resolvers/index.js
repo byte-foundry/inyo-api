@@ -7,6 +7,7 @@ const {Company} = require('./Company');
 const {Item} = require('./Item');
 const {Section} = require('./Section');
 const {Option} = require('./Option');
+const {Project} = require('./Project');
 const {Quote} = require('./Quote');
 const {Customer} = require('./Customer');
 const {Address} = require('./Address');
@@ -26,6 +27,7 @@ const resolvers = {
 	Item,
 	Section,
 	Option,
+	Project,
 	Quote,
 	Customer,
 	Address,

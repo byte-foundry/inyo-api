@@ -1,6 +1,7 @@
 const {GraphQLServer} = require('graphql-yoga');
 const {ApolloEngine} = require('apollo-engine');
 const bodyParser = require('body-parser');
+const {DeprecatedDirective} = require('graphql-directive-deprecated');
 
 const {prisma} = require('./generated/prisma-client');
 const {resolvers} = require('./resolvers');
@@ -10,6 +11,9 @@ const {PORT} = process.env;
 
 const server = new GraphQLServer({
 	typeDefs: 'schema.graphql',
+	schemaDirectives: {
+		deprecated: DeprecatedDirective,
+	},
 	resolvers,
 	context: (req) => {
 		const {request} = req;

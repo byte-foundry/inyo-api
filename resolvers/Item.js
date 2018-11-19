@@ -6,7 +6,8 @@ const Item = {
 	unit: node => node.unit,
 	comments: (node, args, ctx) => ctx.db.item({id: node.id}).comments(),
 	vatRate: node => node.vatRate,
-	status: node => node.status || 'PENDING',
+	status: node => node.status,
+	reviewer: node => node.reviewer,
 };
 
 module.exports = {

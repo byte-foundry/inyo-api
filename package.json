@@ -18,6 +18,7 @@
 		"bcrypt": "^3.0.2",
 		"body-parser": "^1.18.3",
 		"graphql": "^14.0.2",
+		"graphql-directive-deprecated": "^2.0.1",
 		"graphql-yoga": "^1.16.7",
 		"jsonwebtoken": "^8.3.0",
 		"moment": "^2.22.2",
@@ -44,6 +45,9 @@
 		"prettier-eslint": "^8.8.2",
 		"prettier-eslint-cli": "^4.7.1",
 		"prisma": "^1.19.3"
+	},
+	"engines": {
+		"node": ">=10"
 	},
 	"jest": {
 		"transform": {

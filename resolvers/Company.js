@@ -1,3 +1,5 @@
+const gql = String.raw;
+
 const Company = {
 	id: node => node.id,
 	name: node => node.name,
@@ -13,25 +15,49 @@ const Company = {
 	customers: (node, args, ctx) => ctx.db.company({id: node.id}).customers(),
 	quotes: async (node, args, ctx) => {
 		const customers = await ctx.db.company({id: node.id}).customers()
-			.$fragment(`
-      fragment CustomerQuotes on Customer {
-        quotes {
-          id
-          name
-          template
-          status
-          viewedByCustomer
-          issuedAt
-          createdAt
-          updatedAt
-        }
-      }
-    `);
+			.$fragment(gql`
+			fragment CustomerQuotes on Customer {
+				quotes {
+					id
+					name
+					template
+					status
+					viewedByCustomer
+					issuedAt
+					createdAt
+					updatedAt
+				}
+			}
+		`);
 
 		return customers
 			.map(customer => customer.quotes)
 			.reduce(
 				(quotes, quotesPerCustomer) => quotes.concat(quotesPerCustomer),
+				[],
+			);
+	},
+	projects: async (node, args, ctx) => {
+		const customers = await ctx.db.company({id: node.id}).customers()
+			.$fragment(gql`
+			fragment CustomerProjects on Customer {
+				projects {
+					id
+					name
+					template
+					status
+					viewedByCustomer
+					issuedAt
+					createdAt
+					updatedAt
+				}
+			}
+		`);
+
+		return customers
+			.map(customer => customer.projects)
+			.reduce(
+				(projects, projectsPerCustomer) => projects.concat(projectsPerCustomer),
 				[],
 			);
 	},
