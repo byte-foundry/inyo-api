@@ -932,7 +932,6 @@ const Mutation = {
 								email
 								serviceCompany {
 									owner {
-										title
 										firstName
 										lastName
 									}
@@ -952,7 +951,6 @@ const Mutation = {
 							email
 							serviceCompany {
 								owner {
-									title
 									firstName
 									lastName
 								}
@@ -1004,9 +1002,7 @@ const Mutation = {
 					email: user.email,
 					user: String(`${customer.firstName} ${customer.lastName}`).trim(),
 					customerName: String(
-						` ${titleToCivilite[user.title]} ${user.firstName} ${
-							user.lastName
-						}`,
+						` ${user.firstName} ${user.lastName}`,
 					).trimRight(),
 					projectName: project.name,
 					itemName: item.name,
