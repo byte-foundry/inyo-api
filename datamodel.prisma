@@ -205,7 +205,7 @@ type Settings {
 	user: User! @relation(name: "UserSettings")
 	askItemFinishConfirmation: Boolean! @default(value: true)
 	askSendQuoteConfirmation: Boolean! @default(value: true)
-	askStartProjectConfirmation: Boolean @default(value: true)
+	askStartProjectConfirmation: Boolean! @default(value: true)
 }
 
 type User {
