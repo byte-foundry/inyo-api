@@ -15,7 +15,6 @@ const {
 	sendAcceptedQuoteEmail,
 	sendRejectedQuoteEmail,
 } = require('../emails/QuoteEmail');
-const {sendTaskValidationEmail} = require('../emails/TaskEmail');
 const {
 	sendAmendmentEmail,
 	setupAmendmentReminderEmail,
@@ -31,7 +30,7 @@ const {startProject} = require('./startProject');
 const {finishItem} = require('./finishItem');
 
 const inyoQuoteBaseUrl = 'https://app.inyo.me/app/quotes';
-const inyoProjectBaseUrl = 'https://app.inyo.me/app/quotes';
+const inyoProjectBaseUrl = 'https://app.inyo.me/app/projects';
 
 const titleToCivilite = {
 	MONSIEUR: 'M.',

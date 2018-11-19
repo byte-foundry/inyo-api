@@ -78,6 +78,8 @@ const finishItem = async (parent, {id, token}, ctx) => {
 		}
 	`;
 
+	// Customer can finish item only in project
+	// PROJECT
 	if (token) {
 		const [item] = await ctx.db
 			.items({
@@ -119,12 +121,12 @@ const finishItem = async (parent, {id, token}, ctx) => {
 							.reduce((acc, item) => acc + item.unit, 0),
 					}))
 					.filter(section => section.timeLeft > 0),
-				projectUrl: `${inyoQuoteBaseUrl}/${project.id}/view/${project.token}`,
+				projectUrl: `${inyoProjectBaseUrl}/${project.id}/view/${project.token}`,
 			});
 			console.log(`Task validation email sent to ${user.email}`);
 		}
 		catch (error) {
-			console.log(`Task validation email not because with error ${error}`);
+			console.log('Task validation email not sent', error);
 		}
 
 		sendMetric({metric: 'inyo.item.validated'});
@@ -211,12 +213,12 @@ const finishItem = async (parent, {id, token}, ctx) => {
 							.reduce((acc, item) => acc + item.unit, 0),
 					}))
 					.filter(section => section.timeLeft > 0),
-				projectUrl: `${inyoQuoteBaseUrl}/${project.id}/view/${project.token}`,
+				projectUrl: `${inyoProjectBaseUrl}/${project.id}/view/${project.token}`,
 			});
 			console.log(`Task validation email sent to ${customer.email}`);
 		}
 		catch (error) {
-			console.log(`Task validation email not because with error ${error}`);
+			console.log('Task validation email not sent', error);
 		}
 	}
 	// QUOTE
@@ -256,7 +258,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 			console.log(`Task validation email sent to ${customer.email}`);
 		}
 		catch (error) {
-			console.log(`Task validation email not because with error ${error}`);
+			console.log('Task validation email not sent', error);
 		}
 	}
 
