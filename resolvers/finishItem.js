@@ -22,6 +22,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 		fragment ItemWithQuoteAndProject on Item {
 			name
 			status
+			reviewer
 			section {
 				id
 				option {
@@ -75,7 +76,6 @@ const finishItem = async (parent, {id, token}, ctx) => {
 							name
 							unit
 							status
-							reviewer
 						}
 					}
 				}
