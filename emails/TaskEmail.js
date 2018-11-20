@@ -1,6 +1,7 @@
 const sendEmail = require('./SendEmail.js');
 
-async function sendTaskValidationEmail({
+// eslint-disable-next-line
+async function legacy_sendTaskValidationEmail({
 	email,
 	user,
 	customerName,
@@ -23,6 +24,24 @@ async function sendTaskValidationEmail({
 	});
 }
 
+async function sendTaskValidationEmail({email, ...data}) {
+	return sendEmail({
+		email,
+		data,
+		templateId: 'd-fd9cee6d49d54e179210d5a080e58fb3',
+	});
+}
+
+async function sendTaskValidationWaitCustomerEmail({email, ...data}) {
+	return sendEmail({
+		email,
+		data,
+		templateId: 'd-396ebbf7d15e490da4b0b4b86d5f77b0',
+	});
+}
+
 module.exports = {
+	legacy_sendTaskValidationEmail,
 	sendTaskValidationEmail,
+	sendTaskValidationWaitCustomerEmail,
 };
