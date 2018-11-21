@@ -88,9 +88,6 @@ describe('Mutation', () => {
 		};
 		const ctx = {
 			ip: 'xxx.xxx.xxx.xxx',
-			request: {
-				get: () => 'user-token',
-			},
 			db: {
 				user: () => Promise.resolve({
 					id: 'user-id',
