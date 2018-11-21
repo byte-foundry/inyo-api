@@ -201,10 +201,10 @@ const finishItem = async (parent, {id, token}, ctx) => {
 
 		// we ask for the next item in the section
 		// or the first item in the next section
-		const nextItems = await ctx.db.item({id: item.id}).$fragment(gql`
+		const nextItems = await ctx.db.item({id}).$fragment(gql`
 			fragment NextItem on Item {
 				section {
-					items(after: "${item.id}", first: 1) {
+					items(after: "${id}", first: 1) {
 						id
 					}
 					project {
