@@ -18,6 +18,10 @@ function getUserId(context) {
 }
 
 function getAppUrl(uri) {
+	if (process.env.NODE_ENV === 'development') {
+		return `https://dev.inyo.me/app${uri}`;
+	}
+
 	return `https://app.inyo.me/app${uri}`;
 }
 
