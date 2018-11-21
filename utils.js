@@ -17,7 +17,12 @@ function getUserId(context) {
 	throw new AuthError();
 }
 
+function getAppUrl(uri) {
+	return `https://app.inyo.me/app${uri}`;
+}
+
 module.exports = {
 	getUserId,
 	APP_SECRET,
+	getAppUrl,
 };

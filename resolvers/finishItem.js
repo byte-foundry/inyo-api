@@ -1,6 +1,6 @@
 const gql = String.raw;
 
-const {getUserId} = require('../utils');
+const {getUserId, getAppUrl} = require('../utils');
 const {NotFoundError} = require('../errors');
 const {sendMetric} = require('../stats');
 const {
@@ -8,9 +8,6 @@ const {
 	sendTaskValidationEmail,
 	sendTaskValidationWaitCustomerEmail,
 } = require('../emails/TaskEmail');
-
-const inyoQuoteBaseUrl = 'https://app.inyo.me/app/quotes';
-const inyoProjectBaseUrl = 'https://app.inyo.me/app/projects';
 
 const titleToCivilite = {
 	MONSIEUR: 'M.',
@@ -126,7 +123,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 							.reduce((acc, item) => acc + item.unit, 0),
 					}))
 					.filter(section => section.timeLeft > 0),
-				projectUrl: `${inyoProjectBaseUrl}/${project.id}/view/${project.token}`,
+				projectUrl: getAppUrl(`/projects/${project.id}/view/${project.token}`),
 			});
 			console.log(`Task validation email sent to ${user.email}`);
 		}
@@ -303,7 +300,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 							.reduce((acc, item) => acc + item.unit, 0),
 					}))
 					.filter(section => section.timeLeft > 0),
-				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
+				quoteUrl: getAppUrl(`/quotes/${quote.id}/view/${quote.token}`),
 			});
 			console.log(`Task validation email sent to ${customer.email}`);
 		}
