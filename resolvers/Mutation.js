@@ -5,7 +5,7 @@ const moment = require('moment');
 
 const gql = String.raw;
 
-const {APP_SECRET, getUserId} = require('../utils');
+const {APP_SECRET, getUserId, getAppUrl} = require('../utils');
 const {NotFoundError, InsufficientDataError} = require('../errors');
 const {processUpload} = require('../files');
 const {sendMetric} = require('../stats');
@@ -27,10 +27,9 @@ const {createProject} = require('./createProject');
 const {updateProject} = require('./updateProject');
 const {removeProject} = require('./removeProject');
 const {startProject} = require('./startProject');
+const {addItem} = require('./addItem');
+const {updateItem} = require('./updateItem');
 const {finishItem} = require('./finishItem');
-
-const inyoQuoteBaseUrl = 'https://app.inyo.me/app/quotes';
-const inyoProjectBaseUrl = 'https://app.inyo.me/app/projects';
 
 const titleToCivilite = {
 	MONSIEUR: 'M.',
@@ -498,203 +497,8 @@ const Mutation = {
 
 		return ctx.db.deleteSection({id});
 	},
-	addItem: async (
-		parent,
-		{
-			sectionId, name, description, unitPrice, unit, vatRate, reviewer,
-		},
-		ctx,
-	) => {
-		const [section] = await ctx.db.sections({
-			where: {
-				id: sectionId,
-				OR: [
-					{
-						option: {
-							quote: {
-								customer: {
-									serviceCompany: {
-										owner: {id: getUserId(ctx)},
-									},
-								},
-							},
-						},
-					},
-					{
-						project: {
-							customer: {
-								serviceCompany: {
-									owner: {id: getUserId(ctx)},
-								},
-							},
-						},
-					},
-				],
-			},
-		}).$fragment(gql`
-			fragment SectionWithQuoteAndProject on Section {
-				id
-				option {
-					quote {
-						status
-						customer {
-							serviceCompany {
-								owner {
-									defaultDailyPrice
-									defaultVatRate
-								}
-							}
-						}
-					}
-				}
-				project {
-					status
-				}
-			}
-		`);
-
-		if (!section) {
-			throw new NotFoundError(
-				`No section with id '${sectionId}' has been found`,
-			);
-		}
-
-		// PROJECT
-
-		if (section.project) {
-			if (section.project.status === 'FINISHED') {
-				throw new Error('Item cannot be added in this project state.');
-			}
-
-			return ctx.db.createItem({
-				section: {connect: {id: sectionId}},
-				name,
-				status: 'PENDING',
-				reviewer,
-				description,
-				unit,
-			});
-		}
-
-		// QUOTE
-
-		if (section.option.quote.status === 'SENT') {
-			throw new Error('Item cannot be added in this quote state.');
-		}
-
-		const {
-			defaultDailyPrice,
-			defaultVatRate,
-		} = section.option.quote.customer.serviceCompany.owner;
-
-		return ctx.db.createItem({
-			section: {
-				connect: {id: sectionId},
-			},
-			name,
-			status: section.option.quote.status === 'ACCEPTED' ? 'ADDED' : 'PENDING',
-			description,
-			unitPrice: unitPrice || defaultDailyPrice,
-			unit,
-			vatRate: vatRate || defaultVatRate,
-		});
-	},
-	updateItem: async (
-		parent,
-		{
-			id, name, description, unitPrice, unit, vatRate, reviewer,
-		},
-		ctx,
-	) => {
-		const [item] = await ctx.db.items({
-			where: {
-				id,
-				OR: [
-					{
-						section: {
-							option: {
-								quote: {
-									customer: {
-										serviceCompany: {
-											owner: {id: getUserId(ctx)},
-										},
-									},
-								},
-							},
-						},
-					},
-					{
-						section: {
-							project: {
-								customer: {
-									serviceCompany: {
-										owner: {id: getUserId(ctx)},
-									},
-								},
-							},
-						},
-					},
-				],
-			},
-		}).$fragment(gql`
-			fragment ItemWithQuoteAndProject on Item {
-				status
-				section {
-					option {
-						quote {
-							status
-						}
-					}
-					project {
-						status
-					}
-				}
-			}
-		`);
-
-		if (!item) {
-			throw new NotFoundError(`Item '${id}' has not been found.`);
-		}
-
-		// PROJECT
-
-		if (item.section.project) {
-			if (item.section.project.status !== 'DRAFT') {
-				throw new Error(
-					`Item '${id}' cannot be updated in this project state.`,
-				);
-			}
-
-			return ctx.db.updateItem({
-				where: {id},
-				data: {
-					name,
-					description,
-					unit,
-					status: 'PENDING',
-					reviewer,
-				},
-			});
-		}
-
-		// QUOTE
-
-		if (item.section.option.quote.status !== 'DRAFT') {
-			throw new Error(`Item '${id}' cannot be updated in this quote state.`);
-		}
-
-		return ctx.db.updateItem({
-			where: {id},
-			data: {
-				name,
-				description,
-				unit,
-				unitPrice,
-				vatRate,
-				status: 'PENDING',
-			},
-		});
-	},
+	addItem,
+	updateItem,
 	updateValidatedItem: async (parent, {id, unit, comment}, ctx) => {
 		const userId = getUserId(ctx);
 		const items = await ctx.db
@@ -859,7 +663,7 @@ const Mutation = {
 				).trimRight(),
 				projectName: quote.name,
 				user: `${user.firstName} ${user.lastName}`,
-				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
+				quoteUrl: getAppUrl(`/quotes/${quote.id}/view/${quote.token}`),
 			});
 			console.log(
 				`${new Date().toISOString()}: Quote Email sent to ${
@@ -882,7 +686,7 @@ const Mutation = {
 					user: `${user.firstName} ${user.lastName}`,
 					issueDate: moment().format(),
 					quoteId: quote.id,
-					quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
+					quoteUrl: getAppUrl(`/quotes/${quote.id}/view/${quote.token}`),
 				},
 				ctx,
 			);
@@ -1011,7 +815,7 @@ const Mutation = {
 					} ${quote.customer.lastName}`,
 				).trimRight(),
 				projectName: quote.name,
-				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`,
+				quoteUrl: getAppUrl(`/quotes/${quote.id}/view/${quote.token}`),
 				items,
 			});
 			console.log(
@@ -1037,7 +841,7 @@ const Mutation = {
 						} ${quote.customer.lastName}`,
 					).trimRight(),
 					projectName: quote.name,
-					quoteUrl: `${inyoQuoteBaseUrl}${quote.id}?token=${quote.token}`,
+					quoteUrl: getAppUrl(`/quotes/${quote.id}?token=${quote.token}`),
 					quoteId: quote.id,
 					items,
 				},
@@ -1282,7 +1086,7 @@ const Mutation = {
 					} ${quote.customer.lastName}`,
 				).trimRight(),
 				projectName: quote.name,
-				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/see`,
+				quoteUrl: getAppUrl(`/quotes/${quote.id}/see`),
 				firstTask: quote.options[0].sections[0].items[0].name,
 			});
 
@@ -1344,7 +1148,7 @@ const Mutation = {
 					} ${quote.customer.lastName}`,
 				).trimRight(),
 				projectName: quote.name,
-				quoteUrl: `${inyoQuoteBaseUrl}/${quote.id}/see`,
+				quoteUrl: getAppUrl(`/quotes/${quote.id}/see`),
 			});
 
 			console.log(
@@ -1626,9 +1430,9 @@ const Mutation = {
 					projectName: project ? project.name : quote.name,
 					itemName: item.name,
 					comment,
-					quoteUrl: quote ? `${inyoQuoteBaseUrl}/${quote.id}/see` : undefined,
+					quoteUrl: quote ? getAppUrl(`/quotes/${quote.id}/see`) : undefined,
 					projectUrl: project
-						? `${inyoProjectBaseUrl}/${project.id}/see`
+						? getAppUrl(`/projects/${project.id}/see`)
 						: undefined,
 				});
 				console.log(`New comment email sent to ${user.email}`);
@@ -1755,10 +1559,10 @@ const Mutation = {
 				itemName: item.name,
 				comment,
 				quoteUrl: quote
-					? `${inyoQuoteBaseUrl}/${quote.id}/view/${quote.token}`
+					? getAppUrl(`/quotes/${quote.id}/view/${quote.token}`)
 					: undefined,
 				projectUrl: project
-					? `${inyoQuoteBaseUrl}/${project.id}/view/${project.token}`
+					? getAppUrl(`/projects/${project.id}/view/${project.token}`)
 					: undefined,
 			});
 			console.log(`New comment email sent to ${customer.email}`);

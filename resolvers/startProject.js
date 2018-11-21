@@ -1,11 +1,9 @@
 const gql = String.raw;
 
-const {getUserId} = require('../utils');
+const {getUserId, getAppUrl} = require('../utils');
 const {NotFoundError} = require('../errors');
 const {sendMetric} = require('../stats');
 const {sendProjectStartedEmail} = require('../emails/ProjectEmail');
-
-const inyoProjectBaseUrl = 'https://app.inyo.me/app/projects';
 
 const titleToCivilite = {
 	MONSIEUR: 'M.',
@@ -77,7 +75,7 @@ const startProject = async (parent, {id}, ctx) => {
 			).trimRight(),
 			projectName: project.name,
 			user: `${user.firstName} ${user.lastName}`,
-			url: `${inyoProjectBaseUrl}/${project.id}/view/${project.token}`,
+			url: getAppUrl(`/projects/${project.id}/view/${project.token}`),
 		});
 		console.log(`Project email sent to ${customer.email}`);
 	}

@@ -17,7 +17,16 @@ function getUserId(context) {
 	throw new AuthError();
 }
 
+function getAppUrl(uri) {
+	if (process.env.NODE_ENV === 'development') {
+		return `https://dev.inyo.me/app${uri}`;
+	}
+
+	return `https://app.inyo.me/app${uri}`;
+}
+
 module.exports = {
 	getUserId,
 	APP_SECRET,
+	getAppUrl,
 };

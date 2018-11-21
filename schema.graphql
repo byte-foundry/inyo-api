@@ -99,10 +99,11 @@ type Mutation {
 	addItem(
 		sectionId: ID!
 		name: String!
+		description: String
 		unitPrice: Int
 		unit: Float
 		vatRate: Int
-		description: String
+		reviewer: Reviewer
 	): Item!
 	# Update item properties
 	updateItem(
@@ -112,6 +113,8 @@ type Mutation {
 		unitPrice: Int
 		unit: Float
 		vatRate: Int
+		reviewer: Reviewer
+		comment: CommentInput
 	): Item
 	# Update an already validated item
 	updateValidatedItem(id: ID!, unit: Float!, comment: CommentInput!): Item
@@ -199,6 +202,7 @@ input ItemInput {
 	unitPrice: Int
 	unit: Float
 	vatRate: Int
+	reviewer: Reviewer
 }
 
 input SectionInput {
