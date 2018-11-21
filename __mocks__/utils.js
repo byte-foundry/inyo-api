@@ -14,7 +14,12 @@ function getUserId(context) {
 	throw new AuthError();
 }
 
+function getAppUrl(uri) {
+	return uri;
+}
+
 module.exports = {
 	getUserId,
+	getAppUrl,
 	APP_SECRET: 'Z',
 };
