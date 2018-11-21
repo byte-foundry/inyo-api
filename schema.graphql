@@ -112,6 +112,8 @@ type Mutation {
 		unitPrice: Int
 		unit: Float
 		vatRate: Int
+		reviewer: Reviewer
+		comment: CommentInput
 	): Item
 	# Update an already validated item
 	updateValidatedItem(id: ID!, unit: Float!, comment: CommentInput!): Item
