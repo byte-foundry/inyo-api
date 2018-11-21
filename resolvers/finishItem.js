@@ -237,7 +237,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 			).trimRight(),
 			projectName: project.name,
 			itemName: item.name,
-			url: `${inyoProjectBaseUrl}/${project.id}/view/${project.token}`,
+			url: getAppUrl(`/projects/${project.id}/view/${project.token}`),
 		};
 
 		try {
