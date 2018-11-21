@@ -27,6 +27,7 @@ const {createProject} = require('./createProject');
 const {updateProject} = require('./updateProject');
 const {removeProject} = require('./removeProject');
 const {startProject} = require('./startProject');
+const {updateItem} = require('./updateItem');
 const {finishItem} = require('./finishItem');
 
 const inyoQuoteBaseUrl = 'https://app.inyo.me/app/quotes';
@@ -599,102 +600,7 @@ const Mutation = {
 			vatRate: vatRate || defaultVatRate,
 		});
 	},
-	updateItem: async (
-		parent,
-		{
-			id, name, description, unitPrice, unit, vatRate, reviewer,
-		},
-		ctx,
-	) => {
-		const [item] = await ctx.db.items({
-			where: {
-				id,
-				OR: [
-					{
-						section: {
-							option: {
-								quote: {
-									customer: {
-										serviceCompany: {
-											owner: {id: getUserId(ctx)},
-										},
-									},
-								},
-							},
-						},
-					},
-					{
-						section: {
-							project: {
-								customer: {
-									serviceCompany: {
-										owner: {id: getUserId(ctx)},
-									},
-								},
-							},
-						},
-					},
-				],
-			},
-		}).$fragment(gql`
-			fragment ItemWithQuoteAndProject on Item {
-				status
-				section {
-					option {
-						quote {
-							status
-						}
-					}
-					project {
-						status
-					}
-				}
-			}
-		`);
-
-		if (!item) {
-			throw new NotFoundError(`Item '${id}' has not been found.`);
-		}
-
-		// PROJECT
-
-		if (item.section.project) {
-			if (item.section.project.status !== 'DRAFT') {
-				throw new Error(
-					`Item '${id}' cannot be updated in this project state.`,
-				);
-			}
-
-			return ctx.db.updateItem({
-				where: {id},
-				data: {
-					name,
-					description,
-					unit,
-					status: 'PENDING',
-					reviewer,
-				},
-			});
-		}
-
-		// QUOTE
-
-		if (item.section.option.quote.status !== 'DRAFT') {
-			throw new Error(`Item '${id}' cannot be updated in this quote state.`);
-		}
-
-		return ctx.db.updateItem({
-			where: {id},
-			data: {
-				name,
-				description,
-				unit,
-				unitPrice,
-				vatRate,
-				status: 'PENDING',
-			},
-		});
-	},
+	updateItem,
 	updateValidatedItem: async (parent, {id, unit, comment}, ctx) => {
 		const userId = getUserId(ctx);
 		const items = await ctx.db
