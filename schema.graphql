@@ -99,10 +99,11 @@ type Mutation {
 	addItem(
 		sectionId: ID!
 		name: String!
+		description: String
 		unitPrice: Int
 		unit: Float
 		vatRate: Int
-		description: String
+		reviewer: Reviewer
 	): Item!
 	# Update item properties
 	updateItem(
