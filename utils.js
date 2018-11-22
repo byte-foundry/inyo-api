@@ -22,6 +22,10 @@ function getAppUrl(uri) {
 		return `https://dev.inyo.me/app${uri}`;
 	}
 
+	if (uri.includes('projects/')) {
+		return `https://beta.inyo.me/app${uri}`;
+	}
+
 	return `https://app.inyo.me/app${uri}`;
 }
 
