@@ -25,7 +25,7 @@ type Mutation {
 	): AuthPayload!
 	sendResetPassword(email: String!): Boolean
 	checkResetPassword(resetToken: String!): Boolean
-	resetPassword(resetToken: String!, newPassword: String!): User
+	resetPassword(resetToken: String!, newPassword: String!): AuthPayload!
 	login(email: String!, password: String!): AuthPayload!
 
 	updatePassword(oldPassword: String!, newPassword: String!): User

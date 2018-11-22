@@ -84,7 +84,7 @@ const Mutation = {
 
 			sendResetPasswordEmail({
 				email,
-				resetUrl: `https://inyo.me/reset/${resetToken}`,
+				resetUrl: getAppUrl(`/auth/reset/${resetToken}`),
 			});
 		}
 		catch (err) {
@@ -107,10 +107,12 @@ const Mutation = {
 
 		const hashedPassword = await hash(newPassword, 10);
 
-		return ctx.db.updateUser({
+		await ctx.db.updateUser({
 			where: {email},
 			data: {password: hashedPassword},
 		});
+
+		return Mutation.login({}, {email, password: newPassword}, ctx);
 	},
 
 	login: async (parent, {email, password}, ctx) => {
