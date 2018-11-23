@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const {GraphQLServer} = require('graphql-yoga');
 const {ApolloEngine} = require('apollo-engine');
 const bodyParser = require('body-parser');
@@ -34,10 +35,7 @@ const server = new GraphQLServer({
 server.express.get('/send-reminder', (req, res) => res.status(200).send('bonjour'));
 
 server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
-	const hmac = require('crypto').createHmac(
-		'sha256',
-		process.env.POSTHOOK_SIGNATURE,
-	);
+	const hmac = crypto.createHmac('sha256', process.env.POSTHOOK_SIGNATURE);
 
 	console.log('############ SEND REMINDER CALLED ##########');
 	// look for X-Ph-Signature in ctx
@@ -56,30 +54,39 @@ server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
 
 	try {
 		await sendEmail(req.body.data);
-		await prisma.updateReminder({
-			where: {id: reminder.id},
-			data: {
-				status: 'SENT',
-			},
-		});
-		console.log(
-			`${new Date().toISOString()}: Reminder with id ${reminder.id} sent`,
-		);
+		if (reminder) {
+			await prisma.updateReminder({
+				where: {id: reminder.id},
+				data: {
+					status: 'SENT',
+				},
+			});
+			console.log(`Reminder with id ${reminder.id} sent`);
+		}
+		else {
+			console.warn(
+				`Reminder with postHookId '${reminder.id}' not found but sent.`,
+			);
+		}
 		// posthook wants a 200 not a 204
 		res.status(200).send();
 	}
 	catch (error) {
-		await prisma.updateReminder({
-			where: {id: reminder.id},
-			data: {
-				status: 'ERROR',
-			},
-		});
-		console.log(
-			`${new Date().toISOString()}: Reminder with id ${
-				reminder.id
-			} not sent with error ${error}`,
-		);
+		if (reminder) {
+			await prisma.updateReminder({
+				where: {id: reminder.id},
+				data: {
+					status: 'ERROR',
+				},
+			});
+			console.log(`Reminder '${reminder.id}' not sent`, error);
+		}
+		else {
+			console.warn(
+				`Reminder with postHookId '${reminder.id}' not found and errored`,
+				error,
+			);
+		}
 		res.status(500).send({
 			message: 'Something wrong happened!',
 		});
