@@ -78,13 +78,20 @@ const Mutation = {
 			throw error;
 		}
 	},
-	sendResetPassword: async (parent, {email}) => {
+	sendResetPassword: async (parent, {email}, ctx) => {
+		const user = ctx.db.user({email});
+
+		if (!user) {
+			return true;
+		}
+
 		try {
 			const resetToken = sign({email}, APP_SECRET, {expiresIn: 2 * 60 * 60});
 
 			sendResetPasswordEmail({
 				email,
-				resetUrl: getAppUrl(`/auth/reset/${resetToken}`),
+				user: String(`${user.firstName} ${user.lastName}`).trim(),
+				url: getAppUrl(`/auth/reset/${resetToken}`),
 			});
 		}
 		catch (err) {

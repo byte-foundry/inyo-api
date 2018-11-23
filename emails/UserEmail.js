@@ -1,9 +1,9 @@
 const sendEmail = require('./SendEmail.js');
 
-async function sendResetPasswordEmail({email, resetUrl}) {
+async function sendResetPasswordEmail({email, ...data}) {
 	return sendEmail({
 		email,
-		data: {resetUrl},
+		data,
 		templateId: 'd-2154456e1baa43038fc4c287510d1566',
 	});
 }
