@@ -1,4 +1,5 @@
 scalar DateTime
+scalar Time
 scalar Json
 scalar Upload
 
@@ -35,6 +36,8 @@ type Mutation {
 		email: String
 		firstName: String
 		lastName: String
+		startWorkAt: Time
+		endWorkAt: Time
 		defaultDailyPrice: Int
 		defaultVatRate: Int
 		workingFields: [String!]
@@ -406,6 +409,8 @@ type User {
 	defaultDailyPrice: Int
 		@deprecated(reason: "Price was only needed for the deprecated Quote.")
 	defaultVatRate: Int
+	startWorkAt: Time
+	endWorkAt: Time
 	workingFields: [String!]!
 	jobType: JobType
 	interestedFeatures: [String!]!

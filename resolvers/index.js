@@ -1,3 +1,5 @@
+const {GraphQLTime} = require('graphql-iso-date');
+
 const {Query} = require('./Query');
 const {Mutation} = require('./Mutation');
 const {AuthPayload} = require('./AuthPayload');
@@ -18,6 +20,7 @@ const {CommentView} = require('./CommentView');
 const {File} = require('./File');
 
 const resolvers = {
+	Time: GraphQLTime,
 	Query,
 	Mutation,
 	AuthPayload,
