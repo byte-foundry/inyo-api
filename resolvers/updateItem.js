@@ -1,16 +1,30 @@
 const gql = String.raw;
 
 const {getUserId} = require('../utils');
-const {NotFoundError, InsufficientDataError} = require('../errors');
+const {NotFoundError} = require('../errors');
+const {sendItemUpdatedEmail} = require('../emails/TaskEmail');
+
+const titleToCivilite = {
+	MONSIEUR: 'M.',
+	MADAME: 'Mme',
+};
 
 const updateItem = async (
 	parent,
 	{
-		id, name, description, unitPrice, unit, vatRate, reviewer, comment,
+		id,
+		name,
+		description,
+		unitPrice,
+		unit,
+		vatRate,
+		reviewer,
+		comment,
+		notifyCustomer = true,
 	},
 	ctx,
 ) => {
-	const userId = getUserId(ctx);
+	const user = await ctx.db.user({id: getUserId(ctx)});
 	const [item] = await ctx.db.items({
 		where: {
 			id,
@@ -52,6 +66,12 @@ const updateItem = async (
 				}
 				project {
 					status
+					customer {
+						title
+						firstName
+						lastName
+						email
+					}
 				}
 			}
 		}
@@ -64,19 +84,15 @@ const updateItem = async (
 	// PROJECT
 
 	if (item.section.project) {
-		if (item.section.project.status === 'FINISHED') {
+		const {project} = item.section;
+
+		if (project.status === 'FINISHED') {
 			throw new Error(
 				`Item '${id}' cannot be updated when the project is finished.`,
 			);
 		}
 
-		if (item.section.project.status === 'ONGOING' && !comment) {
-			throw new InsufficientDataError(
-				`Item '${id}' needs a comment to explain the changes.`,
-			);
-		}
-
-		return ctx.db.updateItem({
+		const updatedItem = await ctx.db.updateItem({
 			where: {id},
 			data: {
 				name,
@@ -88,12 +104,12 @@ const updateItem = async (
 					create: comment && {
 						text: comment.text,
 						authorUser: {
-							connect: {id: userId},
+							connect: {id: user.id},
 						},
 						views: {
 							create: {
 								user: {
-									connect: {id: userId},
+									connect: {id: user.id},
 								},
 							},
 						},
@@ -101,6 +117,23 @@ const updateItem = async (
 				},
 			},
 		});
+
+		if (!notifyCustomer) {
+			const {customer} = project;
+
+			sendItemUpdatedEmail({
+				email: customer.email,
+				recipentName: `${titleToCivilite[customer.title]} ${
+					customer.lastName
+				} ${customer.firstName}`.trim(),
+				authorName: `${user.firstName} ${user.lastName}`.trim(),
+				projectName: project.name,
+				itemName: item.name,
+				comment,
+			});
+		}
+
+		return updatedItem;
 	}
 
 	// QUOTE
