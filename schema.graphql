@@ -121,7 +121,7 @@ type Mutation {
 	# Remove an item
 	removeItem(id: ID!): Item
 	# Finish an item
-	finishItem(id: ID!): Item
+	finishItem(id: ID!, token: String): Item
 	# Send an amendment with all the updated items
 	sendAmendment(quoteId: ID!): Quote
 		@deprecated(reason: "Quotes are not used anymore.")
