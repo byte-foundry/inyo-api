@@ -3,7 +3,10 @@ const gql = String.raw;
 const {getUserId, getAppUrl} = require('../utils');
 const {NotFoundError} = require('../errors');
 const {sendMetric} = require('../stats');
-const {sendNewCommentEmail} = require('../emails/CommentEmail');
+const {
+	legacy_sendNewCommentEmail, // eslint-disable-line
+	sendNewCommentEmail,
+} = require('../emails/CommentEmail');
 
 const postComment = async (parent, {itemId, token, comment}, ctx) => {
 	if (token) {
@@ -96,18 +99,28 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 		});
 
 		try {
-			await sendNewCommentEmail({
+			const params = {
 				email: user.email,
 				recipentName: String(`${user.firstName} ${user.lastName}`).trim(),
 				authorName: String(`${customer.firstName} ${customer.lastName}`).trim(),
 				projectName: project ? project.name : quote.name,
 				itemName: item.name,
 				comment,
-				quoteUrl: quote ? getAppUrl(`/quotes/${quote.id}/see`) : undefined,
-				projectUrl: project
-					? getAppUrl(`/projects/${project.id}/see`)
-					: undefined,
-			});
+			};
+
+			if (project) {
+				sendNewCommentEmail({
+					...params,
+					url: getAppUrl(`/projects/${project.id}/see`),
+				});
+			}
+			else {
+				legacy_sendNewCommentEmail({
+					...params,
+					quoteUrl: getAppUrl(`/quotes/${quote.id}/see`),
+				});
+			}
+
 			console.log(`New comment email sent to ${user.email}`);
 		}
 		catch (error) {
@@ -222,20 +235,28 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 	});
 
 	try {
-		await sendNewCommentEmail({
+		const params = {
 			email: customer.email,
 			recipentName: String(`${customer.firstName} ${customer.lastName}`).trim(),
 			authorName: String(`${user.firstName} ${user.lastName}`).trim(),
 			projectName: project ? project.name : quote.name,
 			itemName: item.name,
 			comment,
-			quoteUrl: quote
-				? getAppUrl(`/quotes/${quote.id}/view/${quote.token}`)
-				: undefined,
-			projectUrl: project
-				? getAppUrl(`/projects/${project.id}/view/${project.token}`)
-				: undefined,
-		});
+		};
+
+		if (project) {
+			await sendNewCommentEmail({
+				...params,
+				url: getAppUrl(`/projects/${project.id}/view/${project.token}`),
+			});
+		}
+		else {
+			await legacy_sendNewCommentEmail({
+				...params,
+				quoteUrl: getAppUrl(`/quotes/${quote.id}/view/${quote.token}`),
+			});
+		}
+
 		console.log(`New comment email sent to ${customer.email}`);
 	}
 	catch (error) {
