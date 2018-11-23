@@ -123,7 +123,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 							.reduce((acc, item) => acc + item.unit, 0),
 					}))
 					.filter(section => section.timeLeft > 0),
-				projectUrl: getAppUrl(`/projects/${project.id}/view/${project.token}`),
+				url: getAppUrl(`/projects/${project.id}/view/${project.token}`),
 			});
 			console.log(`Task validation email sent to ${user.email}`);
 		}
