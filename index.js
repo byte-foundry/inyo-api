@@ -32,8 +32,6 @@ const server = new GraphQLServer({
 	},
 });
 
-server.express.get('/send-reminder', (req, res) => res.status(200).send('bonjour'));
-
 server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
 	const hmac = crypto.createHmac('sha256', process.env.POSTHOOK_SIGNATURE);
 
@@ -50,7 +48,19 @@ server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
 		throw new Error('The signature has not been verified.');
 	}
 
-	const [reminder] = await prisma.reminders({where: {postHookId: req.body.id}});
+	const [reminder] = await prisma.reminders({
+		where: {
+			postHookId: req.body.id,
+			OR: [
+				{
+					status_not: 'SENT',
+				},
+				{
+					status_not: 'CANCELED',
+				},
+			],
+		},
+	});
 
 	try {
 		await sendEmail(req.body.data);

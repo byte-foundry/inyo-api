@@ -76,6 +76,16 @@ enum ReminderType {
 	QUOTE_2_DAYS_LEFT
 	AMENDMENT_AFTER_5_DAYS
 	AMENDMENT_AFTER_10_DAYS
+
+	# 2 day reminder
+	FIRST
+	# FIRST + days reminder
+	SECOND
+	# SECOND + 1 days reminder
+	LAST
+
+	# customer has not replied, user warning at LAST + 2 days
+	USER_WARNING
 }
 
 enum ReminderStatus {
@@ -130,6 +140,7 @@ type Item {
 	status: ItemStatus! @default(value: PENDING)
 	section: Section! @relation(name: "SectionItems")
 	reviewer: Reviewer! @default(value: USER)
+	reminders: [Reminder!]! @relation(name: "ItemReminders", onDelete: CASCADE)
 }
 
 type Section {
@@ -231,7 +242,8 @@ type User {
 
 type Reminder {
 	id: ID! @unique
-	quote: Quote! @relation(name: "QuoteReminders")
+	quote: Quote @relation(name: "QuoteReminders")
+	item: Item @relation(name: "ItemReminders")
 	postHookId: String!
 	type: ReminderType!
 	sendingDate: DateTime!
