@@ -255,6 +255,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 						.map(section => ({
 							name: section.name,
 							timeLeft: section.items
+								.filter(item => item.id !== id)
 								.filter(item => item.status === 'PENDING')
 								.reduce((acc, item) => acc + item.unit, 0),
 						}))
