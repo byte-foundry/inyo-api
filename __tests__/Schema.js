@@ -16,6 +16,8 @@ const getUserTest = {
 		query {
 			me {
 				id
+				startWorkAt
+				endWorkAt
 			}
 		}
 	`,
@@ -23,7 +25,11 @@ const getUserTest = {
 	context: {},
 	expected: {
 		data: {
-			me: null,
+			me: {
+				id: 'id',
+				startWorkAt: '12:00:00.000Z',
+				endWorkAt: '12:00:00.000Z',
+			},
 		},
 	},
 };
@@ -34,7 +40,8 @@ describe('Schema', () => {
 	const mockSchema = makeExecutableSchema({typeDefs: schema});
 	const jsSchema = buildSchemaFromTypeDefinitions(schema);
 	const mockMap = {
-		User: () => null,
+		ID: () => 'id',
+		Time: () => '12:00:00.000Z',
 	};
 
 	// Return payload of mocked types
