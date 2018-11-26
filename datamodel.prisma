@@ -215,6 +215,8 @@ type User {
 	firstName: String!
 	lastName: String!
 	company: Company! @relation(name: "CompanyOwner")
+	startWorkAt: DateTime
+	endWorkAt: DateTime
 	defaultDailyPrice: Int @default(value: 350)
 	defaultVatRate: Int @default(value: 20)
 	commentViews: [CommentView!]! @relation(name: "CommentViewUser")
