@@ -19,7 +19,6 @@ const {
 	sendAmendmentEmail,
 	setupAmendmentReminderEmail,
 } = require('../emails/AmendmentEmail');
-const {sendNewCommentEmail} = require('../emails/CommentEmail');
 const {sendResetPasswordEmail} = require('../emails/UserEmail');
 const cancelReminder = require('../reminders/cancelReminder');
 
@@ -30,6 +29,7 @@ const {startProject} = require('./startProject');
 const {addItem} = require('./addItem');
 const {updateItem} = require('./updateItem');
 const {finishItem} = require('./finishItem');
+const {postComment} = require('./postComment');
 
 const titleToCivilite = {
 	MONSIEUR: 'M.',
@@ -78,13 +78,20 @@ const Mutation = {
 			throw error;
 		}
 	},
-	sendResetPassword: async (parent, {email}) => {
+	sendResetPassword: async (parent, {email}, ctx) => {
+		const user = ctx.db.user({email});
+
+		if (!user) {
+			return true;
+		}
+
 		try {
 			const resetToken = sign({email}, APP_SECRET, {expiresIn: 2 * 60 * 60});
 
 			sendResetPasswordEmail({
 				email,
-				resetUrl: `https://inyo.me/reset/${resetToken}`,
+				user: String(`${user.firstName} ${user.lastName}`).trim(),
+				url: getAppUrl(`/auth/reset/${resetToken}`),
 			});
 		}
 		catch (err) {
@@ -107,10 +114,12 @@ const Mutation = {
 
 		const hashedPassword = await hash(newPassword, 10);
 
-		return ctx.db.updateUser({
+		await ctx.db.updateUser({
 			where: {email},
 			data: {password: hashedPassword},
 		});
+
+		return Mutation.login({}, {email, password: newPassword}, ctx);
 	},
 
 	login: async (parent, {email, password}, ctx) => {
@@ -154,6 +163,8 @@ const Mutation = {
 			firstName,
 			lastName,
 			company,
+			startWorkAt,
+			endWorkAt,
 			defaultVatRate,
 			defaultDailyPrice,
 			workingFields,
@@ -178,6 +189,8 @@ const Mutation = {
 				email,
 				firstName,
 				lastName,
+				startWorkAt,
+				endWorkAt,
 				defaultVatRate,
 				defaultDailyPrice,
 				workingFields: {set: workingFields},
@@ -1330,251 +1343,7 @@ const Mutation = {
 
 		return ctx.db.quote({id: quoteId});
 	},
-	postComment: async (parent, {itemId, token, comment}, ctx) => {
-		if (token) {
-			const [item] = await ctx.db.items({
-				where: {
-					id: itemId,
-					section: {
-						OR: [{option: {quote: {token}}}, {project: {token}}],
-					},
-				},
-			}).$fragment(gql`
-				fragment ItemAndAuthorsForUser on Item {
-					id
-					name
-					section {
-						option {
-							quote {
-								id
-								name
-								token
-								customer {
-									id
-									firstName
-									lastName
-									email
-									serviceCompany {
-										owner {
-											email
-										}
-									}
-								}
-							}
-						}
-						project {
-							id
-							name
-							token
-							customer {
-								id
-								firstName
-								lastName
-								email
-								serviceCompany {
-									owner {
-										email
-									}
-								}
-							}
-						}
-					}
-				}
-			`);
-
-			if (!item) {
-				throw new NotFoundError(`Item '${itemId}' has not been found`);
-			}
-
-			const {project, option} = item.section;
-			const {quote} = option || {};
-			let customer;
-
-			if (project) {
-				({customer} = project);
-			}
-			else {
-				({customer} = quote);
-			}
-
-			const user = customer.serviceCompany.owner;
-
-			const result = ctx.db.updateItem({
-				where: {id: itemId},
-				data: {
-					comments: {
-						create: {
-							text: comment.text,
-							authorCustomer: {
-								connect: {id: customer.id},
-							},
-							views: {
-								create: {
-									customer: {
-										connect: {id: customer.id},
-									},
-								},
-							},
-						},
-					},
-				},
-			});
-
-			try {
-				await sendNewCommentEmail({
-					email: user.email,
-					recipentName: String(`${user.firstName} ${user.lastName}`).trim(),
-					authorName: String(
-						`${customer.firstName} ${customer.lastName}`,
-					).trim(),
-					projectName: project ? project.name : quote.name,
-					itemName: item.name,
-					comment,
-					quoteUrl: quote ? getAppUrl(`/quotes/${quote.id}/see`) : undefined,
-					projectUrl: project
-						? getAppUrl(`/projects/${project.id}/see`)
-						: undefined,
-				});
-				console.log(`New comment email sent to ${user.email}`);
-			}
-			catch (error) {
-				console.log(`New comment email not because with error ${error}`);
-			}
-
-			sendMetric({metric: 'inyo.comment.postedByCustomer'});
-
-			return result;
-		}
-
-		const userId = getUserId(ctx);
-		const [item] = await ctx.db.items({
-			where: {
-				id: itemId,
-				section: {
-					OR: [
-						{
-							option: {
-								quote: {customer: {serviceCompany: {owner: {id: userId}}}},
-							},
-						},
-						{
-							project: {customer: {serviceCompany: {owner: {id: userId}}}},
-						},
-					],
-				},
-			},
-		}).$fragment(gql`
-			fragment ItemAndAuthorsForCustomer on Item {
-				id
-				name
-				section {
-					option {
-						quote {
-							id
-							name
-							token
-							customer {
-								id
-								firstName
-								lastName
-								email
-								serviceCompany {
-									owner {
-										firstName
-										lastName
-										email
-									}
-								}
-							}
-						}
-					}
-					project {
-						id
-						name
-						token
-						customer {
-							id
-							firstName
-							lastName
-							email
-							serviceCompany {
-								owner {
-									firstName
-									lastName
-									email
-								}
-							}
-						}
-					}
-				}
-			}
-		`);
-
-		if (!item) {
-			throw new NotFoundError(`Item '${itemId}' has not been found.`);
-		}
-
-		const {project, option} = item.section;
-		const {quote} = option || {};
-		let customer;
-
-		if (project) {
-			({customer} = project);
-		}
-		else {
-			({customer} = quote);
-		}
-
-		const user = customer.serviceCompany.owner;
-
-		const result = ctx.db.updateItem({
-			where: {id: itemId},
-			data: {
-				comments: {
-					create: {
-						text: comment.text,
-						authorUser: {
-							connect: {id: userId},
-						},
-						views: {
-							create: {
-								user: {
-									connect: {id: userId},
-								},
-							},
-						},
-					},
-				},
-			},
-		});
-
-		try {
-			await sendNewCommentEmail({
-				email: customer.email,
-				recipentName: String(
-					`${customer.firstName} ${customer.lastName}`,
-				).trim(),
-				authorName: String(`${user.firstName} ${user.lastName}`).trim(),
-				projectName: project ? project.name : quote.name,
-				itemName: item.name,
-				comment,
-				quoteUrl: quote
-					? getAppUrl(`/quotes/${quote.id}/view/${quote.token}`)
-					: undefined,
-				projectUrl: project
-					? getAppUrl(`/projects/${project.id}/view/${project.token}`)
-					: undefined,
-			});
-			console.log(`New comment email sent to ${customer.email}`);
-		}
-		catch (error) {
-			console.log(`New comment email not because with error ${error}`);
-		}
-
-		sendMetric({metric: 'inyo.comment.postedByUser'});
-
-		return result;
-	},
+	postComment,
 };
 
 module.exports = {

@@ -40,8 +40,17 @@ async function sendTaskValidationWaitCustomerEmail({email, ...data}) {
 	});
 }
 
+async function sendItemUpdatedEmail({email, ...data}) {
+	return sendEmail({
+		email,
+		data,
+		templateId: 'd-3cf78715bb9f4432add79f198c21b282',
+	});
+}
+
 module.exports = {
 	legacy_sendTaskValidationEmail,
 	sendTaskValidationEmail,
 	sendTaskValidationWaitCustomerEmail,
+	sendItemUpdatedEmail,
 };
