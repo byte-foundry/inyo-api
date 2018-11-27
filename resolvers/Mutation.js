@@ -5,7 +5,9 @@ const moment = require('moment');
 
 const gql = String.raw;
 
-const {APP_SECRET, getUserId, getAppUrl} = require('../utils');
+const {
+	APP_SECRET, getUserId, getRootUrl, getAppUrl,
+} = require('../utils');
 const {NotFoundError, InsufficientDataError} = require('../errors');
 const {processUpload} = require('../files');
 const {sendMetric} = require('../stats');
@@ -91,7 +93,7 @@ const Mutation = {
 			sendResetPasswordEmail({
 				email,
 				user: String(`${user.firstName} ${user.lastName}`).trim(),
-				url: getAppUrl(`/auth/reset/${resetToken}`),
+				url: getRootUrl(`/auth/reset/${resetToken}`),
 			});
 		}
 		catch (err) {
