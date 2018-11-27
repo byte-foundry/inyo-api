@@ -3,6 +3,7 @@ import {finishItem} from '../finishItem';
 jest.mock('../../utils');
 jest.mock('../../stats');
 jest.mock('../../emails/TaskEmail');
+jest.mock('../reminders/cancelReminder');
 
 describe('finishItem', () => {
 	it('should let a user finish a project user item', async () => {
@@ -20,6 +21,14 @@ describe('finishItem', () => {
 							name: 'Mon item',
 							status: 'PENDING',
 							reviewer: 'USER',
+							reminders: [
+								{
+									id: 'reminder-id',
+									postHookId: 'posthook-id',
+									type: 'SECOND',
+									status: 'PENDING',
+								},
+							],
 							section: {
 								id: 'section-id',
 								project: {
@@ -70,6 +79,7 @@ describe('finishItem', () => {
 					id: 'item-id',
 					...data,
 				}),
+				updateManyReminders: jest.fn(),
 			},
 		};
 

@@ -8,6 +8,7 @@ const {
 	sendTaskValidationEmail,
 	sendTaskValidationWaitCustomerEmail,
 } = require('../emails/TaskEmail');
+const cancelReminder = require('../reminders/cancelReminder');
 
 const titleToCivilite = {
 	MONSIEUR: 'M.',
@@ -20,6 +21,12 @@ const finishItem = async (parent, {id, token}, ctx) => {
 			name
 			status
 			reviewer
+			pendingReminders: reminders({where: {status: 'PENDING'}}) {
+				id
+				postHookId
+				type
+				status
+			}
 			section {
 				id
 				option {
@@ -312,6 +319,28 @@ const finishItem = async (parent, {id, token}, ctx) => {
 	}
 
 	sendMetric({metric: 'inyo.item.validated'});
+
+	// canceling all future reminders
+	try {
+		await Promise.all(
+			item.pendingReminders.map(reminder => cancelReminder(reminder.postHookId)),
+		);
+		await ctx.db.updateManyReminders({
+			where: {status: 'PENDING'},
+			data: {status: 'CANCELED'},
+		});
+
+		console.log(
+			`Canceled pending reminders of Item '${item.id}'.`,
+			item.pendingReminders.map(r => r.id),
+		);
+	}
+	catch (err) {
+		console.error(
+			`Errors cancelling pending reminders of Item '${item.id}'`,
+			err,
+		);
+	}
 
 	return ctx.db.updateItem({
 		where: {id},
