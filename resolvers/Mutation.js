@@ -79,7 +79,7 @@ const Mutation = {
 		}
 	},
 	sendResetPassword: async (parent, {email}, ctx) => {
-		const user = ctx.db.user({email});
+		const user = await ctx.db.user({email});
 
 		if (!user) {
 			return true;
