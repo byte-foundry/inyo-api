@@ -61,6 +61,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 						email
 						serviceCompany {
 							owner {
+								email
 								firstName
 								lastName
 							}
