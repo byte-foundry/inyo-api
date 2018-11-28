@@ -21,7 +21,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 			name
 			status
 			reviewer
-			pendingReminders: reminders({where: {status: 'PENDING'}}) {
+			pendingReminders: reminders(where: {status: PENDING}) {
 				id
 				postHookId
 				type
@@ -331,15 +331,12 @@ const finishItem = async (parent, {id, token}, ctx) => {
 		});
 
 		console.log(
-			`Canceled pending reminders of Item '${item.id}'.`,
+			`Canceled pending reminders of Item '${id}'.`,
 			item.pendingReminders.map(r => r.id),
 		);
 	}
 	catch (err) {
-		console.error(
-			`Errors cancelling pending reminders of Item '${item.id}'`,
-			err,
-		);
+		console.error(`Errors cancelling pending reminders of Item '${id}'`, err);
 	}
 
 	return ctx.db.updateItem({

@@ -3,7 +3,7 @@ import {finishItem} from '../finishItem';
 jest.mock('../../utils');
 jest.mock('../../stats');
 jest.mock('../../emails/TaskEmail');
-jest.mock('../reminders/cancelReminder');
+jest.mock('../../reminders/cancelReminder');
 
 describe('finishItem', () => {
 	it('should let a user finish a project user item', async () => {
