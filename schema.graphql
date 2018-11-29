@@ -58,9 +58,10 @@ type Mutation {
 		name: String
 		template: ProjectTemplate
 		sections: [SectionInput!]
+		deadline: DateTime
 	): Project!
 	# Update project
-	updateProject(id: ID!, name: String!): Project
+	updateProject(id: ID!, name: String!, deadline: DateTime): Project
 	# Remove project
 	removeProject(id: ID!): Project
 
@@ -358,6 +359,7 @@ type Project {
 	total: Float
 	viewedByCustomer: Boolean!
 	issuedAt: DateTime
+	deadline: DateTime
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }

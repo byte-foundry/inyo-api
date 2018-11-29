@@ -180,6 +180,7 @@ type Project {
 	sections: [Section!]! @relation(name: "ProjectSections", onDelete: CASCADE)
 	viewedByCustomer: Boolean! @default(value: false)
 	issuedAt: DateTime
+	deadline: DateTime
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }
