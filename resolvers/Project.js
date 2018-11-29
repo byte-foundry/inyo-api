@@ -27,6 +27,7 @@ const Project = {
 	sections: (node, args, ctx) => ctx.db.project({id: node.id}).sections(),
 	viewedByCustomer: node => node.viewedByCustomer,
 	issuedAt: node => node.issuedAt,
+	deadline: node => node.deadline,
 	createdAt: node => node.createdAt,
 	updatedAt: node => node.updatedAt,
 };

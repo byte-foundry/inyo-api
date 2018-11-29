@@ -7,7 +7,7 @@ const {sendMetric} = require('../stats');
 const createProject = async (
 	parent,
 	{
-		customerId, customer, name, template, sections,
+		customerId, customer, name, template, sections, deadline,
 	},
 	ctx,
 ) => {
@@ -52,6 +52,7 @@ const createProject = async (
 			})),
 		},
 		status: 'DRAFT',
+		deadline,
 	});
 
 	sendMetric({metric: 'inyo.project.created'});
