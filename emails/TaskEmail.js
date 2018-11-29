@@ -73,8 +73,8 @@ async function setupItemReminderEmail(
 			templateId: 'd-97b5ce25a4464a3888b359ac02f34168',
 			reminderType: 'LAST',
 		},
-		/* 2 days */ {
-			date: moment(issueDate).add(2 + 3 + 1, 'days'),
+		/* 1 day */ {
+			date: moment(issueDate).add(2 + 3 + 1 + 1, 'days'),
 			templateId: 'd-f0a78ca3f43d4f558afa87dc32d3905d',
 			reminderType: 'USER_WARNING',
 		},
