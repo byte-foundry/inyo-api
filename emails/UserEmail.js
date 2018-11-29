@@ -8,6 +8,12 @@ async function sendResetPasswordEmail({email, ...data}) {
 	});
 }
 
+async function sendMorningEmail() {}
+
+async function sendEveningEmail() {}
+
 module.exports = {
 	sendResetPasswordEmail,
+	sendMorningEmail,
+	sendEveningEmail,
 };
