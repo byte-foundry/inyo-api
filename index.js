@@ -65,7 +65,7 @@ server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
 		}
 		else {
 			console.warn(
-				`Reminder with postHookId '${reminder.id}' not found but sent.`,
+				`Reminder with postHookId '${req.body.id}' not found but sent.`,
 			);
 		}
 		// posthook wants a 200 not a 204
@@ -83,7 +83,7 @@ server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
 		}
 		else {
 			console.warn(
-				`Reminder with postHookId '${reminder.id}' not found and errored`,
+				`Reminder with postHookId '${req.body.id}' not found and errored`,
 				error,
 			);
 		}
