@@ -14,6 +14,8 @@ type Query {
 		@deprecated(reason: "Quotes are not used anymore.")
 	project(id: ID!, token: String): Project
 	itemComments(itemId: ID!, token: String): [Comment!]!
+	# Get user's reminders
+	reminders: [Reminder!]!
 }
 
 type Mutation {
@@ -289,6 +291,33 @@ enum Reviewer {
 	CUSTOMER
 }
 
+enum ReminderType {
+	# 2 day reminder
+	FIRST
+	# FIRST + days reminder
+	SECOND
+	# SECOND + 1 days reminder
+	LAST
+
+	# customer has not replied, user warning at LAST + 2 days
+	USER_WARNING
+}
+
+enum ReminderStatus {
+	PENDING
+	SENT
+	ERROR
+	CANCELED
+}
+
+type Reminder {
+	id: ID!
+	item: Item!
+	type: ReminderType!
+	sendingDate: DateTime!
+	status: ReminderStatus
+}
+
 union Viewer = User | Customer
 
 type CommentView {
@@ -318,6 +347,7 @@ type Item {
 	vatRate: Int!
 	status: ItemStatus!
 	reviewer: Reviewer!
+	reminders: [Reminder!]!
 }
 
 type Section {

@@ -7,11 +7,36 @@ const {
 	legacy_sendTaskValidationEmail, // eslint-disable-line
 	sendTaskValidationEmail,
 	sendTaskValidationWaitCustomerEmail,
+	setupItemReminderEmail,
 } = require('../emails/TaskEmail');
+const cancelReminder = require('../reminders/cancelReminder');
 
 const titleToCivilite = {
 	MONSIEUR: 'M.',
 	MADAME: 'Mme',
+};
+
+const cancelPendingReminders = async (pendingReminders, itemId, ctx) => {
+	try {
+		await Promise.all(
+			pendingReminders.map(reminder => cancelReminder(reminder.postHookId)),
+		);
+		await ctx.db.updateManyReminders({
+			where: {status: 'PENDING'},
+			data: {status: 'CANCELED'},
+		});
+
+		console.log(
+			`Canceled pending reminders of Item '${itemId}'.`,
+			pendingReminders.map(r => r.id),
+		);
+	}
+	catch (err) {
+		console.error(
+			`Errors cancelling pending reminders of Item '${itemId}'`,
+			err,
+		);
+	}
 };
 
 const finishItem = async (parent, {id, token}, ctx) => {
@@ -20,6 +45,12 @@ const finishItem = async (parent, {id, token}, ctx) => {
 			name
 			status
 			reviewer
+			pendingReminders: reminders(where: {status: PENDING}) {
+				id
+				postHookId
+				type
+				status
+			}
 			section {
 				id
 				option {
@@ -134,6 +165,8 @@ const finishItem = async (parent, {id, token}, ctx) => {
 
 		sendMetric({metric: 'inyo.item.validated'});
 
+		await cancelPendingReminders(item.pendingReminders, id, ctx);
+
 		return ctx.db.updateItem({
 			where: {id},
 			data: {
@@ -204,6 +237,9 @@ const finishItem = async (parent, {id, token}, ctx) => {
 				section {
 					items(after: "${id}", first: 1) {
 						id
+						name
+						description
+						reviewer
 					}
 					project {
 						sections(
@@ -243,6 +279,16 @@ const finishItem = async (parent, {id, token}, ctx) => {
 
 		try {
 			if (nextItem && nextItem.reviewer === 'CUSTOMER') {
+				await setupItemReminderEmail(
+					{
+						...basicInfo,
+						itemId: nextItem.id,
+						issueDate: new Date(),
+					},
+					ctx,
+				);
+				console.log(`Item '${nextItem.id}': Reminders set.`);
+
 				await sendTaskValidationWaitCustomerEmail({
 					...basicInfo,
 					nextItemName: nextItem.name,
@@ -312,6 +358,8 @@ const finishItem = async (parent, {id, token}, ctx) => {
 	}
 
 	sendMetric({metric: 'inyo.item.validated'});
+
+	await cancelPendingReminders(item.pendingReminders, id, ctx);
 
 	return ctx.db.updateItem({
 		where: {id},

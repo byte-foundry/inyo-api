@@ -18,6 +18,7 @@ const {Comment} = require('./Comment');
 const {Viewer} = require('./Viewer');
 const {CommentView} = require('./CommentView');
 const {File} = require('./File');
+const {Reminder} = require('./Reminder');
 
 const resolvers = {
 	Time: GraphQLTime,
@@ -39,6 +40,7 @@ const resolvers = {
 	Viewer,
 	CommentView,
 	File,
+	Reminder,
 };
 
 module.exports = {

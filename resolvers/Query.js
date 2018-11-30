@@ -186,6 +186,21 @@ const Query = {
 
 		return comments;
 	},
+	reminders: async (root, args, ctx) => ctx.db.reminders({
+		where: {
+			item: {
+				section: {
+					project: {
+						customer: {
+							serviceCompany: {
+								owner: {id: getUserId(ctx)},
+							},
+						},
+					},
+				},
+			},
+		},
+	}),
 };
 
 module.exports = {
