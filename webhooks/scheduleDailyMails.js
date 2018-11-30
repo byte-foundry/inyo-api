@@ -40,13 +40,18 @@ const scheduleMorningEmail = async (user) => {
 		startNextWorkDayAt.setDate(startNextWorkDayAt.getDate() + 1);
 	}
 
-	createPosthookCallback({
+	const response = await createPosthookCallback({
 		path: '/send-day-tasks',
 		postAt: startNextWorkDayAt,
 		data: {
 			userId: user.id,
 		},
 	});
+
+	return {
+		postHookId: response.data.id,
+		sendingDate: startNextWorkDayAt,
+	};
 };
 
 const scheduleEveningEmail = async (user) => {
@@ -59,13 +64,18 @@ const scheduleEveningEmail = async (user) => {
 		endNextWorkDayAt.setDate(endNextWorkDayAt.getDate() + 1);
 	}
 
-	createPosthookCallback({
+	const response = await createPosthookCallback({
 		path: '/send-day-recap',
 		postAt: endNextWorkDayAt,
 		data: {
 			userId: user.id,
 		},
 	});
+
+	return {
+		postHookId: response.data.id,
+		sendingDate: endNextWorkDayAt,
+	};
 };
 
 const scheduleDailyMails = async (req, res) => {
@@ -75,9 +85,15 @@ const scheduleDailyMails = async (req, res) => {
 			OR: [
 				{
 					startWorkAt_not: null,
+					morningReminders_every: {
+						status_not: 'PENDING',
+					},
 				},
 				{
 					endWorkAt_not: null,
+					eveningReminders_every: {
+						status_not: 'PENDING',
+					},
 				},
 			],
 		},
@@ -89,12 +105,32 @@ const scheduleDailyMails = async (req, res) => {
 		}
 	`);
 
-	users.forEach((user) => {
+	users.forEach(async (user) => {
 		if (user.startWorkAt) {
-			scheduleMorningEmail(user);
+			const reminder = await scheduleMorningEmail(user);
+
+			await prisma.createReminder({
+				morningReminderUser: {
+					connect: {id: user.id},
+				},
+				postHookId: reminder.postHookId,
+				type: 'MORNING_TASKS',
+				status: 'PENDING',
+				sendingDate: reminder.sendingDate,
+			});
 		}
 		if (user.endWorkAt) {
-			scheduleEveningEmail(user);
+			const reminder = await scheduleEveningEmail(user);
+
+			await prisma.createReminder({
+				eveningMorningUser: {
+					connect: {id: user.id},
+				},
+				postHookId: reminder.postHookId,
+				type: 'EVENING_RECAP',
+				status: 'PENDING',
+				sendingDate: reminder.sendingDate,
+			});
 		}
 	});
 };
