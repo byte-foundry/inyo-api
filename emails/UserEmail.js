@@ -8,7 +8,13 @@ async function sendResetPasswordEmail({email, ...data}) {
 	});
 }
 
-async function sendMorningEmail() {}
+async function sendMorningEmail({email, ...data}) {
+	return sendEmail({
+		email,
+		data,
+		templateId: '',
+	});
+}
 
 async function sendEveningEmail() {}
 

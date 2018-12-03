@@ -19,7 +19,7 @@ const sendDayTasks = async (req, res) => {
 	}
 
 	const user = await prisma.user({id: req.body.userId});
-	const projects = await prisma.projets({
+	const projects = await prisma.projects({
 		where: {
 			customer: {
 				serviceCompany: {
@@ -29,6 +29,7 @@ const sendDayTasks = async (req, res) => {
 				},
 			},
 			deadline_not: null,
+			status: 'ONGOING',
 			// the projects must have at least one user's pending item
 			sections_some: {items_some: {status: 'PENDING', reviewer: 'USER'}},
 		},
@@ -36,6 +37,7 @@ const sendDayTasks = async (req, res) => {
 		fragment Projects on Project {
 			id
 			name
+			deadline
 			sections(
 				# the sections we want must have at least a pending item
 				where: {items_some: {status: PENDING}}
@@ -45,6 +47,7 @@ const sendDayTasks = async (req, res) => {
 				items(where: {status: PENDING}) {
 					id
 					name
+					unit
 					reviewer
 					status
 				}
@@ -55,8 +58,8 @@ const sendDayTasks = async (req, res) => {
 	// filtering out non-active / blocked projects
 	const projectsTheUserCanWorkOn = projects.filter((project) => {
 		/* eslint-disable */
-		for (section of project.sections) {
-			for (item of section.items) {
+		for (const section of project.sections) {
+			for (const item of section.items) {
 				if (item.status === 'PENDING') {
 					return item.reviewer === 'USER';
 				}
@@ -68,33 +71,36 @@ const sendDayTasks = async (req, res) => {
 
 	// applying a score to each item
 	const projectItems = projectsTheUserCanWorkOn
-		.reduce(
-			(project, items) => items.concat(
-				items.sections.reduce(
-					(section, sectionItems) => sectionItems.concat(
-						section.items.map((item, index) => {
-							const hoursLeft = project
-								.slice(index)
-								.items.reduce(({unit}, sum) => sum + unit);
-							const hoursUntilDeadline
-										= (new Date(project.deadline) - new Date()) / 1000 / 60 / 60;
-
-							const score = hoursUntilDeadline - hoursLeft;
-
-							return {
-								...item,
-								projectId: project.id,
-								sectionId: section.id,
-								score,
-								url: getAppUrl(`/projects/${project.id}/#${item.id}`),
-							};
-						}),
-					),
-					[],
+		.reduce((itemsList, project) => {
+			// flattening sections into a single list with additional item properties
+			const items = project.sections.reduce(
+				(sectionItems, section) => sectionItems.concat(
+					section.items.map(item => ({
+						...item,
+						sectionId: section.id,
+						projectId: project.id,
+						url: getAppUrl(`/projects/${project.id}/#${item.id}`),
+					})),
 				),
-			),
-			[],
-		)
+				[],
+			);
+
+			// adding the score (was easier that way)
+			return itemsList.concat(
+				items.map((item, index) => {
+					const hoursLeft = items
+						.slice(index)
+						.reduce((sum, {unit}) => sum + unit, 0);
+					const hoursUntilDeadline
+						= (new Date(project.deadline) - new Date()) / 1000 / 60 / 60;
+
+					return {
+						...item,
+						score: hoursUntilDeadline - hoursLeft,
+					};
+				}),
+			);
+		}, [])
 		// keeping only the tasks user can do
 		// TODO: filter everything after the first CUSTOMER reviewer task
 		.filter(item => item.reviewer === 'USER');
@@ -119,11 +125,11 @@ const sendDayTasks = async (req, res) => {
 	}
 
 	while (
-		(selectedItems.reduce(({unit}, sum) => sum + unit) < userWorkingTime
-			&& selectedItems.length < 8)
-		|| !projectItemsByScore.length
+		selectedItems.reduce((sum, {unit}) => sum + unit, 0) < userWorkingTime
+		&& selectedItems.length < 8
+		&& projectItemsByScore.length
 	) {
-		selectedItems.push(projectItemsByScore.splice(0, 1));
+		selectedItems.push(projectItemsByScore.splice(0, 1)[0]);
 	}
 
 	const selectedProjects = [];
@@ -178,11 +184,14 @@ const sendDayTasks = async (req, res) => {
 	});
 
 	sendMorningEmail({
+		email: user.email,
 		user: `${user.firstName} ${user.lastName}`.trim(),
 		projects: selectedProjects,
 	});
 
-	console.log(`Sent day tasks to User '${req.body.id}'`);
+	console.log(`Sent day tasks to User '${req.body.userId}'`);
+
+	res.send(200);
 };
 
 module.exports = {
