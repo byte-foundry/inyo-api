@@ -12,7 +12,7 @@ async function sendMorningEmail({email, ...data}) {
 	return sendEmail({
 		email,
 		data,
-		templateId: '',
+		templateId: 'd-c49be8b86fa0404381442fc9461fa470',
 	});
 }
 
