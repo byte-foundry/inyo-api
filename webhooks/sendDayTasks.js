@@ -189,9 +189,9 @@ const sendDayTasks = async (req, res) => {
 		projects: selectedProjects,
 	});
 
-	console.log(`Sent day tasks to User '${req.body.userId}'`);
+	console.log(`Sent day tasks to User '${user.email}'`);
 
-	res.send(200);
+	res.status(200).send();
 };
 
 module.exports = {

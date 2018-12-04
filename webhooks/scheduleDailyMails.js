@@ -31,9 +31,11 @@ const createPosthookCallback = async ({path, postAt, data}) => {
 };
 
 const scheduleMorningEmail = async (user) => {
+	console.log('Scheduling morning email for', user.email);
+
 	const now = new Date();
 	const startNextWorkDayAt = new Date(
-		now.toJSON().split('T')[0] + user.startWorkAt,
+		`${now.toJSON().split('T')[0]}T${user.startWorkAt.split('T')[1]}`,
 	);
 
 	if (now - startNextWorkDayAt > 0) {
@@ -57,7 +59,7 @@ const scheduleMorningEmail = async (user) => {
 const scheduleEveningEmail = async (user) => {
 	const now = new Date();
 	const endNextWorkDayAt = new Date(
-		now.toJSON().split('T')[0] + user.endWorkAt,
+		`${now.toJSON().split('T')[0]}T${user.endWorkAt.split('T')[1]}`,
 	);
 
 	if (now - endNextWorkDayAt > 0) {
@@ -79,60 +81,83 @@ const scheduleEveningEmail = async (user) => {
 };
 
 const scheduleDailyMails = async (req, res) => {
-	// checking to whom we can send a morning/evening mail
-	const users = await prisma.users({
+	console.log('Scheduling daily mails');
+
+	// checking to whom we can send a morning mail
+	const morningUsers = await prisma.users({
 		where: {
+			startWorkAt_not: null,
 			OR: [
 				{
-					startWorkAt_not: null,
+					morningReminders_some: {},
 					morningReminders_every: {
-						status_not: 'PENDING',
+						sendingDate_lt: new Date().toJSON(),
 					},
 				},
 				{
-					endWorkAt_not: null,
-					eveningReminders_every: {
-						status_not: 'PENDING',
-					},
+					morningReminders_none: {},
 				},
 			],
 		},
 	}).$fragment(gql`
-		fragment WorkingUser on User {
+		fragment MorningWorkingUser on User {
 			id
 			startWorkAt
-			endWorkAt
 		}
 	`);
 
-	users.forEach(async (user) => {
-		if (user.startWorkAt) {
-			const reminder = await scheduleMorningEmail(user);
+	morningUsers.forEach(async (user) => {
+		const reminder = await scheduleMorningEmail(user);
 
-			await prisma.createReminder({
-				morningReminderUser: {
-					connect: {id: user.id},
-				},
-				postHookId: reminder.postHookId,
-				type: 'MORNING_TASKS',
-				status: 'PENDING',
-				sendingDate: reminder.sendingDate,
-			});
-		}
-		if (user.endWorkAt) {
-			const reminder = await scheduleEveningEmail(user);
-
-			await prisma.createReminder({
-				eveningMorningUser: {
-					connect: {id: user.id},
-				},
-				postHookId: reminder.postHookId,
-				type: 'EVENING_RECAP',
-				status: 'PENDING',
-				sendingDate: reminder.sendingDate,
-			});
-		}
+		await prisma.createReminder({
+			morningRemindersUser: {
+				connect: {id: user.id},
+			},
+			postHookId: reminder.postHookId,
+			type: 'MORNING_TASKS',
+			status: 'PENDING',
+			sendingDate: reminder.sendingDate,
+		});
 	});
+
+	// checking to whom we can send a morning mail
+	// const eveningUsers = await prisma.users({
+	// 	where: {
+	// 		endWorkAt_not: null,
+	// 		OR: [
+	// 			{
+	// 				eveningReminders_some: {},
+	// 				eveningReminders_every: {
+	// 					sendingDate_lt: new Date().toJSON()
+	// 				},
+	// 			},
+	// 			{
+	// 				eveningReminders_none: {},
+	// 			},
+	// 		],
+	//   },
+	// }).$fragment(gql`
+	// 	fragment EveningWorkingUser on User {
+	// 		id
+	// 		endWorkAt
+	// 	}
+	// `);
+
+	// eveningUsers.forEach(async (user) => {
+	// 	const reminder = await scheduleEveningEmail(user);
+
+	// 	await prisma.createReminder({
+	// 		eveningRemindersUser: {
+	// 			connect: {id: user.id},
+	// 		},
+	// 		postHookId: reminder.postHookId,
+	// 		type: 'EVENING_RECAP',
+	// 		status: 'PENDING',
+	// 		sendingDate: reminder.sendingDate,
+	// 	});
+	// })
+
+	return res.status(200).send();
 };
 
 module.exports = {

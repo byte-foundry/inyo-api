@@ -6,8 +6,8 @@ const {DeprecatedDirective} = require('graphql-directive-deprecated');
 
 const {prisma} = require('./generated/prisma-client');
 const {resolvers} = require('./resolvers');
-const sendDayTasks = require('./webhooks/sendDayTasks');
-const scheduleDailyMails = require('./webhooks/scheduleDailyMails');
+const {sendDayTasks} = require('./webhooks/sendDayTasks');
+const {scheduleDailyMails} = require('./webhooks/scheduleDailyMails');
 const sendEmail = require('./emails/SendEmail');
 
 const {PORT} = process.env;
@@ -35,7 +35,7 @@ const server = new GraphQLServer({
 });
 
 server.express.post('/schedule-daily-mails', scheduleDailyMails);
-server.express.post('/send-day-tasks', sendDayTasks);
+server.express.post('/send-day-tasks', bodyParser.json(), sendDayTasks);
 // server.express.post('/send-day-recap', sendDayRecap);
 
 server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
