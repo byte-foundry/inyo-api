@@ -171,6 +171,7 @@ describe('sendDayTasks', async () => {
 			},
 		};
 		const res = {
+			status: jest.fn().mockReturnThis(),
 			send: jest.fn(),
 		};
 
@@ -280,6 +281,8 @@ describe('sendDayTasks', async () => {
 				],
 			}),
 		);
-		expect(res.send).toHaveBeenCalledWith(200);
+
+		expect(res.status).toHaveBeenCalledWith(200);
+		expect(res.send).toHaveBeenCalled();
 	});
 });
