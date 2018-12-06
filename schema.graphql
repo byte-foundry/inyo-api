@@ -40,7 +40,7 @@ type Mutation {
 		lastName: String
 		startWorkAt: Time
 		endWorkAt: Time
-		workingDay: [DAY!]
+		workingDays: [DAY!]
 		defaultDailyPrice: Int
 		defaultVatRate: Int
 		workingFields: [String!]
