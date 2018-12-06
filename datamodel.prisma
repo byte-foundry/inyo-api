@@ -107,6 +107,16 @@ enum Reviewer {
 	CUSTOMER
 }
 
+enum DAY {
+	MONDAY
+	TUESDAY
+	WEDNESDAY
+	THURSDAY
+	FRIDAY
+	SATURDAY
+	SUNDAY
+}
+
 type CommentView {
 	id: ID! @unique
 	user: User @relation(name: "CommentViewUser")
@@ -229,6 +239,7 @@ type User {
 	company: Company! @relation(name: "CompanyOwner")
 	startWorkAt: DateTime
 	endWorkAt: DateTime
+	workingDays: [DAY!]!
 	defaultDailyPrice: Int @default(value: 350)
 	defaultVatRate: Int @default(value: 20)
 	commentViews: [CommentView!]! @relation(name: "CommentViewUser")

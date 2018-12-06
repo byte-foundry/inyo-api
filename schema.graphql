@@ -40,6 +40,7 @@ type Mutation {
 		lastName: String
 		startWorkAt: Time
 		endWorkAt: Time
+		workingDays: [DAY!]
 		defaultDailyPrice: Int
 		defaultVatRate: Int
 		workingFields: [String!]
@@ -310,6 +311,16 @@ enum ReminderStatus {
 	CANCELED
 }
 
+enum DAY {
+	MONDAY
+	TUESDAY
+	WEDNESDAY
+	THURSDAY
+	FRIDAY
+	SATURDAY
+	SUNDAY
+}
+
 type Reminder {
 	id: ID!
 	item: Item!
@@ -443,6 +454,7 @@ type User {
 	defaultVatRate: Int
 	startWorkAt: Time
 	endWorkAt: Time
+	workingDays: [DAY!]!
 	workingFields: [String!]!
 	jobType: JobType
 	interestedFeatures: [String!]!
