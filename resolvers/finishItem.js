@@ -230,12 +230,12 @@ const finishItem = async (parent, {id, token}, ctx) => {
 		const {sections, customer} = project;
 		const user = project.customer.serviceCompany.owner;
 
-		// we ask for the next item in the section
-		// or the first item in the next section
+		// we ask for the next items in the section
+		// or the items in the next section
 		const nextItems = await ctx.db.item({id}).$fragment(gql`
-			fragment NextItem on Item {
+			fragment NextItems on Item {
 				section {
-					items(after: "${id}", first: 1) {
+					items(after: "${id}") {
 						id
 						name
 						description
@@ -244,10 +244,9 @@ const finishItem = async (parent, {id, token}, ctx) => {
 					project {
 						sections(
 							after: "${item.section.id}"
-							first: 1
 							where: { items_some: {} }
 						) {
-							items(first: 1) {
+							items {
 								id
 								name
 								description
@@ -263,6 +262,19 @@ const finishItem = async (parent, {id, token}, ctx) => {
 			= nextItems.section.items[0]
 			|| (nextItems.section.project.sections[0]
 				&& nextItems.section.project.sections[0].items[0]);
+
+		// taking all items that needs to be done by the customer
+		let nextItemsToDo = nextItems.section.items.concat(
+			nextItems.section.project.sections.reduce(
+				(acc, section) => acc.concat(section.items),
+				[],
+			),
+		);
+
+		nextItemsToDo = nextItemsToDo.slice(
+			0,
+			nextItemsToDo.findIndex(item => item.reviewer === 'USER'),
+		);
 
 		const basicInfo = {
 			email: customer.email,
@@ -283,6 +295,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 					{
 						...basicInfo,
 						itemId: nextItem.id,
+						items: nextItemsToDo,
 						issueDate: new Date(),
 					},
 					ctx,
@@ -291,6 +304,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 
 				await sendTaskValidationWaitCustomerEmail({
 					...basicInfo,
+					items: nextItemsToDo,
 					nextItemName: nextItem.name,
 					nextItemDescription: nextItem.description,
 				});
