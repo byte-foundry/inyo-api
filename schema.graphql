@@ -302,6 +302,11 @@ enum ReminderType {
 
 	# customer has not replied, user warning at LAST + 2 days
 	USER_WARNING
+
+	# Morning email with tasks the user can complete
+	MORNING_TASKS
+	# Evening email with what happened during the day
+	EVENING_RECAP
 }
 
 enum ReminderStatus {

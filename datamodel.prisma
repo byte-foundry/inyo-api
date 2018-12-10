@@ -86,6 +86,11 @@ enum ReminderType {
 
 	# customer has not replied, user warning at LAST + 2 days
 	USER_WARNING
+
+	# Morning email with tasks the user can complete
+	MORNING_TASKS
+	# Evening email with what happened during the day
+	EVENING_RECAP
 }
 
 enum ReminderStatus {
@@ -240,6 +245,10 @@ type User {
 	startWorkAt: DateTime
 	endWorkAt: DateTime
 	workingDays: [DAY!]!
+	morningReminders: [Reminder!]!
+		@relation(name: "UserMorningReminders", onDelete: CASCADE)
+	eveningReminders: [Reminder!]!
+		@relation(name: "UserEveningReminders", onDelete: CASCADE)
 	defaultDailyPrice: Int @default(value: 350)
 	defaultVatRate: Int @default(value: 20)
 	commentViews: [CommentView!]! @relation(name: "CommentViewUser")
@@ -256,6 +265,8 @@ type Reminder {
 	id: ID! @unique
 	quote: Quote @relation(name: "QuoteReminders")
 	item: Item @relation(name: "ItemReminders")
+	morningRemindersUser: User @relation(name: "UserMorningReminders")
+	eveningRemindersUser: User @relation(name: "UserEveningReminders")
 	postHookId: String!
 	type: ReminderType!
 	sendingDate: DateTime!
