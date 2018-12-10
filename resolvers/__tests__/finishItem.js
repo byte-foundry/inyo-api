@@ -154,6 +154,7 @@ describe('finishItem', () => {
 				item: () => ({
 					$fragment: () => ({
 						section: {
+							id: 'section-1',
 							items: [
 								{
 									id: 'next-item-id',
@@ -161,9 +162,33 @@ describe('finishItem', () => {
 									status: 'PENDING',
 									reviewer: 'CUSTOMER',
 								},
+								{
+									id: 'another-item-id',
+									name: 'Another item',
+									status: 'PENDING',
+									reviewer: 'CUSTOMER',
+								},
 							],
 							project: {
-								sections: [],
+								sections: [
+									{
+										id: 'section-2',
+										items: [
+											{
+												id: 'another-2-item-id',
+												name: 'Another item 2',
+												status: 'PENDING',
+												reviewer: 'CUSTOMER',
+											},
+											{
+												id: 'another-3-item-id',
+												name: 'Another item 3',
+												status: 'PENDING',
+												reviewer: 'USER',
+											},
+										],
+									},
+								],
 							},
 						},
 					}),
@@ -181,6 +206,11 @@ describe('finishItem', () => {
 		expect(sendTaskValidationWaitCustomerEmail).toHaveBeenCalledWith(
 			expect.objectContaining({
 				email: 'jean@michel.org',
+				items: [
+					expect.objectContaining({id: 'next-item-id'}),
+					expect.objectContaining({id: 'another-item-id'}),
+					expect.objectContaining({id: 'another-2-item-id'}),
+				],
 			}),
 		);
 		expect(setupItemReminderEmail).toHaveBeenCalledWith(
