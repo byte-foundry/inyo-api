@@ -1,8 +1,19 @@
 const fetch = require('node-fetch');
+const moment = require('moment-timezone');
 
 const {prisma} = require('../generated/prisma-client');
 
 const gql = String.raw;
+
+const weekDays = {
+	1: 'MONDAY',
+	2: 'TUESDAY',
+	3: 'WEDNESDAY',
+	4: 'THURSDAY',
+	5: 'FRIDAY',
+	6: 'SATURDAY',
+	0: 'SUNDAY',
+};
 
 const createPosthookCallback = async ({path, postAt, data}) => {
 	const response = await fetch('https://api.posthook.io/v1/hooks', {
@@ -30,17 +41,8 @@ const createPosthookCallback = async ({path, postAt, data}) => {
 	}
 };
 
-const scheduleMorningEmail = async (user) => {
+const scheduleMorningEmail = async (user, startNextWorkDayAt) => {
 	console.log('Scheduling morning email for', user.email);
-
-	const now = new Date();
-	const startNextWorkDayAt = new Date(
-		`${now.toJSON().split('T')[0]}T${user.startWorkAt.split('T')[1]}`,
-	);
-
-	if (now - startNextWorkDayAt > 0) {
-		startNextWorkDayAt.setDate(startNextWorkDayAt.getDate() + 1);
-	}
 
 	const response = await createPosthookCallback({
 		path: '/send-day-tasks',
@@ -103,11 +105,31 @@ const scheduleDailyMails = async (req, res) => {
 		fragment MorningWorkingUser on User {
 			id
 			startWorkAt
+			timeZone
+			workingDays
 		}
 	`);
 
 	morningUsers.forEach(async (user) => {
-		const reminder = await scheduleMorningEmail(user);
+		const now = new Date();
+		const startNextWorkDayAt = new Date(
+			`${now.toJSON().split('T')[0]}T${user.startWorkAt.split('T')[1]}`,
+		);
+
+		if (now - startNextWorkDayAt > 0) {
+			startNextWorkDayAt.setDate(startNextWorkDayAt.getDate() + 1);
+		}
+
+		const dayNumber = moment(startNextWorkDayAt)
+			.tz(user.timeZone || 'Europe/Paris')
+			.day();
+
+		// don't schedule an email if it's not a worked day
+		if (!user.workingDays.includes(weekDays[dayNumber])) {
+			return;
+		}
+
+		const reminder = await scheduleMorningEmail(user, startNextWorkDayAt);
 
 		await prisma.createReminder({
 			morningRemindersUser: {

@@ -26,7 +26,7 @@ jest.mock('../../emails/UserEmail', () => ({
 }));
 
 describe('sendDayTasks', async () => {
-	it('should let a user finish a project user item', async () => {
+	it('should send a morning email with the day tasks', async () => {
 		prisma.projects.mockImplementation(() => ({
 			$fragment: () => [
 				// project 1
