@@ -17,6 +17,8 @@ type Query {
 	itemComments(itemId: ID!, token: String): [Comment!]!
 	# Get user's reminders
 	reminders: [Reminder!]!
+	# Get active items sorted by priority
+	items: [Item!]!
 }
 
 type Mutation {

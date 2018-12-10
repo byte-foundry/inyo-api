@@ -2,6 +2,8 @@ const {NotFoundError} = require('../errors');
 const {sendMetric} = require('../stats');
 const {getUserId} = require('../utils');
 
+const {items} = require('./items');
+
 const Query = {
 	me: (root, args, ctx) => ctx.db.user({id: getUserId(ctx)}),
 	customer: (root, {id}, ctx) => ctx.db
@@ -201,6 +203,7 @@ const Query = {
 			},
 		},
 	}),
+	items,
 };
 
 module.exports = {
