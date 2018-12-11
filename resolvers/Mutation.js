@@ -30,6 +30,8 @@ const {removeProject} = require('./removeProject');
 const {startProject} = require('./startProject');
 const {addItem} = require('./addItem');
 const {updateItem} = require('./updateItem');
+const {snoozeItem} = require('./snoozeItem');
+const {unsnoozeItem} = require('./unsnoozeItem');
 const {finishItem} = require('./finishItem');
 const {unfinishItem} = require('./unfinishItem');
 const {postComment} = require('./postComment');
@@ -730,6 +732,8 @@ const Mutation = {
 			},
 		});
 	},
+	snoozeItem,
+	unsnoozeItem,
 	finishItem,
 	unfinishItem,
 	sendAmendment: async (parent, {quoteId}, ctx) => {

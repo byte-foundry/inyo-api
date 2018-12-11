@@ -61,7 +61,10 @@ enum ProjectTemplate {
 
 enum ItemStatus {
 	PENDING
+	SNOOZED
 	FINISHED
+
+	# deprecated statuses
 	UPDATED
 	UPDATED_SENT
 	ADDED
