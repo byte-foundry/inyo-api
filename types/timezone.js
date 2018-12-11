@@ -442,7 +442,7 @@ const GraphQLTimeZone = new GraphQLScalarType({
 			throw new TypeError(
 				`Value is not a valid zone: ${value}. Did you meant ${
 					timezones.sort(
-						(a, b) => levenshtein.get(value, a) > levenshtein.get(value, b),
+						(a, b) => levenshtein.get(value, a) - levenshtein.get(value, b),
 					)[0]
 				}?`,
 			);
@@ -460,7 +460,7 @@ const GraphQLTimeZone = new GraphQLScalarType({
 			throw new TypeError(
 				`Value is not a valid zone: ${value}. Did you meant ${
 					timezones.sort(
-						(a, b) => levenshtein.get(value, a) > levenshtein.get(value, b),
+						(a, b) => levenshtein.get(value, a) - levenshtein.get(value, b),
 					)[0]
 				}?`,
 			);
@@ -480,7 +480,7 @@ const GraphQLTimeZone = new GraphQLScalarType({
 			throw new TypeError(
 				`Value is not a valid zone: ${ast.value}. Did you meant ${
 					timezones.sort(
-						(a, b) => levenshtein.get(ast.value, a) > levenshtein.get(ast.value, b),
+						(a, b) => levenshtein.get(ast.value, a) - levenshtein.get(ast.value, b),
 					)[0]
 				}?`,
 			);
