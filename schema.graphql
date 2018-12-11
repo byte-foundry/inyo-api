@@ -135,6 +135,10 @@ type Mutation {
 	updateValidatedItem(id: ID!, unit: Float!, comment: CommentInput!): Item
 	# Remove an item
 	removeItem(id: ID!): Item
+	# Snooze an item
+	snoozeItem(id: ID!): Item
+	# Unsnooze an item
+	unsnoozeItem(id: ID!): Item
 	# Finish an item
 	finishItem(id: ID!, token: String): Item
 	# Reset an item (going back to pending)
@@ -289,7 +293,10 @@ enum QuoteTemplate {
 
 enum ItemStatus {
 	PENDING
+	SNOOZED
 	FINISHED
+
+	# deprecated statuses
 	UPDATED
 	UPDATED_SENT
 	ADDED
