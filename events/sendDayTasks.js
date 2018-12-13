@@ -1,4 +1,3 @@
-const crypto = require('crypto');
 const moment = require('moment-timezone');
 
 const gql = String.raw;
@@ -17,19 +16,8 @@ const weekDays = {
 	0: 'SUNDAY',
 };
 
-const sendDayTasks = async (req, res) => {
-	const hmac = crypto.createHmac('sha256', process.env.POSTHOOK_SIGNATURE);
-
-	// look for X-Ph-Signature in ctx
-	hmac.update(JSON.stringify(req.body));
-
-	const hmacSignature = hmac.digest('hex');
-
-	if (hmacSignature !== req.get('x-ph-signature')) {
-		throw new Error('The signature has not been verified.');
-	}
-
-	const user = await prisma.user({id: req.body.data.userId});
+const sendDayTasks = async ({userId}) => {
+	const user = await prisma.user({id: userId});
 
 	const dayNumber = moment()
 		.tz(user.timeZone || 'Europe/Paris')
@@ -42,7 +30,6 @@ const sendDayTasks = async (req, res) => {
 				user.email
 			} on a day off. Is scheduling function wrong?`,
 		);
-		res.status(200).send();
 		return;
 	}
 
@@ -51,7 +38,7 @@ const sendDayTasks = async (req, res) => {
 			customer: {
 				serviceCompany: {
 					owner: {
-						id: req.body.data.userId,
+						id: userId,
 					},
 				},
 			},
@@ -216,15 +203,13 @@ const sendDayTasks = async (req, res) => {
 		});
 	});
 
-	sendMorningEmail({
+	await sendMorningEmail({
 		email: user.email,
 		user: `${user.firstName} ${user.lastName}`.trim(),
 		projects: selectedProjects,
 	});
 
 	console.log(`Sent day tasks to User '${user.email}'`);
-
-	res.status(200).send();
 };
 
 module.exports = {

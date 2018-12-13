@@ -1,7 +1,7 @@
-const fetch = require('node-fetch');
 const moment = require('moment-timezone');
 
 const {prisma} = require('../generated/prisma-client');
+const {createPosthookReminder} = require('../reminders/createPosthookReminder');
 
 const gql = String.raw;
 
@@ -15,71 +15,34 @@ const weekDays = {
 	0: 'SUNDAY',
 };
 
-const createPosthookCallback = async ({path, postAt, data}) => {
-	const response = await fetch('https://api.posthook.io/v1/hooks', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			'X-API-Key': process.env.POSTHOOK_API_KEY,
-		},
-		body: JSON.stringify({
-			path,
-			postAt,
-			data,
-		}),
-	});
-
-	switch (response.statusCode) {
-	case 400:
-	case 401:
-	case 413:
-	case 429:
-	case 500:
-		return Promise.reject(response.statusCode);
-	default:
-		return response.json();
-	}
-};
-
 const scheduleMorningEmail = async (user, startNextWorkDayAt) => {
 	console.log('Scheduling morning email for', user.email);
 
-	const response = await createPosthookCallback({
-		path: '/send-day-tasks',
+	return createPosthookReminder({
+		type: 'MORNING_TASKS',
 		postAt: startNextWorkDayAt,
+		morningRemindersUser: {
+			connect: {id: user.id},
+		},
 		data: {
 			userId: user.id,
 		},
 	});
-
-	return {
-		postHookId: response.data.id,
-		sendingDate: startNextWorkDayAt,
-	};
 };
 
-const scheduleEveningEmail = async (user) => {
-	const now = new Date();
-	const endNextWorkDayAt = new Date(
-		`${now.toJSON().split('T')[0]}T${user.endWorkAt.split('T')[1]}`,
-	);
+const scheduleEveningEmail = async (user, endNextWorkDayAt) => {
+	console.log('Scheduling evening email for', user.email);
 
-	if (now - endNextWorkDayAt > 0) {
-		endNextWorkDayAt.setDate(endNextWorkDayAt.getDate() + 1);
-	}
-
-	const response = await createPosthookCallback({
-		path: '/send-day-recap',
+	return createPosthookReminder({
+		type: 'EVENING_RECAP',
 		postAt: endNextWorkDayAt,
+		eveningRemindersUser: {
+			connect: {id: user.id},
+		},
 		data: {
 			userId: user.id,
 		},
 	});
-
-	return {
-		postHookId: response.data.id,
-		sendingDate: endNextWorkDayAt,
-	};
 };
 
 const scheduleDailyMails = async (req, res) => {
@@ -130,17 +93,7 @@ const scheduleDailyMails = async (req, res) => {
 			return;
 		}
 
-		const reminder = await scheduleMorningEmail(user, startNextWorkDayAt);
-
-		await prisma.createReminder({
-			morningRemindersUser: {
-				connect: {id: user.id},
-			},
-			postHookId: reminder.postHookId,
-			type: 'MORNING_TASKS',
-			status: 'PENDING',
-			sendingDate: reminder.sendingDate,
-		});
+		await scheduleMorningEmail(user, startNextWorkDayAt);
 	});
 
 	// checking to whom we can send a morning mail
