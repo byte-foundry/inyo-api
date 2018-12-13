@@ -188,7 +188,7 @@ input CompanyInput {
 input SettingsInput {
 	askItemFinishConfirmation: Boolean
 	askSendQuoteConfirmation: Boolean
-	askSendProjectConfirmation: Boolean
+	askStartProjectConfirmation: Boolean
 }
 
 input CustomerInput {
