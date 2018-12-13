@@ -5,12 +5,6 @@ import {sendDayTasks} from '../sendDayTasks';
 import {prisma} from '../../generated/prisma-client';
 import {sendMorningEmail} from '../../emails/UserEmail';
 
-jest.mock('crypto', () => ({
-	createHmac: jest.fn(() => ({
-		update: jest.fn(),
-		digest: jest.fn(),
-	})),
-}));
 jest.mock('moment-timezone', () => jest.fn(() => ({
 	tz: jest.fn().mockReturnThis(),
 	day: jest.fn().mockReturnValue(2), // TUESDAY, everyone works on Tuesday
@@ -177,20 +171,11 @@ describe('sendDayTasks', async () => {
 			],
 		}));
 
-		const req = {
-			get: jest.fn(),
-			body: {
-				data: {
-					userId: 'user-id',
-				},
-			},
-		};
-		const res = {
-			status: jest.fn().mockReturnThis(),
-			send: jest.fn(),
+		const data = {
+			userId: 'user-id',
 		};
 
-		await sendDayTasks(req, res);
+		await sendDayTasks(data);
 
 		expect(sendMorningEmail).toHaveBeenCalledWith(
 			expect.objectContaining({
@@ -259,9 +244,6 @@ describe('sendDayTasks', async () => {
 				],
 			}),
 		);
-
-		expect(res.status).toHaveBeenCalledWith(200);
-		expect(res.send).toHaveBeenCalled();
 	});
 
 	it("should send tasks in the right order within the user's working hours", async () => {
@@ -385,20 +367,11 @@ describe('sendDayTasks', async () => {
 			],
 		}));
 
-		const req = {
-			get: jest.fn(),
-			body: {
-				data: {
-					userId: 'user-id',
-				},
-			},
-		};
-		const res = {
-			status: jest.fn().mockReturnThis(),
-			send: jest.fn(),
+		const data = {
+			userId: 'user-id',
 		};
 
-		await sendDayTasks(req, res);
+		await sendDayTasks(data);
 
 		expect(sendMorningEmail).toHaveBeenCalledWith(
 			expect.objectContaining({
@@ -428,9 +401,6 @@ describe('sendDayTasks', async () => {
 				],
 			}),
 		);
-
-		expect(res.status).toHaveBeenCalledWith(200);
-		expect(res.send).toHaveBeenCalled();
 	});
 
 	it('should always send at least 3 tasks', async () => {
@@ -486,20 +456,11 @@ describe('sendDayTasks', async () => {
 			],
 		}));
 
-		const req = {
-			get: jest.fn(),
-			body: {
-				data: {
-					userId: 'user-id',
-				},
-			},
-		};
-		const res = {
-			status: jest.fn().mockReturnThis(),
-			send: jest.fn(),
+		const data = {
+			userId: 'user-id',
 		};
 
-		await sendDayTasks(req, res);
+		await sendDayTasks(data);
 
 		expect(sendMorningEmail).toHaveBeenCalledWith(
 			expect.objectContaining({
@@ -518,9 +479,6 @@ describe('sendDayTasks', async () => {
 				],
 			}),
 		);
-
-		expect(res.status).toHaveBeenCalledWith(200);
-		expect(res.send).toHaveBeenCalled();
 	});
 
 	it('should always send at most 8 tasks', async () => {
@@ -645,20 +603,11 @@ describe('sendDayTasks', async () => {
 			],
 		}));
 
-		const req = {
-			get: jest.fn(),
-			body: {
-				data: {
-					userId: 'user-id',
-				},
-			},
-		};
-		const res = {
-			status: jest.fn().mockReturnThis(),
-			send: jest.fn(),
+		const data = {
+			userId: 'user-id',
 		};
 
-		await sendDayTasks(req, res);
+		await sendDayTasks(data);
 
 		expect(sendMorningEmail).toHaveBeenCalledWith(
 			expect.objectContaining({
@@ -686,23 +635,11 @@ describe('sendDayTasks', async () => {
 				],
 			}),
 		);
-
-		expect(res.status).toHaveBeenCalledWith(200);
-		expect(res.send).toHaveBeenCalled();
 	});
 
 	it('should not send anything if the user is not working', async () => {
-		const req = {
-			get: jest.fn(),
-			body: {
-				data: {
-					userId: 'user-id',
-				},
-			},
-		};
-		const res = {
-			status: jest.fn().mockReturnThis(),
-			send: jest.fn(),
+		const data = {
+			userId: 'user-id',
 		};
 
 		moment.mockImplementationOnce(() => ({
@@ -710,12 +647,9 @@ describe('sendDayTasks', async () => {
 			day: jest.fn(() => 0), // SUNDAY
 		}));
 
-		await sendDayTasks(req, res);
+		await sendDayTasks(data);
 
 		expect(sendMorningEmail).not.toHaveBeenCalled();
-
-		expect(res.status).toHaveBeenCalledWith(200);
-		expect(res.send).toHaveBeenCalled();
 	});
 
 	it('should prioritize short deadlines', async () => {
