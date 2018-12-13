@@ -26,11 +26,11 @@ const cancelPosthook = async (postHookId) => {
 	}
 };
 
-const cancelPosthookReminder = async ({postHookId}) => {
+const cancelPosthookReminder = async ({id, postHookId}) => {
 	await cancelPosthook(postHookId);
 
 	return prisma.updateReminder({
-		where: {postHookId},
+		where: {id},
 		data: {
 			status: 'CANCELED',
 		},
