@@ -39,8 +39,8 @@ const createPosthookReminder = async ({
 
 	return prisma.createReminder({
 		status: 'PENDING',
-		posthookId: response.id,
-		sendingDate: response.sendingDate,
+		postHookId: response.data.id,
+		sendingDate: response.data.sendingDate,
 		type,
 		...properties,
 	});

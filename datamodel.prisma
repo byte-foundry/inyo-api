@@ -94,6 +94,9 @@ enum ReminderType {
 	MORNING_TASKS
 	# Evening email with what happened during the day
 	EVENING_RECAP
+
+	# End of a snooze period
+	SNOOZE_END
 }
 
 enum ReminderStatus {
@@ -272,6 +275,7 @@ type Reminder {
 	item: Item @relation(name: "ItemReminders")
 	morningRemindersUser: User @relation(name: "UserMorningReminders")
 	eveningRemindersUser: User @relation(name: "UserEveningReminders")
+	snoozedItem: Item @relation(name: "SnoozeReminders")
 	postHookId: String!
 	type: ReminderType!
 	sendingDate: DateTime!

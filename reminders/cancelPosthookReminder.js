@@ -2,9 +2,9 @@ const fetch = require('node-fetch');
 
 const {prisma} = require('../generated/prisma-client');
 
-const cancelPosthook = async (posthookId) => {
+const cancelPosthook = async (postHookId) => {
 	const response = await fetch(
-		`https://api.posthook.io/v1/hooks/${posthookId}`,
+		`https://api.posthook.io/v1/hooks/${postHookId}`,
 		{
 			method: 'DELETE',
 			headers: {
@@ -26,12 +26,14 @@ const cancelPosthook = async (posthookId) => {
 	}
 };
 
-const cancelPosthookReminder = async ({posthookId}) => {
-	await cancelPosthook(posthookId);
+const cancelPosthookReminder = async ({postHookId}) => {
+	await cancelPosthook(postHookId);
 
 	return prisma.updateReminder({
-		where: {posthookId},
-		status: 'CANCELED',
+		where: {postHookId},
+		data: {
+			status: 'CANCELED',
+		},
 	});
 };
 

@@ -1,3 +1,5 @@
+const gql = String.raw;
+
 const {NotFoundError} = require('../errors');
 const {getUserId} = require('../utils');
 const {cancelPosthookReminder} = require('../reminders/cancelPosthookReminder');
@@ -21,7 +23,8 @@ const unsnoozeItem = async (root, {id}, ctx) => {
 			id
 			status
 			snoozedUntil {
-				posthookId
+				id
+				postHookId
 			}
 		}
 	`);
@@ -34,8 +37,9 @@ const unsnoozeItem = async (root, {id}, ctx) => {
 		throw new Error('Only snoozed items can be unsnoozed.');
 	}
 
-	cancelPosthookReminder({
-		posthookId: '',
+	await cancelPosthookReminder({
+		id: item.snoozedUntil.id,
+		postHookId: item.snoozedUntil.postHookId,
 	});
 
 	return ctx.db.updateItem({
