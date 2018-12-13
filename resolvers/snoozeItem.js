@@ -4,7 +4,7 @@ const {NotFoundError} = require('../errors');
 const {getUserId} = require('../utils');
 const {createPosthookReminder} = require('../reminders/createPosthookReminder');
 
-const snoozeItem = async (root, {id, until, during = 1}, ctx) => {
+const snoozeItem = async (root, {id, until, during}, ctx) => {
 	const [item] = await ctx.db.items({
 		where: {
 			id,
@@ -28,10 +28,13 @@ const snoozeItem = async (root, {id, until, during = 1}, ctx) => {
 		throw new Error('Only pending items can be snoozed.');
 	}
 
-	let date = moment(until);
+	let date;
 
-	if (!date.isValid() || moment() > date) {
-		throw new Error('The date is not valid, it must be in the future.');
+	if (until) {
+		date = moment(until);
+		if (!date.isValid() || date < moment()) {
+			throw new Error('The date is not valid, it must be in the future.');
+		}
 	}
 	else if (typeof during === 'number') {
 		if (during <= 0) {
@@ -60,7 +63,7 @@ const snoozeItem = async (root, {id, until, during = 1}, ctx) => {
 		where: {id},
 		data: {
 			status: 'SNOOZED',
-			snoozeEnd: reminder && {connect: {id: reminder.id}},
+			snoozedUntil: reminder && {connect: {id: reminder.id}},
 		},
 	});
 };
