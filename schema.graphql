@@ -136,7 +136,7 @@ type Mutation {
 	# Remove an item
 	removeItem(id: ID!): Item
 	# Snooze an item
-	snoozeItem(id: ID!): Item
+	snoozeItem(id: ID!, until: DateTime, during: Int): Item
 	# Unsnooze an item
 	unsnoozeItem(id: ID!): Item
 	# Finish an item
