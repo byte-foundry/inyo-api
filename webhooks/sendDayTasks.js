@@ -80,6 +80,7 @@ const sendDayTasks = async (req, res) => {
 						sectionId: section.id,
 						projectId: project.id,
 						url: getAppUrl(`/projects/${project.id}/#${item.id}`),
+						formattedUnit: item.unit + (item.unit > 1 ? ' jours' : ' jour'),
 					})),
 				),
 				[],
