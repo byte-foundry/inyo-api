@@ -10,7 +10,7 @@ const titleToCivilite = {
 	MADAME: 'Mme',
 };
 
-const startProject = async (parent, {id}, ctx) => {
+const startProject = async (parent, {id, notifyCustomer = true}, ctx) => {
 	const [project] = await ctx.db.projects({
 		where: {
 			id,
@@ -59,31 +59,35 @@ const startProject = async (parent, {id}, ctx) => {
 		throw new Error('This project has already been sent.');
 	}
 
-	const {customer} = project;
-	const {serviceCompany} = customer;
-	const user = serviceCompany.owner;
+	if (notifyCustomer) {
+		const {customer} = project;
+		const {serviceCompany} = customer;
+		const user = serviceCompany.owner;
 
-	// sending the quote via sendgrid
-	// this use the quote template
-	try {
-		await sendProjectStartedEmail({
-			email: customer.email,
-			customerName: String(
-				` ${titleToCivilite[customer.title]} ${customer.firstName} ${
-					customer.lastName
-				}`,
-			).trimRight(),
-			projectName: project.name,
-			user: `${user.firstName} ${user.lastName}`,
-			url: getAppUrl(`/projects/${project.id}/view/${project.token}`),
-		});
-		console.log(`Project email sent to ${customer.email}`);
-	}
-	catch (error) {
-		console.log('Error: Project email not sent', error);
+		// sending the quote via sendgrid
+		// this use the quote template
+		try {
+			await sendProjectStartedEmail({
+				email: customer.email,
+				customerName: String(
+					` ${titleToCivilite[customer.title]} ${customer.firstName} ${
+						customer.lastName
+					}`,
+				).trimRight(),
+				projectName: project.name,
+				user: `${user.firstName} ${user.lastName}`,
+				url: getAppUrl(`/projects/${project.id}/view/${project.token}`),
+			});
+			console.log(`Project email sent to ${customer.email}`);
+		}
+		catch (error) {
+			console.log('Error: Project email not sent', error);
+		}
+
+		sendMetric({metric: 'inyo.project.sent'});
 	}
 
-	sendMetric({metric: 'inyo.project.sent'});
+	sendMetric({metric: 'inyo.project.started'});
 
 	return ctx.db.updateProject({
 		where: {id},
