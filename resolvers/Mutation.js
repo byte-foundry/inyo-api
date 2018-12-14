@@ -31,6 +31,7 @@ const {startProject} = require('./startProject');
 const {addItem} = require('./addItem');
 const {updateItem} = require('./updateItem');
 const {finishItem} = require('./finishItem');
+const {unfinishItem} = require('./unfinishItem');
 const {postComment} = require('./postComment');
 
 const titleToCivilite = {
@@ -728,6 +729,7 @@ const Mutation = {
 		});
 	},
 	finishItem,
+	unfinishItem,
 	sendAmendment: async (parent, {quoteId}, ctx) => {
 		const user = await ctx.db.user({id: getUserId(ctx)});
 		const quote = await ctx.db.quote({id: quoteId}).$fragment(gql`
