@@ -245,6 +245,7 @@ type User {
 	startWorkAt: DateTime
 	endWorkAt: DateTime
 	workingDays: [DAY!]!
+	timeZone: String
 	morningReminders: [Reminder!]!
 		@relation(name: "UserMorningReminders", onDelete: CASCADE)
 	eveningReminders: [Reminder!]!

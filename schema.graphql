@@ -2,6 +2,7 @@ scalar DateTime
 scalar Time
 scalar Json
 scalar Upload
+scalar TimeZone
 
 directive @deprecated(
 	reason: String = "No longer supported"
@@ -40,6 +41,7 @@ type Mutation {
 		lastName: String
 		startWorkAt: Time
 		endWorkAt: Time
+		timeZone: TimeZone
 		workingDays: [DAY!]
 		defaultDailyPrice: Int
 		defaultVatRate: Int
@@ -462,6 +464,7 @@ type User {
 	startWorkAt: Time
 	endWorkAt: Time
 	workingDays: [DAY!]!
+	timeZone: TimeZone
 	workingFields: [String!]!
 	jobType: JobType
 	interestedFeatures: [String!]!
