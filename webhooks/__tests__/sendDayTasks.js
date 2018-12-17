@@ -1,3 +1,5 @@
+import moment from 'moment-timezone';
+
 import {sendDayTasks} from '../sendDayTasks';
 
 import {prisma} from '../../generated/prisma-client';
@@ -9,6 +11,10 @@ jest.mock('crypto', () => ({
 		digest: jest.fn(),
 	})),
 }));
+jest.mock('moment-timezone', () => jest.fn(() => ({
+	tz: jest.fn().mockReturnThis(),
+	day: jest.fn().mockReturnValue(2), // TUESDAY, everyone works on Tuesday
+})));
 jest.mock('../../generated/prisma-client', () => ({
 	prisma: {
 		projects: jest.fn(),
@@ -17,6 +23,7 @@ jest.mock('../../generated/prisma-client', () => ({
 			firstName: 'Jean',
 			lastName: 'Michel',
 			email: 'jeanmichel@test.com',
+			workingDays: ['TUESDAY'],
 		})),
 	},
 }));
@@ -24,6 +31,10 @@ jest.mock('../../utils');
 jest.mock('../../emails/UserEmail', () => ({
 	sendMorningEmail: jest.fn(),
 }));
+
+beforeEach(() => {
+	jest.clearAllMocks();
+});
 
 describe('sendDayTasks', async () => {
 	it('should send a morning email with the day tasks', async () => {
@@ -68,7 +79,7 @@ describe('sendDayTasks', async () => {
 								{
 									id: 'p2-s1-item-1',
 									name: 'Create the website',
-									unit: 20,
+									unit: 5,
 									reviewer: 'USER',
 									status: 'PENDING',
 								},
@@ -185,37 +196,22 @@ describe('sendDayTasks', async () => {
 				user: 'Jean Michel',
 				projects: [
 					{
-						id: 'project-3',
-						name: 'Shortest deadline logo',
-						deadline: '2032-11-02T12:00:00.000Z',
+						id: 'project-2',
+						name: 'Art Museum Website',
+						deadline: '2142-11-02T12:00:00.000Z',
 						sections: [
 							{
-								id: 'p3-section-1',
+								id: 'p2-section-1',
 								items: [
 									expect.objectContaining({
-										id: 'p3-s1-item-1',
-										name: 'Research on identity',
-										unit: 2,
+										id: 'p2-s1-item-1',
+										name: 'Create the website',
+										unit: 5,
 										reviewer: 'USER',
 										status: 'PENDING',
-										sectionId: 'p3-section-1',
-										projectId: 'project-3',
-										url: '/projects/project-3/#p3-s1-item-1',
-									}),
-								],
-							},
-							{
-								id: 'p3-section-2',
-								items: [
-									expect.objectContaining({
-										id: 'p3-s2-item-1',
-										name: 'Drawing the logo',
-										unit: 2,
-										reviewer: 'USER',
-										status: 'PENDING',
-										sectionId: 'p3-section-2',
-										projectId: 'project-3',
-										url: '/projects/project-3/#p3-s2-item-1',
+										sectionId: 'p2-section-1',
+										projectId: 'project-2',
+										url: '/projects/project-2/#p2-s1-item-1',
 									}),
 								],
 							},
@@ -259,22 +255,22 @@ describe('sendDayTasks', async () => {
 						],
 					},
 					{
-						id: 'project-2',
-						name: 'Art Museum Website',
-						deadline: '2142-11-02T12:00:00.000Z',
+						id: 'project-3',
+						name: 'Shortest deadline logo',
+						deadline: '2032-11-02T12:00:00.000Z',
 						sections: [
 							{
-								id: 'p2-section-1',
+								id: 'p3-section-1',
 								items: [
 									expect.objectContaining({
-										id: 'p2-s1-item-1',
-										name: 'Create the website',
-										unit: 20,
+										id: 'p3-s1-item-1',
+										name: 'Research on identity',
+										unit: 2,
 										reviewer: 'USER',
 										status: 'PENDING',
-										sectionId: 'p2-section-1',
-										projectId: 'project-2',
-										url: '/projects/project-2/#p2-s1-item-1',
+										sectionId: 'p3-section-1',
+										projectId: 'project-3',
+										url: '/projects/project-3/#p3-s1-item-1',
 									}),
 								],
 							},
@@ -283,6 +279,466 @@ describe('sendDayTasks', async () => {
 				],
 			}),
 		);
+
+		expect(res.status).toHaveBeenCalledWith(200);
+		expect(res.send).toHaveBeenCalled();
+	});
+
+	it("should send tasks in the right order within the user's working hours", async () => {
+		prisma.projects.mockImplementation(() => ({
+			$fragment: () => [
+				{
+					id: 'cjpl8391z18r00803319xcgnt',
+					name: 'fghjkl',
+					deadline: '2019-01-10T11:00:00.000Z',
+					sections: [
+						{
+							id: 'cjpl8392i18r108038os92wm9',
+							items: [
+								{
+									name: 'Réunion de lancement',
+									id: 'cjpl8392l18r30803yy97xw21',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.5,
+								},
+								{
+									name:
+										"Rédaction d'un cahier des charges et définition des valeurs de l'entreprise",
+									id: 'cjpl8392r18r508039nuqhuay',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 5,
+								},
+								{
+									name: 'Validation',
+									id: 'cjpl8392t18r70803r80qc0yg',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0,
+								},
+							],
+						},
+						{
+							id: 'cjpl8392v18r908031mtt70pq',
+							items: [
+								{
+									name: 'Benchmark',
+									id: 'cjpl8392x18rb0803cn5ew11b',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.5,
+								},
+								{
+									name: 'Moodboard',
+									id: 'cjpl8392z18rd0803e0s2p3pf',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.75,
+								},
+								{
+									name: 'Création de 3 axes créatifs',
+									id: 'cjpl8393018rf08037azffzga',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 2.5,
+								},
+								{
+									name: "Mise au point de l'axe retenu",
+									id: 'cjpl8393218rh0803pyozho36',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 1,
+								},
+								{
+									name: 'Déclinaisons du logo en couleur et en noir & blanc ',
+									id: 'cjpl8393318rj0803srusw6lb',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.25,
+								},
+								{
+									name:
+										'Préparation des fichiers aux formats nécessaires pour une utilisation Print et Web',
+									id: 'cjpl8393418rl0803726p2nw2',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.25,
+								},
+							],
+						},
+						{
+							id: 'cjpl8393518rn0803givdfi0x',
+							items: [
+								{
+									name: 'Gestion et suivi de projet',
+									id: 'cjpl8393618rp0803yihth4rl',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 2,
+								},
+								{
+									name: 'Cession des droits',
+									id: 'cjpl8393818rr0803dwrb80mb',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.25,
+								},
+								{
+									name: 'Achat typographique',
+									id: 'cjpl8393a18rt0803v6bkrdl4',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.25,
+								},
+								{
+									name: 'Conception charte graphique utilisation logo',
+									id: 'cjpl8393c18rv0803goc76hvx',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 1,
+								},
+							],
+						},
+					],
+				},
+			],
+		}));
+
+		const req = {
+			get: jest.fn(),
+			body: {
+				data: {
+					userId: 'user-id',
+				},
+			},
+		};
+		const res = {
+			status: jest.fn().mockReturnThis(),
+			send: jest.fn(),
+		};
+
+		await sendDayTasks(req, res);
+
+		expect(sendMorningEmail).toHaveBeenCalledWith(
+			expect.objectContaining({
+				projects: [
+					{
+						id: 'cjpl8391z18r00803319xcgnt',
+						name: 'fghjkl',
+						deadline: '2019-01-10T11:00:00.000Z',
+						sections: [
+							{
+								id: 'cjpl8392i18r108038os92wm9',
+								items: [
+									expect.objectContaining({name: 'Réunion de lancement'}),
+									expect.objectContaining({
+										name:
+											"Rédaction d'un cahier des charges et définition des valeurs de l'entreprise",
+									}),
+									expect.objectContaining({name: 'Validation'}),
+								],
+							},
+							{
+								id: 'cjpl8392v18r908031mtt70pq',
+								items: [
+									expect.objectContaining({name: 'Benchmark'}),
+									expect.objectContaining({name: 'Moodboard'}),
+									expect.objectContaining({
+										name: 'Création de 3 axes créatifs',
+									}),
+								],
+							},
+						],
+					},
+				],
+			}),
+		);
+
+		expect(res.status).toHaveBeenCalledWith(200);
+		expect(res.send).toHaveBeenCalled();
+	});
+
+	it('should always send at least 3 tasks', async () => {
+		// tasks are longer than a user day, but we want to send him at least 3
+		prisma.projects.mockImplementation(() => ({
+			$fragment: () => [
+				{
+					id: 'cjpl8391z18r00803319xcgnt',
+					name: 'fghjkl',
+					deadline: '2019-01-10T11:00:00.000Z',
+					sections: [
+						{
+							id: 'cjpl8392i18r108038os92wm9',
+							items: [
+								{
+									name: 'Réunion de lancement',
+									id: 'cjpl8392l18r30803yy97xw21',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 10,
+								},
+								{
+									name:
+										"Rédaction d'un cahier des charges et définition des valeurs de l'entreprise",
+									id: 'cjpl8392r18r508039nuqhuay',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 10,
+								},
+								{
+									name: 'Validation',
+									id: 'cjpl8392t18r70803r80qc0yg',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 10,
+								},
+							],
+						},
+						{
+							id: 'cjpl8392v18r908031mtt70pq',
+							items: [
+								{
+									name: 'Benchmark',
+									id: 'cjpl8392x18rb0803cn5ew11b',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 5,
+								},
+							],
+						},
+					],
+				},
+			],
+		}));
+
+		const req = {
+			get: jest.fn(),
+			body: {
+				data: {
+					userId: 'user-id',
+				},
+			},
+		};
+		const res = {
+			status: jest.fn().mockReturnThis(),
+			send: jest.fn(),
+		};
+
+		await sendDayTasks(req, res);
+
+		expect(sendMorningEmail).toHaveBeenCalledWith(
+			expect.objectContaining({
+				projects: [
+					expect.objectContaining({
+						sections: [
+							expect.objectContaining({
+								items: expect.arrayContaining([
+									expect.anything(),
+									expect.anything(),
+									expect.anything(),
+								]),
+							}),
+						],
+					}),
+				],
+			}),
+		);
+
+		expect(res.status).toHaveBeenCalledWith(200);
+		expect(res.send).toHaveBeenCalled();
+	});
+
+	it('should always send at most 8 tasks', async () => {
+		// tasks are quick, but we want to send him at most 8
+		prisma.projects.mockImplementation(() => ({
+			$fragment: () => [
+				{
+					id: 'cjpl8391z18r00803319xcgnt',
+					name: 'fghjkl',
+					deadline: '2019-01-10T11:00:00.000Z',
+					sections: [
+						{
+							id: 'cjpl8392i18r108038os92wm9',
+							items: [
+								{
+									name: 'Réunion de lancement',
+									id: 'cjpl8392l18r30803yy97xw21',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0,
+								},
+								{
+									name:
+										"Rédaction d'un cahier des charges et définition des valeurs de l'entreprise",
+									id: 'cjpl8392r18r508039nuqhuay',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.1,
+								},
+								{
+									name: 'Validation',
+									id: 'cjpl8392t18r70803r80qc0yg',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0,
+								},
+							],
+						},
+						{
+							id: 'cjpl8392v18r908031mtt70pq',
+							items: [
+								{
+									name: 'Benchmark',
+									id: 'cjpl8392x18rb0803cn5ew11b',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.1,
+								},
+								{
+									name: 'Moodboard',
+									id: 'cjpl8392z18rd0803e0s2p3pf',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0,
+								},
+								{
+									name: 'Création de 3 axes créatifs',
+									id: 'cjpl8393018rf08037azffzga',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.1,
+								},
+								{
+									name: "Mise au point de l'axe retenu",
+									id: 'cjpl8393218rh0803pyozho36',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0,
+								},
+								{
+									name: 'Déclinaisons du logo en couleur et en noir & blanc ',
+									id: 'cjpl8393318rj0803srusw6lb',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.1,
+								},
+								{
+									name:
+										'Préparation des fichiers aux formats nécessaires pour une utilisation Print et Web',
+									id: 'cjpl8393418rl0803726p2nw2',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0,
+								},
+							],
+						},
+						{
+							id: 'cjpl8393518rn0803givdfi0x',
+							items: [
+								{
+									name: 'Gestion et suivi de projet',
+									id: 'cjpl8393618rp0803yihth4rl',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0,
+								},
+								{
+									name: 'Cession des droits',
+									id: 'cjpl8393818rr0803dwrb80mb',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.1,
+								},
+								{
+									name: 'Achat typographique',
+									id: 'cjpl8393a18rt0803v6bkrdl4',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0,
+								},
+								{
+									name: 'Conception charte graphique utilisation logo',
+									id: 'cjpl8393c18rv0803goc76hvx',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.1,
+								},
+							],
+						},
+					],
+				},
+			],
+		}));
+
+		const req = {
+			get: jest.fn(),
+			body: {
+				data: {
+					userId: 'user-id',
+				},
+			},
+		};
+		const res = {
+			status: jest.fn().mockReturnThis(),
+			send: jest.fn(),
+		};
+
+		await sendDayTasks(req, res);
+
+		expect(sendMorningEmail).toHaveBeenCalledWith(
+			expect.objectContaining({
+				projects: [
+					expect.objectContaining({
+						sections: [
+							expect.objectContaining({
+								items: [
+									expect.anything(),
+									expect.anything(),
+									expect.anything(),
+								],
+							}),
+							expect.objectContaining({
+								items: [
+									expect.anything(),
+									expect.anything(),
+									expect.anything(),
+									expect.anything(),
+									expect.anything(),
+								],
+							}),
+						],
+					}),
+				],
+			}),
+		);
+
+		expect(res.status).toHaveBeenCalledWith(200);
+		expect(res.send).toHaveBeenCalled();
+	});
+
+	it('should not send anything if the user is not working', async () => {
+		const req = {
+			get: jest.fn(),
+			body: {
+				data: {
+					userId: 'user-id',
+				},
+			},
+		};
+		const res = {
+			status: jest.fn().mockReturnThis(),
+			send: jest.fn(),
+		};
+
+		moment.mockImplementation(() => ({
+			tz: jest.fn().mockReturnThis(),
+			day: jest.fn(() => 0), // SUNDAY
+		}));
+
+		await sendDayTasks(req, res);
+
+		expect(sendMorningEmail).not.toHaveBeenCalled();
 
 		expect(res.status).toHaveBeenCalledWith(200);
 		expect(res.send).toHaveBeenCalled();
