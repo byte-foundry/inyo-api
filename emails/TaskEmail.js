@@ -101,7 +101,7 @@ async function setupItemReminderEmail(
 		}) => {
 			try {
 				const {data} = await createReminder({
-					emailToSend,
+					email: emailToSend,
 					data: {
 						user,
 						customerName,
