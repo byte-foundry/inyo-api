@@ -90,6 +90,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 						firstName
 						lastName
 						email
+						phone
 						serviceCompany {
 							owner {
 								email
@@ -278,12 +279,15 @@ const finishItem = async (parent, {id, token}, ctx) => {
 
 		const basicInfo = {
 			email: customer.email,
+			userEmail: user.email,
 			user: String(`${user.firstName} ${user.lastName}`).trim(),
 			customerName: String(
 				` ${titleToCivilite[customer.title]} ${customer.firstName} ${
 					customer.lastName
 				}`,
 			).trimRight(),
+			customerEmail: customer.email,
+			customerPhone: customer.phone,
 			projectName: project.name,
 			itemName: item.name,
 			url: getAppUrl(`/projects/${project.id}/view/${project.token}`),
@@ -296,6 +300,8 @@ const finishItem = async (parent, {id, token}, ctx) => {
 						...basicInfo,
 						itemId: nextItem.id,
 						items: nextItemsToDo,
+						nextItemName: nextItem.name,
+						nextItemDescription: nextItem.description,
 						issueDate: new Date(),
 					},
 					ctx,

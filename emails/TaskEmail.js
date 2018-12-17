@@ -53,7 +53,18 @@ async function sendItemUpdatedEmail({email, ...data}) {
 
 async function setupItemReminderEmail(
 	{
-		email, user, customerName, projectName, url, itemId, issueDate,
+		email,
+		userEmail,
+		user,
+		customerName,
+		projectName,
+		itemName,
+		items,
+		nextItemName,
+		nextItemDescription,
+		url,
+		itemId,
+		issueDate,
 	},
 	ctx,
 ) {
@@ -62,72 +73,86 @@ async function setupItemReminderEmail(
 			date: moment(issueDate).add(2, 'days'),
 			templateId: 'd-e39a839701644fd9935f437056ad535a',
 			reminderType: 'FIRST',
+			email,
 		},
 		/* 3 days */ {
 			date: moment(issueDate).add(2 + 3, 'days'),
 			templateId: 'd-4ad0e13f00dd485ca0d98fd1d62cd7f6',
 			reminderType: 'SECOND',
+			email,
 		},
 		/* 1 day */ {
 			date: moment(issueDate).add(2 + 3 + 1, 'days'),
 			templateId: 'd-97b5ce25a4464a3888b359ac02f34168',
 			reminderType: 'LAST',
+			email,
 		},
 		/* 1 day */ {
 			date: moment(issueDate).add(2 + 3 + 1 + 1, 'days'),
 			templateId: 'd-f0a78ca3f43d4f558afa87dc32d3905d',
 			reminderType: 'USER_WARNING',
+			email: userEmail,
 		},
 	];
 
-	dates.forEach(async ({date, templateId, reminderType}) => {
-		try {
-			const {data} = await createReminder({
-				email,
-				data: {
-					user,
-					customerName,
-					projectName,
-					url,
-				},
-				postDate: date.format(),
-				templateId,
-			});
-
+	dates.forEach(
+		async ({
+			date, templateId, reminderType, email: emailToSend,
+		}) => {
 			try {
-				const reminder = await ctx.db.createReminder({
-					item: {
-						connect: {id: itemId},
+				const {data} = await createReminder({
+					emailToSend,
+					data: {
+						user,
+						customerName,
+						projectName,
+						itemName,
+						items,
+						nextItemName,
+						nextItemDescription,
+						url,
 					},
-					postHookId: data.id,
-					type: reminderType,
-					sendingDate: date.format(),
-					status: 'PENDING',
+					postDate: date.format(),
+					templateId,
 				});
 
-				console.log(
-					`Reminder '${
-						reminder.id
-					}' of type '${reminderType}' created with posthook id '${data.id}'.`,
-				);
+				try {
+					const reminder = await ctx.db.createReminder({
+						item: {
+							connect: {id: itemId},
+						},
+						postHookId: data.id,
+						type: reminderType,
+						sendingDate: date.format(),
+						status: 'PENDING',
+					});
+
+					console.log(
+						`Reminder '${
+							reminder.id
+						}' of type '${reminderType}' created with posthook id '${
+							data.id
+						}'.`,
+					);
+				}
+				catch (error) {
+					// Here we should do something to store the errors
+					console.error(
+						`Reminder of type '${reminderType}' NOT created with posthook id '${
+							data.id
+						}'`,
+						error,
+					);
+				}
 			}
 			catch (error) {
-				// Here we should do something to store the errors
 				console.error(
-					`Reminder of type '${reminderType}' NOT created with posthook id '${
-						data.id
-					}'`,
+					`Reminder of type '${reminderType}' for item '${itemId}' NOT created in posthook.`,
 					error,
 				);
 			}
-		}
-		catch (error) {
-			console.error(
-				`Reminder of type '${reminderType}' for item '${itemId}' NOT created in posthook.`,
-				error,
-			);
-		}
-	});
+		},
+	);
 }
 
 module.exports = {
