@@ -104,6 +104,7 @@ const scheduleDailyMails = async (req, res) => {
 	}).$fragment(gql`
 		fragment MorningWorkingUser on User {
 			id
+			email
 			startWorkAt
 			timeZone
 			workingDays

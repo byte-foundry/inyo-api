@@ -18,13 +18,13 @@ const sendDayTasks = async (req, res) => {
 		throw new Error('The signature has not been verified.');
 	}
 
-	const user = await prisma.user({id: req.body.userId});
+	const user = await prisma.user({id: req.body.data.userId});
 	const projects = await prisma.projects({
 		where: {
 			customer: {
 				serviceCompany: {
 					owner: {
-						id: req.body.userId,
+						id: req.body.data.userId,
 					},
 				},
 			},
