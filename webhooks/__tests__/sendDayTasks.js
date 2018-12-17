@@ -167,7 +167,9 @@ describe('sendDayTasks', async () => {
 		const req = {
 			get: jest.fn(),
 			body: {
-				userId: 'user-id',
+				data: {
+					userId: 'user-id',
+				},
 			},
 		};
 		const res = {
