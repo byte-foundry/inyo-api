@@ -57,25 +57,36 @@ const items = async (root, args, ctx) => {
 	// applying a score to each item
 	const projectItems = projectsTheUserCanWorkOn
 		.reduce((itemsList, project) => {
+			const items = [];
+
 			// flattening sections into a single list with additional item properties
-			const items = project.sections.reduce(
-				(sectionItems, section) => sectionItems.concat(
-					section.items.map(item => ({
+			// eslint-disable-next-line no-restricted-syntax
+			for (const section of project.sections) {
+				// eslint-disable-next-line no-restricted-syntax
+				for (const item of section.items) {
+					// keeping only the tasks user can do
+					if (item.reviewer !== 'USER') {
+						break;
+					}
+
+					items.push({
 						...item,
+						sectionId: section.id,
+						projectId: project.id,
 						url: getAppUrl(`/projects/${project.id}/#${item.id}`),
-					})),
-				),
-				[],
-			);
+					});
+				}
+			}
+
+			const hoursUntilDeadline
+				= (new Date(project.deadline) - new Date()) / 1000 / 60 / 60;
 
 			// adding the score (was easier that way)
 			return itemsList.concat(
 				items.map((item, index) => {
 					const hoursLeft = items
-						.slice(index)
+						.slice(0, index)
 						.reduce((sum, {unit}) => sum + unit, 0);
-					const hoursUntilDeadline
-						= (new Date(project.deadline) - new Date()) / 1000 / 60 / 60;
 
 					return {
 						...item,
@@ -84,9 +95,7 @@ const items = async (root, args, ctx) => {
 				}),
 			);
 		}, [])
-		// keeping only the tasks user can do
-		// TODO: filter everything after the first CUSTOMER reviewer task
-		.filter(item => item.reviewer === 'USER');
+		.sort((a, b) => b.score - a.score);
 
 	return projectItems;
 };
