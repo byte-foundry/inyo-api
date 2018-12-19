@@ -115,7 +115,9 @@ const sendDayTasks = async (req, res) => {
 						...item,
 						sectionId: section.id,
 						projectId: project.id,
-						url: getAppUrl(`/projects/${project.id}/#${item.id}`),
+						// url: getAppUrl(`/projects/${project.id}/see/#${item.id}`),
+						// This url doesn't exist right now
+						url: getAppUrl(`/projects/${project.id}/see`),
 						formattedUnit: item.unit + (item.unit > 1 ? ' jours' : ' jour'),
 					});
 				}
