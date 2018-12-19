@@ -8,6 +8,18 @@ async function sendResetPasswordEmail({email, ...data}) {
 	});
 }
 
+async function sendMorningEmail({email, ...data}) {
+	return sendEmail({
+		email,
+		data,
+		templateId: 'd-c49be8b86fa0404381442fc9461fa470',
+	});
+}
+
+async function sendEveningEmail() {}
+
 module.exports = {
 	sendResetPasswordEmail,
+	sendMorningEmail,
+	sendEveningEmail,
 };

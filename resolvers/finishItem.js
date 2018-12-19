@@ -7,11 +7,36 @@ const {
 	legacy_sendTaskValidationEmail, // eslint-disable-line
 	sendTaskValidationEmail,
 	sendTaskValidationWaitCustomerEmail,
+	setupItemReminderEmail,
 } = require('../emails/TaskEmail');
+const cancelReminder = require('../reminders/cancelReminder');
 
 const titleToCivilite = {
 	MONSIEUR: 'M.',
 	MADAME: 'Mme',
+};
+
+const cancelPendingReminders = async (pendingReminders, itemId, ctx) => {
+	try {
+		await Promise.all(
+			pendingReminders.map(reminder => cancelReminder(reminder.postHookId)),
+		);
+		await ctx.db.updateManyReminders({
+			where: {status: 'PENDING'},
+			data: {status: 'CANCELED'},
+		});
+
+		console.log(
+			`Canceled pending reminders of Item '${itemId}'.`,
+			pendingReminders.map(r => r.id),
+		);
+	}
+	catch (err) {
+		console.error(
+			`Errors cancelling pending reminders of Item '${itemId}'`,
+			err,
+		);
+	}
 };
 
 const finishItem = async (parent, {id, token}, ctx) => {
@@ -20,6 +45,12 @@ const finishItem = async (parent, {id, token}, ctx) => {
 			name
 			status
 			reviewer
+			pendingReminders: reminders(where: {status: PENDING}) {
+				id
+				postHookId
+				type
+				status
+			}
 			section {
 				id
 				option {
@@ -59,8 +90,10 @@ const finishItem = async (parent, {id, token}, ctx) => {
 						firstName
 						lastName
 						email
+						phone
 						serviceCompany {
 							owner {
+								email
 								firstName
 								lastName
 							}
@@ -133,6 +166,8 @@ const finishItem = async (parent, {id, token}, ctx) => {
 
 		sendMetric({metric: 'inyo.item.validated'});
 
+		await cancelPendingReminders(item.pendingReminders, id, ctx);
+
 		return ctx.db.updateItem({
 			where: {id},
 			data: {
@@ -196,21 +231,23 @@ const finishItem = async (parent, {id, token}, ctx) => {
 		const {sections, customer} = project;
 		const user = project.customer.serviceCompany.owner;
 
-		// we ask for the next item in the section
-		// or the first item in the next section
+		// we ask for the next items in the section
+		// or the items in the next section
 		const nextItems = await ctx.db.item({id}).$fragment(gql`
-			fragment NextItem on Item {
+			fragment NextItems on Item {
 				section {
-					items(after: "${id}", first: 1) {
+					items(after: "${id}") {
 						id
+						name
+						description
+						reviewer
 					}
 					project {
 						sections(
 							after: "${item.section.id}"
-							first: 1
 							where: { items_some: {} }
 						) {
-							items(first: 1) {
+							items {
 								id
 								name
 								description
@@ -227,14 +264,30 @@ const finishItem = async (parent, {id, token}, ctx) => {
 			|| (nextItems.section.project.sections[0]
 				&& nextItems.section.project.sections[0].items[0]);
 
+		// taking all items that needs to be done by the customer
+		let nextItemsToDo = nextItems.section.items.concat(
+			nextItems.section.project.sections.reduce(
+				(acc, section) => acc.concat(section.items),
+				[],
+			),
+		);
+
+		nextItemsToDo = nextItemsToDo.slice(
+			0,
+			nextItemsToDo.findIndex(item => item.reviewer === 'USER'),
+		);
+
 		const basicInfo = {
 			email: customer.email,
+			userEmail: user.email,
 			user: String(`${user.firstName} ${user.lastName}`).trim(),
 			customerName: String(
 				` ${titleToCivilite[customer.title]} ${customer.firstName} ${
 					customer.lastName
 				}`,
 			).trimRight(),
+			customerEmail: customer.email,
+			customerPhone: customer.phone,
 			projectName: project.name,
 			itemName: item.name,
 			url: getAppUrl(`/projects/${project.id}/view/${project.token}`),
@@ -242,8 +295,22 @@ const finishItem = async (parent, {id, token}, ctx) => {
 
 		try {
 			if (nextItem && nextItem.reviewer === 'CUSTOMER') {
+				await setupItemReminderEmail(
+					{
+						...basicInfo,
+						itemId: nextItem.id,
+						items: nextItemsToDo,
+						nextItemName: nextItem.name,
+						nextItemDescription: nextItem.description,
+						issueDate: new Date(),
+					},
+					ctx,
+				);
+				console.log(`Item '${nextItem.id}': Reminders set.`);
+
 				await sendTaskValidationWaitCustomerEmail({
 					...basicInfo,
+					items: nextItemsToDo,
 					nextItemName: nextItem.name,
 					nextItemDescription: nextItem.description,
 				});
@@ -311,6 +378,8 @@ const finishItem = async (parent, {id, token}, ctx) => {
 	}
 
 	sendMetric({metric: 'inyo.item.validated'});
+
+	await cancelPendingReminders(item.pendingReminders, id, ctx);
 
 	return ctx.db.updateItem({
 		where: {id},

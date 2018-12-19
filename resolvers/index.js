@@ -1,5 +1,6 @@
 const {GraphQLTime} = require('graphql-iso-date');
 
+const {GraphQLTimeZone} = require('../types/timezone');
 const {Query} = require('./Query');
 const {Mutation} = require('./Mutation');
 const {AuthPayload} = require('./AuthPayload');
@@ -18,8 +19,10 @@ const {Comment} = require('./Comment');
 const {Viewer} = require('./Viewer');
 const {CommentView} = require('./CommentView');
 const {File} = require('./File');
+const {Reminder} = require('./Reminder');
 
 const resolvers = {
+	TimeZone: GraphQLTimeZone,
 	Time: GraphQLTime,
 	Query,
 	Mutation,
@@ -39,6 +42,7 @@ const resolvers = {
 	Viewer,
 	CommentView,
 	File,
+	Reminder,
 };
 
 module.exports = {

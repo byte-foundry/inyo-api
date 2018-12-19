@@ -6,7 +6,9 @@ const {DeprecatedDirective} = require('graphql-directive-deprecated');
 
 const {prisma} = require('./generated/prisma-client');
 const {resolvers} = require('./resolvers');
-const sendEmail = require('./emails/SendEmail.js');
+const {sendDayTasks} = require('./webhooks/sendDayTasks');
+const {scheduleDailyMails} = require('./webhooks/scheduleDailyMails');
+const sendEmail = require('./emails/SendEmail');
 
 const {PORT} = process.env;
 
@@ -32,7 +34,9 @@ const server = new GraphQLServer({
 	},
 });
 
-server.express.get('/send-reminder', (req, res) => res.status(200).send('bonjour'));
+server.express.post('/schedule-daily-mails', scheduleDailyMails);
+server.express.post('/send-day-tasks', bodyParser.json(), sendDayTasks);
+// server.express.post('/send-day-recap', sendDayRecap);
 
 server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
 	const hmac = crypto.createHmac('sha256', process.env.POSTHOOK_SIGNATURE);
@@ -50,7 +54,19 @@ server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
 		throw new Error('The signature has not been verified.');
 	}
 
-	const [reminder] = await prisma.reminders({where: {postHookId: req.body.id}});
+	const [reminder] = await prisma.reminders({
+		where: {
+			postHookId: req.body.id,
+			OR: [
+				{
+					status_not: 'SENT',
+				},
+				{
+					status_not: 'CANCELED',
+				},
+			],
+		},
+	});
 
 	try {
 		await sendEmail(req.body.data);
@@ -65,7 +81,7 @@ server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
 		}
 		else {
 			console.warn(
-				`Reminder with postHookId '${reminder.id}' not found but sent.`,
+				`Reminder with postHookId '${req.body.id}' not found but sent.`,
 			);
 		}
 		// posthook wants a 200 not a 204
@@ -83,7 +99,7 @@ server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
 		}
 		else {
 			console.warn(
-				`Reminder with postHookId '${reminder.id}' not found and errored`,
+				`Reminder with postHookId '${req.body.id}' not found and errored`,
 				error,
 			);
 		}

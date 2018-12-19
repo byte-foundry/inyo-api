@@ -2,6 +2,7 @@ scalar DateTime
 scalar Time
 scalar Json
 scalar Upload
+scalar TimeZone
 
 directive @deprecated(
 	reason: String = "No longer supported"
@@ -14,6 +15,8 @@ type Query {
 		@deprecated(reason: "Quotes are not used anymore.")
 	project(id: ID!, token: String): Project
 	itemComments(itemId: ID!, token: String): [Comment!]!
+	# Get user's reminders
+	reminders: [Reminder!]!
 }
 
 type Mutation {
@@ -38,6 +41,8 @@ type Mutation {
 		lastName: String
 		startWorkAt: Time
 		endWorkAt: Time
+		timeZone: TimeZone
+		workingDays: [DAY!]
 		defaultDailyPrice: Int
 		defaultVatRate: Int
 		workingFields: [String!]
@@ -58,9 +63,10 @@ type Mutation {
 		name: String
 		template: ProjectTemplate
 		sections: [SectionInput!]
+		deadline: DateTime
 	): Project!
 	# Update project
-	updateProject(id: ID!, name: String!): Project
+	updateProject(id: ID!, name: String!, deadline: DateTime): Project
 	# Remove project
 	removeProject(id: ID!): Project
 
@@ -126,6 +132,8 @@ type Mutation {
 	removeItem(id: ID!): Item
 	# Finish an item
 	finishItem(id: ID!, token: String): Item
+	# Reset an item (going back to pending)
+	unfinishItem(id: ID!, token: String): Item
 	# Send an amendment with all the updated items
 	sendAmendment(quoteId: ID!): Quote
 		@deprecated(reason: "Quotes are not used anymore.")
@@ -149,8 +157,8 @@ type Mutation {
 	rejectAmendment(quoteId: ID!, token: String!): Quote
 		@deprecated(reason: "Quotes are not used anymore.")
 
-	# Send project, DRAFT -> ONGOING
-	startProject(id: ID!): Project!
+	# Send project, DRAFT -> ONGOING. If not specified, send an email
+	startProject(id: ID!, notifyCustomer: Boolean): Project!
 
 	#post a comment on an item
 	postComment(itemId: ID!, token: String, comment: CommentInput!): Item
@@ -184,7 +192,7 @@ input CompanyInput {
 input SettingsInput {
 	askItemFinishConfirmation: Boolean
 	askSendQuoteConfirmation: Boolean
-	askSendProjectConfirmation: Boolean
+	askStartProjectConfirmation: Boolean
 }
 
 input CustomerInput {
@@ -288,6 +296,48 @@ enum Reviewer {
 	CUSTOMER
 }
 
+enum ReminderType {
+	# 2 day reminder
+	FIRST
+	# FIRST + days reminder
+	SECOND
+	# SECOND + 1 days reminder
+	LAST
+
+	# customer has not replied, user warning at LAST + 2 days
+	USER_WARNING
+
+	# Morning email with tasks the user can complete
+	MORNING_TASKS
+	# Evening email with what happened during the day
+	EVENING_RECAP
+}
+
+enum ReminderStatus {
+	PENDING
+	SENT
+	ERROR
+	CANCELED
+}
+
+enum DAY {
+	MONDAY
+	TUESDAY
+	WEDNESDAY
+	THURSDAY
+	FRIDAY
+	SATURDAY
+	SUNDAY
+}
+
+type Reminder {
+	id: ID!
+	item: Item!
+	type: ReminderType!
+	sendingDate: DateTime!
+	status: ReminderStatus
+}
+
 union Viewer = User | Customer
 
 type CommentView {
@@ -317,6 +367,7 @@ type Item {
 	vatRate: Int!
 	status: ItemStatus!
 	reviewer: Reviewer!
+	reminders: [Reminder!]!
 }
 
 type Section {
@@ -358,6 +409,7 @@ type Project {
 	total: Float
 	viewedByCustomer: Boolean!
 	issuedAt: DateTime
+	deadline: DateTime
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }
@@ -411,6 +463,8 @@ type User {
 	defaultVatRate: Int
 	startWorkAt: Time
 	endWorkAt: Time
+	workingDays: [DAY!]!
+	timeZone: TimeZone
 	workingFields: [String!]!
 	jobType: JobType
 	interestedFeatures: [String!]!
