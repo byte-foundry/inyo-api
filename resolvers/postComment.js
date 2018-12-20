@@ -101,7 +101,7 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 		try {
 			const params = {
 				email: user.email,
-				recipentName: String(`${user.firstName} ${user.lastName}`).trim(),
+				recipientName: String(`${user.firstName} ${user.lastName}`).trim(),
 				authorName: String(`${customer.firstName} ${customer.lastName}`).trim(),
 				projectName: project ? project.name : quote.name,
 				itemName: item.name,
