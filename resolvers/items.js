@@ -54,6 +54,20 @@ const items = async (root, args, ctx) => {
 		return false;
 	});
 
+	let userWorkingTime = 8; // default working time
+
+	if (user.startWorkAt && user.endWorkAt) {
+		const startWorkAt = new Date(`1970-01-01T${user.startWorkAt}`);
+		const endWorkAt = new Date(`1970-01-01T${user.endWorkAt}`);
+
+		if (endWorkAt > startWorkAt) {
+			userWorkingTime = (endWorkAt - startWorkAt) / 1000 / 60 / 60;
+		}
+		else {
+			userWorkingTime = 24 - (startWorkAt - endWorkAt) / 1000 / 60 / 60;
+		}
+	}
+
 	// applying a score to each item
 	const projectItems = projectsTheUserCanWorkOn
 		.reduce((itemsList, project) => {
@@ -84,18 +98,18 @@ const items = async (root, args, ctx) => {
 			// adding the score (was easier that way)
 			return itemsList.concat(
 				items.map((item, index) => {
-					const hoursLeft = items
-						.slice(0, index)
+					const timeLeft = items
+						.slice(index)
 						.reduce((sum, {unit}) => sum + unit, 0);
 
 					return {
 						...item,
-						score: hoursUntilDeadline - hoursLeft,
+						score: hoursUntilDeadline - timeLeft * userWorkingTime,
 					};
 				}),
 			);
 		}, [])
-		.sort((a, b) => b.score - a.score);
+		.sort((a, b) => a.score - b.score);
 
 	return projectItems;
 };
