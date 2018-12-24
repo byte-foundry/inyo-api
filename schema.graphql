@@ -368,6 +368,7 @@ type Item {
 	# when unit has been changed but not yet validated
 	pendingUnit: Float
 	unit: Float
+	section: Section!
 	comments: [Comment!]!
 	vatRate: Int!
 	status: ItemStatus!
@@ -379,6 +380,8 @@ type Section {
 	id: ID!
 	name: String!
 	items: [Item!]!
+	# Project the section belongs to, can be null because of quotes
+	project: Project
 }
 
 type Option {
