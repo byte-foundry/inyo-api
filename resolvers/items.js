@@ -54,11 +54,13 @@ const items = async (root, args, ctx) => {
 		return false;
 	});
 
-	let userWorkingTime = 8; // default working time
+	let userWorkingTime;
 
 	if (user.startWorkAt && user.endWorkAt) {
-		const startWorkAt = new Date(`1970-01-01T${user.startWorkAt}`);
-		const endWorkAt = new Date(`1970-01-01T${user.endWorkAt}`);
+		const startWorkAt = new Date(
+			`1970-01-01T${user.startWorkAt.split('T')[1]}`,
+		);
+		const endWorkAt = new Date(`1970-01-01T${user.endWorkAt.split('T')[1]}`);
 
 		if (endWorkAt > startWorkAt) {
 			userWorkingTime = (endWorkAt - startWorkAt) / 1000 / 60 / 60;
@@ -67,6 +69,8 @@ const items = async (root, args, ctx) => {
 			userWorkingTime = 24 - (startWorkAt - endWorkAt) / 1000 / 60 / 60;
 		}
 	}
+
+	userWorkingTime = userWorkingTime || 8; // default working time
 
 	// applying a score to each item
 	const projectItems = projectsTheUserCanWorkOn
