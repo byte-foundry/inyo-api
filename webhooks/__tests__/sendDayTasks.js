@@ -24,6 +24,8 @@ jest.mock('../../generated/prisma-client', () => ({
 			lastName: 'Michel',
 			email: 'jeanmichel@test.com',
 			workingDays: ['TUESDAY'],
+			startWorkAt: `${new Date().toJSON().split('T')[0]}08:00:00.000Z`,
+			endWorkAt: `${new Date().toJSON().split('T')[0]}16:00:00.000Z`,
 		})),
 	},
 }));
@@ -278,7 +280,7 @@ describe('sendDayTasks', async () => {
 									id: 'cjpl8392l18r30803yy97xw21',
 									status: 'PENDING',
 									reviewer: 'USER',
-									unit: 0.5,
+									unit: 0.25,
 								},
 								{
 									name:
@@ -286,14 +288,14 @@ describe('sendDayTasks', async () => {
 									id: 'cjpl8392r18r508039nuqhuay',
 									status: 'PENDING',
 									reviewer: 'USER',
-									unit: 5,
+									unit: 0.25,
 								},
 								{
 									name: 'Validation',
 									id: 'cjpl8392t18r70803r80qc0yg',
 									status: 'PENDING',
 									reviewer: 'USER',
-									unit: 0,
+									unit: 0.25,
 								},
 							],
 						},
@@ -305,7 +307,7 @@ describe('sendDayTasks', async () => {
 									id: 'cjpl8392x18rb0803cn5ew11b',
 									status: 'PENDING',
 									reviewer: 'USER',
-									unit: 0.5,
+									unit: 0.25,
 								},
 								{
 									name: 'Moodboard',
@@ -416,6 +418,10 @@ describe('sendDayTasks', async () => {
 									}),
 									expect.objectContaining({name: 'Validation'}),
 								],
+							},
+							{
+								id: 'cjpl8392v18r908031mtt70pq',
+								items: [expect.objectContaining({name: 'Benchmark'})],
 							},
 						],
 					},
