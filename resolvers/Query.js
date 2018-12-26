@@ -96,7 +96,7 @@ const Query = {
 	},
 	item: async (root, {id, token}, ctx) => {
 		if (token) {
-			const item = await ctx.db.items({
+			const [item] = await ctx.db.items({
 				where: {
 					id,
 					section: {
@@ -116,14 +116,12 @@ const Query = {
 
 		const [item] = await ctx.db.items({
 			where: {
-				item: {
-					id,
-					section: {
-						project: {
-							customer: {
-								serviceCompany: {
-									owner: {id: userId},
-								},
+				id,
+				section: {
+					project: {
+						customer: {
+							serviceCompany: {
+								owner: {id: userId},
 							},
 						},
 					},
