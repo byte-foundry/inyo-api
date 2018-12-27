@@ -28,6 +28,7 @@ const {checkEmailAvailability} = require('./checkEmailAvailability');
 const {signup} = require('./signup');
 const {createProject} = require('./createProject');
 const {updateProject} = require('./updateProject');
+const {finishProject} = require('./finishProject');
 const {removeProject} = require('./removeProject');
 const {startProject} = require('./startProject');
 const {addItem} = require('./addItem');
@@ -205,6 +206,7 @@ const Mutation = {
 	},
 	createProject,
 	updateProject,
+	finishProject,
 	removeProject,
 	startProject,
 	createQuote: async (
