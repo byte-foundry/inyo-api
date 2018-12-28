@@ -20,6 +20,7 @@ type Query {
 }
 
 type Mutation {
+	checkEmailAvailability(email: String!): Boolean!
 	signup(
 		email: String!
 		password: String!

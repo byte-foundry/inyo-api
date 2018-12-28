@@ -24,6 +24,8 @@ const {
 const {sendResetPasswordEmail} = require('../emails/UserEmail');
 const cancelReminder = require('../reminders/cancelReminder');
 
+const {checkEmailAvailability} = require('./checkEmailAvailability');
+const {signup} = require('./signup');
 const {createProject} = require('./createProject');
 const {updateProject} = require('./updateProject');
 const {removeProject} = require('./removeProject');
@@ -40,47 +42,8 @@ const titleToCivilite = {
 };
 
 const Mutation = {
-	signup: async (
-		parent,
-		{
-			email, password, firstName, lastName, company = {}, settings = {},
-		},
-		ctx,
-	) => {
-		const hashedPassword = await hash(password, 10);
-
-		try {
-			const user = await ctx.db.createUser({
-				email,
-				password: hashedPassword,
-				firstName,
-				lastName,
-				company: {
-					create: company,
-				},
-				settings: {
-					create: settings,
-				},
-			});
-
-			sendMetric({metric: 'inyo.user.created'});
-
-			console.log(
-				`${new Date().toISOString()}: user with email ${email} created`,
-			);
-
-			return {
-				token: sign({userId: user.id}, APP_SECRET),
-				user,
-			};
-		}
-		catch (error) {
-			console.log(
-				`${new Date().toISOString()}: user with email ${email} not created with error ${error}`,
-			);
-			throw error;
-		}
-	},
+	checkEmailAvailability,
+	signup,
 	sendResetPassword: async (parent, {email}, ctx) => {
 		const user = await ctx.db.user({email});
 
