@@ -807,20 +807,11 @@ describe('sendDayTasks', async () => {
 			],
 		}));
 
-		const req = {
-			get: jest.fn(),
-			body: {
-				data: {
-					userId: 'user-id',
-				},
-			},
-		};
-		const res = {
-			status: jest.fn().mockReturnThis(),
-			send: jest.fn(),
+		const data = {
+			userId: 'user-id',
 		};
 
-		await sendDayTasks(req, res);
+		await sendDayTasks(data);
 
 		expect(sendMorningEmail).toHaveBeenCalledWith(
 			expect.objectContaining({
@@ -846,8 +837,5 @@ describe('sendDayTasks', async () => {
 				],
 			}),
 		);
-
-		expect(res.status).toHaveBeenCalledWith(200);
-		expect(res.send).toHaveBeenCalled();
 	});
 });
