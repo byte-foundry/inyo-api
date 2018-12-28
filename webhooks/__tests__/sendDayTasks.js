@@ -24,6 +24,8 @@ jest.mock('../../generated/prisma-client', () => ({
 			lastName: 'Michel',
 			email: 'jeanmichel@test.com',
 			workingDays: ['TUESDAY'],
+			startWorkAt: `${new Date().toJSON().split('T')[0]}08:00:00.000Z`,
+			endWorkAt: `${new Date().toJSON().split('T')[0]}16:00:00.000Z`,
 		})),
 	},
 }));
@@ -196,22 +198,37 @@ describe('sendDayTasks', async () => {
 				user: 'Jean Michel',
 				projects: [
 					{
-						id: 'project-2',
-						name: 'Art Museum Website',
-						deadline: '2142-11-02T12:00:00.000Z',
+						id: 'project-3',
+						name: 'Shortest deadline logo',
+						deadline: '2032-11-02T12:00:00.000Z',
 						sections: [
 							{
-								id: 'p2-section-1',
+								id: 'p3-section-1',
 								items: [
 									expect.objectContaining({
-										id: 'p2-s1-item-1',
-										name: 'Create the website',
-										unit: 5,
+										id: 'p3-s1-item-1',
+										name: 'Research on identity',
+										unit: 2,
 										reviewer: 'USER',
 										status: 'PENDING',
-										sectionId: 'p2-section-1',
-										projectId: 'project-2',
-										url: '/projects/project-2/see#p2-s1-item-1',
+										sectionId: 'p3-section-1',
+										projectId: 'project-3',
+										url: '/projects/project-3/see#p3-s1-item-1',
+									}),
+								],
+							},
+							{
+								id: 'p3-section-2',
+								items: [
+									expect.objectContaining({
+										id: 'p3-s2-item-1',
+										name: 'Drawing the logo',
+										projectId: 'project-3',
+										reviewer: 'USER',
+										sectionId: 'p3-section-2',
+										status: 'PENDING',
+										unit: 2,
+										url: '/projects/project-3/see#p3-s2-item-1',
 									}),
 								],
 							},
@@ -234,43 +251,6 @@ describe('sendDayTasks', async () => {
 										sectionId: 'p4-section-1',
 										projectId: 'project-4',
 										url: '/projects/project-4/see#p4-s1-item-1',
-									}),
-								],
-							},
-							{
-								id: 'p4-section-2',
-								items: [
-									expect.objectContaining({
-										id: 'p4-s2-item-1',
-										name: 'Publishing',
-										unit: 1,
-										reviewer: 'USER',
-										status: 'PENDING',
-										sectionId: 'p4-section-2',
-										projectId: 'project-4',
-										url: '/projects/project-4/see#p4-s2-item-1',
-									}),
-								],
-							},
-						],
-					},
-					{
-						id: 'project-3',
-						name: 'Shortest deadline logo',
-						deadline: '2032-11-02T12:00:00.000Z',
-						sections: [
-							{
-								id: 'p3-section-1',
-								items: [
-									expect.objectContaining({
-										id: 'p3-s1-item-1',
-										name: 'Research on identity',
-										unit: 2,
-										reviewer: 'USER',
-										status: 'PENDING',
-										sectionId: 'p3-section-1',
-										projectId: 'project-3',
-										url: '/projects/project-3/see#p3-s1-item-1',
 									}),
 								],
 							},
@@ -300,7 +280,7 @@ describe('sendDayTasks', async () => {
 									id: 'cjpl8392l18r30803yy97xw21',
 									status: 'PENDING',
 									reviewer: 'USER',
-									unit: 0.5,
+									unit: 0.25,
 								},
 								{
 									name:
@@ -308,14 +288,14 @@ describe('sendDayTasks', async () => {
 									id: 'cjpl8392r18r508039nuqhuay',
 									status: 'PENDING',
 									reviewer: 'USER',
-									unit: 5,
+									unit: 0.25,
 								},
 								{
 									name: 'Validation',
 									id: 'cjpl8392t18r70803r80qc0yg',
 									status: 'PENDING',
 									reviewer: 'USER',
-									unit: 0,
+									unit: 0.25,
 								},
 							],
 						},
@@ -327,7 +307,7 @@ describe('sendDayTasks', async () => {
 									id: 'cjpl8392x18rb0803cn5ew11b',
 									status: 'PENDING',
 									reviewer: 'USER',
-									unit: 0.5,
+									unit: 0.25,
 								},
 								{
 									name: 'Moodboard',
@@ -441,13 +421,7 @@ describe('sendDayTasks', async () => {
 							},
 							{
 								id: 'cjpl8392v18r908031mtt70pq',
-								items: [
-									expect.objectContaining({name: 'Benchmark'}),
-									expect.objectContaining({name: 'Moodboard'}),
-									expect.objectContaining({
-										name: 'Création de 3 axes créatifs',
-									}),
-								],
+								items: [expect.objectContaining({name: 'Benchmark'})],
 							},
 						],
 					},
@@ -731,7 +705,7 @@ describe('sendDayTasks', async () => {
 			send: jest.fn(),
 		};
 
-		moment.mockImplementation(() => ({
+		moment.mockImplementationOnce(() => ({
 			tz: jest.fn().mockReturnThis(),
 			day: jest.fn(() => 0), // SUNDAY
 		}));
@@ -739,6 +713,205 @@ describe('sendDayTasks', async () => {
 		await sendDayTasks(req, res);
 
 		expect(sendMorningEmail).not.toHaveBeenCalled();
+
+		expect(res.status).toHaveBeenCalledWith(200);
+		expect(res.send).toHaveBeenCalled();
+	});
+
+	it('should prioritize short deadlines', async () => {
+		const shortDeadline = new Date();
+		const longDeadline = new Date();
+
+		shortDeadline.setMonth(shortDeadline.getMonth() + 1);
+		longDeadline.setMonth(longDeadline.getMonth() + 3);
+
+		prisma.projects.mockImplementation(() => ({
+			$fragment: () => [
+				{
+					id: 'cjpl8391z18r00803319xcgnt',
+					name: 'fghjkl',
+					deadline: longDeadline.toJSON(),
+					sections: [
+						{
+							id: 'cjpl8392v18r908031mtt70pq',
+							items: [
+								{
+									name: 'Benchmark',
+									id: 'cjpl8392x18rb0803cn5ew11b',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.5,
+								},
+								{
+									name: 'Moodboard',
+									id: 'cjpl8392z18rd0803e0s2p3pf',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.75,
+								},
+								{
+									name: 'Création de 3 axes créatifs',
+									id: 'cjpl8393018rf08037azffzga',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 2.5,
+								},
+								{
+									name: "Mise au point de l'axe retenu",
+									id: 'cjpl8393218rh0803pyozho36',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 1,
+								},
+								{
+									name: 'Déclinaisons du logo en couleur et en noir & blanc ',
+									id: 'cjpl8393318rj0803srusw6lb',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.25,
+								},
+								{
+									name:
+										'Préparation des fichiers aux formats nécessaires pour une utilisation Print et Web',
+									id: 'cjpl8393418rl0803726p2nw2',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.25,
+								},
+							],
+						},
+						{
+							id: 'cjpl8393518rn0803givdfi0x',
+							items: [
+								{
+									name: 'Gestion et suivi de projet',
+									id: 'cjpl8393618rp0803yihth4rl',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 2,
+								},
+								{
+									name: 'Cession des droits',
+									id: 'cjpl8393818rr0803dwrb80mb',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.25,
+								},
+								{
+									name: 'Achat typographique',
+									id: 'cjpl8393a18rt0803v6bkrdl4',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.25,
+								},
+								{
+									name: 'Conception charte graphique utilisation logo',
+									id: 'cjpl8393c18rv0803goc76hvx',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 1,
+								},
+							],
+						},
+					],
+				},
+				{
+					id: 'cjpl84um718u00803u2htp47l',
+					name: 'hjkl',
+					deadline: shortDeadline.toJSON(),
+					sections: [
+						{
+							id: 'cjpl84umi18u90803w8mp1e90',
+							items: [
+								{
+									name: 'Benchmark',
+									id: 'cjpl84umj18ub08038o372jwy',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.5,
+								},
+								{
+									name: 'Moodboard',
+									id: 'cjpl84umk18ud0803xqjju7kx',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.75,
+								},
+								{
+									name: 'Création de 3 axes créatifs',
+									id: 'cjpl84uml18uf0803ea7ht0en',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 2.5,
+								},
+								{
+									name: "Mise au point de l'axe retenu",
+									id: 'cjpl84umm18uh0803cp2axz0b',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 1,
+								},
+								{
+									name: 'Déclinaisons du logo en couleur et en noir & blanc ',
+									id: 'cjpl84umn18uj0803u0sfhtkq',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.25,
+								},
+								{
+									name:
+										'Préparation des fichiers aux formats nécessaires pour une utilisation Print et Web',
+									id: 'cjpl84ump18ul08034x87gwz2',
+									status: 'PENDING',
+									reviewer: 'USER',
+									unit: 0.25,
+								},
+							],
+						},
+					],
+				},
+			],
+		}));
+
+		const req = {
+			get: jest.fn(),
+			body: {
+				data: {
+					userId: 'user-id',
+				},
+			},
+		};
+		const res = {
+			status: jest.fn().mockReturnThis(),
+			send: jest.fn(),
+		};
+
+		await sendDayTasks(req, res);
+
+		expect(sendMorningEmail).toHaveBeenCalledWith(
+			expect.objectContaining({
+				projects: [
+					expect.objectContaining({
+						name: 'hjkl',
+						sections: [
+							expect.objectContaining({
+								items: [
+									expect.objectContaining({
+										name: 'Benchmark',
+									}),
+									expect.objectContaining({
+										name: 'Moodboard',
+									}),
+									expect.objectContaining({
+										name: 'Création de 3 axes créatifs',
+									}),
+								],
+							}),
+						],
+					}),
+				],
+			}),
+		);
 
 		expect(res.status).toHaveBeenCalledWith(200);
 		expect(res.send).toHaveBeenCalled();
