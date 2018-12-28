@@ -241,7 +241,7 @@ type User {
 	password: String!
 	firstName: String!
 	lastName: String!
-	company: Company! @relation(name: "CompanyOwner")
+	company: Company! @relation(name: "CompanyOwner", onDelete: CASCADE)
 	startWorkAt: DateTime
 	endWorkAt: DateTime
 	workingDays: [DAY!]!
