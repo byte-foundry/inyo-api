@@ -2,6 +2,8 @@ const {NotFoundError} = require('../errors');
 const {sendMetric} = require('../stats');
 const {getUserId} = require('../utils');
 
+const {items} = require('./items');
+
 const Query = {
 	me: (root, args, ctx) => ctx.db.user({id: getUserId(ctx)}),
 	customer: (root, {id}, ctx) => ctx.db
@@ -91,6 +93,47 @@ const Query = {
 		}
 
 		return quote;
+	},
+	item: async (root, {id, token}, ctx) => {
+		if (token) {
+			const [item] = await ctx.db.items({
+				where: {
+					id,
+					section: {
+						project: {token},
+					},
+				},
+			});
+
+			if (!item) {
+				throw new NotFoundError(`Item '${id}' has not been found`);
+			}
+
+			return item;
+		}
+
+		const userId = getUserId(ctx);
+
+		const [item] = await ctx.db.items({
+			where: {
+				id,
+				section: {
+					project: {
+						customer: {
+							serviceCompany: {
+								owner: {id: userId},
+							},
+						},
+					},
+				},
+			},
+		});
+
+		if (!item) {
+			throw new NotFoundError(`Item '${id}' has not been found`);
+		}
+
+		return item;
 	},
 	itemComments: async (root, {itemId, token}, ctx) => {
 		if (token) {
@@ -201,6 +244,7 @@ const Query = {
 			},
 		},
 	}),
+	items,
 };
 
 module.exports = {

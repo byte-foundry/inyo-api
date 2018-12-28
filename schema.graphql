@@ -14,9 +14,13 @@ type Query {
 	quote(id: ID!, token: String): Quote
 		@deprecated(reason: "Quotes are not used anymore.")
 	project(id: ID!, token: String): Project
+	item(id: ID!, token: String): Item
 	itemComments(itemId: ID!, token: String): [Comment!]!
+		@deprecated(reason: "Prefer using item query directly.")
 	# Get user's reminders
 	reminders: [Reminder!]!
+	# Get active items sorted by priority
+	items: [Item!]!
 }
 
 type Mutation {
@@ -68,6 +72,8 @@ type Mutation {
 	): Project!
 	# Update project
 	updateProject(id: ID!, name: String!, deadline: DateTime): Project
+	# Finish project
+	finishProject(id: ID!): Project!
 	# Remove project
 	removeProject(id: ID!): Project
 
@@ -131,6 +137,10 @@ type Mutation {
 	updateValidatedItem(id: ID!, unit: Float!, comment: CommentInput!): Item
 	# Remove an item
 	removeItem(id: ID!): Item
+	# Snooze an item
+	snoozeItem(id: ID!, until: DateTime, during: Int): Item
+	# Unsnooze an item
+	unsnoozeItem(id: ID!): Item
 	# Finish an item
 	finishItem(id: ID!, token: String): Item
 	# Reset an item (going back to pending)
@@ -285,7 +295,10 @@ enum QuoteTemplate {
 
 enum ItemStatus {
 	PENDING
+	SNOOZED
 	FINISHED
+
+	# deprecated statuses
 	UPDATED
 	UPDATED_SENT
 	ADDED
@@ -364,6 +377,7 @@ type Item {
 	# when unit has been changed but not yet validated
 	pendingUnit: Float
 	unit: Float
+	section: Section!
 	comments: [Comment!]!
 	vatRate: Int!
 	status: ItemStatus!
@@ -375,6 +389,8 @@ type Section {
 	id: ID!
 	name: String!
 	items: [Item!]!
+	# Project the section belongs to, can be null because of quotes
+	project: Project
 }
 
 type Option {

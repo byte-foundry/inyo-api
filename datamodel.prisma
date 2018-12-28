@@ -61,7 +61,10 @@ enum ProjectTemplate {
 
 enum ItemStatus {
 	PENDING
+	SNOOZED
 	FINISHED
+
+	# deprecated statuses
 	UPDATED
 	UPDATED_SENT
 	ADDED
@@ -91,6 +94,9 @@ enum ReminderType {
 	MORNING_TASKS
 	# Evening email with what happened during the day
 	EVENING_RECAP
+
+	# End of a snooze period
+	SNOOZE_END
 }
 
 enum ReminderStatus {
@@ -156,6 +162,7 @@ type Item {
 	section: Section! @relation(name: "SectionItems")
 	reviewer: Reviewer! @default(value: USER)
 	reminders: [Reminder!]! @relation(name: "ItemReminders", onDelete: CASCADE)
+	snoozedUntil: Reminder @relation(name: "SnoozeReminders", onDelete: CASCADE)
 }
 
 type Section {
@@ -268,6 +275,7 @@ type Reminder {
 	item: Item @relation(name: "ItemReminders")
 	morningRemindersUser: User @relation(name: "UserMorningReminders")
 	eveningRemindersUser: User @relation(name: "UserEveningReminders")
+	snoozedItem: Item @relation(name: "SnoozeReminders")
 	postHookId: String!
 	type: ReminderType!
 	sendingDate: DateTime!
