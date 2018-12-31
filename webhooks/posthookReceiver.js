@@ -16,15 +16,18 @@ const posthookReceiver = async (req, res) => {
 		res.status(400).send();
 	}
 
+	const [reminder] = await prisma.reminders({
+		where: {
+			postHookId: req.body.id,
+		},
+	});
+
+	if (!reminder) {
+		res.status(400).send();
+		throw new Error('Not found reminder', req.body);
+	}
+
 	try {
-		const reminder = await prisma.reminder({
-			posthookId: req.body.id,
-		});
-
-		if (!reminder) {
-			throw new Error('Not found reminder', req.body);
-		}
-
 		if (reminder.status === 'CANCELED') {
 			console.log(`Reminder '${reminder.id}' has been canceled, ignoring`);
 			return;
@@ -51,22 +54,24 @@ const posthookReceiver = async (req, res) => {
 		await callback(req.body.data);
 
 		await prisma.updateReminder({
-			where: {posthookId: req.body.id},
-			data: {status: 'SUCCESS'},
+			where: {id: reminder.id},
+			data: {status: 'SENT'},
 		});
 
 		res.status(200).send();
+
+		return;
 	}
 	catch (err) {
 		console.error('Posthook webhook failed', err);
 
 		await prisma.updateReminder({
-			where: {posthookId: req.body.id},
-			data: {status: 'ERRORED'},
+			where: {id: reminder.id},
+			data: {status: 'ERROR'},
 		});
-
-		res.status(400).send();
 	}
+
+	res.status(400).send();
 };
 
 module.exports = {

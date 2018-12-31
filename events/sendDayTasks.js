@@ -213,6 +213,7 @@ const sendDayTasks = async ({userId}) => {
 		email: user.email,
 		user: `${user.firstName} ${user.lastName}`.trim(),
 		projects: selectedProjects,
+		accountUrl: getAppUrl('/account#settings'),
 	});
 
 	console.log(`Sent day tasks to User '${user.email}'`);

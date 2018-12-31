@@ -36,7 +36,7 @@ const server = new GraphQLServer({
 
 server.express.post('/schedule-daily-mails', scheduleDailyMails);
 
-server.express.post('/posthook-receiver', posthookReceiver);
+server.express.post('/posthook-receiver', bodyParser.json(), posthookReceiver);
 
 server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
 	const hmac = crypto.createHmac('sha256', process.env.POSTHOOK_SIGNATURE);
