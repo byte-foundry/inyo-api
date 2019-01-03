@@ -14,6 +14,7 @@ const updateItem = async (
 	{
 		id,
 		name,
+		type,
 		description,
 		unitPrice,
 		unit,
@@ -96,10 +97,11 @@ const updateItem = async (
 			where: {id},
 			data: {
 				name,
+				type,
 				description,
 				unit,
 				status: 'PENDING',
-				reviewer,
+				reviewer: type === 'CONTENT_ACQUISITION' ? 'CUSTOMER' : reviewer,
 				comments: {
 					create: comment && {
 						text: comment.text,

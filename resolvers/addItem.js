@@ -6,7 +6,7 @@ const {NotFoundError} = require('../errors');
 const addItem = async (
 	parent,
 	{
-		sectionId, name, description, unitPrice, unit, vatRate, reviewer,
+		sectionId, name, type, description, unitPrice, unit, vatRate, reviewer,
 	},
 	ctx,
 ) => {
@@ -72,8 +72,9 @@ const addItem = async (
 		return ctx.db.createItem({
 			section: {connect: {id: sectionId}},
 			name,
+			type,
 			status: 'PENDING',
-			reviewer,
+			reviewer: type === 'CONTENT_ACQUISITION' ? 'CUSTOMER' : reviewer,
 			description,
 			unit,
 		});

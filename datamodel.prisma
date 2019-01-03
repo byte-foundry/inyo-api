@@ -148,9 +148,15 @@ type Comment {
 	createdAt: DateTime!
 }
 
+enum ItemType {
+	DEFAULT
+	CONTENT_ACQUISITION
+}
+
 type Item {
 	id: ID! @unique
 	name: String!
+	type: ItemType! @default(value: DEFAULT)
 	description: String @default(value: "")
 	unitPrice: Int @default(value: 0)
 	# when unit has been changed but not yet validated

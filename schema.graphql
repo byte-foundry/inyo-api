@@ -115,6 +115,7 @@ type Mutation {
 	addItem(
 		sectionId: ID!
 		name: String!
+		type: ItemType
 		description: String
 		unitPrice: Int
 		unit: Float
@@ -125,6 +126,7 @@ type Mutation {
 	updateItem(
 		id: ID!
 		name: String
+		type: ItemType
 		description: String
 		unitPrice: Int
 		unit: Float
@@ -369,9 +371,15 @@ type Comment {
 	createdAt: DateTime!
 }
 
+enum ItemType {
+	DEFAULT
+	CONTENT_ACQUISITION
+}
+
 type Item {
 	id: ID!
 	name: String!
+	type: ItemType!
 	description: String
 	unitPrice: Int!
 	# when unit has been changed but not yet validated
