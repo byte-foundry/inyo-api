@@ -251,6 +251,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 							items {
 								id
 								name
+								type
 								description
 								reviewer
 							}
@@ -299,7 +300,9 @@ const finishItem = async (parent, {id, token}, ctx) => {
 				await sendItemContentAcquisitionEmail({
 					...basicInfo,
 					nextItemName: nextItem.name,
-					nextItemDescription: nextItem.description,
+					nextItemDescription: nextItem.description
+						.split(/# content-acquisition-list[\s\S]+/)
+						.join(''),
 				});
 			}
 			else if (nextItem && nextItem.reviewer === 'CUSTOMER') {
