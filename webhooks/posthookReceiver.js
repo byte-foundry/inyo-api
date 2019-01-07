@@ -30,11 +30,13 @@ const posthookReceiver = async (req, res) => {
 	try {
 		if (reminder.status === 'CANCELED') {
 			console.log(`Reminder '${reminder.id}' has been canceled, ignoring`);
+			res.status(200).send();
 			return;
 		}
 
 		if (reminder.status === 'SENT') {
-			console.log(`Reminder '${reminder.id}' has been sent, ignoring`);
+			console.log(`Reminder '${reminder.id}' has already been sent, ignoring`);
+			res.status(200).send();
 			return;
 		}
 
