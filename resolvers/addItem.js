@@ -74,7 +74,7 @@ const addItem = async (
 			name,
 			type,
 			status: 'PENDING',
-			reviewer: type === 'CONTENT_ACQUISITION' ? 'CUSTOMER' : reviewer,
+			reviewer,
 			description,
 			unit,
 		});

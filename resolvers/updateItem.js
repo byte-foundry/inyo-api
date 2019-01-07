@@ -101,7 +101,7 @@ const updateItem = async (
 				description,
 				unit,
 				status: 'PENDING',
-				reviewer: type === 'CONTENT_ACQUISITION' ? 'CUSTOMER' : reviewer,
+				reviewer,
 				comments: {
 					create: comment && {
 						text: comment.text,
