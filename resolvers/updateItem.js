@@ -14,6 +14,7 @@ const updateItem = async (
 	{
 		id,
 		name,
+		type,
 		description,
 		unitPrice,
 		unit,
@@ -96,6 +97,7 @@ const updateItem = async (
 			where: {id},
 			data: {
 				name,
+				type,
 				description,
 				unit,
 				status: 'PENDING',

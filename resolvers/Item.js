@@ -1,6 +1,7 @@
 const Item = {
 	id: node => node.id,
 	name: node => node.name,
+	type: node => node.type,
 	unitPrice: node => node.unitPrice,
 	pendingUnit: node => node.pendingUnit,
 	unit: node => node.unit,

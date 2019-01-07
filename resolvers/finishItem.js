@@ -8,6 +8,7 @@ const {
 	sendTaskValidationEmail,
 	sendTaskValidationWaitCustomerEmail,
 	setupItemReminderEmail,
+	sendItemContentAcquisitionEmail,
 } = require('../emails/TaskEmail');
 const cancelReminder = require('../reminders/cancelReminder');
 
@@ -250,6 +251,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 							items {
 								id
 								name
+								type
 								description
 								reviewer
 							}
@@ -294,7 +296,16 @@ const finishItem = async (parent, {id, token}, ctx) => {
 		};
 
 		try {
-			if (nextItem && nextItem.reviewer === 'CUSTOMER') {
+			if (nextItem && nextItem.type === 'CONTENT_ACQUISITION') {
+				await sendItemContentAcquisitionEmail({
+					...basicInfo,
+					nextItemName: nextItem.name,
+					nextItemDescription: nextItem.description
+						.split(/# content-acquisition-list[\s\S]+/)
+						.join(''),
+				});
+			}
+			else if (nextItem && nextItem.reviewer === 'CUSTOMER') {
 				await setupItemReminderEmail(
 					{
 						...basicInfo,
