@@ -209,6 +209,11 @@ const sendDayTasks = async ({userId}) => {
 		});
 	});
 
+	if (selectedProjects.length <= 0) {
+		console.log(`User '${user.email}' had no day tasks, aborting.`);
+		return;
+	}
+
 	await sendMorningEmail({
 		email: user.email,
 		user: `${user.firstName} ${user.lastName}`.trim(),
