@@ -125,6 +125,7 @@ type Mutation {
 	# Update item properties
 	updateItem(
 		id: ID!
+		token: String
 		name: String
 		type: ItemType
 		description: String
