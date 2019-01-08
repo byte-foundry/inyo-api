@@ -135,7 +135,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 
 		const {project} = item.section;
 
-		if (project.status === 'FINISHED' || item.status !== 'PENDING') {
+		if (project.status !== 'ONGOING' || item.status !== 'PENDING') {
 			throw new Error(`Item '${id}' cannot be finished.`);
 		}
 
@@ -225,7 +225,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 			throw new Error('This item cannot be finished by the user.');
 		}
 
-		if (project.status === 'FINISHED' || item.status !== 'PENDING') {
+		if (project.status !== 'ONGOING' || item.status !== 'PENDING') {
 			throw new Error(`Item '${id}' cannot be finished.`);
 		}
 
