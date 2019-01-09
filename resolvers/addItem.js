@@ -84,6 +84,9 @@ const addItem = async (
 		// default position: end of the list
 		let position = section.items[section.items.length - 1].position + 1;
 
+		// prevent any position error (if all are 0, we still want the right number)
+		position = position < section.item.length ? section.item.length : position;
+
 		if (wantedPosition) {
 			const wantedPositionItemIndex = section.items.findIndex(
 				item => item.position === wantedPosition,
@@ -92,10 +95,11 @@ const addItem = async (
 			if (wantedPositionItemIndex !== -1) {
 				position = wantedPosition;
 
-				// updating all the positions
+				// updating all the positions from the item position
 				await Promise.all(
-					section.items.slice(position).map(item => ctx.db.updateItem({
-						id: item.id,
+					section.items.slice(position).map((item, index) => ctx.db.updateItem({
+						where: {id: item.id},
+						data: {position: position + index + 1},
 					})),
 				);
 			}
