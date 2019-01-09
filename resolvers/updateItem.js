@@ -14,6 +14,7 @@ const updateItem = async (
 	{
 		id,
 		name,
+		type,
 		description,
 		unitPrice,
 		unit,
@@ -21,9 +22,38 @@ const updateItem = async (
 		reviewer,
 		comment,
 		notifyCustomer = true,
+		token,
 	},
 	ctx,
 ) => {
+	if (token) {
+		const [item] = await ctx.db.items({
+			where: {
+				id,
+				section: {
+					project: {
+						token,
+					},
+				},
+			},
+		});
+
+		if (!item) {
+			throw new NotFoundError(`Item '${id}' has not been found.`);
+		}
+
+		// TODO: additional check
+
+		if (!description) {
+			throw new Error('A customer can only update files.');
+		}
+
+		return ctx.db.updateItem({
+			where: {id},
+			data: {description},
+		});
+	}
+
 	const user = await ctx.db.user({id: getUserId(ctx)});
 	const [item] = await ctx.db.items({
 		where: {
@@ -96,6 +126,7 @@ const updateItem = async (
 			where: {id},
 			data: {
 				name,
+				type,
 				description,
 				unit,
 				status: 'PENDING',

@@ -8,6 +8,7 @@ const {
 	sendTaskValidationEmail,
 	sendTaskValidationWaitCustomerEmail,
 	setupItemReminderEmail,
+	sendItemContentAcquisitionEmail,
 } = require('../emails/TaskEmail');
 const cancelReminder = require('../reminders/cancelReminder');
 
@@ -134,7 +135,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 
 		const {project} = item.section;
 
-		if (project.status === 'FINISHED' || item.status !== 'PENDING') {
+		if (project.status !== 'ONGOING' || item.status !== 'PENDING') {
 			throw new Error(`Item '${id}' cannot be finished.`);
 		}
 
@@ -156,7 +157,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 							.reduce((acc, item) => acc + item.unit, 0),
 					}))
 					.filter(section => section.timeLeft > 0),
-				url: getAppUrl(`/projects/${project.id}/view/${project.token}`),
+				url: getAppUrl(`/projects/${project.id}/see`),
 			});
 			console.log(`Task validation email sent to ${user.email}`);
 		}
@@ -224,7 +225,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 			throw new Error('This item cannot be finished by the user.');
 		}
 
-		if (project.status === 'FINISHED' || item.status !== 'PENDING') {
+		if (project.status !== 'ONGOING' || item.status !== 'PENDING') {
 			throw new Error(`Item '${id}' cannot be finished.`);
 		}
 
@@ -250,6 +251,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 							items {
 								id
 								name
+								type
 								description
 								reviewer
 							}
@@ -294,7 +296,16 @@ const finishItem = async (parent, {id, token}, ctx) => {
 		};
 
 		try {
-			if (nextItem && nextItem.reviewer === 'CUSTOMER') {
+			if (nextItem && nextItem.type === 'CONTENT_ACQUISITION') {
+				await sendItemContentAcquisitionEmail({
+					...basicInfo,
+					nextItemName: nextItem.name,
+					nextItemDescription: nextItem.description
+						.split(/# content-acquisition-list[\s\S]+/)
+						.join(''),
+				});
+			}
+			else if (nextItem && nextItem.reviewer === 'CUSTOMER') {
 				await setupItemReminderEmail(
 					{
 						...basicInfo,

@@ -18,8 +18,15 @@ class NotFoundError extends ApolloError {
 	}
 }
 
+class AlreadyExistingError extends ApolloError {
+	constructor(message = 'Already existing data') {
+		super(message, 'AlreadyExisting');
+	}
+}
+
 module.exports = {
 	AuthError,
 	InsufficientDataError,
 	NotFoundError,
+	AlreadyExistingError,
 };

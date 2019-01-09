@@ -51,6 +51,14 @@ async function sendItemUpdatedEmail({email, ...data}) {
 	});
 }
 
+async function sendItemContentAcquisitionEmail({email, ...data}) {
+	return sendEmail({
+		email: 'edwige@inyo.me',
+		data,
+		templateId: 'd-1b94796059eb45d49fbafafa101f5ddd',
+	});
+}
+
 async function setupItemReminderEmail(
 	{
 		email,
@@ -160,5 +168,6 @@ module.exports = {
 	sendTaskValidationEmail,
 	sendTaskValidationWaitCustomerEmail,
 	sendItemUpdatedEmail,
+	sendItemContentAcquisitionEmail,
 	setupItemReminderEmail,
 };

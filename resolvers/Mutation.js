@@ -24,12 +24,17 @@ const {
 const {sendResetPasswordEmail} = require('../emails/UserEmail');
 const cancelReminder = require('../reminders/cancelReminder');
 
+const {checkEmailAvailability} = require('./checkEmailAvailability');
+const {signup} = require('./signup');
 const {createProject} = require('./createProject');
 const {updateProject} = require('./updateProject');
+const {finishProject} = require('./finishProject');
 const {removeProject} = require('./removeProject');
 const {startProject} = require('./startProject');
 const {addItem} = require('./addItem');
 const {updateItem} = require('./updateItem');
+const {snoozeItem} = require('./snoozeItem');
+const {unsnoozeItem} = require('./unsnoozeItem');
 const {finishItem} = require('./finishItem');
 const {unfinishItem} = require('./unfinishItem');
 const {postComment} = require('./postComment');
@@ -40,47 +45,8 @@ const titleToCivilite = {
 };
 
 const Mutation = {
-	signup: async (
-		parent,
-		{
-			email, password, firstName, lastName, company = {}, settings = {},
-		},
-		ctx,
-	) => {
-		const hashedPassword = await hash(password, 10);
-
-		try {
-			const user = await ctx.db.createUser({
-				email,
-				password: hashedPassword,
-				firstName,
-				lastName,
-				company: {
-					create: company,
-				},
-				settings: {
-					create: settings,
-				},
-			});
-
-			sendMetric({metric: 'inyo.user.created'});
-
-			console.log(
-				`${new Date().toISOString()}: user with email ${email} created`,
-			);
-
-			return {
-				token: sign({userId: user.id}, APP_SECRET),
-				user,
-			};
-		}
-		catch (error) {
-			console.log(
-				`${new Date().toISOString()}: user with email ${email} not created with error ${error}`,
-			);
-			throw error;
-		}
-	},
+	checkEmailAvailability,
+	signup,
 	sendResetPassword: async (parent, {email}, ctx) => {
 		const user = await ctx.db.user({email});
 
@@ -240,6 +206,7 @@ const Mutation = {
 	},
 	createProject,
 	updateProject,
+	finishProject,
 	removeProject,
 	startProject,
 	createQuote: async (
@@ -730,6 +697,8 @@ const Mutation = {
 			},
 		});
 	},
+	snoozeItem,
+	unsnoozeItem,
 	finishItem,
 	unfinishItem,
 	sendAmendment: async (parent, {quoteId}, ctx) => {

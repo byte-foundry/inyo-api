@@ -1,4 +1,3 @@
-const crypto = require('crypto');
 const moment = require('moment-timezone');
 
 const gql = String.raw;
@@ -17,19 +16,8 @@ const weekDays = {
 	0: 'SUNDAY',
 };
 
-const sendDayTasks = async (req, res) => {
-	const hmac = crypto.createHmac('sha256', process.env.POSTHOOK_SIGNATURE);
-
-	// look for X-Ph-Signature in ctx
-	hmac.update(JSON.stringify(req.body));
-
-	const hmacSignature = hmac.digest('hex');
-
-	if (hmacSignature !== req.get('x-ph-signature')) {
-		throw new Error('The signature has not been verified.');
-	}
-
-	const user = await prisma.user({id: req.body.data.userId});
+const sendDayTasks = async ({userId}) => {
+	const user = await prisma.user({id: userId});
 
 	const dayNumber = moment()
 		.tz(user.timeZone || 'Europe/Paris')
@@ -42,7 +30,6 @@ const sendDayTasks = async (req, res) => {
 				user.email
 			} on a day off. Is scheduling function wrong?`,
 		);
-		res.status(200).send();
 		return;
 	}
 
@@ -51,7 +38,7 @@ const sendDayTasks = async (req, res) => {
 			customer: {
 				serviceCompany: {
 					owner: {
-						id: req.body.data.userId,
+						id: userId,
 					},
 				},
 			},
@@ -96,6 +83,24 @@ const sendDayTasks = async (req, res) => {
 		return false;
 	});
 
+	let userWorkingTime;
+
+	if (user.startWorkAt && user.endWorkAt) {
+		const startWorkAt = new Date(
+			`1970-01-01T${user.startWorkAt.split('T')[1]}`,
+		);
+		const endWorkAt = new Date(`1970-01-01T${user.endWorkAt.split('T')[1]}`);
+
+		if (endWorkAt > startWorkAt) {
+			userWorkingTime = (endWorkAt - startWorkAt) / 1000 / 60 / 60;
+		}
+		else {
+			userWorkingTime = 24 - (startWorkAt - endWorkAt) / 1000 / 60 / 60;
+		}
+	}
+
+	userWorkingTime = userWorkingTime || 8; // default working time
+
 	// applying a score to each item
 	const projectItemsByScore = projectsTheUserCanWorkOn
 		.reduce((itemsList, project) => {
@@ -127,38 +132,26 @@ const sendDayTasks = async (req, res) => {
 			// adding the score (was easier that way)
 			return itemsList.concat(
 				items.map((item, index) => {
-					const hoursLeft = items
-						.slice(0, index)
+					const timeLeft = items
+						.slice(index)
 						.reduce((sum, {unit}) => sum + unit, 0);
 
 					return {
 						...item,
-						score: hoursUntilDeadline - hoursLeft,
+						// litteral 24h time until deadline - hours the user has plan to work on those tasks
+						score: hoursUntilDeadline - timeLeft * userWorkingTime,
 					};
 				}),
 			);
 		}, [])
-		.sort((a, b) => b.score - a.score);
+		.sort((a, b) => a.score - b.score);
 
 	// selecting which items to send (according to the number of hours the user is going to work)
 	const selectedItems = projectItemsByScore.splice(0, 3);
 
-	let userWorkingTime = 8; // default working time
-
-	if (user.startWorkAt && user.endWorkAt) {
-		const startWorkAt = new Date(`1970-01-01T${user.startWorkAt}`);
-		const endWorkAt = new Date(`1970-01-01T${user.endWorkAt}`);
-
-		if (endWorkAt > startWorkAt) {
-			userWorkingTime = (endWorkAt - startWorkAt) / 1000 / 60 / 60;
-		}
-		else {
-			userWorkingTime = 24 - (startWorkAt - endWorkAt) / 1000 / 60 / 60;
-		}
-	}
-
 	while (
-		selectedItems.reduce((sum, {unit}) => sum + unit, 0) < userWorkingTime
+		selectedItems.reduce((sum, {unit}) => sum + unit, 0) * userWorkingTime
+			< userWorkingTime
 		&& selectedItems.length < 8
 		&& projectItemsByScore.length
 	) {
@@ -216,15 +209,19 @@ const sendDayTasks = async (req, res) => {
 		});
 	});
 
-	sendMorningEmail({
+	if (selectedProjects.length <= 0) {
+		console.log(`User '${user.email}' had no day tasks, aborting.`);
+		return;
+	}
+
+	await sendMorningEmail({
 		email: user.email,
 		user: `${user.firstName} ${user.lastName}`.trim(),
 		projects: selectedProjects,
+		accountUrl: getAppUrl('/account#settings'),
 	});
 
 	console.log(`Sent day tasks to User '${user.email}'`);
-
-	res.status(200).send();
 };
 
 module.exports = {

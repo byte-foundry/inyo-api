@@ -5,35 +5,6 @@ jest.mock('../../stats');
 jest.mock('../../emails/QuoteEmail');
 
 describe('Mutation', () => {
-	it('should create a simple user account', async () => {
-		const args = {
-			firstName: 'Jean',
-			lastName: 'Michel',
-			email: 'jeanmichel@test.test',
-			password: 'password',
-		};
-
-		const ctx = {
-			db: {
-				createUser: jest.fn().mockReturnValue({
-					id: 'user-id',
-					firstName: 'Jean',
-					lastName: 'Michel',
-					email: 'jeanmichel@test.test',
-				}),
-			},
-		};
-
-		const result = await Mutation.signup({}, args, ctx);
-
-		expect(result).toMatchObject({
-			token: expect.any(String),
-			user: expect.objectContaining({
-				id: 'user-id',
-			}),
-		});
-	});
-
 	it('should send quote', async () => {
 		const args = {
 			id: 'quote-id',

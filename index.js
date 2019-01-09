@@ -6,7 +6,7 @@ const {DeprecatedDirective} = require('graphql-directive-deprecated');
 
 const {prisma} = require('./generated/prisma-client');
 const {resolvers} = require('./resolvers');
-const {sendDayTasks} = require('./webhooks/sendDayTasks');
+const {posthookReceiver} = require('./webhooks/posthookReceiver');
 const {scheduleDailyMails} = require('./webhooks/scheduleDailyMails');
 const sendEmail = require('./emails/SendEmail');
 
@@ -35,8 +35,8 @@ const server = new GraphQLServer({
 });
 
 server.express.post('/schedule-daily-mails', scheduleDailyMails);
-server.express.post('/send-day-tasks', bodyParser.json(), sendDayTasks);
-// server.express.post('/send-day-recap', sendDayRecap);
+
+server.express.post('/posthook-receiver', bodyParser.json(), posthookReceiver);
 
 server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
 	const hmac = crypto.createHmac('sha256', process.env.POSTHOOK_SIGNATURE);
