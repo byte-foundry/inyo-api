@@ -6,7 +6,15 @@ const {NotFoundError} = require('../errors');
 const addItem = async (
 	parent,
 	{
-		sectionId, name, type, description, unitPrice, unit, vatRate, reviewer,
+		sectionId,
+		name,
+		type,
+		description,
+		unitPrice,
+		unit,
+		vatRate,
+		reviewer,
+		position: wantedPosition,
 	},
 	ctx,
 ) => {
@@ -39,6 +47,10 @@ const addItem = async (
 	}).$fragment(gql`
 		fragment SectionWithQuoteAndProject on Section {
 			id
+			items(orderBy: position_ASC) {
+				id
+				position
+			}
 			option {
 				quote {
 					status
@@ -69,6 +81,26 @@ const addItem = async (
 			throw new Error('Item cannot be added in this project state.');
 		}
 
+		// default position: end of the list
+		let position = section.items[section.items.length - 1].position + 1;
+
+		if (wantedPosition) {
+			const wantedPositionItemIndex = section.items.findIndex(
+				item => item.position === wantedPosition,
+			);
+
+			if (wantedPositionItemIndex !== -1) {
+				position = wantedPosition;
+
+				// updating all the positions
+				await Promise.all(
+					section.items.slice(position).map(item => ctx.db.updateItem({
+						id: item.id,
+					})),
+				);
+			}
+		}
+
 		return ctx.db.createItem({
 			section: {connect: {id: sectionId}},
 			name,
@@ -77,6 +109,7 @@ const addItem = async (
 			reviewer,
 			description,
 			unit,
+			position,
 		});
 	}
 
