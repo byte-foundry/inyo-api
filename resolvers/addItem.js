@@ -85,7 +85,8 @@ const addItem = async (
 		let position = section.items[section.items.length - 1].position + 1;
 
 		// prevent any position error (if all are 0, we still want the right number)
-		position = position < section.item.length ? section.item.length : position;
+		position
+			= position < section.items.length ? section.items.length : position;
 
 		if (wantedPosition) {
 			const wantedPositionItemIndex = section.items.findIndex(
