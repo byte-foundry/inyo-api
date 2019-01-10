@@ -58,7 +58,7 @@ const sendDayTasks = async ({userId}) => {
 			) {
 				id
 				# we want the pending items
-				items(where: {status: PENDING}) {
+				items(orderBy: position_ASC, where: {status: PENDING}) {
 					id
 					name
 					unit
