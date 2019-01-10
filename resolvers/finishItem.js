@@ -240,6 +240,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 					items(after: "${id}") {
 						id
 						name
+						type
 						description
 						reviewer
 					}
@@ -296,13 +297,19 @@ const finishItem = async (parent, {id, token}, ctx) => {
 		};
 
 		try {
-			if (nextItem && nextItem.type === 'CONTENT_ACQUISITION') {
+			const nextItemDescription = nextItem.description
+				.split(/# content-acquisition-list[\s\S]+/)
+				.join('');
+
+			if (
+				nextItem
+				&& nextItem.type === 'CONTENT_ACQUISITION'
+				&& nextItem.reviewer === 'CUSTOMER'
+			) {
 				await sendItemContentAcquisitionEmail({
 					...basicInfo,
 					nextItemName: nextItem.name,
-					nextItemDescription: nextItem.description
-						.split(/# content-acquisition-list[\s\S]+/)
-						.join(''),
+					nextItemDescription,
 				});
 			}
 			else if (nextItem && nextItem.reviewer === 'CUSTOMER') {
@@ -312,7 +319,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 						itemId: nextItem.id,
 						items: nextItemsToDo,
 						nextItemName: nextItem.name,
-						nextItemDescription: nextItem.description,
+						nextItemDescription,
 						issueDate: new Date(),
 					},
 					ctx,
@@ -323,7 +330,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 					...basicInfo,
 					items: nextItemsToDo,
 					nextItemName: nextItem.name,
-					nextItemDescription: nextItem.description,
+					nextItemDescription,
 				});
 			}
 			else {
