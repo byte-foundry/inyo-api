@@ -17,6 +17,8 @@ const titleToCivilite = {
 	MADAME: 'Mme',
 };
 
+const filterDescription = description => description.split(/# content-acquisition-list[\s\S]+/).join('');
+
 const cancelPendingReminders = async (pendingReminders, itemId, ctx) => {
 	try {
 		await Promise.all(
@@ -297,10 +299,6 @@ const finishItem = async (parent, {id, token}, ctx) => {
 		};
 
 		try {
-			const nextItemDescription = nextItem.description
-				.split(/# content-acquisition-list[\s\S]+/)
-				.join('');
-
 			if (
 				nextItem
 				&& nextItem.type === 'CONTENT_ACQUISITION'
@@ -309,7 +307,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 				await sendItemContentAcquisitionEmail({
 					...basicInfo,
 					nextItemName: nextItem.name,
-					nextItemDescription,
+					nextItemDescription: filterDescription(nextItem.description),
 				});
 			}
 			else if (nextItem && nextItem.reviewer === 'CUSTOMER') {
@@ -319,7 +317,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 						itemId: nextItem.id,
 						items: nextItemsToDo,
 						nextItemName: nextItem.name,
-						nextItemDescription,
+						nextItemDescription: filterDescription(nextItem.description),
 						issueDate: new Date(),
 					},
 					ctx,
@@ -330,7 +328,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 					...basicInfo,
 					items: nextItemsToDo,
 					nextItemName: nextItem.name,
-					nextItemDescription,
+					nextItemDescription: filterDescription(nextItem.description),
 				});
 			}
 			else {
