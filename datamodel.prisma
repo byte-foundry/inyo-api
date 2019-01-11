@@ -122,6 +122,10 @@ enum DAY {
 	SUNDAY
 }
 
+enum UserEventType {
+	ME_CALL
+}
+
 type CommentView {
 	id: ID! @unique
 	user: User @relation(name: "CommentViewUser")
@@ -246,6 +250,7 @@ type User {
 	endWorkAt: DateTime
 	workingDays: [DAY!]!
 	timeZone: String
+	userEvents: [UserEvent!]! @relation(name: "UserUserEvents", onDelete: CASCADE)
 	morningReminders: [Reminder!]!
 		@relation(name: "UserMorningReminders", onDelete: CASCADE)
 	eveningReminders: [Reminder!]!
@@ -276,7 +281,6 @@ type Reminder {
 
 type Log {
 	ip: String!
-
 	acceptedQuotes: [Quote!]! @relation(name: "AcceptedQuotesLogs")
 	acceptedAmendments: [Quote!]! @relation(name: "AcceptedAmendmentsLogs")
 	createdAt: DateTime!
@@ -289,4 +293,11 @@ type File {
 	encoding: String!
 	url: String!
 	createdAt: DateTime!
+}
+
+type UserEvent {
+	id: ID! @unique
+	type: UserEventType!
+	createAt: DateTime!
+	user: User @relation(name: "UserUserEvents")
 }

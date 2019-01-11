@@ -3,7 +3,15 @@ const {sendMetric} = require('../stats');
 const {getUserId} = require('../utils');
 
 const Query = {
-	me: (root, args, ctx) => ctx.db.user({id: getUserId(ctx)}),
+	me: async (root, args, ctx) => {
+		await ctx.db.createUserEvent({
+			type: 'ME_CALL',
+			user: {
+				connect: {id: getUserId(ctx)},
+			},
+		});
+		return ctx.db.user({id: getUserId(ctx)});
+	},
 	customer: (root, {id}, ctx) => ctx.db
 		.user({id: getUserId(ctx)})
 		.company()
