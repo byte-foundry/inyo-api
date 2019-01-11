@@ -298,6 +298,6 @@ type File {
 type UserEvent {
 	id: ID! @unique
 	type: UserEventType!
-	createAt: DateTime!
+	createdAt: DateTime!
 	user: User @relation(name: "UserUserEvents")
 }
