@@ -394,6 +394,7 @@ type Item {
 	status: ItemStatus!
 	reviewer: Reviewer!
 	reminders: [Reminder!]!
+	position: Int
 }
 
 type Section {
