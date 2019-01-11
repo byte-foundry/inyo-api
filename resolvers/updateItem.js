@@ -88,6 +88,7 @@ const updateItem = async (
 		},
 	}).$fragment(gql`
 		fragment ItemWithQuoteAndProject on Item {
+			id
 			status
 			position
 			section {
@@ -141,7 +142,10 @@ const updateItem = async (
 			);
 		}
 
-		if (wantedPosition && wantedPosition !== initialPosition) {
+		if (
+			typeof wantedPosition === 'number'
+			&& wantedPosition !== initialPosition
+		) {
 			if (wantedPosition < 0) {
 				position = 0;
 			}

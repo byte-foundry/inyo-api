@@ -4,6 +4,24 @@ jest.mock('../../utils');
 jest.mock('../../stats');
 jest.mock('../../emails/TaskEmail');
 
+const project = {
+	id: 'project-id',
+	status: 'ONGOING',
+	name: "C'est notre projeeet",
+	customer: {
+		title: 'MONSIEUR',
+		firstName: 'Jean',
+		lastName: 'Michel',
+		email: 'jean@michel.org',
+		serviceCompany: {
+			owner: {
+				firstName: 'Adrien',
+				lastName: 'David',
+			},
+		},
+	},
+};
+
 describe('updateItem', () => {
 	it('should let a user update a project item', async () => {
 		const args = {
@@ -37,23 +55,7 @@ describe('updateItem', () => {
 							section: {
 								id: 'section-id',
 								items: [{id: 'item-id', position: 0}],
-								project: {
-									id: 'project-id',
-									status: 'ONGOING',
-									name: "C'est notre projeeet",
-									customer: {
-										title: 'MONSIEUR',
-										firstName: 'Jean',
-										lastName: 'Michel',
-										email: 'jean@michel.org',
-										serviceCompany: {
-											owner: {
-												firstName: 'Adrien',
-												lastName: 'David',
-											},
-										},
-									},
-								},
+								project,
 							},
 						},
 					],
@@ -104,23 +106,7 @@ describe('updateItem', () => {
 									{id: 'item-3', position: 3},
 									{id: 'item-4', position: 4},
 								],
-								project: {
-									id: 'project-id',
-									status: 'ONGOING',
-									name: "C'est notre projeeet",
-									customer: {
-										title: 'MONSIEUR',
-										firstName: 'Jean',
-										lastName: 'Michel',
-										email: 'jean@michel.org',
-										serviceCompany: {
-											owner: {
-												firstName: 'Adrien',
-												lastName: 'David',
-											},
-										},
-									},
-								},
+								project,
 							},
 						},
 					],
@@ -184,23 +170,7 @@ describe('updateItem', () => {
 									{id: 'item-3', position: 3},
 									{id: 'item-4', position: 4},
 								],
-								project: {
-									id: 'project-id',
-									status: 'ONGOING',
-									name: "C'est notre projeeet",
-									customer: {
-										title: 'MONSIEUR',
-										firstName: 'Jean',
-										lastName: 'Michel',
-										email: 'jean@michel.org',
-										serviceCompany: {
-											owner: {
-												firstName: 'Adrien',
-												lastName: 'David',
-											},
-										},
-									},
-								},
+								project,
 							},
 						},
 					],
@@ -225,6 +195,64 @@ describe('updateItem', () => {
 		expect(ctx.db.updateItem).toHaveBeenNthCalledWith(3, {
 			where: {id: 'item-1'},
 			data: expect.objectContaining({position: 3}),
+		});
+
+		expect(item).toMatchObject(args);
+	});
+
+	it('should work moving to position 0', async () => {
+		const args = {
+			id: 'item-1',
+			position: 0,
+		};
+		const ctx = {
+			request: {
+				get: () => 'user-token',
+			},
+			db: {
+				user: () => ({
+					id: 'user-id',
+					firstName: 'Jean',
+					lastName: 'Michel',
+				}),
+				items: () => ({
+					$fragment: () => [
+						{
+							id: 'item-1',
+							name: 'name',
+							status: 'PENDING',
+							description: 'description',
+							unit: 2,
+							reviewer: 'USER',
+							position: 1,
+							section: {
+								id: 'section-id',
+								items: [
+									{id: 'item-0', position: 0},
+									{id: 'item-1', position: 1},
+									{id: 'item-2', position: 2},
+								],
+								project,
+							},
+						},
+					],
+				}),
+				updateItem: jest.fn(({where, data}) => ({
+					id: where.id,
+					...data,
+				})),
+			},
+		};
+
+		const item = await updateItem({}, args, ctx);
+
+		expect(ctx.db.updateItem).toHaveBeenNthCalledWith(1, {
+			where: {id: 'item-0'},
+			data: {position: 1},
+		});
+		expect(ctx.db.updateItem).toHaveBeenNthCalledWith(2, {
+			where: {id: 'item-1'},
+			data: expect.objectContaining({position: 0}),
 		});
 
 		expect(item).toMatchObject(args);
