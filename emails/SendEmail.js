@@ -9,6 +9,7 @@ async function sendEmail({email, data, templateId}) {
 		url: '/v3/mail/send',
 		body: {
 			from: {
+				name: 'Edwige Inyo',
 				email: 'edwige@inyo.me',
 			},
 			personalizations: [
