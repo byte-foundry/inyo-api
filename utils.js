@@ -33,9 +33,22 @@ function getAppUrl(uri) {
 	return getRootUrl(`/app${uri}`);
 }
 
+function titleNameEmail(strings, title, firstName, lastName) {
+	const titleToRender = title !== undefined && title !== null ? title : '';
+	const firstNameToRender
+		= firstName !== undefined && firstName !== null ? firstName : '';
+	const lastNameToRender
+		= lastName !== undefined && lastName !== null ? lastName : '';
+
+	return String(
+		` ${titleToRender} ${firstNameToRender} ${lastNameToRender}`,
+	).trimRight();
+}
+
 module.exports = {
 	getUserId,
 	APP_SECRET,
 	getRootUrl,
 	getAppUrl,
+	titleNameEmail,
 };

@@ -1,6 +1,6 @@
 const gql = String.raw;
 
-const {getUserId, getAppUrl} = require('../utils');
+const {getUserId, getAppUrl, titleNameEmail} = require('../utils');
 const {NotFoundError} = require('../errors');
 const {sendMetric} = require('../stats');
 const {
@@ -148,7 +148,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 			await sendTaskValidationEmail({
 				email: user.email,
 				user: String(`${customer.firstName} ${customer.lastName}`).trim(),
-				customerName: String(` ${user.firstName} ${user.lastName}`).trimRight(),
+				customerName: titleNameEmail` ${user.firstName} ${user.lastName}`,
 				projectName: project.name,
 				itemName: item.name,
 				sections: sections
@@ -286,11 +286,9 @@ const finishItem = async (parent, {id, token}, ctx) => {
 			email: customer.email,
 			userEmail: user.email,
 			user: String(`${user.firstName} ${user.lastName}`).trim(),
-			customerName: String(
-				` ${titleToCivilite[customer.title]} ${customer.firstName} ${
-					customer.lastName
-				}`,
-			).trimRight(),
+			customerName: titleNameEmail` ${titleToCivilite[customer.title]} ${
+				customer.firstName
+			} ${customer.lastName}`,
 			customerEmail: customer.email,
 			customerPhone: customer.phone,
 			projectName: project.name,
@@ -369,11 +367,9 @@ const finishItem = async (parent, {id, token}, ctx) => {
 			await legacy_sendTaskValidationEmail({
 				email: customer.email,
 				user: String(`${user.firstName} ${user.lastName}`).trim(),
-				customerName: String(
-					` ${titleToCivilite[quote.customer.title]} ${
-						quote.customer.firstName
-					} ${quote.customer.lastName}`,
-				).trimRight(),
+				customerName: titleNameEmail` ${
+					titleToCivilite[quote.customer.title]
+				} ${quote.customer.firstName} ${quote.customer.lastName}`,
 				projectName: quote.name,
 				itemName: item.name,
 				sections: sections

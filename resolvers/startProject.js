@@ -1,6 +1,6 @@
 const gql = String.raw;
 
-const {getUserId, getAppUrl} = require('../utils');
+const {getUserId, getAppUrl, titleNameEmail} = require('../utils');
 const {NotFoundError} = require('../errors');
 const {sendMetric} = require('../stats');
 const {sendProjectStartedEmail} = require('../emails/ProjectEmail');
@@ -69,11 +69,9 @@ const startProject = async (parent, {id, notifyCustomer = true}, ctx) => {
 		try {
 			await sendProjectStartedEmail({
 				email: customer.email,
-				customerName: String(
-					` ${titleToCivilite[customer.title]} ${customer.firstName} ${
-						customer.lastName
-					}`,
-				).trimRight(),
+				customerName: titleNameEmail` ${titleToCivilite[customer.title]} ${
+					customer.firstName
+				} ${customer.lastName}`,
 				projectName: project.name,
 				user: `${user.firstName} ${user.lastName}`,
 				url: getAppUrl(`/projects/${project.id}/view/${project.token}`),
