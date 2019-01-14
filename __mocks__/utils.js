@@ -1,3 +1,5 @@
+const {titleNameEmail} = require('../utils');
+
 class AuthError extends Error {
 	constructor() {
 		super('Not authorized');
@@ -22,4 +24,5 @@ module.exports = {
 	getUserId,
 	getAppUrl,
 	APP_SECRET: 'Z',
+	titleNameEmail,
 };
