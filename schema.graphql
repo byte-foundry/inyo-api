@@ -436,6 +436,7 @@ type Project {
 	viewedByCustomer: Boolean!
 	issuedAt: DateTime
 	deadline: DateTime
+	daysUntilDeadline: Int
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }
