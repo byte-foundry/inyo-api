@@ -17,6 +17,8 @@ const titleToCivilite = {
 	MADAME: 'Mme',
 };
 
+const filterDescription = description => description.split(/# content-acquisition-list[\s\S]+/).join('');
+
 const cancelPendingReminders = async (pendingReminders, itemId, ctx) => {
 	try {
 		await Promise.all(
@@ -240,6 +242,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 					items(after: "${id}") {
 						id
 						name
+						type
 						description
 						reviewer
 					}
@@ -296,13 +299,15 @@ const finishItem = async (parent, {id, token}, ctx) => {
 		};
 
 		try {
-			if (nextItem && nextItem.type === 'CONTENT_ACQUISITION') {
+			if (
+				nextItem
+				&& nextItem.type === 'CONTENT_ACQUISITION'
+				&& nextItem.reviewer === 'CUSTOMER'
+			) {
 				await sendItemContentAcquisitionEmail({
 					...basicInfo,
 					nextItemName: nextItem.name,
-					nextItemDescription: nextItem.description
-						.split(/# content-acquisition-list[\s\S]+/)
-						.join(''),
+					nextItemDescription: filterDescription(nextItem.description),
 				});
 			}
 			else if (nextItem && nextItem.reviewer === 'CUSTOMER') {
@@ -312,7 +317,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 						itemId: nextItem.id,
 						items: nextItemsToDo,
 						nextItemName: nextItem.name,
-						nextItemDescription: nextItem.description,
+						nextItemDescription: filterDescription(nextItem.description),
 						issueDate: new Date(),
 					},
 					ctx,
@@ -323,7 +328,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 					...basicInfo,
 					items: nextItemsToDo,
 					nextItemName: nextItem.name,
-					nextItemDescription: nextItem.description,
+					nextItemDescription: filterDescription(nextItem.description),
 				});
 			}
 			else {

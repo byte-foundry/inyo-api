@@ -71,7 +71,7 @@ type Mutation {
 		deadline: DateTime
 	): Project!
 	# Update project
-	updateProject(id: ID!, name: String!, deadline: DateTime): Project
+	updateProject(id: ID!, name: String, deadline: DateTime): Project
 	# Finish project
 	finishProject(id: ID!): Project!
 	# Remove project

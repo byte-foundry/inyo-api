@@ -16,7 +16,11 @@ const updateProject = async (parent, {id, name, deadline}, ctx) => {
 	});
 
 	if (!project) {
-		throw NotFoundError(`Project ${id} has not been found.`);
+		throw new NotFoundError(`Project ${id} has not been found.`);
+	}
+
+	if (typeof name === 'string' && name.length === 0) {
+		throw new Error('The new project name must not be empty.');
 	}
 
 	return ctx.db.updateProject({
