@@ -55,7 +55,6 @@ const Project = {
 		const deadline = moment(node.deadline.split('T')[0]).tz(
 			user.timeZone || 'Europe/Paris',
 		);
-		const isPassed = deadline < start;
 
 		let daysBetween = 0;
 
@@ -74,7 +73,7 @@ const Project = {
 			start.add(1, 'd');
 		}
 
-		return (isPassed ? -1 : 1) * daysBetween;
+		return daysBetween;
 	},
 	createdAt: node => node.createdAt,
 	updatedAt: node => node.updatedAt,
