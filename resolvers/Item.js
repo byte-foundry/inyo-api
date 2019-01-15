@@ -10,6 +10,7 @@ const Item = {
 	vatRate: node => node.vatRate,
 	status: node => node.status,
 	reviewer: node => node.reviewer,
+	position: node => node.position,
 };
 
 module.exports = {
