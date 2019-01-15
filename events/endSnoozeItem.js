@@ -1,8 +1,8 @@
 const {prisma} = require('../generated/prisma-client');
 
-const endSnoozeItem = async ({id}) => {
+const endSnoozeItem = async ({itemId}) => {
 	await prisma.updateItem({
-		where: {id},
+		where: {id: itemId},
 		data: {status: 'PENDING'},
 	});
 };
