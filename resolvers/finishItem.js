@@ -239,7 +239,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 		const nextItems = await ctx.db.item({id}).$fragment(gql`
 			fragment NextItems on Item {
 				section {
-					items(after: "${id}") {
+					items(orderBy: position_ASC, after: "${id}") {
 						id
 						name
 						type
@@ -248,6 +248,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 					}
 					project {
 						sections(
+							orderBy: position_ASC
 							after: "${item.section.id}"
 							where: { items_some: {} }
 						) {

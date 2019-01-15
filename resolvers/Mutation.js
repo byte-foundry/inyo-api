@@ -33,6 +33,7 @@ const {removeProject} = require('./removeProject');
 const {startProject} = require('./startProject');
 const {addItem} = require('./addItem');
 const {updateItem} = require('./updateItem');
+const {removeItem} = require('./removeItem');
 const {snoozeItem} = require('./snoozeItem');
 const {unsnoozeItem} = require('./unsnoozeItem');
 const {finishItem} = require('./finishItem');
@@ -549,45 +550,7 @@ const Mutation = {
 
 		return result;
 	},
-	removeItem: async (parent, {id}, ctx) => {
-		const [item] = await ctx.db.items({
-			where: {
-				id,
-				OR: [
-					{
-						section: {
-							option: {
-								quote: {
-									customer: {
-										serviceCompany: {
-											owner: {id: getUserId(ctx)},
-										},
-									},
-								},
-							},
-						},
-					},
-					{
-						section: {
-							project: {
-								customer: {
-									serviceCompany: {
-										owner: {id: getUserId(ctx)},
-									},
-								},
-							},
-						},
-					},
-				],
-			},
-		});
-
-		if (!item) {
-			throw new NotFoundError(`Item '${id}' has not been found.`);
-		}
-
-		return ctx.db.deleteItem({id});
-	},
+	removeItem,
 	sendQuote: async (parent, {id}, ctx) => {
 		const user = await ctx.db.user({id: getUserId(ctx)});
 		// todo: verify quote ownership

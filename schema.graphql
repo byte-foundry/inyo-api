@@ -121,6 +121,7 @@ type Mutation {
 		unit: Float
 		vatRate: Int
 		reviewer: Reviewer
+		position: Int
 	): Item!
 	# Update item properties
 	updateItem(
@@ -135,6 +136,7 @@ type Mutation {
 		reviewer: Reviewer
 		comment: CommentInput
 		notifyCustomer: Boolean
+		position: Int
 	): Item
 	# Update an already validated item
 	updateValidatedItem(id: ID!, unit: Float!, comment: CommentInput!): Item
@@ -392,6 +394,7 @@ type Item {
 	status: ItemStatus!
 	reviewer: Reviewer!
 	reminders: [Reminder!]!
+	position: Int
 }
 
 type Section {

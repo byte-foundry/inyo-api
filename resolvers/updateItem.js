@@ -22,6 +22,7 @@ const updateItem = async (
 		reviewer,
 		comment,
 		notifyCustomer = true,
+		position: wantedPosition,
 		token,
 	},
 	ctx,
@@ -87,8 +88,14 @@ const updateItem = async (
 		},
 	}).$fragment(gql`
 		fragment ItemWithQuoteAndProject on Item {
+			id
 			status
+			position
 			section {
+				items(orderBy: position_ASC) {
+					id
+					position
+				}
 				option {
 					quote {
 						status
@@ -122,6 +129,49 @@ const updateItem = async (
 			);
 		}
 
+		let position;
+		const initialPosition = item.section.items.findIndex(
+			sectionItem => sectionItem.id === item.id,
+		);
+
+		if (initialPosition === -1) {
+			throw new Error(
+				`Item '${item.id}' has not been found in Section '${
+					item.section.id
+				}' items.`,
+			);
+		}
+
+		if (
+			typeof wantedPosition === 'number'
+			&& wantedPosition !== initialPosition
+		) {
+			if (wantedPosition < 0) {
+				position = 0;
+			}
+			else if (wantedPosition > item.section.items.length) {
+				position = item.section.items.length;
+			}
+			else {
+				position = wantedPosition;
+			}
+
+			const itemsToUpdate
+				= wantedPosition > initialPosition
+					? item.section.items.slice(initialPosition + 1, wantedPosition + 1)
+					: item.section.items.slice(wantedPosition, initialPosition);
+
+			const startIndex
+				= wantedPosition > initialPosition ? initialPosition : wantedPosition + 1;
+
+			await Promise.all(
+				itemsToUpdate.map((sectionItem, index) => ctx.db.updateItem({
+					where: {id: sectionItem.id},
+					data: {position: startIndex + index},
+				})),
+			);
+		}
+
 		const updatedItem = await ctx.db.updateItem({
 			where: {id},
 			data: {
@@ -131,6 +181,7 @@ const updateItem = async (
 				unit,
 				status: 'PENDING',
 				reviewer,
+				position,
 				comments: {
 					create: comment && {
 						text: comment.text,

@@ -47,7 +47,10 @@ const createProject = async (
 			create: sections.map(section => ({
 				...section,
 				items: section.items && {
-					create: section.items,
+					create: section.items.map((item, index) => ({
+						...item,
+						position: index,
+					})),
 				},
 			})),
 		},
