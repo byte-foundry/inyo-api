@@ -248,11 +248,10 @@ const finishItem = async (parent, {id, token}, ctx) => {
 					}
 					project {
 						sections(
-							orderBy: position_ASC
 							after: "${item.section.id}"
 							where: { items_some: {} }
 						) {
-							items {
+							items(orderBy: position_ASC) {
 								id
 								name
 								type
