@@ -24,15 +24,15 @@ const cancelPendingReminders = async (pendingReminders, itemId, ctx) => {
 		await Promise.all(
 			pendingReminders.map(reminder => cancelReminder(reminder.postHookId)),
 		);
+
+		const reminderIds = pendingReminders.map(r => r.id);
+
 		await ctx.db.updateManyReminders({
-			where: {status: 'PENDING'},
+			where: {id_in: reminderIds, status: 'PENDING'},
 			data: {status: 'CANCELED'},
 		});
 
-		console.log(
-			`Canceled pending reminders of Item '${itemId}'.`,
-			pendingReminders.map(r => r.id),
-		);
+		console.log(`Canceled pending reminders of Item '${itemId}'.`, reminderIds);
 	}
 	catch (err) {
 		console.error(
