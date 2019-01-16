@@ -173,6 +173,7 @@ type Item {
 	reviewer: Reviewer! @default(value: USER)
 	reminders: [Reminder!]! @relation(name: "ItemReminders", onDelete: CASCADE)
 	snoozedUntil: Reminder @relation(name: "SnoozeReminders", onDelete: CASCADE)
+	position: Int!
 }
 
 type Section {

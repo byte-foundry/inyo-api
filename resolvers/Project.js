@@ -1,3 +1,15 @@
+const moment = require('moment-timezone');
+
+const weekDays = {
+	1: 'MONDAY',
+	2: 'TUESDAY',
+	3: 'WEDNESDAY',
+	4: 'THURSDAY',
+	5: 'FRIDAY',
+	6: 'SATURDAY',
+	0: 'SUNDAY',
+};
+
 const Project = {
 	id: node => node.id,
 	name: node => node.name,
@@ -28,6 +40,41 @@ const Project = {
 	viewedByCustomer: node => node.viewedByCustomer,
 	issuedAt: node => node.issuedAt,
 	deadline: node => node.deadline,
+	daysUntilDeadline: async (node, args, ctx) => {
+		const user = await ctx.db
+			.project({id: node.id})
+			.customer()
+			.serviceCompany()
+			.owner();
+
+		if (!node.deadline) {
+			return null;
+		}
+
+		const start = moment().tz(user.timeZone || 'Europe/Paris');
+		const deadline = moment(node.deadline.split('T')[0]).tz(
+			user.timeZone || 'Europe/Paris',
+		);
+
+		let daysBetween = 0;
+
+		if (start.format('DD/MM/YYYY') === deadline.format('DD/MM/YYYY')) {
+			return daysBetween;
+		}
+
+		while (start < deadline) {
+			if (
+				!user.workingDays
+				|| user.workingDays.length === 0
+				|| user.workingDays.includes(weekDays[start.day()])
+			) {
+				daysBetween++;
+			}
+			start.add(1, 'd');
+		}
+
+		return daysBetween;
+	},
 	createdAt: node => node.createdAt,
 	updatedAt: node => node.updatedAt,
 };

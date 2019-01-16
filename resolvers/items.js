@@ -29,7 +29,7 @@ const items = async (root, args, ctx) => {
 			) {
 				id
 				# we want the pending items
-				items(where: {status: PENDING}) {
+				items(orderBy: position_ASC, where: {status: PENDING}) {
 					id
 					name
 					unit

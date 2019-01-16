@@ -1,6 +1,6 @@
 const gql = String.raw;
 
-const {getUserId, getAppUrl} = require('../utils');
+const {getUserId, getAppUrl, titleNameEmail} = require('../utils');
 const {NotFoundError} = require('../errors');
 const {sendMetric} = require('../stats');
 const {
@@ -24,15 +24,15 @@ const cancelPendingReminders = async (pendingReminders, itemId, ctx) => {
 		await Promise.all(
 			pendingReminders.map(reminder => cancelReminder(reminder.postHookId)),
 		);
+
+		const reminderIds = pendingReminders.map(r => r.id);
+
 		await ctx.db.updateManyReminders({
-			where: {status: 'PENDING'},
+			where: {id_in: reminderIds, status: 'PENDING'},
 			data: {status: 'CANCELED'},
 		});
 
-		console.log(
-			`Canceled pending reminders of Item '${itemId}'.`,
-			pendingReminders.map(r => r.id),
-		);
+		console.log(`Canceled pending reminders of Item '${itemId}'.`, reminderIds);
 	}
 	catch (err) {
 		console.error(
@@ -148,7 +148,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 			await sendTaskValidationEmail({
 				email: user.email,
 				user: String(`${customer.firstName} ${customer.lastName}`).trim(),
-				customerName: String(` ${user.firstName} ${user.lastName}`).trimRight(),
+				customerName: titleNameEmail` ${user.firstName} ${user.lastName}`,
 				projectName: project.name,
 				itemName: item.name,
 				sections: sections
@@ -239,7 +239,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 		const nextItems = await ctx.db.item({id}).$fragment(gql`
 			fragment NextItems on Item {
 				section {
-					items(after: "${id}") {
+					items(orderBy: position_ASC, after: "${id}") {
 						id
 						name
 						type
@@ -251,7 +251,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 							after: "${item.section.id}"
 							where: { items_some: {} }
 						) {
-							items {
+							items(orderBy: position_ASC) {
 								id
 								name
 								type
@@ -286,11 +286,9 @@ const finishItem = async (parent, {id, token}, ctx) => {
 			email: customer.email,
 			userEmail: user.email,
 			user: String(`${user.firstName} ${user.lastName}`).trim(),
-			customerName: String(
-				` ${titleToCivilite[customer.title]} ${customer.firstName} ${
-					customer.lastName
-				}`,
-			).trimRight(),
+			customerName: titleNameEmail` ${titleToCivilite[customer.title]} ${
+				customer.firstName
+			} ${customer.lastName}`,
 			customerEmail: customer.email,
 			customerPhone: customer.phone,
 			projectName: project.name,
@@ -369,11 +367,9 @@ const finishItem = async (parent, {id, token}, ctx) => {
 			await legacy_sendTaskValidationEmail({
 				email: customer.email,
 				user: String(`${user.firstName} ${user.lastName}`).trim(),
-				customerName: String(
-					` ${titleToCivilite[quote.customer.title]} ${
-						quote.customer.firstName
-					} ${quote.customer.lastName}`,
-				).trimRight(),
+				customerName: titleNameEmail` ${
+					titleToCivilite[quote.customer.title]
+				} ${quote.customer.firstName} ${quote.customer.lastName}`,
 				projectName: quote.name,
 				itemName: item.name,
 				sections: sections
