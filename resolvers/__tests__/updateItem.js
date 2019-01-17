@@ -29,7 +29,6 @@ describe('updateItem', () => {
 			name: 'new-name',
 			description: 'new-description',
 			unit: 42,
-			status: 'PENDING',
 			reviewer: 'USER',
 		};
 		const ctx = {
