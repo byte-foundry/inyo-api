@@ -140,6 +140,7 @@ type Mutation {
 	): Item
 	# Update an already validated item
 	updateValidatedItem(id: ID!, unit: Float!, comment: CommentInput!): Item
+		@deprecated(reason: "Use updateItem instead.")
 	# Remove an item
 	removeItem(id: ID!): Item
 	# Snooze an item
@@ -387,7 +388,7 @@ type Item {
 	unitPrice: Int!
 	# when unit has been changed but not yet validated
 	pendingUnit: Float
-	unit: Float
+	unit: Float!
 	section: Section!
 	comments: [Comment!]!
 	vatRate: Int!
