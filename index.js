@@ -52,7 +52,7 @@ server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
 	const [reminder] = await prisma.reminders({
 		where: {
 			postHookId: req.body.id,
-			OR: [
+			AND: [
 				{
 					status_not: 'SENT',
 				},
