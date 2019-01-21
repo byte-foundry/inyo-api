@@ -229,6 +229,7 @@ input ItemInput {
 	unit: Float
 	vatRate: Int
 	reviewer: Reviewer
+	type: ItemType
 }
 
 input SectionInput {
