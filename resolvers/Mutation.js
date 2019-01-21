@@ -205,6 +205,12 @@ const Mutation = {
 			},
 		});
 	},
+	updateCustomer: async (parent, {id, customer}, ctx) => ctx.db.updateCustomer({
+		where: {
+			id,
+		},
+		data: customer,
+	}),
 	createProject,
 	updateProject,
 	finishProject,
