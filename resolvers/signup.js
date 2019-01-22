@@ -8,10 +8,11 @@ const {sendMetric} = require('../stats');
 const signup = async (
 	parent,
 	{
-		email, password, firstName, lastName, company = {}, settings = {},
+		email: rawEmail, password, firstName, lastName, company = {}, settings = {},
 	},
 	ctx,
 ) => {
+	const email = String(rawEmail).toLowerCase();
 	const isExisting = await ctx.db.$exists.user({email});
 
 	if (isExisting) {
