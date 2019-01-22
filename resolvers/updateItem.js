@@ -179,7 +179,6 @@ const updateItem = async (
 				type,
 				description,
 				unit,
-				status: 'PENDING',
 				reviewer,
 				position,
 				comments: {

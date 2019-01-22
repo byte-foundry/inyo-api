@@ -60,6 +60,7 @@ type Mutation {
 
 	# Create a new customer inside the user's company
 	createCustomer(email: String!): Customer!
+	updateCustomer(id: ID!, customer: CustomerInput!): Customer!
 
 	# Create a new project for a customer of the user's company
 	createProject(
@@ -140,6 +141,7 @@ type Mutation {
 	): Item
 	# Update an already validated item
 	updateValidatedItem(id: ID!, unit: Float!, comment: CommentInput!): Item
+		@deprecated(reason: "Use updateItem instead.")
 	# Remove an item
 	removeItem(id: ID!): Item
 	# Snooze an item
@@ -231,6 +233,7 @@ input ItemInput {
 	unit: Float
 	vatRate: Int
 	reviewer: Reviewer
+	type: ItemType
 }
 
 input SectionInput {
@@ -387,7 +390,7 @@ type Item {
 	unitPrice: Int!
 	# when unit has been changed but not yet validated
 	pendingUnit: Float
-	unit: Float
+	unit: Float!
 	section: Section!
 	comments: [Comment!]!
 	vatRate: Int!

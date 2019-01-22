@@ -92,7 +92,8 @@ const Mutation = {
 		return Mutation.login({}, {email, password: newPassword}, ctx);
 	},
 
-	login: async (parent, {email, password}, ctx) => {
+	login: async (parent, {email: rawEmail, password}, ctx) => {
+		const email = String(rawEmail).toLowerCase();
 		const user = await ctx.db.user({email});
 
 		if (!user) {
@@ -205,6 +206,12 @@ const Mutation = {
 			},
 		});
 	},
+	updateCustomer: async (parent, {id, customer}, ctx) => ctx.db.updateCustomer({
+		where: {
+			id,
+		},
+		data: customer,
+	}),
 	createProject,
 	updateProject,
 	finishProject,

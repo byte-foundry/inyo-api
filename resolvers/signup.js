@@ -4,14 +4,16 @@ const {sign} = require('jsonwebtoken');
 const {APP_SECRET} = require('../utils');
 const {AlreadyExistingError} = require('../errors');
 const {sendMetric} = require('../stats');
+const {sendSignupEmail} = require('../emails/SignupEmail');
 
 const signup = async (
 	parent,
 	{
-		email, password, firstName, lastName, company = {}, settings = {},
+		email: rawEmail, password, firstName, lastName, company = {}, settings = {},
 	},
 	ctx,
 ) => {
+	const email = String(rawEmail).toLowerCase();
 	const isExisting = await ctx.db.$exists.user({email});
 
 	if (isExisting) {
@@ -37,6 +39,13 @@ const signup = async (
 		sendMetric({metric: 'inyo.user.created'});
 
 		console.log(`user with email ${email} created`);
+
+		if (email.includes('gmail.com')) {
+			sendSignupEmail({
+				email,
+				user: String(`${firstName} ${lastName}`).trim(),
+			});
+		}
 
 		return {
 			token: sign({userId: user.id}, APP_SECRET),

@@ -35,6 +35,8 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 								serviceCompany {
 									owner {
 										email
+										firstName
+										lastName
 									}
 								}
 							}
@@ -52,6 +54,8 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 							serviceCompany {
 								owner {
 									email
+									firstName
+									lastName
 								}
 							}
 						}
@@ -237,7 +241,9 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 	try {
 		const params = {
 			email: customer.email,
-			recipentName: String(`${customer.firstName} ${customer.lastName}`).trim(),
+			recipientName: String(
+				`${customer.firstName} ${customer.lastName}`,
+			).trim(),
 			authorName: String(`${user.firstName} ${user.lastName}`).trim(),
 			projectName: project ? project.name : quote.name,
 			itemName: item.name,
