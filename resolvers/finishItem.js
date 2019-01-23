@@ -330,7 +330,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 				});
 			}
 			else {
-				await sendTaskValidationEmail({
+				/*await sendTaskValidationEmail({
 					...basicInfo,
 					sections: sections
 						.map(section => ({
@@ -341,7 +341,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 								.reduce((acc, item) => acc + item.unit, 0),
 						}))
 						.filter(section => section.timeLeft > 0),
-				});
+				});*/
 			}
 
 			console.log(`Task validation email sent to ${customer.email}`);
