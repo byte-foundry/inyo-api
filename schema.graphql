@@ -397,10 +397,7 @@ type Item {
 	status: ItemStatus!
 	reviewer: Reviewer!
 	reminders: [Reminder!]!
-	finishedAt: DateTime
 	position: Int
-	createdAt: DateTime!
-	updatedAt: DateTime!
 }
 
 type Section {
