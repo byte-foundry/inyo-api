@@ -176,6 +176,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 			where: {id},
 			data: {
 				status: 'FINISHED',
+				finishedAt: new Date(),
 			},
 		});
 	}
@@ -401,6 +402,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 		where: {id},
 		data: {
 			status: 'FINISHED',
+			finishedAt: new Date(),
 		},
 	});
 };
