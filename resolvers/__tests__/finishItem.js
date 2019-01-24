@@ -2,7 +2,6 @@ import {finishItem} from '../finishItem';
 
 import cancelReminder from '../../reminders/cancelReminder';
 import {
-	sendTaskValidationEmail,
 	sendTaskValidationWaitCustomerEmail,
 	setupItemReminderEmail,
 } from '../../emails/TaskEmail';
@@ -90,12 +89,6 @@ describe('finishItem', () => {
 		};
 
 		const item = await finishItem({}, args, ctx);
-
-		expect(sendTaskValidationEmail).toHaveBeenCalledWith(
-			expect.objectContaining({
-				email: 'jean@michel.org',
-			}),
-		);
 
 		expect(item).toMatchObject({
 			id: args.id,
@@ -400,11 +393,6 @@ describe('finishItem', () => {
 
 		const item = await finishItem({}, args, ctx);
 
-		expect(sendTaskValidationEmail).toHaveBeenCalledWith(
-			expect.objectContaining({
-				email: 'chouche@gitan.fm',
-			}),
-		);
 		expect(cancelReminder).toHaveBeenCalledWith('posthook-id');
 
 		expect(item).toMatchObject({

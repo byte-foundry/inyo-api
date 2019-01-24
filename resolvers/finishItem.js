@@ -309,7 +309,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 					nextItemName: nextItem.name,
 					nextItemDescription: filterDescription(nextItem.description),
 				});
-				console.log('Content acquisition mail sent to us');
+				console.log('Content acquisition email sent to us');
 			}
 			else if (nextItem && nextItem.reviewer === 'CUSTOMER') {
 				await setupItemReminderEmail(
