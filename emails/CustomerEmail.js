@@ -1,6 +1,6 @@
 const sendEmail = require('./SendEmail.js');
 
-async function sendCustomersEveningEmail({email, ...data}) {
+async function sendCustomerEveningEmail({email, ...data}) {
 	return sendEmail({
 		email,
 		data,
@@ -9,5 +9,5 @@ async function sendCustomersEveningEmail({email, ...data}) {
 }
 
 module.exports = {
-	sendCustomersEveningEmail,
+	sendCustomerEveningEmail,
 };

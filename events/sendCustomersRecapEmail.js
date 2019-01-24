@@ -24,20 +24,20 @@ const titleToCivilite = {
 const sendCustomersRecapEmail = async ({userId}) => {
 	let user = await prisma.user({id: userId});
 
-	if (!user.endWorkAt) {
+	if (!user.startWorkAt) {
 		console.log(
-			'The user has not configured its ending work hour. How is it even possible to get there?',
+			'The user has not configured its starting work hour. How could we tell from when we should send completed tasks?',
 		);
 		return;
 	}
 
 	const now = new Date();
 	const startedWorkAt = new Date(
-		`${now.toJSON().split('T')[0]}T${user.endWorkAt.split('T')[1]}`,
+		`${now.toJSON().split('T')[0]}T${user.startWorkAt.split('T')[1]}`,
 	);
 
-	if (now - startedWorkAt > 0) {
-		startedWorkAt.setDate(startedWorkAt.getDate() + 1);
+	if (now - startedWorkAt < 0) {
+		startedWorkAt.setDate(startedWorkAt.getDate() - 1);
 	}
 
 	const dayNumber = moment(startedWorkAt)
@@ -56,7 +56,7 @@ const sendCustomersRecapEmail = async ({userId}) => {
 
 	const itemFilter = `
 		status: FINISHED
-		finishedAt_gte: ${startedWorkAt}
+		finishedAt_gte: "${startedWorkAt.toJSON()}"
 	`;
 
 	user = await prisma.user({id: userId}).$fragment(gql`
@@ -91,17 +91,15 @@ const sendCustomersRecapEmail = async ({userId}) => {
 		}
 	`);
 
+	if (!user.company.customers.length) {
+		console.log(
+			`User '${user.email}' is lazy and did nothing today, aborting.`,
+		);
+		return;
+	}
+
 	await Promise.all(
 		user.company.customers.map(async (customer) => {
-			if (customer.projects.length <= 0) {
-				console.log(
-					`User '${user.email}' did not complete any tasks for ${
-						customer.email
-					} today, aborting.`,
-				);
-				return;
-			}
-
 			await sendCustomerEveningEmail({
 				email: customer.email,
 				user: `${user.firstName} ${user.lastName}`.trim(),
@@ -114,11 +112,15 @@ const sendCustomersRecapEmail = async ({userId}) => {
 				})),
 			});
 
-			console.log(`Sent today's completed tasks to ${customer.email}`);
+			console.log(
+				`Sent today's '${user.email}'s completed tasks to ${customer.email}`,
+			);
 		}),
 	);
 
-	console.log(`Sent today's completed tasks to '${user.email}'s customers.`);
+	console.log(
+		`Sent today's all completed tasks to '${user.email}'s customers.`,
+	);
 };
 
 module.exports = {
