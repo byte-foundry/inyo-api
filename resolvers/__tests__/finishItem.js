@@ -12,6 +12,10 @@ jest.mock('../../stats');
 jest.mock('../../emails/TaskEmail');
 jest.mock('../../reminders/cancelReminder');
 
+beforeEach(() => {
+	jest.clearAllMocks();
+});
+
 describe('finishItem', () => {
 	it('should let a user finish a project user item', async () => {
 		const args = {
@@ -35,6 +39,7 @@ describe('finishItem', () => {
 									id: 'project-id',
 									token: 'mon-token',
 									name: "C'est notre projeeet",
+									notifyActivityToCustomer: true,
 									customer: {
 										title: 'MONSIEUR',
 										firstName: 'Jean',
@@ -98,6 +103,88 @@ describe('finishItem', () => {
 		});
 	});
 
+	it('should not notify a customer if the user has disabled it', async () => {
+		const args = {
+			id: 'item-id',
+		};
+		const ctx = {
+			request: {
+				get: () => 'user-token',
+			},
+			db: {
+				items: () => ({
+					$fragment: () => [
+						{
+							name: 'Mon item',
+							status: 'PENDING',
+							reviewer: 'USER',
+							pendingReminders: [],
+							section: {
+								id: 'section-id',
+								project: {
+									id: 'project-id',
+									token: 'mon-token',
+									name: "C'est plus notre projeeet",
+									notifyActivityToCustomer: false,
+									customer: {
+										title: 'MONSIEUR',
+										firstName: 'Jean',
+										lastName: 'Michel',
+										email: 'jean@michel.org',
+										serviceCompany: {
+											owner: {
+												email: 'chouche@gitan.fm',
+												firstName: 'Adrien',
+												lastName: 'David',
+											},
+										},
+									},
+									status: 'ONGOING',
+									sections: [
+										{
+											name: 'Ma section',
+											items: [
+												{
+													name: 'Mon item',
+													unit: 1,
+													status: 'PENDING',
+												},
+											],
+										},
+									],
+								},
+							},
+						},
+					],
+				}),
+				item: () => ({
+					$fragment: () => ({
+						section: {
+							items: [],
+							project: {
+								sections: [],
+							},
+						},
+					}),
+				}),
+				updateItem: ({data}) => ({
+					id: 'item-id',
+					...data,
+				}),
+				updateManyReminders: jest.fn(),
+			},
+		};
+
+		const item = await finishItem({}, args, ctx);
+
+		expect(sendTaskValidationEmail).not.toHaveBeenCalled();
+
+		expect(item).toMatchObject({
+			id: args.id,
+			status: 'FINISHED',
+		});
+	});
+
 	it("should send a mail and reminders when the customer's action is required", async () => {
 		const args = {
 			id: 'item-id',
@@ -120,6 +207,7 @@ describe('finishItem', () => {
 									id: 'project-id',
 									token: 'mon-token',
 									name: "C'est notre projeeet",
+									notifyActivityToCustomer: true,
 									customer: {
 										title: 'MONSIEUR',
 										firstName: 'Jean',
@@ -260,6 +348,7 @@ describe('finishItem', () => {
 									id: 'project-id',
 									token: 'customer-token',
 									name: "C'est notre projeeet",
+									notifyActivityToCustomer: true,
 									customer: {
 										title: 'MONSIEUR',
 										firstName: 'Jean',
@@ -345,6 +434,7 @@ describe('finishItem', () => {
 									id: 'project-id',
 									token: 'customer-token',
 									name: "C'est notre projeeet",
+									notifyActivityToCustomer: true,
 									customer: {
 										title: 'MONSIEUR',
 										firstName: 'Jean',
@@ -419,6 +509,7 @@ describe('finishItem', () => {
 									id: 'project-id',
 									token: 'customer-token',
 									name: "C'est notre projeeet",
+									notifyActivityToCustomer: true,
 									customer: {
 										title: 'MONSIEUR',
 										firstName: 'Jean',
