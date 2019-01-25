@@ -1,7 +1,13 @@
 const {getUserId} = require('../utils');
 const {NotFoundError} = require('../errors');
 
-const updateProject = async (parent, {id, name, deadline}, ctx) => {
+const updateProject = async (
+	parent,
+	{
+		id, name, deadline, notifyActivityToCustomer,
+	},
+	ctx,
+) => {
 	const [project] = await ctx.db.projects({
 		where: {
 			id,
@@ -28,6 +34,7 @@ const updateProject = async (parent, {id, name, deadline}, ctx) => {
 		data: {
 			name,
 			deadline,
+			notifyActivityToCustomer,
 		},
 	});
 };

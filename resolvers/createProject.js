@@ -7,7 +7,13 @@ const {sendMetric} = require('../stats');
 const createProject = async (
 	parent,
 	{
-		customerId, customer, name, template, sections, deadline,
+		customerId,
+		customer,
+		name,
+		template,
+		sections,
+		deadline,
+		notifyActivityToCustomer,
 	},
 	ctx,
 ) => {
@@ -55,6 +61,7 @@ const createProject = async (
 			})),
 		},
 		status: 'DRAFT',
+		notifyActivityToCustomer,
 		deadline,
 	});
 
