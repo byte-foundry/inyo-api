@@ -133,6 +133,8 @@ type Mutation {
 	# Update item properties
 	updateItem(
 		id: ID!
+		# Updating the item's section in the project
+		sectionId: ID
 		token: String
 		name: String
 		type: ItemType

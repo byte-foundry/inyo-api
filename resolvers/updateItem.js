@@ -13,6 +13,7 @@ const updateItem = async (
 	parent,
 	{
 		id,
+		sectionId,
 		name,
 		type,
 		description,
@@ -102,6 +103,7 @@ const updateItem = async (
 					}
 				}
 				project {
+					id
 					status
 					customer {
 						title
@@ -127,6 +129,19 @@ const updateItem = async (
 			throw new Error(
 				`Item '${id}' cannot be updated when the project is finished.`,
 			);
+		}
+
+		if (sectionId) {
+			const sectionExists = await ctx.db.$exists.section({
+				id: sectionId,
+				project: {id: item.section.project.id},
+			});
+
+			if (!sectionExists) {
+				throw new Error(
+					`Item '${id}' cannot be moved into Section '${sectionId}', it has not been found in the project.`,
+				);
+			}
 		}
 
 		let position;
@@ -175,6 +190,7 @@ const updateItem = async (
 		const updatedItem = await ctx.db.updateItem({
 			where: {id},
 			data: {
+				section: sectionId && {connect: {id: sectionId}},
 				name,
 				type,
 				description,
