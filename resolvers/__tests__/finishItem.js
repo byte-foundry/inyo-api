@@ -2,6 +2,7 @@ import {finishItem} from '../finishItem';
 
 import cancelReminder from '../../reminders/cancelReminder';
 import {
+	sendTaskValidationEmail,
 	sendTaskValidationWaitCustomerEmail,
 	setupItemReminderEmail,
 } from '../../emails/TaskEmail';
