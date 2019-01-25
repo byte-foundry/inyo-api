@@ -1,7 +1,11 @@
 const crypto = require('crypto');
 
 const {prisma} = require('../generated/prisma-client');
-const {sendDayTasks, endSnoozeItem} = require('../events');
+const {
+	sendCustomersRecapEmail,
+	sendDayTasks,
+	endSnoozeItem,
+} = require('../events');
 
 const posthookReceiver = async (req, res) => {
 	const hmac = crypto.createHmac('sha256', process.env.POSTHOOK_SIGNATURE);
@@ -45,6 +49,9 @@ const posthookReceiver = async (req, res) => {
 		switch (reminder.type) {
 		case 'MORNING_TASKS':
 			callback = sendDayTasks;
+			break;
+		case 'EVENING_RECAP':
+			callback = sendCustomersRecapEmail;
 			break;
 		case 'SNOOZE_END':
 			callback = endSnoozeItem;

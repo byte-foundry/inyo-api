@@ -74,6 +74,7 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 			where: {id},
 			data: {
 				status: 'PENDING',
+				finishedAt: null,
 			},
 		});
 	}
@@ -137,6 +138,7 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 		where: {id},
 		data: {
 			status: 'PENDING',
+			finishedAt: null,
 		},
 	});
 };

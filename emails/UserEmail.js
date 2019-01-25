@@ -16,10 +16,7 @@ async function sendMorningEmail({email, ...data}) {
 	});
 }
 
-async function sendEveningEmail() {}
-
 module.exports = {
 	sendResetPasswordEmail,
 	sendMorningEmail,
-	sendEveningEmail,
 };
