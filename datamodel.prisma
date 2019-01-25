@@ -225,6 +225,7 @@ type Project {
 	viewedByCustomer: Boolean! @default(value: false)
 	issuedAt: DateTime
 	deadline: DateTime
+	notifyActivityToCustomer: Boolean! @default(value: true)
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }

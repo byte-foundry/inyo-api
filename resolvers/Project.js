@@ -40,6 +40,7 @@ const Project = {
 	viewedByCustomer: node => node.viewedByCustomer,
 	issuedAt: node => node.issuedAt,
 	deadline: node => node.deadline,
+	notifyActivityToCustomer: node => node.notifyActivityToCustomer,
 	daysUntilDeadline: async (node, args, ctx) => {
 		const user = await ctx.db
 			.project({id: node.id})

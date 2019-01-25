@@ -88,6 +88,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 					id
 					token
 					name
+					notifyActivityToCustomer
 					customer {
 						title
 						firstName
@@ -307,6 +308,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 					nextItemName: nextItem.name,
 					nextItemDescription: filterDescription(nextItem.description),
 				});
+				console.log('Content acquisition mail sent to us');
 			}
 			else if (nextItem && nextItem.reviewer === 'CUSTOMER') {
 				await setupItemReminderEmail(
@@ -328,8 +330,11 @@ const finishItem = async (parent, {id, token}, ctx) => {
 					nextItemName: nextItem.name,
 					nextItemDescription: filterDescription(nextItem.description),
 				});
+				console.log(
+					`Task validation email asking for action sent to ${customer.email}`,
+				);
 			}
-			else {
+			else if (project.notifyActivityToCustomer) {
 				await sendTaskValidationEmail({
 					...basicInfo,
 					sections: sections
@@ -342,9 +347,8 @@ const finishItem = async (parent, {id, token}, ctx) => {
 						}))
 						.filter(section => section.timeLeft > 0),
 				});
+				console.log(`Task validation email sent to ${customer.email}`);
 			}
-
-			console.log(`Task validation email sent to ${customer.email}`);
 		}
 		catch (error) {
 			console.log('Task validation email not sent', error);
