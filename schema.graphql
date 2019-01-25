@@ -70,9 +70,15 @@ type Mutation {
 		template: ProjectTemplate
 		sections: [SectionInput!]
 		deadline: DateTime
+		notifyActivityToCustomer: Boolean
 	): Project!
 	# Update project
-	updateProject(id: ID!, name: String, deadline: DateTime): Project
+	updateProject(
+		id: ID!
+		name: String
+		deadline: DateTime
+		notifyActivityToCustomer: Boolean
+	): Project
 	# Finish project
 	finishProject(id: ID!): Project!
 	# Remove project
