@@ -114,7 +114,7 @@ type Mutation {
 		items: [ItemInput!]
 	): Section!
 	# Update
-	updateSection(id: ID!, name: String!): Section
+	updateSection(id: ID!, name: String!, position: Int!): Section
 	# Remove section
 	removeSection(id: ID!): Section
 
@@ -414,6 +414,7 @@ type Section {
 	items: [Item!]!
 	# Project the section belongs to, can be null because of quotes
 	project: Project
+	position: Int!
 }
 
 type Option {

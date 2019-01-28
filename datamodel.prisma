@@ -185,6 +185,7 @@ type Section {
 	items: [Item!]! @relation(name: "SectionItems", onDelete: CASCADE)
 	option: Option @relation(name: "OptionSections")
 	project: Project @relation(name: "ProjectSections")
+	position: Int!
 }
 
 type Option {
