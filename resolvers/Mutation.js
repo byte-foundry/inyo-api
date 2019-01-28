@@ -349,9 +349,13 @@ const Mutation = {
 	//     id,
 	//   });
 	// },
-	addSection: async (parent, {
-		optionId, projectId, name, items = [],
-	}, ctx) => {
+	addSection: async (
+		parent,
+		{
+			optionId, projectId, name, items = [], position: wantedPosition,
+		},
+		ctx,
+	) => {
 		if (projectId && optionId) {
 			throw new Error('You can define only optionId or projectId');
 		}
@@ -370,14 +374,42 @@ const Mutation = {
 						},
 					},
 				},
-			});
+			}).$fragment(gql`
+				fragment ProjectWithSection on Project {
+					id
+					sections(orderBy: position_ASC) {
+						id
+					}
+				}
+			`);
 
 			if (!project) {
 				throw new NotFoundError(`Project '${projectId}' has not been found.`);
 			}
 
+			// default position: end of the list
+			let position = project.sections.length;
+
+			if (wantedPosition) {
+				const wantedPositionSectionIndex = project.sections.findIndex(
+					section => section.position === wantedPosition,
+				);
+
+				if (wantedPositionSectionIndex !== -1) {
+					position = wantedPosition;
+
+					// updating all the positions from the item position
+					await Promise.all(
+						project.sections.slice(position).map((section, index) => ctx.db.updateSection({
+							where: {id: section.id},
+							data: {position: position + index + 1},
+						})),
+					);
+				}
+			}
+
 			variables = {
-				project: {connect: {id: projectId}},
+				project: {connect: {id: projectId}, position},
 			};
 		}
 		else if (optionId) {
@@ -401,7 +433,7 @@ const Mutation = {
 			}
 
 			variables = {
-				option: {connect: {id: optionId}},
+				option: {connect: {id: optionId}, position: 0},
 			};
 		}
 
