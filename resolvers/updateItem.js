@@ -130,6 +130,9 @@ const updateItem = async (
 					status
 					sections(where: {id: "${sectionId}"}) {
 						id
+						items(orderBy: position_ASC) {
+							id
+						}
 					}
 					customer {
 						title
@@ -157,8 +160,8 @@ const updateItem = async (
 			);
 		}
 
-		let position;
-		const initialPosition = item.section.items.findIndex(
+		let position = wantedPosition;
+		let initialPosition = item.section.items.findIndex(
 			sectionItem => sectionItem.id === item.id,
 		);
 
@@ -186,14 +189,17 @@ const updateItem = async (
 			await reorderSection(
 				item.section,
 				initialPosition,
-				item.section.length,
+				item.section.items.length,
 				ctx,
 			);
+
+			initialPosition = wantedSection.items.length;
 		}
 
 		if (
-			typeof wantedPosition === 'number'
-			&& wantedPosition !== initialPosition
+			(typeof wantedPosition === 'number'
+				&& wantedPosition !== initialPosition)
+			|| (sectionId && sectionId !== item.section.id)
 		) {
 			if (wantedPosition < 0) {
 				position = 0;

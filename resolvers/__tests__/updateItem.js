@@ -256,4 +256,83 @@ describe('updateItem', () => {
 
 		expect(item).toMatchObject(args);
 	});
+
+	it('should work moving to another section position', async () => {
+		const args = {
+			id: 'item-1',
+			sectionId: 'section-2',
+			position: 1,
+		};
+		const ctx = {
+			request: {
+				get: () => 'user-token',
+			},
+			db: {
+				user: () => ({
+					id: 'user-id',
+					firstName: 'Jean',
+					lastName: 'Michel',
+				}),
+				items: () => ({
+					$fragment: () => [
+						{
+							id: 'item-1',
+							name: 'name',
+							status: 'PENDING',
+							description: 'description',
+							unit: 2,
+							reviewer: 'USER',
+							position: 1,
+							section: {
+								id: 'section-id',
+								items: [
+									{id: 'item-0', position: 0},
+									{id: 'item-1', position: 1},
+									{id: 'item-2', position: 2},
+								],
+								project: {
+									...project,
+									sections: [
+										{
+											id: 'section-2',
+											items: [
+												{id: 'item-a', position: 0},
+												{id: 'item-b', position: 1},
+											],
+										},
+									],
+								},
+							},
+						},
+					],
+				}),
+				updateItem: jest.fn(({where, data}) => ({
+					id: where.id,
+					...data,
+				})),
+			},
+		};
+
+		const item = await updateItem({}, args, ctx);
+
+		expect(ctx.db.updateItem).toHaveBeenNthCalledWith(1, {
+			where: {id: 'item-2'},
+			data: {position: 1},
+		});
+		expect(ctx.db.updateItem).toHaveBeenNthCalledWith(2, {
+			where: {id: 'item-b'},
+			data: {position: 2},
+		});
+		expect(ctx.db.updateItem).toHaveBeenNthCalledWith(3, {
+			where: {id: 'item-1'},
+			data: expect.objectContaining({
+				position: 1,
+				section: {connect: {id: 'section-2'}},
+			}),
+		});
+
+		delete args.sectionId;
+
+		expect(item).toMatchObject(args);
+	});
 });
