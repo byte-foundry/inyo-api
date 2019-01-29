@@ -9,10 +9,33 @@ const titleToCivilite = {
 	MADAME: 'Mme',
 };
 
+const reorderSection = async (
+	section,
+	initialPosition,
+	wantedPosition,
+	ctx,
+) => {
+	const itemsToUpdate
+		= wantedPosition > initialPosition
+			? section.items.slice(initialPosition + 1, wantedPosition + 1)
+			: section.items.slice(wantedPosition, initialPosition);
+
+	const startIndex
+		= wantedPosition > initialPosition ? initialPosition : wantedPosition + 1;
+
+	await Promise.all(
+		itemsToUpdate.map((sectionItem, index) => ctx.db.updateItem({
+			where: {id: sectionItem.id},
+			data: {position: startIndex + index},
+		})),
+	);
+};
+
 const updateItem = async (
 	parent,
 	{
 		id,
+		sectionId,
 		name,
 		type,
 		description,
@@ -92,6 +115,7 @@ const updateItem = async (
 			status
 			position
 			section {
+				id
 				items(orderBy: position_ASC) {
 					id
 					position
@@ -102,7 +126,14 @@ const updateItem = async (
 					}
 				}
 				project {
+					id
 					status
+					sections(orderBy: position_ASC, where: {id: "${sectionId}"}) {
+						id
+						items(orderBy: position_ASC) {
+							id
+						}
+					}
 					customer {
 						title
 						firstName
@@ -129,8 +160,8 @@ const updateItem = async (
 			);
 		}
 
-		let position;
-		const initialPosition = item.section.items.findIndex(
+		let position = wantedPosition;
+		let initialPosition = item.section.items.findIndex(
 			sectionItem => sectionItem.id === item.id,
 		);
 
@@ -142,39 +173,51 @@ const updateItem = async (
 			);
 		}
 
+		let wantedSection = item.section;
+
+		if (sectionId && sectionId !== item.section.id) {
+			[wantedSection] = project.sections;
+
+			if (!wantedSection) {
+				throw new Error(
+					`Item '${id}' cannot be moved into Section '${sectionId}', it has not been found in the project.`,
+				);
+			}
+
+			// if we change section, we need to re-order the previous one
+			// putting it at the end of the section first
+			await reorderSection(
+				item.section,
+				initialPosition,
+				item.section.items.length,
+				ctx,
+			);
+
+			initialPosition = wantedSection.items.length;
+		}
+
 		if (
-			typeof wantedPosition === 'number'
-			&& wantedPosition !== initialPosition
+			(typeof wantedPosition === 'number'
+				&& wantedPosition !== initialPosition)
+			|| (sectionId && sectionId !== item.section.id)
 		) {
 			if (wantedPosition < 0) {
 				position = 0;
 			}
-			else if (wantedPosition > item.section.items.length) {
-				position = item.section.items.length;
+			else if (wantedPosition > wantedSection.items.length) {
+				position = wantedSection.items.length;
 			}
 			else {
 				position = wantedPosition;
 			}
 
-			const itemsToUpdate
-				= wantedPosition > initialPosition
-					? item.section.items.slice(initialPosition + 1, wantedPosition + 1)
-					: item.section.items.slice(wantedPosition, initialPosition);
-
-			const startIndex
-				= wantedPosition > initialPosition ? initialPosition : wantedPosition + 1;
-
-			await Promise.all(
-				itemsToUpdate.map((sectionItem, index) => ctx.db.updateItem({
-					where: {id: sectionItem.id},
-					data: {position: startIndex + index},
-				})),
-			);
+			reorderSection(wantedSection, initialPosition, wantedPosition, ctx);
 		}
 
 		const updatedItem = await ctx.db.updateItem({
 			where: {id},
 			data: {
+				section: sectionId && {connect: {id: wantedSection.id}},
 				name,
 				type,
 				description,

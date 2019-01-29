@@ -34,9 +34,9 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 					token
 					name
 					status
-					sections {
+					sections(orderBy: position_ASC) {
 						name
-						items {
+						items(orderBy: position_ASC) {
 							status
 						}
 					}

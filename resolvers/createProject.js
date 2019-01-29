@@ -50,7 +50,7 @@ const createProject = async (
 		template,
 		token: uuid(),
 		sections: sections && {
-			create: sections.map(section => ({
+			create: sections.map((section, sectionIndex) => ({
 				...section,
 				items: section.items && {
 					create: section.items.map((item, index) => ({
@@ -58,6 +58,7 @@ const createProject = async (
 						position: index,
 					})),
 				},
+				position: sectionIndex,
 			})),
 		},
 		status: 'DRAFT',

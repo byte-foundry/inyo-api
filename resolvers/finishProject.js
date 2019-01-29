@@ -19,8 +19,8 @@ const finishProject = async (parent, {id}, ctx) => {
 		fragment ProjectWithItemStatuses on Project {
 			id
 			status
-			sections {
-				items {
+			sections(orderBy: position_ASC) {
+				items(orderBy: position_ASC) {
 					status
 				}
 			}
