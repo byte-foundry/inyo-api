@@ -3,6 +3,7 @@ const Section = {
 	name: node => node.name,
 	items: (node, args, ctx) => ctx.db.section({id: node.id}).items({orderBy: 'position_ASC'}),
 	project: (node, args, ctx) => ctx.db.section({id: node.id}).project(),
+	position: node => node.position,
 };
 
 module.exports = {

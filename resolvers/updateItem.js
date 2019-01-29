@@ -128,7 +128,7 @@ const updateItem = async (
 				project {
 					id
 					status
-					sections(where: {id: "${sectionId}"}) {
+					sections(orderBy: position_ASC, where: {id: "${sectionId}"}) {
 						id
 						items(orderBy: position_ASC) {
 							id

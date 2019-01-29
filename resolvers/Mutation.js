@@ -491,7 +491,7 @@ const Mutation = {
 
 		const {project} = section;
 		let position;
-		const initialPosition = project.findIndex(
+		const initialPosition = project.sections.findIndex(
 			projectSection => projectSection.id === section.id,
 		);
 

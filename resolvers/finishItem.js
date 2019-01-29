@@ -104,9 +104,9 @@ const finishItem = async (parent, {id, token}, ctx) => {
 						}
 					}
 					status
-					sections {
+					sections(orderBy: position_ASC) {
 						name
-						items {
+						items(orderBy: position_ASC) {
 							name
 							unit
 							status
@@ -250,6 +250,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 					}
 					project {
 						sections(
+							orderBy: position_ASC
 							after: "${item.section.id}"
 							where: { items_some: {} }
 						) {

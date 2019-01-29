@@ -80,8 +80,8 @@ const sendCustomersRecapEmail = async ({userId}) => {
 						id
 						token
 						name
-						sections(where: { items_some: { ${itemFilter} } }) {
-							items(where: { ${itemFilter} }) {
+						sections(orderBy: position_ASC, where: { items_some: { ${itemFilter} } }) {
+							items(orderBy: position_ASC, where: { ${itemFilter} }) {
 								name
 							}
 						}
