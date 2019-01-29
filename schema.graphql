@@ -112,9 +112,10 @@ type Mutation {
 		projectId: ID
 		name: String!
 		items: [ItemInput!]
+		position: Int
 	): Section!
 	# Update
-	updateSection(id: ID!, name: String!, position: Int!): Section
+	updateSection(id: ID!, name: String, position: Int): Section
 	# Remove section
 	removeSection(id: ID!): Section
 
