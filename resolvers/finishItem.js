@@ -103,9 +103,9 @@ const finishItem = async (parent, {id, token}, ctx) => {
 						}
 					}
 					status
-					sections {
+					sections(orderBy: position_ASC) {
 						name
-						items {
+						items(orderBy: position_ASC) {
 							name
 							unit
 							status
@@ -175,6 +175,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 			where: {id},
 			data: {
 				status: 'FINISHED',
+				finishedAt: new Date(),
 			},
 		});
 	}
@@ -248,6 +249,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 					}
 					project {
 						sections(
+							orderBy: position_ASC
 							after: "${item.section.id}"
 							where: { items_some: {} }
 						) {
@@ -307,6 +309,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 					nextItemName: nextItem.name,
 					nextItemDescription: filterDescription(nextItem.description),
 				});
+				console.log('Content acquisition email sent to us');
 			}
 			else if (nextItem && nextItem.reviewer === 'CUSTOMER') {
 				await setupItemReminderEmail(
@@ -328,23 +331,10 @@ const finishItem = async (parent, {id, token}, ctx) => {
 					nextItemName: nextItem.name,
 					nextItemDescription: filterDescription(nextItem.description),
 				});
+				console.log(
+					`Task validation email asking for action sent to ${customer.email}`,
+				);
 			}
-			else {
-				/*await sendTaskValidationEmail({
-					...basicInfo,
-					sections: sections
-						.map(section => ({
-							name: section.name,
-							timeLeft: section.items
-								.filter(item => item.id !== id)
-								.filter(item => item.status === 'PENDING')
-								.reduce((acc, item) => acc + item.unit, 0),
-						}))
-						.filter(section => section.timeLeft > 0),
-				});*/
-			}
-
-			console.log(`Task validation email sent to ${customer.email}`);
 		}
 		catch (error) {
 			console.log('Task validation email not sent', error);
@@ -397,6 +387,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 		where: {id},
 		data: {
 			status: 'FINISHED',
+			finishedAt: new Date(),
 		},
 	});
 };

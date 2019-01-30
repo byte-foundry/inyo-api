@@ -70,9 +70,15 @@ type Mutation {
 		template: ProjectTemplate
 		sections: [SectionInput!]
 		deadline: DateTime
+		notifyActivityToCustomer: Boolean
 	): Project!
 	# Update project
-	updateProject(id: ID!, name: String, deadline: DateTime): Project
+	updateProject(
+		id: ID!
+		name: String
+		deadline: DateTime
+		notifyActivityToCustomer: Boolean
+	): Project
 	# Finish project
 	finishProject(id: ID!): Project!
 	# Remove project
@@ -106,9 +112,10 @@ type Mutation {
 		projectId: ID
 		name: String!
 		items: [ItemInput!]
+		position: Int
 	): Section!
 	# Update
-	updateSection(id: ID!, name: String!): Section
+	updateSection(id: ID!, name: String, position: Int): Section
 	# Remove section
 	removeSection(id: ID!): Section
 
@@ -127,6 +134,8 @@ type Mutation {
 	# Update item properties
 	updateItem(
 		id: ID!
+		# Updating the item's section in the project
+		sectionId: ID
 		token: String
 		name: String
 		type: ItemType
@@ -406,6 +415,7 @@ type Section {
 	items: [Item!]!
 	# Project the section belongs to, can be null because of quotes
 	project: Project
+	position: Int!
 }
 
 type Option {
@@ -442,6 +452,7 @@ type Project {
 	viewedByCustomer: Boolean!
 	issuedAt: DateTime
 	deadline: DateTime
+	notifyActivityToCustomer: Boolean!
 	daysUntilDeadline: Int
 	createdAt: DateTime!
 	updatedAt: DateTime!

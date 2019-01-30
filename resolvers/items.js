@@ -25,6 +25,7 @@ const items = async (root, args, ctx) => {
 			deadline
 			sections(
 				# the sections we want must have at least a pending item
+				orderBy: position_ASC
 				where: {items_some: {status: PENDING}}
 			) {
 				id

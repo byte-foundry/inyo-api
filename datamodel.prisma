@@ -173,7 +173,10 @@ type Item {
 	reviewer: Reviewer! @default(value: USER)
 	reminders: [Reminder!]! @relation(name: "ItemReminders", onDelete: CASCADE)
 	snoozedUntil: Reminder @relation(name: "SnoozeReminders", onDelete: CASCADE)
+	finishedAt: DateTime
 	position: Int!
+	createdAt: DateTime!
+	updatedAt: DateTime!
 }
 
 type Section {
@@ -182,6 +185,7 @@ type Section {
 	items: [Item!]! @relation(name: "SectionItems", onDelete: CASCADE)
 	option: Option @relation(name: "OptionSections")
 	project: Project @relation(name: "ProjectSections")
+	position: Int!
 }
 
 type Option {
@@ -225,6 +229,7 @@ type Project {
 	viewedByCustomer: Boolean! @default(value: false)
 	issuedAt: DateTime
 	deadline: DateTime
+	notifyActivityToCustomer: Boolean! @default(value: true)
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }

@@ -349,9 +349,13 @@ const Mutation = {
 	//     id,
 	//   });
 	// },
-	addSection: async (parent, {
-		optionId, projectId, name, items = [],
-	}, ctx) => {
+	addSection: async (
+		parent,
+		{
+			optionId, projectId, name, items = [], position: wantedPosition,
+		},
+		ctx,
+	) => {
 		if (projectId && optionId) {
 			throw new Error('You can define only optionId or projectId');
 		}
@@ -370,14 +374,42 @@ const Mutation = {
 						},
 					},
 				},
-			});
+			}).$fragment(gql`
+				fragment ProjectWithSection on Project {
+					id
+					sections(orderBy: position_ASC) {
+						id
+					}
+				}
+			`);
 
 			if (!project) {
 				throw new NotFoundError(`Project '${projectId}' has not been found.`);
 			}
 
+			// default position: end of the list
+			let position = project.sections.length;
+
+			if (wantedPosition) {
+				const wantedPositionSectionIndex = project.sections.findIndex(
+					section => section.position === wantedPosition,
+				);
+
+				if (wantedPositionSectionIndex !== -1) {
+					position = wantedPosition;
+
+					// updating all the positions from the item position
+					await Promise.all(
+						project.sections.slice(position).map((section, index) => ctx.db.updateSection({
+							where: {id: section.id},
+							data: {position: position + index + 1},
+						})),
+					);
+				}
+			}
+
 			variables = {
-				project: {connect: {id: projectId}},
+				project: {connect: {id: projectId}, position},
 			};
 		}
 		else if (optionId) {
@@ -401,7 +433,7 @@ const Mutation = {
 			}
 
 			variables = {
-				option: {connect: {id: optionId}},
+				option: {connect: {id: optionId}, position: 0},
 			};
 		}
 
@@ -411,7 +443,7 @@ const Mutation = {
 			items: {create: items},
 		});
 	},
-	updateSection: async (parent, {id, name}, ctx) => {
+	updateSection: async (parent, {id, name, position: wantedPosition}, ctx) => {
 		const [section] = await ctx.db.sections({
 			where: {
 				id,
@@ -442,15 +474,80 @@ const Mutation = {
 					},
 				],
 			},
-		});
+		}).$fragment(gql`
+			fragment sectionWithProject on Section {
+				id
+				project {
+					sections(orderBy: position_ASC) {
+						id
+					}
+				}
+			}
+		`);
 
 		if (!section) {
 			throw new NotFoundError(`Section '${id}' has not been found.`);
 		}
 
+		const {project} = section;
+		let position;
+		const initialPosition = project.sections.findIndex(
+			projectSection => projectSection.id === section.id,
+		);
+
+		if (initialPosition === -1) {
+			throw new Error(
+				`Section '${section.id}' has not been found in Project '${
+					section.project.id
+				}' sections.`,
+			);
+		}
+
+		if (
+			typeof wantedPosition === 'number'
+			&& wantedPosition !== initialPosition
+		) {
+			if (wantedPosition < 0) {
+				position = 0;
+			}
+			else if (wantedPosition > project.sections.length) {
+				position = project.sections.length;
+			}
+			else {
+				position = wantedPosition;
+			}
+
+			// TODO: externalize
+			const reorderProject = async (
+				sections,
+				initialPosition, // eslint-disable-line no-shadow
+				wantedPosition, // eslint-disable-line no-shadow
+				ctx, // eslint-disable-line no-shadow
+			) => {
+				const itemsToUpdate
+					= wantedPosition > initialPosition
+						? sections.slice(initialPosition + 1, wantedPosition + 1)
+						: sections.slice(wantedPosition, initialPosition);
+
+				const startIndex
+					= wantedPosition > initialPosition
+						? initialPosition
+						: wantedPosition + 1;
+
+				await Promise.all(
+					itemsToUpdate.map((sectionItem, index) => ctx.db.updateSection({
+						where: {id: sectionItem.id},
+						data: {position: startIndex + index},
+					})),
+				);
+			};
+
+			reorderProject(project.sections, initialPosition, position, ctx);
+		}
+
 		return ctx.db.updateSection({
 			where: {id},
-			data: {name},
+			data: {name, position},
 		});
 	},
 	removeSection: async (parent, {id}, ctx) => {

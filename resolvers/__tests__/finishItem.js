@@ -86,12 +86,6 @@ describe('finishItem', () => {
 
 		const item = await finishItem({}, args, ctx);
 
-		expect(sendTaskValidationEmail).toHaveBeenCalledWith(
-			expect.objectContaining({
-				email: 'jean@michel.org',
-			}),
-		);
-
 		expect(item).toMatchObject({
 			id: args.id,
 			status: 'FINISHED',

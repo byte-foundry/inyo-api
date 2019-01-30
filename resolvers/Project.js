@@ -1,5 +1,7 @@
 const moment = require('moment-timezone');
 
+const gql = String.raw;
+
 const weekDays = {
 	1: 'MONDAY',
 	2: 'TUESDAY',
@@ -20,10 +22,10 @@ const Project = {
 		.customer()
 		.serviceCompany(),
 	total: async (node, args, ctx) => {
-		const {sections} = await ctx.db.project({id: node.id}).$fragment(`
+		const {sections} = await ctx.db.project({id: node.id}).$fragment(gql`
 			fragment ProjectUnits on Project {
-				sections {
-					items {
+				sections(orderBy: position_ASC) {
+					items(orderBy: position_ASC) {
 						unit
 					}
 				}
@@ -36,10 +38,11 @@ const Project = {
 		);
 	},
 	status: node => node.status,
-	sections: (node, args, ctx) => ctx.db.project({id: node.id}).sections(),
+	sections: (node, args, ctx) => ctx.db.project({id: node.id}).sections({orderBy: 'position_ASC'}),
 	viewedByCustomer: node => node.viewedByCustomer,
 	issuedAt: node => node.issuedAt,
 	deadline: node => node.deadline,
+	notifyActivityToCustomer: node => node.notifyActivityToCustomer,
 	daysUntilDeadline: async (node, args, ctx) => {
 		const user = await ctx.db
 			.project({id: node.id})

@@ -31,7 +31,7 @@ const scheduleMorningEmail = async (user, startNextWorkDayAt) => {
 };
 
 const scheduleEveningEmail = async (user, endNextWorkDayAt) => {
-	console.log('Scheduling evening email for', user.email);
+	console.log('Scheduling evening emails for', user.email);
 
 	return createPosthookReminder({
 		type: 'EVENING_RECAP',
@@ -96,42 +96,53 @@ const scheduleDailyMails = async (req, res) => {
 		await scheduleMorningEmail(user, startNextWorkDayAt);
 	});
 
-	// checking to whom we can send a morning mail
-	// const eveningUsers = await prisma.users({
-	// 	where: {
-	// 		endWorkAt_not: null,
-	// 		OR: [
-	// 			{
-	// 				eveningReminders_some: {},
-	// 				eveningReminders_every: {
-	// 					sendingDate_lt: new Date().toJSON()
-	// 				},
-	// 			},
-	// 			{
-	// 				eveningReminders_none: {},
-	// 			},
-	// 		],
-	//   },
-	// }).$fragment(gql`
-	// 	fragment EveningWorkingUser on User {
-	// 		id
-	// 		endWorkAt
-	// 	}
-	// `);
+	// checking to whom we can send an evening mail
+	const eveningUsers = await prisma.users({
+		where: {
+			endWorkAt_not: null,
+			OR: [
+				{
+					eveningReminders_some: {},
+					eveningReminders_every: {
+						sendingDate_lt: new Date().toJSON(),
+					},
+				},
+				{
+					eveningReminders_none: {},
+				},
+			],
+		},
+	}).$fragment(gql`
+		fragment EveningWorkingUser on User {
+			id
+			email
+			endWorkAt
+			timeZone
+			workingDays
+		}
+	`);
 
-	// eveningUsers.forEach(async (user) => {
-	// 	const reminder = await scheduleEveningEmail(user);
+	eveningUsers.forEach(async (user) => {
+		const now = new Date();
+		const endNextWorkDayAt = new Date(
+			`${now.toJSON().split('T')[0]}T${user.endWorkAt.split('T')[1]}`,
+		);
 
-	// 	await prisma.createReminder({
-	// 		eveningRemindersUser: {
-	// 			connect: {id: user.id},
-	// 		},
-	// 		postHookId: reminder.postHookId,
-	// 		type: 'EVENING_RECAP',
-	// 		status: 'PENDING',
-	// 		sendingDate: reminder.sendingDate,
-	// 	});
-	// })
+		if (now - endNextWorkDayAt > 0) {
+			endNextWorkDayAt.setDate(endNextWorkDayAt.getDate() + 1);
+		}
+
+		const dayNumber = moment(endNextWorkDayAt)
+			.tz(user.timeZone || 'Europe/Paris')
+			.day();
+
+		// don't schedule an email if it's not a worked day
+		if (!user.workingDays.includes(weekDays[dayNumber])) {
+			return;
+		}
+
+		await scheduleEveningEmail(user, endNextWorkDayAt);
+	});
 
 	return res.status(200).send();
 };

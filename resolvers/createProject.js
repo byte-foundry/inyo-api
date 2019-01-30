@@ -7,7 +7,13 @@ const {sendMetric} = require('../stats');
 const createProject = async (
 	parent,
 	{
-		customerId, customer, name, template, sections, deadline,
+		customerId,
+		customer,
+		name,
+		template,
+		sections,
+		deadline,
+		notifyActivityToCustomer,
 	},
 	ctx,
 ) => {
@@ -44,7 +50,7 @@ const createProject = async (
 		template,
 		token: uuid(),
 		sections: sections && {
-			create: sections.map(section => ({
+			create: sections.map((section, sectionIndex) => ({
 				...section,
 				items: section.items && {
 					create: section.items.map((item, index) => ({
@@ -52,9 +58,11 @@ const createProject = async (
 						position: index,
 					})),
 				},
+				position: sectionIndex,
 			})),
 		},
 		status: 'DRAFT',
+		notifyActivityToCustomer,
 		deadline,
 	});
 
