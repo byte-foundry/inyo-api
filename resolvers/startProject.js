@@ -1,14 +1,11 @@
 const gql = String.raw;
 
-const {getUserId, getAppUrl, titleNameEmail} = require('../utils');
+const {
+	getUserId, getAppUrl, formatFullName, formatName,
+} = require('../utils');
 const {NotFoundError} = require('../errors');
 const {sendMetric} = require('../stats');
 const {sendProjectStartedEmail} = require('../emails/ProjectEmail');
-
-const titleToCivilite = {
-	MONSIEUR: 'M.',
-	MADAME: 'Mme',
-};
 
 const startProject = async (parent, {id, notifyCustomer = true}, ctx) => {
 	const [project] = await ctx.db.projects({
@@ -69,11 +66,16 @@ const startProject = async (parent, {id, notifyCustomer = true}, ctx) => {
 		try {
 			await sendProjectStartedEmail({
 				email: customer.email,
-				customerName: titleNameEmail` ${titleToCivilite[customer.title]} ${
-					customer.firstName
-				} ${customer.lastName}`,
+				customerName: String(
+					` ${
+						formatFullName(
+							customer.title,
+							customer.firstName,
+							customer.lastName,
+						)}`,
+				).trimRight(),
 				projectName: project.name,
-				user: `${user.firstName} ${user.lastName}`,
+				user: formatName(user.firstName, user.lastName),
 				url: getAppUrl(`/projects/${project.id}/view/${project.token}`),
 			});
 			console.log(`Project email sent to ${customer.email}`);
