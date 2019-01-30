@@ -6,7 +6,12 @@ const moment = require('moment');
 const gql = String.raw;
 
 const {
-	APP_SECRET, getUserId, getRootUrl, getAppUrl,
+	APP_SECRET,
+	getUserId,
+	getRootUrl,
+	getAppUrl,
+	formatFullName,
+	formatName,
 } = require('../utils');
 const {NotFoundError, InsufficientDataError} = require('../errors');
 const {processUpload} = require('../files');
@@ -39,11 +44,6 @@ const {unsnoozeItem} = require('./unsnoozeItem');
 const {finishItem} = require('./finishItem');
 const {unfinishItem} = require('./unfinishItem');
 const {postComment} = require('./postComment');
-
-const titleToCivilite = {
-	MONSIEUR: 'M.',
-	MADAME: 'Mme',
-};
 
 const Mutation = {
 	checkEmailAvailability,
@@ -711,12 +711,15 @@ const Mutation = {
 			await sendQuoteEmail({
 				email: quote.customer.email,
 				customerName: String(
-					` ${titleToCivilite[quote.customer.title]} ${
-						quote.customer.firstName
-					} ${quote.customer.lastName}`,
+					` ${
+						formatFullName(
+							quote.customer.title,
+							quote.customer.firstName,
+							quote.customer.lastName,
+						)}`,
 				).trimRight(),
 				projectName: quote.name,
-				user: `${user.firstName} ${user.lastName}`,
+				user: formatName(user.firstName, user.lastName),
 				quoteUrl: getAppUrl(`/quotes/${quote.id}/view/${quote.token}`),
 			});
 			console.log(
@@ -865,11 +868,14 @@ const Mutation = {
 		try {
 			await sendAmendmentEmail({
 				email: quote.customer.email,
-				user: String(`${user.firstName} ${user.lastName}`).trim(),
+				user: formatName(user.firstName, user.lastName),
 				customerName: String(
-					` ${titleToCivilite[quote.customer.title]} ${
-						quote.customer.firstName
-					} ${quote.customer.lastName}`,
+					` ${
+						formatFullName(
+							quote.customer.title,
+							quote.customer.firstName,
+							quote.customer.lastName,
+						)}`,
 				).trimRight(),
 				projectName: quote.name,
 				quoteUrl: getAppUrl(`/quotes/${quote.id}/view/${quote.token}`),
@@ -891,11 +897,14 @@ const Mutation = {
 			await setupAmendmentReminderEmail(
 				{
 					email: quote.customer.email,
-					user: String(`${user.firstName} ${user.lastName}`).trim(),
+					user: formatName(user.firstName, user.lastName),
 					customerName: String(
-						` ${titleToCivilite[quote.customer.title]} ${
-							quote.customer.firstName
-						} ${quote.customer.lastName}`,
+						` ${
+							formatFullName(
+								quote.customer.title,
+								quote.customer.firstName,
+								quote.customer.lastName,
+							)}`,
 					).trimRight(),
 					projectName: quote.name,
 					quoteUrl: getAppUrl(`/quotes/${quote.id}?token=${quote.token}`),
@@ -1136,11 +1145,14 @@ const Mutation = {
 		try {
 			await sendAcceptedQuoteEmail({
 				email: user.email,
-				user: `${user.firstName} ${user.lastName}`,
+				user: formatName(user.firstName, user.lastName),
 				customerName: String(
-					` ${titleToCivilite[quote.customer.title]} ${
-						quote.customer.firstName
-					} ${quote.customer.lastName}`,
+					` ${
+						formatFullName(
+							quote.customer.title,
+							quote.customer.firstName,
+							quote.customer.lastName,
+						)}`,
 				).trimRight(),
 				projectName: quote.name,
 				quoteUrl: getAppUrl(`/quotes/${quote.id}/see`),
@@ -1198,11 +1210,14 @@ const Mutation = {
 		try {
 			await sendRejectedQuoteEmail({
 				email: user.email,
-				user: `${user.firstName} ${user.lastName}`,
+				user: formatName(user.firstName, user.lastName),
 				customerName: String(
-					` ${titleToCivilite[quote.customer.title]} ${
-						quote.customer.firstName
-					} ${quote.customer.lastName}`,
+					` ${
+						formatFullName(
+							quote.customer.title,
+							quote.customer.firstName,
+							quote.customer.lastName,
+						)}`,
 				).trimRight(),
 				projectName: quote.name,
 				quoteUrl: getAppUrl(`/quotes/${quote.id}/see`),

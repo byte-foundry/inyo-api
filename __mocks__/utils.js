@@ -18,21 +18,31 @@ function getAppUrl(uri) {
 	return uri;
 }
 
-function titleNameEmail(strings, title, firstName, lastName) {
-	const titleToRender = title !== undefined && title !== null ? title : '';
-	const firstNameToRender
-		= firstName !== undefined && firstName !== null ? firstName : '';
-	const lastNameToRender
-		= lastName !== undefined && lastName !== null ? lastName : '';
+const normalizeFalsyParams = f => (...args) => f(...args.map(v => v || undefined));
 
-	return String(
-		` ${titleToRender} ${firstNameToRender} ${lastNameToRender}`,
-	).trimRight();
-}
+const formatTitle = (title) => {
+	if (title === 'MONSIEUR') {
+		return 'M.';
+	}
+
+	if (title === 'MADAME') {
+		return 'Mme';
+	}
+
+	return '';
+};
+
+const formatName = normalizeFalsyParams((firstName = '', lastName = '') => `${firstName} ${lastName}`.trim());
+
+const formatFullName = normalizeFalsyParams(
+	(title = '', firstName = '', lastName = '') => `${formatTitle(title)} ${formatName(firstName, lastName)}`.trim(),
+);
 
 module.exports = {
 	getUserId,
 	getAppUrl,
 	APP_SECRET: 'Z',
-	titleNameEmail,
+	formatTitle,
+	formatName,
+	formatFullName,
 };
