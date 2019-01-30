@@ -88,7 +88,6 @@ const finishItem = async (parent, {id, token}, ctx) => {
 					id
 					token
 					name
-					notifyActivityToCustomer
 					customer {
 						title
 						firstName
@@ -335,21 +334,6 @@ const finishItem = async (parent, {id, token}, ctx) => {
 				console.log(
 					`Task validation email asking for action sent to ${customer.email}`,
 				);
-			}
-			else if (project.notifyActivityToCustomer) {
-				await sendTaskValidationEmail({
-					...basicInfo,
-					sections: sections
-						.map(section => ({
-							name: section.name,
-							timeLeft: section.items
-								.filter(item => item.id !== id)
-								.filter(item => item.status === 'PENDING')
-								.reduce((acc, item) => acc + item.unit, 0),
-						}))
-						.filter(section => section.timeLeft > 0),
-				});
-				console.log(`Task validation email sent to ${customer.email}`);
 			}
 		}
 		catch (error) {
