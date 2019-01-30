@@ -3,7 +3,7 @@ const moment = require('moment-timezone');
 const gql = String.raw;
 
 const {prisma} = require('../generated/prisma-client');
-const {getAppUrl, titleNameEmail} = require('../utils');
+const {getAppUrl, formatFullName, formatName} = require('../utils');
 const {sendCustomerEveningEmail} = require('../emails/CustomerEmail');
 
 const weekDays = {
@@ -14,11 +14,6 @@ const weekDays = {
 	5: 'FRIDAY',
 	6: 'SATURDAY',
 	0: 'SUNDAY',
-};
-
-const titleToCivilite = {
-	MONSIEUR: 'M.',
-	MADAME: 'Mme',
 };
 
 const sendCustomersRecapEmail = async ({userId}) => {
@@ -102,10 +97,15 @@ const sendCustomersRecapEmail = async ({userId}) => {
 		user.company.customers.map(async (customer) => {
 			await sendCustomerEveningEmail({
 				email: customer.email,
-				user: `${user.firstName} ${user.lastName}`.trim(),
-				customerName: titleNameEmail` ${titleToCivilite[customer.title]} ${
-					customer.firstName
-				} ${customer.lastName}`,
+				user: formatName(user.firstName, user.lastName),
+				customerName: String(
+					` ${
+						formatFullName(
+							customer.title,
+							customer.firstName,
+							customer.lastName,
+						)}`,
+				).trimRight(),
 				projects: customer.projects.map(project => ({
 					...project,
 					url: getAppUrl(`/projects/${project.id}/view/${project.token}`),

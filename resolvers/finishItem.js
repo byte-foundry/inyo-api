@@ -1,6 +1,8 @@
 const gql = String.raw;
 
-const {getUserId, getAppUrl, titleNameEmail} = require('../utils');
+const {
+	getUserId, getAppUrl, formatFullName, formatName,
+} = require('../utils');
 const {NotFoundError} = require('../errors');
 const {sendMetric} = require('../stats');
 const {
@@ -11,11 +13,6 @@ const {
 	sendItemContentAcquisitionEmail,
 } = require('../emails/TaskEmail');
 const cancelReminder = require('../reminders/cancelReminder');
-
-const titleToCivilite = {
-	MONSIEUR: 'M.',
-	MADAME: 'Mme',
-};
 
 const filterDescription = description => description.split(/# content-acquisition-list[\s\S]+/).join('');
 
@@ -147,8 +144,14 @@ const finishItem = async (parent, {id, token}, ctx) => {
 		try {
 			await sendTaskValidationEmail({
 				email: user.email,
-				user: String(`${customer.firstName} ${customer.lastName}`).trim(),
-				customerName: titleNameEmail` ${user.firstName} ${user.lastName}`,
+				user: formatFullName(
+					customer.title,
+					customer.firstName,
+					customer.lastName,
+				),
+				customerName: String(
+					` ${formatName(user.firstName, user.lastName)}`,
+				).trimRight(),
 				projectName: project.name,
 				itemName: item.name,
 				sections: sections
@@ -287,10 +290,11 @@ const finishItem = async (parent, {id, token}, ctx) => {
 		const basicInfo = {
 			email: customer.email,
 			userEmail: user.email,
-			user: String(`${user.firstName} ${user.lastName}`).trim(),
-			customerName: titleNameEmail` ${titleToCivilite[customer.title]} ${
-				customer.firstName
-			} ${customer.lastName}`,
+			user: formatName(user.firstName, user.lastName),
+			customerName: String(
+				` ${
+					formatFullName(customer.title, customer.firstName, customer.lastName)}`,
+			).trimRight(),
 			customerEmail: customer.email,
 			customerPhone: customer.phone,
 			projectName: project.name,
@@ -356,10 +360,15 @@ const finishItem = async (parent, {id, token}, ctx) => {
 		try {
 			await legacy_sendTaskValidationEmail({
 				email: customer.email,
-				user: String(`${user.firstName} ${user.lastName}`).trim(),
-				customerName: titleNameEmail` ${
-					titleToCivilite[quote.customer.title]
-				} ${quote.customer.firstName} ${quote.customer.lastName}`,
+				user: formatName(user.firstName, user.lastName),
+				customerName: String(
+					` ${
+						formatFullName(
+							quote.customer.title,
+							quote.customer.firstName,
+							quote.customer.lastName,
+						)}`,
+				).trimRight(),
 				projectName: quote.name,
 				itemName: item.name,
 				sections: sections
