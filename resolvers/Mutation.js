@@ -409,7 +409,8 @@ const Mutation = {
 			}
 
 			variables = {
-				project: {connect: {id: projectId}, position},
+				project: {connect: {id: projectId}},
+				position,
 			};
 		}
 		else if (optionId) {
@@ -433,7 +434,8 @@ const Mutation = {
 			}
 
 			variables = {
-				option: {connect: {id: optionId}, position: 0},
+				option: {connect: {id: optionId}},
+				position: 0,
 			};
 		}
 
@@ -711,12 +713,11 @@ const Mutation = {
 			await sendQuoteEmail({
 				email: quote.customer.email,
 				customerName: String(
-					` ${
-						formatFullName(
-							quote.customer.title,
-							quote.customer.firstName,
-							quote.customer.lastName,
-						)}`,
+					` ${formatFullName(
+						quote.customer.title,
+						quote.customer.firstName,
+						quote.customer.lastName,
+					)}`,
 				).trimRight(),
 				projectName: quote.name,
 				user: formatName(user.firstName, user.lastName),
@@ -870,12 +871,11 @@ const Mutation = {
 				email: quote.customer.email,
 				user: formatName(user.firstName, user.lastName),
 				customerName: String(
-					` ${
-						formatFullName(
-							quote.customer.title,
-							quote.customer.firstName,
-							quote.customer.lastName,
-						)}`,
+					` ${formatFullName(
+						quote.customer.title,
+						quote.customer.firstName,
+						quote.customer.lastName,
+					)}`,
 				).trimRight(),
 				projectName: quote.name,
 				quoteUrl: getAppUrl(`/quotes/${quote.id}/view/${quote.token}`),
@@ -899,12 +899,11 @@ const Mutation = {
 					email: quote.customer.email,
 					user: formatName(user.firstName, user.lastName),
 					customerName: String(
-						` ${
-							formatFullName(
-								quote.customer.title,
-								quote.customer.firstName,
-								quote.customer.lastName,
-							)}`,
+						` ${formatFullName(
+							quote.customer.title,
+							quote.customer.firstName,
+							quote.customer.lastName,
+						)}`,
 					).trimRight(),
 					projectName: quote.name,
 					quoteUrl: getAppUrl(`/quotes/${quote.id}?token=${quote.token}`),
@@ -1147,12 +1146,11 @@ const Mutation = {
 				email: user.email,
 				user: formatName(user.firstName, user.lastName),
 				customerName: String(
-					` ${
-						formatFullName(
-							quote.customer.title,
-							quote.customer.firstName,
-							quote.customer.lastName,
-						)}`,
+					` ${formatFullName(
+						quote.customer.title,
+						quote.customer.firstName,
+						quote.customer.lastName,
+					)}`,
 				).trimRight(),
 				projectName: quote.name,
 				quoteUrl: getAppUrl(`/quotes/${quote.id}/see`),
@@ -1212,12 +1210,11 @@ const Mutation = {
 				email: user.email,
 				user: formatName(user.firstName, user.lastName),
 				customerName: String(
-					` ${
-						formatFullName(
-							quote.customer.title,
-							quote.customer.firstName,
-							quote.customer.lastName,
-						)}`,
+					` ${formatFullName(
+						quote.customer.title,
+						quote.customer.firstName,
+						quote.customer.lastName,
+					)}`,
 				).trimRight(),
 				projectName: quote.name,
 				quoteUrl: getAppUrl(`/quotes/${quote.id}/see`),
