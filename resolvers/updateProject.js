@@ -29,9 +29,9 @@ const updateProject = async (
 		throw new Error('The new project name must not be empty.');
 	}
 
-	if (notifyActivityToCustomer) {
+	if (!notifyActivityToCustomer) {
 		await ctx.db.updateManyItems({
-			where: {section: {id}, reviewer: 'CUSTOMER'},
+			where: {section: {project: {id}}, reviewer: 'CUSTOMER'},
 			data: {reviewer: 'USER'},
 		});
 	}

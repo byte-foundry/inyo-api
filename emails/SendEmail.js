@@ -1,4 +1,3 @@
-const https = require('https');
 const sendGridClient = require('@sendgrid/client');
 
 sendGridClient.setApiKey(process.env.SENDGRID_API_KEY);
