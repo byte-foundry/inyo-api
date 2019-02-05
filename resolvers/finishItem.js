@@ -39,12 +39,13 @@ const cancelPendingReminders = async (pendingReminders, itemId, ctx) => {
 	}
 };
 
-const finishItem = async (parent, {id, token}, ctx) => {
+const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 	const fragment = gql`
 		fragment ItemWithQuoteAndProject on Item {
 			name
 			status
 			reviewer
+			unit
 			pendingReminders: reminders(where: {status: PENDING}) {
 				id
 				postHookId
@@ -397,6 +398,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 		data: {
 			status: 'FINISHED',
 			finishedAt: new Date(),
+			timeItTook: timeItTook || item.unit,
 		},
 	});
 };

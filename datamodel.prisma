@@ -177,6 +177,7 @@ type Item {
 	position: Int!
 	createdAt: DateTime!
 	updatedAt: DateTime!
+	timeItTook: Float
 }
 
 type Section {

@@ -11,6 +11,7 @@ const Item = {
 	status: node => node.status,
 	reviewer: node => node.reviewer,
 	position: node => node.position,
+	timeItTook: node => node.timeItTook,
 };
 
 module.exports = {
