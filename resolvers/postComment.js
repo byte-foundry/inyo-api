@@ -182,6 +182,7 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 					id
 					name
 					token
+					notifyActivityToCustomer
 					customer {
 						id
 						firstName
