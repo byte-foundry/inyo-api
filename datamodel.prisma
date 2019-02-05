@@ -247,8 +247,8 @@ type Company {
 	rcsCity: String
 	rm: String
 	vat: String
-	logo: File @relation(name: "CompanyLogo")
-	customers: [Customer!]! @relation(name: "CompanyCustomers")
+	logo: File @relation(name: "CompanyLogo", onDelete: CASCADE)
+	customers: [Customer!]! @relation(name: "CompanyCustomers", onDelete: CASCADE)
 }
 
 type Settings {
