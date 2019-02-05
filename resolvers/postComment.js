@@ -182,6 +182,7 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 					id
 					name
 					token
+					notifyActivityToCustomer
 					customer {
 						id
 						firstName
@@ -250,20 +251,14 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 			comment,
 		};
 
-		if (project) {
+		if (project && project.notifyActivityToCustomer) {
 			await sendNewCommentEmail({
 				...params,
 				url: getAppUrl(`/projects/${project.id}/view/${project.token}`),
 			});
-		}
-		else {
-			await legacy_sendNewCommentEmail({
-				...params,
-				quoteUrl: getAppUrl(`/quotes/${quote.id}/view/${quote.token}`),
-			});
-		}
 
-		console.log(`New comment email sent to ${customer.email}`);
+			console.log(`New comment email sent to ${customer.email}`);
+		}
 	}
 	catch (error) {
 		console.log(`New comment email not because with error ${error}`);

@@ -62,7 +62,10 @@ const sendCustomersRecapEmail = async ({userId}) => {
 			company {
 				customers(
 					where: {
-						projects_some: { sections_some: { items_some: { ${itemFilter} } } }
+						projects_some: {
+							notifyActivityToCustomer: true
+							sections_some: { items_some: { ${itemFilter} } }
+						}
 					}
 				) {
 					title
@@ -70,7 +73,10 @@ const sendCustomersRecapEmail = async ({userId}) => {
 					lastName
 					email
 					projects(
-						where: { sections_some: { items_some: { ${itemFilter} } } }
+						where: {
+							notifyActivityToCustomer: true
+							sections_some: { items_some: { ${itemFilter} } }
+						}
 					) {
 						id
 						token
@@ -88,7 +94,7 @@ const sendCustomersRecapEmail = async ({userId}) => {
 
 	if (!user.company.customers.length) {
 		console.log(
-			`User '${user.email}' is lazy and did nothing today, aborting.`,
+			`User '${user.email}' is shy or lazy and did nothing today, aborting.`,
 		);
 		return;
 	}
@@ -99,12 +105,11 @@ const sendCustomersRecapEmail = async ({userId}) => {
 				email: customer.email,
 				user: formatName(user.firstName, user.lastName),
 				customerName: String(
-					` ${
-						formatFullName(
-							customer.title,
-							customer.firstName,
-							customer.lastName,
-						)}`,
+					` ${formatFullName(
+						customer.title,
+						customer.firstName,
+						customer.lastName,
+					)}`,
 				).trimRight(),
 				projects: customer.projects.map(project => ({
 					...project,

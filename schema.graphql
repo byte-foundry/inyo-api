@@ -145,7 +145,7 @@ type Mutation {
 		vatRate: Int
 		reviewer: Reviewer
 		comment: CommentInput
-		notifyCustomer: Boolean
+		notifyCustomer: Boolean # deprecated
 		position: Int
 	): Item
 	# Update an already validated item
