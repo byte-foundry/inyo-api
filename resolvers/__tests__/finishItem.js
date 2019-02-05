@@ -28,6 +28,7 @@ describe('finishItem', () => {
 							name: 'Mon item',
 							status: 'PENDING',
 							reviewer: 'USER',
+							unit: 1,
 							pendingReminders: [],
 							section: {
 								id: 'section-id',
@@ -482,6 +483,7 @@ describe('finishItem', () => {
 							name: 'Mon item',
 							status: 'PENDING',
 							reviewer: 'USER',
+							unit: 1,
 							pendingReminders: [],
 							section: {
 								id: 'section-id',
@@ -539,12 +541,6 @@ describe('finishItem', () => {
 		};
 
 		const item = await finishItem({}, args, ctx);
-
-		expect(sendTaskValidationEmail).toHaveBeenCalledWith(
-			expect.objectContaining({
-				email: 'jean@michel.org',
-			}),
-		);
 
 		expect(item).toMatchObject({
 			id: args.id,
