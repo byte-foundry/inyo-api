@@ -99,12 +99,8 @@ type Mutation {
 	removeQuote(id: ID!): Quote
 		@deprecated(reason: "Quotes are not used anymore.")
 
-	# Add an option to the quote
-	# addOption(quoteId: ID!, name: String!, sections: [SectionInput!]): Option!
 	updateOption(id: ID!, proposal: Json!): Option
 		@deprecated(reason: "Quotes are not used anymore.")
-	# Remove an option
-	# removeOption(id: ID!): Option
 
 	# Add section to one of the quote's option
 	addSection(
@@ -492,6 +488,7 @@ enum JobType {
 
 type Settings {
 	askItemFinishConfirmation: Boolean!
+		@deprecated(reason: "Not available anymore.")
 	askSendQuoteConfirmation: Boolean!
 		@deprecated(reason: "Quote are not used anymore.")
 	askStartProjectConfirmation: Boolean!

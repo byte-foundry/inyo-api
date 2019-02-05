@@ -60,47 +60,8 @@ const Query = {
 
 		return project;
 	},
-	quote: async (root, {id, token}, ctx) => {
-		// public access with a secret token inserted in a mail
-		if (token) {
-			const [quote] = await ctx.db.quotes({where: {id, token}});
-
-			if (!quote) {
-				throw new NotFoundError(`Quote '${id}' has not been found`);
-			}
-
-			sendMetric({metric: 'inyo.quote.viewed.total'});
-
-			if (!quote.viewedByCustomer) {
-				await ctx.db.updateQuote({
-					where: {id},
-					data: {viewedByCustomer: true},
-				});
-
-				quote.viewedByCustomer = true;
-
-				sendMetric({metric: 'inyo.quote.viewed.unique'});
-			}
-
-			return quote;
-		}
-
-		const [quote] = await ctx.db.quotes({
-			where: {
-				id,
-				customer: {
-					serviceCompany: {
-						owner: {id: getUserId(ctx)},
-					},
-				},
-			},
-		});
-
-		if (!quote) {
-			throw new NotFoundError(`Quote '${id}' has not been found`);
-		}
-
-		return quote;
+	quote: () => {
+		throw Error('Quotes are not supported anymore');
 	},
 	item: async (root, {id, token}, ctx) => {
 		if (token) {
@@ -149,28 +110,14 @@ const Query = {
 				where: {
 					item: {
 						id: itemId,
-						OR: [
-							{
-								section: {
-									option: {
-										quote: {token},
-									},
-								},
-							},
-							{
-								section: {
-									project: {token},
-								},
-							},
-						],
+						section: {
+							project: {token},
+						},
 					},
 				},
 			});
 
-			const quoteCustomer = await ctx.db.quote({token}).customer();
-			const projectCustomer = await ctx.db.project({token}).customer();
-
-			const customer = projectCustomer || quoteCustomer;
+			const customer = await ctx.db.project({token}).customer();
 
 			await Promise.all(
 				comments.map(comment => ctx.db.updateComment({
@@ -195,28 +142,13 @@ const Query = {
 				item: {
 					id: itemId,
 					section: {
-						OR: [
-							{
-								option: {
-									quote: {
-										customer: {
-											serviceCompany: {
-												owner: {id: userId},
-											},
-										},
-									},
+						project: {
+							customer: {
+								serviceCompany: {
+									owner: {id: userId},
 								},
 							},
-							{
-								project: {
-									customer: {
-										serviceCompany: {
-											owner: {id: userId},
-										},
-									},
-								},
-							},
-						],
+						},
 					},
 				},
 			},

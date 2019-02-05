@@ -10,9 +10,7 @@ const addItem = async (
 		name,
 		type,
 		description,
-		unitPrice,
 		unit,
-		vatRate,
 		reviewer,
 		position: wantedPosition,
 	},
@@ -21,48 +19,20 @@ const addItem = async (
 	const [section] = await ctx.db.sections({
 		where: {
 			id: sectionId,
-			OR: [
-				{
-					option: {
-						quote: {
-							customer: {
-								serviceCompany: {
-									owner: {id: getUserId(ctx)},
-								},
-							},
-						},
+			project: {
+				customer: {
+					serviceCompany: {
+						owner: {id: getUserId(ctx)},
 					},
 				},
-				{
-					project: {
-						customer: {
-							serviceCompany: {
-								owner: {id: getUserId(ctx)},
-							},
-						},
-					},
-				},
-			],
+			},
 		},
 	}).$fragment(gql`
-		fragment SectionWithQuoteAndProject on Section {
+		fragment SectionWithProject on Section {
 			id
 			items(orderBy: position_ASC) {
 				id
 				position
-			}
-			option {
-				quote {
-					status
-					customer {
-						serviceCompany {
-							owner {
-								defaultDailyPrice
-								defaultVatRate
-							}
-						}
-					}
-				}
 			}
 			project {
 				status
@@ -74,67 +44,40 @@ const addItem = async (
 		throw new NotFoundError(`No section with id '${sectionId}' has been found`);
 	}
 
-	// PROJECT
+	if (section.project.status === 'FINISHED') {
+		throw new Error('Item cannot be added in this project state.');
+	}
 
-	if (section.project) {
-		if (section.project.status === 'FINISHED') {
-			throw new Error('Item cannot be added in this project state.');
-		}
+	// default position: end of the list
+	let position = section.items.length;
 
-		// default position: end of the list
-		let position = section.items.length;
+	if (wantedPosition) {
+		const wantedPositionItemIndex = section.items.findIndex(
+			item => item.position === wantedPosition,
+		);
 
-		if (wantedPosition) {
-			const wantedPositionItemIndex = section.items.findIndex(
-				item => item.position === wantedPosition,
+		if (wantedPositionItemIndex !== -1) {
+			position = wantedPosition;
+
+			// updating all the positions from the item position
+			await Promise.all(
+				section.items.slice(position).map((item, index) => ctx.db.updateItem({
+					where: {id: item.id},
+					data: {position: position + index + 1},
+				})),
 			);
-
-			if (wantedPositionItemIndex !== -1) {
-				position = wantedPosition;
-
-				// updating all the positions from the item position
-				await Promise.all(
-					section.items.slice(position).map((item, index) => ctx.db.updateItem({
-						where: {id: item.id},
-						data: {position: position + index + 1},
-					})),
-				);
-			}
 		}
-
-		return ctx.db.createItem({
-			section: {connect: {id: sectionId}},
-			name,
-			type,
-			status: 'PENDING',
-			reviewer,
-			description,
-			unit,
-			position,
-		});
 	}
-
-	// QUOTE
-
-	if (section.option.quote.status === 'SENT') {
-		throw new Error('Item cannot be added in this quote state.');
-	}
-
-	const {
-		defaultDailyPrice,
-		defaultVatRate,
-	} = section.option.quote.customer.serviceCompany.owner;
 
 	return ctx.db.createItem({
-		section: {
-			connect: {id: sectionId},
-		},
+		section: {connect: {id: sectionId}},
 		name,
-		status: section.option.quote.status === 'ACCEPTED' ? 'ADDED' : 'PENDING',
+		type,
+		status: 'PENDING',
+		reviewer,
 		description,
-		unitPrice: unitPrice || defaultDailyPrice,
 		unit,
-		vatRate: vatRate || defaultVatRate,
+		position,
 	});
 };
 

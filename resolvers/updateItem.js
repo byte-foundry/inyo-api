@@ -75,35 +75,18 @@ const updateItem = async (
 	const [item] = await ctx.db.items({
 		where: {
 			id,
-			OR: [
-				{
-					section: {
-						option: {
-							quote: {
-								customer: {
-									serviceCompany: {
-										owner: {id: getUserId(ctx)},
-									},
-								},
-							},
+			section: {
+				project: {
+					customer: {
+						serviceCompany: {
+							owner: {id: getUserId(ctx)},
 						},
 					},
 				},
-				{
-					section: {
-						project: {
-							customer: {
-								serviceCompany: {
-									owner: {id: getUserId(ctx)},
-								},
-							},
-						},
-					},
-				},
-			],
+			},
 		},
 	}).$fragment(gql`
-		fragment ItemWithQuoteAndProject on Item {
+		fragment ItemWithProject on Item {
 			id
 			status
 			position
@@ -112,11 +95,6 @@ const updateItem = async (
 				items(orderBy: position_ASC) {
 					id
 					position
-				}
-				option {
-					quote {
-						status
-					}
 				}
 				project {
 					id
@@ -142,119 +120,97 @@ const updateItem = async (
 		throw new NotFoundError(`Item '${id}' has not been found.`);
 	}
 
-	// PROJECT
+	const {project} = item.section;
 
-	if (item.section.project) {
-		const {project} = item.section;
+	if (project.status === 'FINISHED') {
+		throw new Error(
+			`Item '${id}' cannot be updated when the project is finished.`,
+		);
+	}
 
-		if (project.status === 'FINISHED') {
+	let position = wantedPosition;
+	let initialPosition = item.section.items.findIndex(
+		sectionItem => sectionItem.id === item.id,
+	);
+
+	if (initialPosition === -1) {
+		throw new Error(
+			`Item '${item.id}' has not been found in Section '${
+				item.section.id
+			}' items.`,
+		);
+	}
+
+	let wantedSection = item.section;
+
+	if (sectionId && sectionId !== item.section.id) {
+		[wantedSection] = project.sections;
+
+		if (!wantedSection) {
 			throw new Error(
-				`Item '${id}' cannot be updated when the project is finished.`,
+				`Item '${id}' cannot be moved into Section '${sectionId}', it has not been found in the project.`,
 			);
 		}
 
-		let position = wantedPosition;
-		let initialPosition = item.section.items.findIndex(
-			sectionItem => sectionItem.id === item.id,
+		// if we change section, we need to re-order the previous one
+		// putting it at the end of the section first
+		await reorderSection(
+			item.section,
+			initialPosition,
+			item.section.items.length,
+			ctx,
 		);
 
-		if (initialPosition === -1) {
-			throw new Error(
-				`Item '${item.id}' has not been found in Section '${
-					item.section.id
-				}' items.`,
-			);
+		initialPosition = wantedSection.items.length;
+	}
+
+	if (
+		(typeof wantedPosition === 'number'
+			&& wantedPosition !== initialPosition)
+		|| (sectionId && sectionId !== item.section.id)
+	) {
+		if (wantedPosition < 0) {
+			position = 0;
+		}
+		else if (wantedPosition > wantedSection.items.length) {
+			position = wantedSection.items.length;
+		}
+		else {
+			position = wantedPosition;
 		}
 
-		let wantedSection = item.section;
+		reorderSection(wantedSection, initialPosition, wantedPosition, ctx);
+	}
 
-		if (sectionId && sectionId !== item.section.id) {
-			[wantedSection] = project.sections;
-
-			if (!wantedSection) {
-				throw new Error(
-					`Item '${id}' cannot be moved into Section '${sectionId}', it has not been found in the project.`,
-				);
-			}
-
-			// if we change section, we need to re-order the previous one
-			// putting it at the end of the section first
-			await reorderSection(
-				item.section,
-				initialPosition,
-				item.section.items.length,
-				ctx,
-			);
-
-			initialPosition = wantedSection.items.length;
-		}
-
-		if (
-			(typeof wantedPosition === 'number'
-				&& wantedPosition !== initialPosition)
-			|| (sectionId && sectionId !== item.section.id)
-		) {
-			if (wantedPosition < 0) {
-				position = 0;
-			}
-			else if (wantedPosition > wantedSection.items.length) {
-				position = wantedSection.items.length;
-			}
-			else {
-				position = wantedPosition;
-			}
-
-			reorderSection(wantedSection, initialPosition, wantedPosition, ctx);
-		}
-
-		const updatedItem = await ctx.db.updateItem({
-			where: {id},
-			data: {
-				section: sectionId && {connect: {id: wantedSection.id}},
-				name,
-				type,
-				description,
-				unit,
-				reviewer,
-				position,
-				comments: {
-					create: comment && {
-						text: comment.text,
-						authorUser: {
-							connect: {id: user.id},
-						},
-						views: {
-							create: {
-								user: {
-									connect: {id: user.id},
-								},
+	const updatedItem = await ctx.db.updateItem({
+		where: {id},
+		data: {
+			section: sectionId && {connect: {id: wantedSection.id}},
+			name,
+			type,
+			description,
+			unit,
+			reviewer,
+			position,
+			comments: {
+				create: comment && {
+					text: comment.text,
+					authorUser: {
+						connect: {id: user.id},
+					},
+					views: {
+						create: {
+							user: {
+								connect: {id: user.id},
 							},
 						},
 					},
 				},
 			},
-		});
-
-		return updatedItem;
-	}
-
-	// QUOTE
-
-	if (item.section.option.quote.status !== 'DRAFT') {
-		throw new Error(`Item '${id}' cannot be updated in this quote state.`);
-	}
-
-	return ctx.db.updateItem({
-		where: {id},
-		data: {
-			name,
-			description,
-			unit,
-			unitPrice,
-			vatRate,
-			status: 'PENDING',
 		},
 	});
+
+	return updatedItem;
 };
 
 module.exports = {

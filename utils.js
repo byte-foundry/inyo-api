@@ -22,10 +22,6 @@ function getRootUrl(uri) {
 		return `https://dev.inyo.me${uri}`;
 	}
 
-	if (uri.includes('quotes/')) {
-		return `https://app.inyo.me${uri}`;
-	}
-
 	return `https://beta.inyo.me${uri}`;
 }
 

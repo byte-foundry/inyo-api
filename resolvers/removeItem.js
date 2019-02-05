@@ -7,32 +7,15 @@ const removeItem = async (parent, {id}, ctx) => {
 	const [item] = await ctx.db.items({
 		where: {
 			id,
-			OR: [
-				{
-					section: {
-						option: {
-							quote: {
-								customer: {
-									serviceCompany: {
-										owner: {id: getUserId(ctx)},
-									},
-								},
-							},
+			section: {
+				project: {
+					customer: {
+						serviceCompany: {
+							owner: {id: getUserId(ctx)},
 						},
 					},
 				},
-				{
-					section: {
-						project: {
-							customer: {
-								serviceCompany: {
-									owner: {id: getUserId(ctx)},
-								},
-							},
-						},
-					},
-				},
-			],
+			},
 		},
 	}).$fragment(gql`
 		fragment ItemWithSectionItems on Item {

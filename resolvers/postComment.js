@@ -3,10 +3,7 @@ const gql = String.raw;
 const {getUserId, getAppUrl} = require('../utils');
 const {NotFoundError} = require('../errors');
 const {sendMetric} = require('../stats');
-const {
-	legacy_sendNewCommentEmail, // eslint-disable-line
-	sendNewCommentEmail,
-} = require('../emails/CommentEmail');
+const {sendNewCommentEmail} = require('../emails/CommentEmail');
 
 const postComment = async (parent, {itemId, token, comment}, ctx) => {
 	if (token) {
@@ -14,7 +11,7 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 			where: {
 				id: itemId,
 				section: {
-					OR: [{option: {quote: {token}}}, {project: {token}}],
+					project: {token},
 				},
 			},
 		}).$fragment(gql`
@@ -22,26 +19,6 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 				id
 				name
 				section {
-					option {
-						quote {
-							id
-							name
-							token
-							customer {
-								id
-								firstName
-								lastName
-								email
-								serviceCompany {
-									owner {
-										email
-										firstName
-										lastName
-									}
-								}
-							}
-						}
-					}
 					project {
 						id
 						name
@@ -68,16 +45,8 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 			throw new NotFoundError(`Item '${itemId}' has not been found`);
 		}
 
-		const {project, option} = item.section;
-		const {quote} = option || {};
-		let customer;
-
-		if (project) {
-			({customer} = project);
-		}
-		else {
-			({customer} = quote);
-		}
+		const {project} = item.section;
+		const {customer} = project;
 
 		const user = customer.serviceCompany.owner;
 
@@ -107,23 +76,15 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 				email: user.email,
 				recipientName: String(`${user.firstName} ${user.lastName}`).trim(),
 				authorName: String(`${customer.firstName} ${customer.lastName}`).trim(),
-				projectName: project ? project.name : quote.name,
+				projectName: project.nam,
 				itemName: item.name,
 				comment,
 			};
 
-			if (project) {
-				sendNewCommentEmail({
-					...params,
-					url: getAppUrl(`/projects/${project.id}/see`),
-				});
-			}
-			else {
-				legacy_sendNewCommentEmail({
-					...params,
-					quoteUrl: getAppUrl(`/quotes/${quote.id}/see`),
-				});
-			}
+			sendNewCommentEmail({
+				...params,
+				url: getAppUrl(`/projects/${project.id}/see`),
+			});
 
 			console.log(`New comment email sent to ${user.email}`);
 		}
@@ -141,16 +102,7 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 		where: {
 			id: itemId,
 			section: {
-				OR: [
-					{
-						option: {
-							quote: {customer: {serviceCompany: {owner: {id: userId}}}},
-						},
-					},
-					{
-						project: {customer: {serviceCompany: {owner: {id: userId}}}},
-					},
-				],
+				project: {customer: {serviceCompany: {owner: {id: userId}}}},
 			},
 		},
 	}).$fragment(gql`
@@ -158,26 +110,6 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 			id
 			name
 			section {
-				option {
-					quote {
-						id
-						name
-						token
-						customer {
-							id
-							firstName
-							lastName
-							email
-							serviceCompany {
-								owner {
-									firstName
-									lastName
-									email
-								}
-							}
-						}
-					}
-				}
 				project {
 					id
 					name
@@ -205,16 +137,8 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 		throw new NotFoundError(`Item '${itemId}' has not been found.`);
 	}
 
-	const {project, option} = item.section;
-	const {quote} = option || {};
-	let customer;
-
-	if (project) {
-		({customer} = project);
-	}
-	else {
-		({customer} = quote);
-	}
+	const {project} = item.section;
+	const {customer} = project;
 
 	const user = customer.serviceCompany.owner;
 
@@ -246,7 +170,7 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 				`${customer.firstName} ${customer.lastName}`,
 			).trim(),
 			authorName: String(`${user.firstName} ${user.lastName}`).trim(),
-			projectName: project ? project.name : quote.name,
+			projectName: project.name,
 			itemName: item.name,
 			comment,
 		};
