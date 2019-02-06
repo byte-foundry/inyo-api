@@ -1,4 +1,5 @@
 const {hash} = require('bcrypt');
+const crypto = require('crypto');
 const {sign} = require('jsonwebtoken');
 
 const {APP_SECRET} = require('../utils');
@@ -13,8 +14,12 @@ const signup = async (
 	},
 	ctx,
 ) => {
+	const hmac = crypto.createHmac('sha256', process.env.INTERCOM_HMAC_KEY);
 	const email = String(rawEmail).toLowerCase();
 	const isExisting = await ctx.db.$exists.user({email});
+
+	hmac.update(email);
+	const hmacIntercomId = hmac.digest('hex');
 
 	if (isExisting) {
 		throw new AlreadyExistingError('This email is already registered');
@@ -27,6 +32,7 @@ const signup = async (
 			email,
 			password: hashedPassword,
 			firstName,
+			hmacIntercomId,
 			lastName,
 			company: {
 				create: company,
