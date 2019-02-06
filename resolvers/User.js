@@ -1,6 +1,7 @@
 const User = {
 	id: node => node.id,
 	email: node => node.email,
+	hmacIntercomId: node => node.hmacIntercomId,
 	firstName: node => node.firstName,
 	lastName: node => node.lastName,
 	company: (node, args, ctx) => ctx.db.user({id: node.id}).company(),

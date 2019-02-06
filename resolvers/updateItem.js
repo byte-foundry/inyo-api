@@ -2,12 +2,6 @@ const gql = String.raw;
 
 const {getUserId} = require('../utils');
 const {NotFoundError} = require('../errors');
-const {sendItemUpdatedEmail} = require('../emails/TaskEmail');
-
-const titleToCivilite = {
-	MONSIEUR: 'M.',
-	MADAME: 'Mme',
-};
 
 const reorderSection = async (
 	section,
@@ -44,7 +38,6 @@ const updateItem = async (
 		vatRate,
 		reviewer,
 		comment,
-		notifyCustomer = true,
 		position: wantedPosition,
 		token,
 	},
@@ -241,21 +234,6 @@ const updateItem = async (
 				},
 			},
 		});
-
-		if (!notifyCustomer) {
-			const {customer} = project;
-
-			sendItemUpdatedEmail({
-				email: customer.email,
-				recipentName: `${titleToCivilite[customer.title]} ${
-					customer.lastName
-				} ${customer.firstName}`.trim(),
-				authorName: `${user.firstName} ${user.lastName}`.trim(),
-				projectName: project.name,
-				itemName: item.name,
-				comment,
-			});
-		}
 
 		return updatedItem;
 	}

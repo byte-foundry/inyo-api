@@ -5,7 +5,9 @@
 	"main": "index.js",
 	"scripts": {
 		"format": "prettier-eslint *.js ./__tests__/**.js ./resolvers/**.js ./reminders/**.js ./emails/**.js .eslintrc .babelrc schema.graphql --write",
-		"test": "jest"
+		"test": "jest",
+		"deploy": "prisma deploy",
+		"generate-client": "prisma generate"
 	},
 	"keywords": [],
 	"author": "",
@@ -26,7 +28,8 @@
 		"moment": "^2.22.2",
 		"moment-timezone": "^0.5.23",
 		"node-fetch": "^2.2.1",
-		"prisma-client-lib": "^1.19.0",
+		"prisma": "^1.25.7",
+		"prisma-client-lib": "^1.25.7",
 		"uuid": "^3.3.2"
 	},
 	"devDependencies": {
@@ -46,8 +49,7 @@
 		"jest-transform-graphql": "^2.1.0",
 		"lint-staged": "^8.0.4",
 		"prettier-eslint": "^8.8.2",
-		"prettier-eslint-cli": "^4.7.1",
-		"prisma": "^1.19.3"
+		"prettier-eslint-cli": "^4.7.1"
 	},
 	"engines": {
 		"node": ">=10"

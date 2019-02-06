@@ -2,7 +2,7 @@ const {verify} = require('jsonwebtoken');
 
 const {AuthError} = require('./errors');
 
-const APP_SECRET = 'appsecret321';
+const {APP_SECRET} = process.env;
 
 function getUserId(context) {
 	const Authorization = context.request.get('Authorization');

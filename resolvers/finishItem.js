@@ -39,12 +39,13 @@ const cancelPendingReminders = async (pendingReminders, itemId, ctx) => {
 	}
 };
 
-const finishItem = async (parent, {id, token}, ctx) => {
+const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 	const fragment = gql`
 		fragment ItemWithQuoteAndProject on Item {
 			name
 			status
 			reviewer
+			unit
 			pendingReminders: reminders(where: {status: PENDING}) {
 				id
 				postHookId
@@ -241,7 +242,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 		// we ask for the next items in the section
 		// or the items in the next section
 		const nextItems = await ctx.db.item({id}).$fragment(gql`
-			fragment NextItems on Item {
+			fragment NextItemsToDo on Item {
 				section {
 					items(orderBy: position_ASC, after: "${id}") {
 						id
@@ -292,8 +293,11 @@ const finishItem = async (parent, {id, token}, ctx) => {
 			userEmail: user.email,
 			user: formatName(user.firstName, user.lastName),
 			customerName: String(
-				` ${
-					formatFullName(customer.title, customer.firstName, customer.lastName)}`,
+				` ${formatFullName(
+					customer.title,
+					customer.firstName,
+					customer.lastName,
+				)}`,
 			).trimRight(),
 			customerEmail: customer.email,
 			customerPhone: customer.phone,
@@ -362,12 +366,11 @@ const finishItem = async (parent, {id, token}, ctx) => {
 				email: customer.email,
 				user: formatName(user.firstName, user.lastName),
 				customerName: String(
-					` ${
-						formatFullName(
-							quote.customer.title,
-							quote.customer.firstName,
-							quote.customer.lastName,
-						)}`,
+					` ${formatFullName(
+						quote.customer.title,
+						quote.customer.firstName,
+						quote.customer.lastName,
+					)}`,
 				).trimRight(),
 				projectName: quote.name,
 				itemName: item.name,
@@ -397,6 +400,7 @@ const finishItem = async (parent, {id, token}, ctx) => {
 		data: {
 			status: 'FINISHED',
 			finishedAt: new Date(),
+			timeItTook: timeItTook || item.unit,
 		},
 	});
 };

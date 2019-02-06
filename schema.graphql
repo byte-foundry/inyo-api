@@ -145,7 +145,7 @@ type Mutation {
 		vatRate: Int
 		reviewer: Reviewer
 		comment: CommentInput
-		notifyCustomer: Boolean
+		notifyCustomer: Boolean # deprecated
 		position: Int
 	): Item
 	# Update an already validated item
@@ -158,7 +158,7 @@ type Mutation {
 	# Unsnooze an item
 	unsnoozeItem(id: ID!): Item
 	# Finish an item
-	finishItem(id: ID!, token: String): Item
+	finishItem(id: ID!, token: String, timeItTook: Float): Item
 	# Reset an item (going back to pending)
 	unfinishItem(id: ID!, token: String): Item
 	# Send an amendment with all the updated items
@@ -407,6 +407,7 @@ type Item {
 	reviewer: Reviewer!
 	reminders: [Reminder!]!
 	position: Int
+	timeItTook: Float
 }
 
 type Section {
@@ -514,6 +515,7 @@ type User {
 	interestedFeatures: [String!]!
 	hasUpcomingProject: Boolean
 	settings: Settings!
+	hmacIntercomId: String!
 }
 
 type File {
