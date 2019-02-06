@@ -4,6 +4,10 @@ const User = {
 	hmacIntercomId: node => node.hmacIntercomId,
 	firstName: node => node.firstName,
 	lastName: node => node.lastName,
+	customers: (node, args, ctx) => ctx.db
+		.user({id: node.id})
+		.company()
+		.customers(),
 	company: (node, args, ctx) => ctx.db.user({id: node.id}).company(),
 	startWorkAt: node => node.startWorkAt && new Date(node.startWorkAt),
 	endWorkAt: node => node.endWorkAt && new Date(node.endWorkAt),

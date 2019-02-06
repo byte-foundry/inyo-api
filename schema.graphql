@@ -476,9 +476,11 @@ type Company {
 	rm: String
 	vat: String
 	logo: File
-	customers: [Customer!]!
-	quotes: [Quote!]! @deprecated(reason: "Quotes are not used anymore.")
 	projects: [Project!]!
+
+	customers: [Customer!]!
+		@deprecated(reason: "Use `customers` on User instead.")
+	quotes: [Quote!]! @deprecated(reason: "Quotes are not used anymore.")
 }
 
 enum Title {
@@ -506,6 +508,7 @@ type User {
 	email: String!
 	firstName: String
 	lastName: String
+	customers: [Customer!]!
 	company: Company!
 	defaultDailyPrice: Int
 		@deprecated(reason: "Price was only needed for the deprecated Quote.")
