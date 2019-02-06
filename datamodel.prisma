@@ -261,7 +261,7 @@ type Settings {
 type User {
 	id: ID! @unique
 	email: String! @unique
-	hmacIntercomId: String!
+	hmacIntercomId: String
 	password: String!
 	firstName: String!
 	lastName: String!
