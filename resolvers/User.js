@@ -20,6 +20,26 @@ const User = {
 	interestedFeatures: node => node.interestedFeatures,
 	hasUpcomingProject: node => node.hasUpcomingProject,
 	settings: (node, args, ctx) => ctx.db.user({id: node.id}).settings(),
+	tasks: async (node, args, ctx) => ctx.db.items({
+		where: {
+			OR: [
+				{
+					owner: {id: node.id},
+				},
+				{
+					section: {
+						project: {
+							customer: {
+								serviceCompany: {
+									owner: {id: node.id},
+								},
+							},
+						},
+					},
+				},
+			],
+		},
+	}),
 };
 
 module.exports = {

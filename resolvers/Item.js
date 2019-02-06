@@ -1,6 +1,18 @@
 const Item = {
 	id: node => node.id,
 	name: node => node.name,
+	owner: async (node, args, ctx) => {
+		const owner = await ctx.db.item({id: node.id}).owner();
+		const projectOwner = await ctx.db
+			.item({id: node.id})
+			.section()
+			.project()
+			.customer()
+			.serviceCustomer()
+			.owner();
+
+		return owner || projectOwner;
+	},
 	type: node => node.type,
 	unitPrice: () => null,
 	pendingUnit: node => node.pendingUnit,

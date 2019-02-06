@@ -159,6 +159,7 @@ enum ItemType {
 
 type Item {
 	id: ID! @unique
+	owner: User @relation(name: "UserTasks")
 	name: String!
 	type: ItemType! @default(value: DEFAULT)
 	description: String @default(value: "")
@@ -280,6 +281,7 @@ type User {
 	interestedFeatures: [String!]!
 	hasUpcomingProject: Boolean
 	settings: Settings! @relation(name: "UserSettings")
+	tasks: [Item!]! @relation(name: "UserTasks", onDelete: CASCADE)
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }
