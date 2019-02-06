@@ -158,7 +158,7 @@ type Mutation {
 	# Unsnooze an item
 	unsnoozeItem(id: ID!): Item
 	# Finish an item
-	finishItem(id: ID!, token: String): Item
+	finishItem(id: ID!, token: String, timeItTook: Float): Item
 	# Reset an item (going back to pending)
 	unfinishItem(id: ID!, token: String): Item
 	# Send an amendment with all the updated items

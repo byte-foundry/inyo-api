@@ -28,6 +28,7 @@ describe('finishItem', () => {
 							name: 'Mon item',
 							status: 'PENDING',
 							reviewer: 'USER',
+							unit: 1,
 							pendingReminders: [],
 							section: {
 								id: 'section-id',
@@ -89,6 +90,7 @@ describe('finishItem', () => {
 		expect(item).toMatchObject({
 			id: args.id,
 			status: 'FINISHED',
+			timeItTook: 1,
 		});
 	});
 
@@ -463,5 +465,87 @@ describe('finishItem', () => {
 		await expect(finishItem({}, args, ctx)).rejects.toThrow(
 			/cannot be finished by the customer/,
 		);
+	});
+
+	it('should update timeItTook with the right value', async () => {
+		const args = {
+			id: 'item-id',
+			timeItTook: 2,
+		};
+		const ctx = {
+			request: {
+				get: () => 'user-token',
+			},
+			db: {
+				items: () => ({
+					$fragment: () => [
+						{
+							name: 'Mon item',
+							status: 'PENDING',
+							reviewer: 'USER',
+							unit: 1,
+							pendingReminders: [],
+							section: {
+								id: 'section-id',
+								project: {
+									id: 'project-id',
+									token: 'mon-token',
+									name: "C'est notre projeeet",
+									customer: {
+										title: 'MONSIEUR',
+										firstName: 'Jean',
+										lastName: 'Michel',
+										email: 'jean@michel.org',
+										serviceCompany: {
+											owner: {
+												email: 'chouche@gitan.fm',
+												firstName: 'Adrien',
+												lastName: 'David',
+											},
+										},
+									},
+									status: 'ONGOING',
+									sections: [
+										{
+											name: 'Ma section',
+											items: [
+												{
+													name: 'Mon item',
+													unit: 1,
+													status: 'PENDING',
+												},
+											],
+										},
+									],
+								},
+							},
+						},
+					],
+				}),
+				item: () => ({
+					$fragment: () => ({
+						section: {
+							items: [],
+							project: {
+								sections: [],
+							},
+						},
+					}),
+				}),
+				updateItem: ({data}) => ({
+					id: 'item-id',
+					...data,
+				}),
+				updateManyReminders: jest.fn(),
+			},
+		};
+
+		const item = await finishItem({}, args, ctx);
+
+		expect(item).toMatchObject({
+			id: args.id,
+			status: 'FINISHED',
+			timeItTook: 2,
+		});
 	});
 });
