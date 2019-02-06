@@ -407,6 +407,7 @@ type Item {
 	reviewer: Reviewer!
 	reminders: [Reminder!]!
 	position: Int
+	timeItTook: Float
 }
 
 type Section {
@@ -514,6 +515,7 @@ type User {
 	interestedFeatures: [String!]!
 	hasUpcomingProject: Boolean
 	settings: Settings!
+	hmacIntercomId: String!
 }
 
 type File {
