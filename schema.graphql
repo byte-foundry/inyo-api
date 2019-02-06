@@ -121,11 +121,13 @@ type Mutation {
 		name: String!
 		type: ItemType
 		description: String
-		unitPrice: Int
 		unit: Float
-		vatRate: Int
 		reviewer: Reviewer
 		position: Int
+
+		# deprecated
+		unitPrice: Int
+		vatRate: Int
 	): Item!
 	# Update item properties
 	updateItem(
@@ -136,13 +138,15 @@ type Mutation {
 		name: String
 		type: ItemType
 		description: String
-		unitPrice: Int
 		unit: Float
-		vatRate: Int
 		reviewer: Reviewer
 		comment: CommentInput
-		notifyCustomer: Boolean # deprecated
 		position: Int
+
+		# deprecated
+		vatRate: Int
+		unitPrice: Int
+		notifyCustomer: Boolean
 	): Item
 	# Update an already validated item
 	updateValidatedItem(id: ID!, unit: Float!, comment: CommentInput!): Item
@@ -234,11 +238,13 @@ input CustomerInput {
 input ItemInput {
 	name: String!
 	description: String
-	unitPrice: Int
 	unit: Float
-	vatRate: Int
 	reviewer: Reviewer
 	type: ItemType
+
+	# deprecated
+	unitPrice: Int
+	vatRate: Int
 }
 
 input SectionInput {
@@ -392,18 +398,19 @@ type Item {
 	name: String!
 	type: ItemType!
 	description: String
-	unitPrice: Int!
-	# when unit has been changed but not yet validated
-	pendingUnit: Float
 	unit: Float!
-	section: Section!
+	section: Section
 	comments: [Comment!]!
-	vatRate: Int!
 	status: ItemStatus!
 	reviewer: Reviewer!
 	reminders: [Reminder!]!
 	position: Int
 	timeItTook: Float
+
+	unitPrice: Int @deprecated(reason: "Unit price is not used anymore.")
+	pendingUnit: Float
+		@deprecated(reason: "There is no validation anymore. Use `unit` directly.")
+	vatRate: Int! @deprecated(reason: "Vat rate is not used anymore.")
 }
 
 type Section {
