@@ -14,6 +14,7 @@ const addItem = async (
 		reviewer,
 		position: wantedPosition,
 		linkedCustomerId,
+		dueDate,
 	},
 	ctx,
 ) => {
@@ -88,6 +89,7 @@ const addItem = async (
 		description,
 		unit,
 		position,
+		dueDate,
 	});
 };
 

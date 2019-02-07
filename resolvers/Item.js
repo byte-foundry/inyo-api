@@ -24,6 +24,7 @@ const Item = {
 	reviewer: node => node.reviewer,
 	position: node => node.position,
 	timeItTook: node => node.timeItTook,
+	dueDate: node => node.dueDate,
 };
 
 module.exports = {

@@ -175,6 +175,7 @@ type Item {
 	snoozedUntil: Reminder @relation(name: "SnoozeReminders", onDelete: CASCADE)
 	finishedAt: DateTime
 	position: Int!
+	dueDate: DateTime
 	createdAt: DateTime!
 	updatedAt: DateTime!
 	timeItTook: Float

@@ -39,6 +39,7 @@ const updateItem = async (
 		position: wantedPosition,
 		token,
 		linkedCustomerId,
+		dueDate,
 	},
 	ctx,
 ) => {
@@ -205,6 +206,7 @@ const updateItem = async (
 			reviewer,
 			position,
 			linkedCustomer: linkedCustomerId && {connect: {id: linkedCustomerId}},
+			dueDate,
 			comments: {
 				create: comment && {
 					text: comment.text,

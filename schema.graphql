@@ -406,6 +406,7 @@ type Item {
 	reminders: [Reminder!]!
 	position: Int
 	timeItTook: Float
+	dueDate: DateTime
 
 	unitPrice: Int @deprecated(reason: "Unit price is not used anymore.")
 	pendingUnit: Float
