@@ -1,8 +1,9 @@
 const gql = String.raw;
 
-const {getUserId, getAppUrl} = require('../utils');
+const {
+	getUserId, getAppUrl, formatFullName, formatName,
+} = require('../utils');
 const {NotFoundError} = require('../errors');
-const {sendMetric} = require('../stats');
 const {sendNewCommentEmail} = require('../emails/CommentEmail');
 
 const postComment = async (parent, {itemId, token, comment}, ctx) => {
@@ -10,21 +11,35 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 		const [item] = await ctx.db.items({
 			where: {
 				id: itemId,
-				section: {
-					project: {token},
-				},
+				OR: [
+					{
+						section: {
+							project: {token},
+						},
+					},
+					{
+						linkedCustomer: {token},
+					},
+				],
 			},
 		}).$fragment(gql`
 			fragment ItemAndAuthorsForUser on Item {
 				id
 				name
+				owner {
+					email
+					firstName
+					lastName
+				}
+				customer {
+					firstName
+					lastName
+					email
+				}
 				section {
 					project {
-						id
-						name
 						token
 						customer {
-							id
 							firstName
 							lastName
 							email
@@ -45,10 +60,19 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 			throw new NotFoundError(`Item '${itemId}' has not been found`);
 		}
 
-		const {project} = item.section;
-		const {customer} = project;
+		let user;
+		let customer;
 
-		const user = customer.serviceCompany.owner;
+		if (item.section) {
+			const {project} = item.section;
+
+			user = customer.serviceCompany.owner;
+			({customer} = project);
+		}
+		else {
+			user = item.owner;
+			customer = item.linkedCustomer;
+		}
 
 		const result = ctx.db.updateItem({
 			where: {id: itemId},
@@ -74,16 +98,19 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 		try {
 			const params = {
 				email: user.email,
-				recipientName: String(`${user.firstName} ${user.lastName}`).trim(),
-				authorName: String(`${customer.firstName} ${customer.lastName}`).trim(),
-				projectName: project.nam,
+				recipientName: formatName(user.firstName, user.lastName),
+				authorName: formatFullName(
+					customer.title,
+					customer.firstName,
+					customer.lastName,
+				),
 				itemName: item.name,
 				comment,
 			};
 
 			sendNewCommentEmail({
 				...params,
-				url: getAppUrl(`/projects/${project.id}/see`),
+				// url: getAppUrl(),
 			});
 
 			console.log(`New comment email sent to ${user.email}`);
@@ -91,8 +118,6 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 		catch (error) {
 			console.log(`New comment email not because with error ${error}`);
 		}
-
-		sendMetric({metric: 'inyo.comment.postedByCustomer'});
 
 		return result;
 	}
@@ -137,10 +162,19 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 		throw new NotFoundError(`Item '${itemId}' has not been found.`);
 	}
 
-	const {project} = item.section;
-	const {customer} = project;
+	let user;
+	let customer;
 
-	const user = customer.serviceCompany.owner;
+	if (item.section) {
+		const {project} = item.section;
+
+		user = customer.serviceCompany.owner;
+		({customer} = project);
+	}
+	else {
+		user = item.owner;
+		customer = item.linkedCustomer;
+	}
 
 	const result = ctx.db.updateItem({
 		where: {id: itemId},
@@ -166,29 +200,29 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 	try {
 		const params = {
 			email: customer.email,
-			recipientName: String(
-				`${customer.firstName} ${customer.lastName}`,
-			).trim(),
-			authorName: String(`${user.firstName} ${user.lastName}`).trim(),
-			projectName: project.name,
+			recipientName: formatFullName(
+				customer.title,
+				customer.firstName,
+				customer.lastName,
+			),
+			authorName: formatName(user.firstName, user.lastName),
 			itemName: item.name,
 			comment,
 		};
 
-		if (project && project.notifyActivityToCustomer) {
-			await sendNewCommentEmail({
-				...params,
-				url: getAppUrl(`/projects/${project.id}/view/${project.token}`),
-			});
+		// TODO
+		// if (notifyActivityToCustomer) {
+		await sendNewCommentEmail({
+			...params,
+			// url: getAppUrl(),
+		});
 
-			console.log(`New comment email sent to ${customer.email}`);
-		}
+		console.log(`New comment email sent to ${customer.email}`);
+		// }
 	}
 	catch (error) {
 		console.log(`New comment email not because with error ${error}`);
 	}
-
-	sendMetric({metric: 'inyo.comment.postedByUser'});
 
 	return result;
 };
