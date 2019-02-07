@@ -13,64 +13,74 @@ const addItem = async (
 		unit,
 		reviewer,
 		position: wantedPosition,
+		linkedCustomerId,
 	},
 	ctx,
 ) => {
-	const [section] = await ctx.db.sections({
-		where: {
-			id: sectionId,
-			project: {
-				customer: {
-					serviceCompany: {
-						owner: {id: getUserId(ctx)},
+	const userId = getUserId(ctx);
+	let position;
+
+	if (sectionId) {
+		const [section] = await ctx.db.sections({
+			where: {
+				id: sectionId,
+				project: {
+					customer: {
+						serviceCompany: {
+							owner: {id: userId},
+						},
 					},
 				},
 			},
-		},
-	}).$fragment(gql`
-		fragment SectionWithProject on Section {
-			id
-			items(orderBy: position_ASC) {
+		}).$fragment(gql`
+			fragment SectionWithProject on Section {
 				id
-				position
+				items(orderBy: position_ASC) {
+					id
+					position
+				}
+				project {
+					status
+				}
 			}
-			project {
-				status
-			}
-		}
-	`);
+		`);
 
-	if (!section) {
-		throw new NotFoundError(`No section with id '${sectionId}' has been found`);
-	}
-
-	if (section.project.status === 'FINISHED') {
-		throw new Error('Item cannot be added in this project state.');
-	}
-
-	// default position: end of the list
-	let position = section.items.length;
-
-	if (wantedPosition) {
-		const wantedPositionItemIndex = section.items.findIndex(
-			item => item.position === wantedPosition,
-		);
-
-		if (wantedPositionItemIndex !== -1) {
-			position = wantedPosition;
-
-			// updating all the positions from the item position
-			await Promise.all(
-				section.items.slice(position).map((item, index) => ctx.db.updateItem({
-					where: {id: item.id},
-					data: {position: position + index + 1},
-				})),
+		if (!section) {
+			throw new NotFoundError(
+				`No section with id '${sectionId}' has been found`,
 			);
+		}
+
+		if (section.project.status === 'FINISHED') {
+			throw new Error('Item cannot be added in this project state.');
+		}
+
+		// default position: end of the list
+		position = section.items.length;
+
+		if (wantedPosition) {
+			const wantedPositionItemIndex = section.items.findIndex(
+				item => item.position === wantedPosition,
+			);
+
+			if (wantedPositionItemIndex !== -1) {
+				position = wantedPosition;
+
+				// updating all the positions from the item position
+				await Promise.all(
+					section.items.slice(position).map((item, index) => ctx.db.updateItem({
+						where: {id: item.id},
+						data: {position: position + index + 1},
+					})),
+				);
+			}
 		}
 	}
 
 	return ctx.db.createItem({
-		section: {connect: {id: sectionId}},
+		section: sectionId && {connect: {id: sectionId}},
+		linkedCustomer: linkedCustomerId && {connect: {id: linkedCustomerId}},
+		owner: {connect: {id: userId}},
 		name,
 		type,
 		status: 'PENDING',
