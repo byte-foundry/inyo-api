@@ -61,10 +61,28 @@ server.express.post('/send-reminder', bodyParser.json(), async (req, res) => {
 				},
 			],
 		},
-	});
+	}).$fragment(`
+		fragment ReminderWithItem on Reminder {
+			id
+			item {
+				id
+				status
+			}
+		}
+	`);
 
 	if (!reminder) {
 		console.log(`'${req.body.id}' is not a pending reminder. Aborting.`);
+		res.status(200).send();
+		return;
+	}
+
+	if (reminder.item.status === 'FINISHED') {
+		console.log(
+			`Item '${
+				reminder.item.id
+			}' is done. There shouldn't be any pending reminders...`,
+		);
 		res.status(200).send();
 		return;
 	}
