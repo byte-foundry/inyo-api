@@ -117,7 +117,7 @@ type Mutation {
 
 	# Add an item to a section
 	addItem(
-		sectionId: ID!
+		sectionId: ID
 		name: String!
 		type: ItemType
 		description: String
@@ -395,6 +395,8 @@ enum ItemType {
 
 type Item {
 	id: ID!
+	owner: User!
+	linkedCustomer: Customer
 	name: String!
 	type: ItemType!
 	description: String

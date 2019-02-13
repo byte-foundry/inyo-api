@@ -1,6 +1,16 @@
 const Item = {
 	id: node => node.id,
 	name: node => node.name,
+	linkedCustomer: async (node, args, ctx) => {
+		const linkedCustomer = await ctx.db.item({id: node.id}).linkedCustomer();
+		const projectCustomer = await ctx.db
+			.item({id: node.id})
+			.section()
+			.project()
+			.customer();
+
+		return linkedCustomer || projectCustomer;
+	},
 	owner: async (node, args, ctx) => {
 		const owner = await ctx.db.item({id: node.id}).owner();
 		const projectOwner = await ctx.db
@@ -8,7 +18,7 @@ const Item = {
 			.section()
 			.project()
 			.customer()
-			.serviceCustomer()
+			.serviceCompany()
 			.owner();
 
 		return owner || projectOwner;

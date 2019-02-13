@@ -19,7 +19,7 @@ const addItem = async (
 	ctx,
 ) => {
 	const userId = getUserId(ctx);
-	let position;
+	let position = 0;
 
 	if (sectionId) {
 		const [section] = await ctx.db.sections({
