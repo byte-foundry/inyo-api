@@ -524,6 +524,7 @@ type User {
 	hasUpcomingProject: Boolean
 	settings: Settings!
 	hmacIntercomId: String!
+	tasks(filter: TasksFilterInput, sort: TasksSortProprties): [Item!]!
 }
 
 type File {
@@ -531,4 +532,17 @@ type File {
 	mimetype: String!
 	encoding: String!
 	url: String!
+}
+
+input TasksFilterInput {
+	linkedCustomerId: ID
+}
+
+enum TasksSortInput {
+	unit_ASC
+	unit_DESC
+	dueDate_ASC
+	dueDate_DESC
+	createdAt_ASC
+	createdAt_DESC
 }

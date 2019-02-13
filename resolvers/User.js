@@ -1,3 +1,5 @@
+const gql = String.raw;
+
 const User = {
 	id: node => node.id,
 	email: node => node.email,
@@ -20,26 +22,84 @@ const User = {
 	interestedFeatures: node => node.interestedFeatures,
 	hasUpcomingProject: node => node.hasUpcomingProject,
 	settings: (node, args, ctx) => ctx.db.user({id: node.id}).settings(),
-	tasks: async (node, args, ctx) => ctx.db.items({
-		where: {
-			OR: [
-				{
-					owner: {id: node.id},
-				},
-				{
-					section: {
-						project: {
-							customer: {
-								serviceCompany: {
-									owner: {id: node.id},
+	tasks: async (node, {filter, sort}, ctx) => {
+		const tasks = await ctx.db.items({
+			where: {
+				AND: [
+					filter.linkedCustomerId && {
+						OR: [
+							{
+								linkedCustomer: {id: filter.linkedCustomerId},
+							},
+							{
+								section: {
+									project: {
+										customer: {
+											id: filter.linkedCustomerId,
+										},
+									},
 								},
 							},
-						},
+						],
 					},
-				},
-			],
-		},
-	}),
+					{
+						OR: [
+							{
+								owner: {id: node.id},
+							},
+							{
+								section: {
+									project: {
+										customer: {
+											serviceCompany: {
+												owner: {id: node.id},
+											},
+										},
+									},
+								},
+							},
+						],
+					},
+				],
+				orderBy: sort,
+			},
+		}).$fragment(gql`
+			fragment TaskWithProjet on Item {
+				id
+				name
+				type
+				unitPrice
+				unit
+				section {
+					project {
+						deadline
+					}
+				}
+				status
+				reviewer
+				position
+				timeItTook
+				dueDate
+			}
+		`);
+
+		if (sort === 'dueDate_ASC') {
+			return tasks.sort(
+				(a, b) => new Date(a.dueDate) - new Date(b.dueDate)
+					|| new Date(a.section.project.deadline)
+						- new Date(b.section.project.deadline),
+			);
+		}
+		if (sort === 'dueDate_DESC') {
+			return tasks.sort(
+				(a, b) => new Date(b.dueDate) - new Date(a.dueDate)
+					|| new Date(b.section.project.deadline)
+						- new Date(a.section.project.deadline),
+			);
+		}
+
+		return tasks;
+	},
 };
 
 module.exports = {
