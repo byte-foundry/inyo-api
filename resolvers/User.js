@@ -26,8 +26,8 @@ const User = {
 		const tasks = await ctx.db.items({
 			where: {
 				AND: [
-					filter.linkedCustomerId && {
-						OR: [
+					{
+						OR: filter && [
 							{
 								linkedCustomer: {id: filter.linkedCustomerId},
 							},
@@ -68,7 +68,6 @@ const User = {
 				id
 				name
 				type
-				unitPrice
 				unit
 				section {
 					project {
