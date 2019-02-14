@@ -142,6 +142,8 @@ type Mutation {
 		reviewer: Reviewer
 		comment: CommentInput
 		position: Int
+		dueDate: DateTime
+		linkedCustomerId: ID
 
 		# deprecated
 		vatRate: Int
