@@ -43,12 +43,14 @@ const Query = {
 			return project;
 		}
 
+		const userId = getUserId(ctx);
 		const [project] = await ctx.db.projects({
 			where: {
 				id,
+				owner: {id: userId},
 				customer: {
 					serviceCompany: {
-						owner: {id: getUserId(ctx)},
+						owner: {id: userId},
 					},
 				},
 			},
