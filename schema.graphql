@@ -76,6 +76,8 @@ type Mutation {
 	updateProject(
 		id: ID!
 		name: String
+		customerId: ID
+		customer: CustomerInput
 		deadline: DateTime
 		notifyActivityToCustomer: Boolean
 	): Project
