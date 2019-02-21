@@ -1,7 +1,6 @@
 const uuid = require('uuid/v4');
 
 const {getUserId} = require('../utils');
-const {InsufficientDataError} = require('../errors');
 const {sendMetric} = require('../stats');
 
 const createProject = async (
@@ -19,12 +18,6 @@ const createProject = async (
 ) => {
 	const userCompany = await ctx.db.user({id: getUserId(ctx)}).company();
 
-	if (!customerId && !customer) {
-		throw new InsufficientDataError(
-			'You must define either a customer or set an existing customer id.',
-		);
-	}
-
 	const variables = {};
 
 	if (customerId) {
@@ -32,7 +25,7 @@ const createProject = async (
 			connect: {id: customerId},
 		};
 	}
-	else {
+	else if (customer) {
 		variables.customer = {
 			create: {
 				...customer,
