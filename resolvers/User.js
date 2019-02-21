@@ -39,7 +39,8 @@ const User = {
 			where: {
 				AND: [
 					{
-						OR: filter && [
+						OR: filter
+							&& filter.linkedCustomerId && [
 							{
 								linkedCustomer: {id: filter.linkedCustomerId},
 							},
@@ -81,6 +82,7 @@ const User = {
 				name
 				type
 				unit
+				description
 				section {
 					project {
 						deadline
