@@ -29,8 +29,8 @@ type Customer {
 	rm: String
 	serviceCompany: Company! @relation(name: "CompanyCustomers")
 	quotes: [Quote!]! @relation(name: "CustomerQuotes")
-	projects: [Project!] @relation(name: "CustomerProjects")
-	linkedTasks: [Item!] @relation(name: "LinkedCustomerTasks")
+	projects: [Project]! @relation(name: "CustomerProjects")
+	linkedTasks: [Item]! @relation(name: "LinkedCustomerTasks")
 	commentViews: [CommentView!]! @relation(name: "CommentViewCustomer")
 }
 
