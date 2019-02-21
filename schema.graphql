@@ -458,7 +458,9 @@ type Project {
 	name: String!
 	template: ProjectTemplate
 	issuer: Company!
-	customer: Customer!
+		@deprecated(reason: "Company is not used anymore. Use `owner` instead")
+	owner: User!
+	customer: Customer
 	status: ProjectStatus!
 	sections: [Section!]!
 	total: Float
@@ -518,7 +520,11 @@ type User {
 	firstName: String
 	lastName: String
 	customers: [Customer!]!
+	projects: [Project!]!
 	company: Company!
+		@deprecated(
+			reason: "Company is not used anymore. User customers and projects instead."
+		)
 	defaultDailyPrice: Int
 		@deprecated(reason: "Price was only needed for the deprecated Quote.")
 	defaultVatRate: Int

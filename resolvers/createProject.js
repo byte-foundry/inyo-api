@@ -16,7 +16,8 @@ const createProject = async (
 	},
 	ctx,
 ) => {
-	const userCompany = await ctx.db.user({id: getUserId(ctx)}).company();
+	const userId = getUserId(ctx);
+	const userCompany = await ctx.db.user({id: userId}).company();
 
 	const variables = {};
 
@@ -42,6 +43,7 @@ const createProject = async (
 		name: name || 'Nom du projet',
 		template,
 		token: uuid(),
+		owner: {connect: {id: userId}},
 		sections: sections && {
 			create: sections.map((section, sectionIndex) => ({
 				...section,

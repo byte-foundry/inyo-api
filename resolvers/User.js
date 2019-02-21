@@ -10,6 +10,18 @@ const User = {
 		.user({id: node.id})
 		.company()
 		.customers(),
+	projects: async (node, args, ctx) => {
+		const projects = await ctx.db.user({id: node.id}).projects();
+		const companyProjects = await ctx.db.projects({
+			customer: {
+				serviceCompany: {
+					owner: {id: node.id},
+				},
+			},
+		});
+
+		return projects.concat(companyProjects);
+	},
 	company: (node, args, ctx) => ctx.db.user({id: node.id}).company(),
 	startWorkAt: node => node.startWorkAt && new Date(node.startWorkAt),
 	endWorkAt: node => node.endWorkAt && new Date(node.endWorkAt),

@@ -17,10 +17,30 @@ const Project = {
 	name: node => node.name,
 	template: node => node.template,
 	customer: (node, args, ctx) => ctx.db.project({id: node.id}).customer(),
-	issuer: (node, args, ctx) => ctx.db
-		.project({id: node.id})
-		.customer()
-		.serviceCompany(),
+	owner: async (node, args, ctx) => {
+		const owner = await ctx.db.project({id: node.id}).owner();
+
+		if (owner) return owner;
+
+		return ctx.db
+			.project({id: node.id})
+			.customer()
+			.serviceCompany()
+			.owner();
+	},
+	issuer: async (node, args, ctx) => {
+		const owner = await ctx.db
+			.project({id: node.id})
+			.customer()
+			.serviceCompany();
+
+		if (owner) return owner;
+
+		return ctx.db
+			.project({id: node.id})
+			.owner()
+			.company();
+	},
 	total: async (node, args, ctx) => {
 		const {sections} = await ctx.db.project({id: node.id}).$fragment(gql`
 			fragment ProjectUnits on Project {

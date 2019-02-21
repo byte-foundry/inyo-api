@@ -29,8 +29,8 @@ type Customer {
 	rm: String
 	serviceCompany: Company! @relation(name: "CompanyCustomers")
 	quotes: [Quote!]! @relation(name: "CustomerQuotes")
-	projects: [Project]! @relation(name: "CustomerProjects")
-	linkedTasks: [Item]! @relation(name: "LinkedCustomerTasks")
+	projects: [Project!]! @relation(name: "CustomerProjects")
+	linkedTasks: [Item!]! @relation(name: "LinkedCustomerTasks")
 	commentViews: [CommentView!]! @relation(name: "CommentViewCustomer")
 }
 
@@ -228,6 +228,7 @@ type Project {
 	name: String!
 	template: ProjectTemplate @default(value: BLANK)
 	customer: Customer @relation(name: "CustomerProjects")
+	owner: User @relation(name: "UserProjects")
 	# this token is a way to restrict access to anyone else than the customer
 	token: String! @unique
 	status: ProjectStatus! @default(value: DRAFT)
@@ -290,6 +291,7 @@ type User {
 	hasUpcomingProject: Boolean
 	settings: Settings! @relation(name: "UserSettings")
 	tasks: [Item!]! @relation(name: "UserTasks", onDelete: CASCADE)
+	projects: [Project!]! @relation(name: "UserProjects", onDelete: CASCADE)
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }
