@@ -47,12 +47,18 @@ const Query = {
 		const [project] = await ctx.db.projects({
 			where: {
 				id,
-				owner: {id: userId},
-				customer: {
-					serviceCompany: {
+				OR: [
+					{
 						owner: {id: userId},
 					},
-				},
+					{
+						customer: {
+							serviceCompany: {
+								owner: {id: userId},
+							},
+						},
+					},
+				],
 			},
 		});
 
