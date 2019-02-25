@@ -143,6 +143,9 @@ const Mutation = {
 			workingFields,
 			jobType,
 			interestedFeatures,
+			canBeContacted,
+			painsExpressed,
+			otherPain,
 			hasUpcomingProject,
 			settings,
 		},
@@ -171,6 +174,9 @@ const Mutation = {
 				workingFields: {set: workingFields},
 				jobType,
 				interestedFeatures: {set: interestedFeatures},
+				painsExpressed: {set: painsExpressed},
+				canBeContacted,
+				otherPain,
 				hasUpcomingProject,
 				company: company && {
 					update: {
