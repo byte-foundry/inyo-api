@@ -211,9 +211,13 @@ const Mutation = {
 	updateOption: () => {
 		throw Error("It's not possible to update quote options anymore.");
 	},
-	addSection: async (parent, {
-		optionId, projectId, name, items = [],
-	}, ctx) => {
+	addSection: async (
+		parent,
+		{
+			optionId, projectId, name, items = [], position: wantedPosition,
+		},
+		ctx,
+	) => {
 		if (optionId) {
 			throw Error("It's not possible to add section to quote anymore.");
 		}
@@ -221,16 +225,24 @@ const Mutation = {
 		let variables = {};
 
 		if (projectId) {
+			const userId = getUserId(ctx);
 			const [project] = await ctx.db.projects({
 				where: {
 					id: projectId,
-					customer: {
-						serviceCompany: {
-							owner: {
-								id: getUserId(ctx),
+					OR: [
+						{
+							owner: userId,
+						},
+						{
+							customer: {
+								serviceCompany: {
+									owner: {
+										id: userId,
+									},
+								},
 							},
 						},
-					},
+					],
 				},
 			}).$fragment(gql`
 				fragment ProjectWithSection on Project {
