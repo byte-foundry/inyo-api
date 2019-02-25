@@ -94,15 +94,22 @@ const Query = {
 		const [item] = await ctx.db.items({
 			where: {
 				id,
-				section: {
-					project: {
-						customer: {
-							serviceCompany: {
-								owner: {id: userId},
+				OR: [
+					{
+						owner: {id: userId},
+					},
+					{
+						section: {
+							project: {
+								customer: {
+									serviceCompany: {
+										owner: {id: userId},
+									},
+								},
 							},
 						},
 					},
-				},
+				],
 			},
 		});
 
@@ -149,15 +156,22 @@ const Query = {
 			where: {
 				item: {
 					id: itemId,
-					section: {
-						project: {
-							customer: {
-								serviceCompany: {
-									owner: {id: userId},
+					OR: [
+						{
+							owner: {id: userId},
+						},
+						{
+							section: {
+								project: {
+									customer: {
+										serviceCompany: {
+											owner: {id: userId},
+										},
+									},
 								},
 							},
 						},
-					},
+					],
 				},
 			},
 		});
