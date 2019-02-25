@@ -65,6 +65,13 @@ const User = {
 							{
 								section: {
 									project: {
+										owner: {id: node.id},
+									},
+								},
+							},
+							{
+								section: {
+									project: {
 										customer: {
 											serviceCompany: {
 												owner: {id: node.id},
