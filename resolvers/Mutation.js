@@ -284,6 +284,11 @@ const Mutation = {
 			};
 		}
 
+		// eslint-disable-next-line no-param-reassign
+		items.forEach((item, index) => {
+			item.position = index;
+		});
+
 		return ctx.db.createSection({
 			...variables,
 			name,
