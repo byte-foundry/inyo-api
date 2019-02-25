@@ -231,7 +231,7 @@ const Mutation = {
 					id: projectId,
 					OR: [
 						{
-							owner: userId,
+							owner: {id: userId},
 						},
 						{
 							customer: {
