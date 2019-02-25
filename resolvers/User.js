@@ -13,11 +13,20 @@ const User = {
 	projects: async (node, args, ctx) => {
 		const projects = await ctx.db.user({id: node.id}).projects();
 		const companyProjects = await ctx.db.projects({
-			customer: {
-				serviceCompany: {
-					owner: {id: node.id},
+			OR: [
+				{
+					owner: {
+						id: node.id,
+					},
 				},
-			},
+				{
+					customer: {
+						serviceCompany: {
+							owner: {id: node.id},
+						},
+					},
+				},
+			],
 		});
 
 		return projects.concat(companyProjects);
