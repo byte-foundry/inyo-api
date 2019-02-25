@@ -126,6 +126,8 @@ type Mutation {
 		unit: Float
 		reviewer: Reviewer
 		position: Int
+		dueDate: DateTime
+		linkedCustomerId: ID
 
 		# deprecated
 		unitPrice: Int
