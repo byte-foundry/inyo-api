@@ -54,6 +54,8 @@ type Mutation {
 		jobType: JobType
 		interestedFeatures: [String!]
 		hasUpcomingProject: Boolean
+		canBeContacted: Boolean
+		painsExpressed: [String!]
 		company: CompanyInput
 		settings: SettingsInput
 	): User
