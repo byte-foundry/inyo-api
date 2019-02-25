@@ -280,6 +280,7 @@ type User {
 	defaultVatRate: Int @default(value: 20)
 	commentViews: [CommentView!]! @relation(name: "CommentViewUser")
 	workingFields: [String!]!
+	otherPain: String
 	painsExpressed: [String!]!
 	canBeContacted: Boolean
 	jobType: JobType

@@ -56,6 +56,7 @@ type Mutation {
 		hasUpcomingProject: Boolean
 		canBeContacted: Boolean
 		painsExpressed: [String!]
+		otherPain: String
 		company: CompanyInput
 		settings: SettingsInput
 	): User
