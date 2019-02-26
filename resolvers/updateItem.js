@@ -201,12 +201,12 @@ const updateItem = async (
 	const variables = {};
 
 	if (linkedCustomerId) {
-		variables.customer = {
+		variables.linkedCustomer = {
 			connect: {id: linkedCustomerId},
 		};
 	}
 	else if (linkedCustomer) {
-		variables.customer = {
+		variables.linkedCustomer = {
 			create: {
 				...linkedCustomer,
 				serviceCompany: {connect: {id: userCompany.id}},
