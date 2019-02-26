@@ -64,15 +64,28 @@ const Project = {
 	deadline: node => node.deadline,
 	notifyActivityToCustomer: node => node.notifyActivityToCustomer,
 	daysUntilDeadline: async (node, args, ctx) => {
-		const user = await ctx.db
-			.project({id: node.id})
-			.customer()
-			.serviceCompany()
-			.owner();
-
 		if (!node.deadline) {
 			return null;
 		}
+
+		const project = await ctx.db.project({id: node.id}).$fragment(gql`
+			fragment Owner on Project {
+				owner {
+					timeZone
+					workingDays
+				}
+				customer {
+					serviceCompany {
+						owner {
+							timeZone
+							workingDays
+						}
+					}
+				}
+			}
+		`);
+
+		const user = project.owner || project.customer.serviceCompany.owner;
 
 		const start = moment().tz(user.timeZone || 'Europe/Paris');
 		const deadline = moment(node.deadline.split('T')[0]).tz(
