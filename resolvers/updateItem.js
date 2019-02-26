@@ -196,9 +196,31 @@ const updateItem = async (
 		}
 	}
 
+	const userId = getUserId(ctx);
+	const userCompany = await ctx.db.user({id: userId}).company();
+	const variables = {};
+
+	if (linkedCustomerId) {
+		variables.customer = {
+			connect: {id: linkedCustomerId},
+		};
+	}
+	else if (linkedCustomer) {
+		variables.customer = {
+			create: {
+				...linkedCustomer,
+				serviceCompany: {connect: {id: userCompany.id}},
+				address: {
+					create: linkedCustomer.address,
+				},
+			},
+		};
+	}
+
 	const updatedItem = await ctx.db.updateItem({
 		where: {id},
 		data: {
+			...variables,
 			section: sectionId && {connect: {id: wantedSection.id}},
 			name,
 			type,
@@ -206,10 +228,6 @@ const updateItem = async (
 			unit,
 			reviewer,
 			position,
-			linkedCustomer: {
-				connect: {id: linkedCustomerId},
-				create: linkedCustomer,
-			},
 			dueDate,
 			comments: {
 				create: comment && {
