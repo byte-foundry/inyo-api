@@ -36,6 +36,7 @@ const items = async (root, args, ctx) => {
 					unit
 					reviewer
 					status
+					type
 				}
 			}
 		}

@@ -542,7 +542,7 @@ type User {
 	hasUpcomingProject: Boolean
 	settings: Settings!
 	hmacIntercomId: String!
-	tasks(filter: TasksFilterInput, sort: TasksSortProprties): [Item!]!
+	tasks(filter: TasksFilterInput, sort: TasksSortInput): [Item!]!
 }
 
 type File {
