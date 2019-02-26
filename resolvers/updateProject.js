@@ -12,13 +12,20 @@ const updateProject = async (
 	const [project] = await ctx.db.projects({
 		where: {
 			id,
-			customer: {
-				serviceCompany: {
-					owner: {
-						id: userId,
+			OR: [
+				{
+					owner: {id: userId},
+				},
+				{
+					customer: {
+						serviceCompany: {
+							owner: {
+								id: userId,
+							},
+						},
 					},
 				},
-			},
+			],
 		},
 	});
 
