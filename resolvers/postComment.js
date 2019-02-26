@@ -1,7 +1,11 @@
 const gql = String.raw;
 
 const {
-	getUserId, getAppUrl, formatFullName, formatName,
+	getUserId,
+	getAppUrl,
+	formatFullName,
+	formatName,
+	createItemOwnerFilter,
 } = require('../utils');
 const {NotFoundError} = require('../errors');
 const {sendNewCommentEmail} = require('../emails/CommentEmail');
@@ -110,7 +114,7 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 
 			sendNewCommentEmail({
 				...params,
-				// url: getAppUrl(),
+				url: getAppUrl(`/tasks/${item.id}`),
 			});
 
 			console.log(`New comment email sent to ${user.email}`);
@@ -125,15 +129,23 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 	const userId = getUserId(ctx);
 	const [item] = await ctx.db.items({
 		where: {
-			id: itemId,
-			section: {
-				project: {customer: {serviceCompany: {owner: {id: userId}}}},
-			},
+			AND: [{id: itemId}, createItemOwnerFilter(userId)],
 		},
 	}).$fragment(gql`
 		fragment ItemAndAuthorsForCustomer on Item {
 			id
 			name
+			owner {
+				firstName
+				lastName
+				email
+			}
+			linkedCustomer {
+				id
+				firstName
+				lastName
+				email
+			}
 			section {
 				project {
 					id
@@ -210,15 +222,16 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 			comment,
 		};
 
-		// TODO
-		// if (notifyActivityToCustomer) {
-		await sendNewCommentEmail({
-			...params,
-			// url: getAppUrl(),
-		});
+		if (!item.section || !item.section.project.notifyActivityToCustomer) {
+			const customerToken = (item.section && item.section.project.token) || '';
 
-		console.log(`New comment email sent to ${customer.email}`);
-		// }
+			await sendNewCommentEmail({
+				...params,
+				url: getAppUrl(`/tasks/${item.id}?token=${customerToken}`),
+			});
+
+			console.log(`New comment email sent to ${customer.email}`);
+		}
 	}
 	catch (error) {
 		console.log(`New comment email not because with error ${error}`);
