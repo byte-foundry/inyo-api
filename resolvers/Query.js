@@ -1,6 +1,6 @@
 const {NotFoundError} = require('../errors');
 const {sendMetric} = require('../stats');
-const {getUserId} = require('../utils');
+const {getUserId, createItemOwnerFilter} = require('../utils');
 
 const {items} = require('./items');
 
@@ -93,23 +93,7 @@ const Query = {
 
 		const [item] = await ctx.db.items({
 			where: {
-				id,
-				OR: [
-					{
-						owner: {id: userId},
-					},
-					{
-						section: {
-							project: {
-								customer: {
-									serviceCompany: {
-										owner: {id: userId},
-									},
-								},
-							},
-						},
-					},
-				],
+				AND: [{id}, createItemOwnerFilter(userId)],
 			},
 		});
 
@@ -155,23 +139,7 @@ const Query = {
 		const comments = await ctx.db.comments({
 			where: {
 				item: {
-					id: itemId,
-					OR: [
-						{
-							owner: {id: userId},
-						},
-						{
-							section: {
-								project: {
-									customer: {
-										serviceCompany: {
-											owner: {id: userId},
-										},
-									},
-								},
-							},
-						},
-					],
+					AND: [{id: itemId}, createItemOwnerFilter(userId)],
 				},
 			},
 		});
@@ -193,17 +161,7 @@ const Query = {
 	},
 	reminders: async (root, args, ctx) => ctx.db.reminders({
 		where: {
-			item: {
-				section: {
-					project: {
-						customer: {
-							serviceCompany: {
-								owner: {id: getUserId(ctx)},
-							},
-						},
-					},
-				},
-			},
+			item: createItemOwnerFilter(getUserId(ctx)),
 		},
 	}),
 	items,
