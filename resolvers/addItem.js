@@ -14,6 +14,7 @@ const addItem = async (
 		reviewer,
 		position: wantedPosition,
 		linkedCustomerId,
+		linkedCustomer,
 		dueDate,
 	},
 	ctx,
@@ -80,7 +81,7 @@ const addItem = async (
 
 	return ctx.db.createItem({
 		section: sectionId && {connect: {id: sectionId}},
-		linkedCustomer: linkedCustomerId && {connect: {id: linkedCustomerId}},
+		linkedCustomer: {connect: {id: linkedCustomerId}, create: {linkedCustomer}},
 		owner: {connect: {id: userId}},
 		name,
 		type,

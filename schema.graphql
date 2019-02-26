@@ -127,6 +127,7 @@ type Mutation {
 		reviewer: Reviewer
 		position: Int
 		dueDate: DateTime
+		linkedCustomer: CustomerInput
 		linkedCustomerId: ID
 
 		# deprecated
@@ -147,6 +148,7 @@ type Mutation {
 		comment: CommentInput
 		position: Int
 		dueDate: DateTime
+		linkedCustomer: CustomerInput
 		linkedCustomerId: ID
 
 		# deprecated
