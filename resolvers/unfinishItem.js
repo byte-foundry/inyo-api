@@ -1,6 +1,6 @@
 const gql = String.raw;
 
-const {getUserId} = require('../utils');
+const {getUserId, createItemOwnerFilter} = require('../utils');
 const {NotFoundError} = require('../errors');
 const {sendMetric} = require('../stats');
 
@@ -69,16 +69,7 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 	const [item] = await ctx.db
 		.items({
 			where: {
-				id,
-				section: {
-					project: {
-						customer: {
-							serviceCompany: {
-								owner: {id: userId},
-							},
-						},
-					},
-				},
+				AND: [{id}, createItemOwnerFilter(userId)],
 			},
 		})
 		.$fragment(fragment);

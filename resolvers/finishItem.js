@@ -1,7 +1,11 @@
 const gql = String.raw;
 
 const {
-	getUserId, getAppUrl, formatFullName, formatName,
+	getUserId,
+	getAppUrl,
+	formatFullName,
+	formatName,
+	createItemOwnerFilter,
 } = require('../utils');
 const {NotFoundError} = require('../errors');
 const {sendTaskValidationEmail} = require('../emails/TaskEmail');
@@ -148,23 +152,7 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 	const [item] = await ctx.db
 		.items({
 			where: {
-				id,
-				OR: [
-					{
-						section: {
-							project: {
-								customer: {
-									serviceCompany: {
-										owner: {id: userId},
-									},
-								},
-							},
-						},
-					},
-					{
-						owner: {id: userId},
-					},
-				],
+				AND: [{id}, createItemOwnerFilter(userId)],
 			},
 		})
 		.$fragment(fragment);
