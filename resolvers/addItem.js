@@ -6,6 +6,7 @@ const {NotFoundError} = require('../errors');
 const addItem = async (
 	parent,
 	{
+		projectId,
 		sectionId,
 		name,
 		type,
@@ -21,6 +22,17 @@ const addItem = async (
 ) => {
 	const userId = getUserId(ctx);
 	let position = 0;
+
+	if (projectId && !sectionId) {
+		const [section] = await ctx.db.sections({
+			where: {project: {id: projectId}},
+			orderBy: 'position_ASC',
+			first: 1,
+		});
+
+		// eslint-disable-next-line no-param-reassign
+		sectionId = section.id;
+	}
 
 	if (sectionId) {
 		const [section] = await ctx.db.sections({

@@ -119,6 +119,7 @@ type Mutation {
 
 	# Add an item to a section
 	addItem(
+		projectId: ID
 		sectionId: ID
 		name: String!
 		type: ItemType
