@@ -224,12 +224,12 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 			comment,
 		};
 
-		if (!item.section || !item.section.project.notifyActivityToCustomer) {
-			const customerToken = (item.section && item.section.project.token) || '';
+		if (item.section && item.section.project.notifyActivityToCustomer) {
+			const customerToken = item.section.project.token || '';
 
 			await sendNewCommentEmail({
 				...params,
-				url: getAppUrl(`/tasks/${item.id}?token=${customerToken}`),
+				url: getAppUrl(`/projects/${customerToken}/view/${customerToken}`),
 			});
 
 			console.log(`New comment email sent to ${customer.email}`);
