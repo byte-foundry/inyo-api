@@ -81,7 +81,7 @@ const addItem = async (
 		// default position: end of the list
 		position = section.items.length;
 
-		if (wantedPosition) {
+		if (typeof wantedPosition === 'number') {
 			const wantedPositionItemIndex = section.items.findIndex(
 				item => item.position === wantedPosition,
 			);
