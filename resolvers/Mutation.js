@@ -296,17 +296,27 @@ const Mutation = {
 		});
 	},
 	updateSection: async (parent, {id, name, position: wantedPosition}, ctx) => {
+		const userId = getUserId(ctx);
 		const [section] = await ctx.db.sections({
 			where: {
 				id,
 				project: {
-					customer: {
-						serviceCompany: {
+					OR: [
+						{
 							owner: {
-								id: getUserId(ctx),
+								id: userId,
 							},
 						},
-					},
+						{
+							customer: {
+								serviceCompany: {
+									owner: {
+										id: userId,
+									},
+								},
+							},
+						},
+					],
 				},
 			},
 		}).$fragment(gql`
