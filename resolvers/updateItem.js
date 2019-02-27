@@ -1,6 +1,6 @@
 const gql = String.raw;
 
-const {getUserId} = require('../utils');
+const {getUserId, createItemOwnerFilter} = require('../utils');
 const {NotFoundError} = require('../errors');
 
 const reorderSection = async (
@@ -84,23 +84,7 @@ const updateItem = async (
 	const user = await ctx.db.user({id: getUserId(ctx)});
 	const [item] = await ctx.db.items({
 		where: {
-			id,
-			OR: [
-				{
-					section: {
-						project: {
-							customer: {
-								serviceCompany: {
-									owner: {id: user.id},
-								},
-							},
-						},
-					},
-				},
-				{
-					owner: {id: user.id},
-				},
-			],
+			AND: [{id}, createItemOwnerFilter(user.id)],
 		},
 	}).$fragment(gql`
 		fragment ItemWithProject on Item {
