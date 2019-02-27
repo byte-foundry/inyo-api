@@ -32,6 +32,8 @@ const addItem = async (
 
 		// eslint-disable-next-line no-param-reassign
 		sectionId = section.id;
+		// eslint-disable-next-line no-param-reassign
+		wantedPosition = wantedPosition || 0;
 	}
 
 	if (sectionId) {
@@ -39,11 +41,18 @@ const addItem = async (
 			where: {
 				id: sectionId,
 				project: {
-					customer: {
-						serviceCompany: {
+					OR: [
+						{
 							owner: {id: userId},
 						},
-					},
+						{
+							customer: {
+								serviceCompany: {
+									owner: {id: userId},
+								},
+							},
+						},
+					],
 				},
 			},
 		}).$fragment(gql`
