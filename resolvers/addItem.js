@@ -1,6 +1,7 @@
 const gql = String.raw;
 
-const {getUserId} = require('../utils');
+const {sendItemContentAcquisitionEmail} = require('../emails/TaskEmail');
+const {getUserId, formatFullName} = require('../utils');
 const {NotFoundError} = require('../errors');
 
 const addItem = async (
@@ -128,7 +129,7 @@ const addItem = async (
 		};
 	}
 
-	return ctx.db.createItem({
+	const createdItem = await ctx.db.createItem({
 		section: sectionId && {connect: {id: sectionId}},
 		linkedCustomer: variables.linkedCustomer,
 		owner: {connect: {id: userId}},
@@ -141,6 +142,41 @@ const addItem = async (
 		position,
 		dueDate,
 	});
+
+	if (type === 'CONTENT_ACQUISITION') {
+		const user = await ctx.db.user({id: userId});
+
+		let customer = {
+			title: '🤷‍',
+			firstName: '🤷‍',
+			lastName: '🤷‍',
+			email: '🤷‍',
+			...linkedCustomer,
+		};
+
+		if (linkedCustomerId) {
+			customer = await ctx.db.customer({id: linkedCustomerId});
+		}
+
+		await sendItemContentAcquisitionEmail({
+			userEmail: user.email,
+			name,
+			description,
+			customerName: String(
+				` ${formatFullName(
+					customer.title,
+					customer.firstName,
+					customer.lastName,
+				)}`,
+			).trimRight(),
+			customerEmail: customer.email,
+			url: '🤷‍',
+			id: createdItem.id,
+		});
+		console.log('Content acquisition email sent to us');
+	}
+
+	return createdItem;
 };
 
 module.exports = {
