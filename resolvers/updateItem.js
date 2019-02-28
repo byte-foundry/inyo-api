@@ -118,7 +118,7 @@ const updateItem = async (
 	let position;
 	let wantedSection = item.section || {id: sectionId};
 
-	if (sectionId && item.section) {
+	if (item.section) {
 		const {project} = item.section;
 
 		if (project.status === 'FINISHED') {
