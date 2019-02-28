@@ -40,6 +40,7 @@ describe('updateItem', () => {
 					id: 'user-id',
 					firstName: 'Jean',
 					lastName: 'Michel',
+					company: () => ({id: 'company-id'}),
 				}),
 				items: () => ({
 					$fragment: () => [
@@ -85,6 +86,7 @@ describe('updateItem', () => {
 					id: 'user-id',
 					firstName: 'Jean',
 					lastName: 'Michel',
+					company: () => ({id: 'company-id'}),
 				}),
 				items: () => ({
 					$fragment: () => [
@@ -149,6 +151,7 @@ describe('updateItem', () => {
 					id: 'user-id',
 					firstName: 'Jean',
 					lastName: 'Michel',
+					company: () => ({id: 'company-id'}),
 				}),
 				items: () => ({
 					$fragment: () => [
@@ -213,6 +216,7 @@ describe('updateItem', () => {
 					id: 'user-id',
 					firstName: 'Jean',
 					lastName: 'Michel',
+					company: () => ({id: 'company-id'}),
 				}),
 				items: () => ({
 					$fragment: () => [
@@ -272,6 +276,7 @@ describe('updateItem', () => {
 					id: 'user-id',
 					firstName: 'Jean',
 					lastName: 'Michel',
+					company: () => ({id: 'company-id'}),
 				}),
 				items: () => ({
 					$fragment: () => [
