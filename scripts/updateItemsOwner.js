@@ -20,6 +20,7 @@ prisma
 	.$fragment(
 		gql`
 			fragment Owner on Item {
+				id
 				section {
 					project {
 						owner {
@@ -36,7 +37,7 @@ prisma
 				const updatedItem = await prisma.updateItem({
 					where: {id: item.id},
 					data: {
-						owner: {connect: item.section.project.owner.id},
+						owner: {connect: item.section.project.owner},
 					},
 				});
 

@@ -15,6 +15,7 @@ prisma
 	.$fragment(
 		gql`
 			fragment Owner on Project {
+				id
 				customer {
 					serviceCompany {
 						owner {
