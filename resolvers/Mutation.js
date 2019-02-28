@@ -249,6 +249,7 @@ const Mutation = {
 					id
 					sections(orderBy: position_ASC) {
 						id
+						position
 					}
 				}
 			`);
@@ -260,7 +261,7 @@ const Mutation = {
 			// default position: end of the list
 			let position = project.sections.length;
 
-			if (wantedPosition) {
+			if (typeof wantedPosition === 'number') {
 				const wantedPositionSectionIndex = project.sections.findIndex(
 					section => section.position === wantedPosition,
 				);
