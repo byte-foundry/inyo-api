@@ -100,11 +100,28 @@ const addItem = async (
 		}
 	}
 
+	const variables = {};
+
+	if (linkedCustomerId) {
+		variables.linkedCustomer = {
+			connect: {id: linkedCustomerId},
+		};
+	}
+	else if (linkedCustomer) {
+		variables.linkedCustomer = {
+			create: {
+				...linkedCustomer,
+				serviceCompany: {connect: {id: userCompany.id}},
+				address: {
+					create: linkedCustomer.address,
+				},
+			},
+		};
+	}
+
 	return ctx.db.createItem({
 		section: sectionId && {connect: {id: sectionId}},
-		linkedCustomer: linkedCustomerId
-			? {connect: {id: linkedCustomerId}}
-			: {create: linkedCustomer},
+		linkedCustomer: variables.linkedCustomer,
 		owner: {connect: {id: userId}},
 		name,
 		type,
