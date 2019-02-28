@@ -100,6 +100,7 @@ const addItem = async (
 		}
 	}
 
+	const userCompany = await ctx.db.user({id: userId}).company();
 	const variables = {};
 
 	if (linkedCustomerId) {
