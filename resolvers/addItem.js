@@ -24,11 +24,19 @@ const addItem = async (
 	let position = 0;
 
 	if (projectId && !sectionId) {
-		const [section] = await ctx.db.sections({
+		let [section] = await ctx.db.sections({
 			where: {project: {id: projectId}},
 			orderBy: 'position_ASC',
 			first: 1,
 		});
+
+		if (!section) {
+			section = await ctx.db.createSection({
+				project: projectId && {connect: {id: projectId}},
+				name: 'Défaut',
+				position: 0,
+			});
+		}
 
 		// eslint-disable-next-line no-param-reassign
 		sectionId = section.id;
