@@ -47,13 +47,20 @@ const User = {
 								linkedCustomer: {id: filter.linkedCustomerId},
 							},
 							{
-								section: {
-									project: {
-										customer: {
-											id: filter.linkedCustomerId,
+								AND: [
+									{
+										section: {
+											project: {
+												customer: {
+													id: filter.linkedCustomerId,
+												},
+											},
 										},
 									},
-								},
+									{
+										linkedCustomer: null,
+									},
+								],
 							},
 						],
 					},
