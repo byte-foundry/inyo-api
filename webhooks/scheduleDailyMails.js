@@ -15,21 +15,6 @@ const weekDays = {
 	0: 'SUNDAY',
 };
 
-const scheduleMorningEmail = async (user, startNextWorkDayAt) => {
-	console.log('Scheduling morning email for', user.email);
-
-	return createPosthookReminder({
-		type: 'MORNING_TASKS',
-		postAt: startNextWorkDayAt,
-		morningRemindersUser: {
-			connect: {id: user.id},
-		},
-		data: {
-			userId: user.id,
-		},
-	});
-};
-
 const scheduleEveningEmail = async (user, endNextWorkDayAt) => {
 	console.log('Scheduling evening emails for', user.email);
 
@@ -47,54 +32,6 @@ const scheduleEveningEmail = async (user, endNextWorkDayAt) => {
 
 const scheduleDailyMails = async (req, res) => {
 	console.log('Scheduling daily mails');
-
-	// checking to whom we can send a morning mail
-	const morningUsers = await prisma.users({
-		where: {
-			startWorkAt_not: null,
-			OR: [
-				{
-					morningReminders_some: {},
-					morningReminders_every: {
-						sendingDate_lt: new Date().toJSON(),
-					},
-				},
-				{
-					morningReminders_none: {},
-				},
-			],
-		},
-	}).$fragment(gql`
-		fragment MorningWorkingUser on User {
-			id
-			email
-			startWorkAt
-			timeZone
-			workingDays
-		}
-	`);
-
-	morningUsers.forEach(async (user) => {
-		const now = new Date();
-		const startNextWorkDayAt = new Date(
-			`${now.toJSON().split('T')[0]}T${user.startWorkAt.split('T')[1]}`,
-		);
-
-		if (now - startNextWorkDayAt > 0) {
-			startNextWorkDayAt.setDate(startNextWorkDayAt.getDate() + 1);
-		}
-
-		const dayNumber = moment(startNextWorkDayAt)
-			.tz(user.timeZone || 'Europe/Paris')
-			.day();
-
-		// don't schedule an email if it's not a worked day
-		if (!user.workingDays.includes(weekDays[dayNumber])) {
-			return;
-		}
-
-		await scheduleMorningEmail(user, startNextWorkDayAt);
-	});
 
 	// checking to whom we can send an evening mail
 	const eveningUsers = await prisma.users({

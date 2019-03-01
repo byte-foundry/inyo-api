@@ -1,6 +1,6 @@
 const gql = String.raw;
 
-const {getUserId} = require('../utils');
+const {getUserId, createItemOwnerFilter} = require('../utils');
 const {NotFoundError} = require('../errors');
 
 const reorderSection = async (
@@ -33,13 +33,14 @@ const updateItem = async (
 		name,
 		type,
 		description,
-		unitPrice,
 		unit,
-		vatRate,
 		reviewer,
 		comment,
 		position: wantedPosition,
 		token,
+		linkedCustomerId,
+		linkedCustomer,
+		dueDate,
 	},
 	ctx,
 ) => {
@@ -47,11 +48,20 @@ const updateItem = async (
 		const [item] = await ctx.db.items({
 			where: {
 				id,
-				section: {
-					project: {
-						token,
+				OR: [
+					{
+						section: {
+							project: {
+								token,
+							},
+						},
 					},
-				},
+					{
+						linkedCustomer: {
+							token,
+						},
+					},
+				],
 			},
 		});
 
@@ -74,36 +84,10 @@ const updateItem = async (
 	const user = await ctx.db.user({id: getUserId(ctx)});
 	const [item] = await ctx.db.items({
 		where: {
-			id,
-			OR: [
-				{
-					section: {
-						option: {
-							quote: {
-								customer: {
-									serviceCompany: {
-										owner: {id: getUserId(ctx)},
-									},
-								},
-							},
-						},
-					},
-				},
-				{
-					section: {
-						project: {
-							customer: {
-								serviceCompany: {
-									owner: {id: getUserId(ctx)},
-								},
-							},
-						},
-					},
-				},
-			],
+			AND: [{id}, createItemOwnerFilter(user.id)],
 		},
 	}).$fragment(gql`
-		fragment ItemWithQuoteAndProject on Item {
+		fragment ItemWithProject on Item {
 			id
 			status
 			position
@@ -112,11 +96,6 @@ const updateItem = async (
 				items(orderBy: position_ASC) {
 					id
 					position
-				}
-				option {
-					quote {
-						status
-					}
 				}
 				project {
 					id
@@ -127,12 +106,6 @@ const updateItem = async (
 							id
 						}
 					}
-					customer {
-						title
-						firstName
-						lastName
-						email
-					}
 				}
 			}
 		}
@@ -142,9 +115,10 @@ const updateItem = async (
 		throw new NotFoundError(`Item '${id}' has not been found.`);
 	}
 
-	// PROJECT
+	let position;
+	let wantedSection = item.section || {id: sectionId};
 
-	if (item.section.project) {
+	if (item.section) {
 		const {project} = item.section;
 
 		if (project.status === 'FINISHED') {
@@ -153,7 +127,7 @@ const updateItem = async (
 			);
 		}
 
-		let position = wantedPosition;
+		position = wantedPosition;
 		let initialPosition = item.section.items.findIndex(
 			sectionItem => sectionItem.id === item.id,
 		);
@@ -165,8 +139,6 @@ const updateItem = async (
 				}' items.`,
 			);
 		}
-
-		let wantedSection = item.section;
 
 		if (sectionId && sectionId !== item.section.id) {
 			[wantedSection] = project.sections;
@@ -206,55 +178,60 @@ const updateItem = async (
 
 			reorderSection(wantedSection, initialPosition, wantedPosition, ctx);
 		}
+	}
 
-		const updatedItem = await ctx.db.updateItem({
-			where: {id},
-			data: {
-				section: sectionId && {connect: {id: wantedSection.id}},
-				name,
-				type,
-				description,
-				unit,
-				reviewer,
-				position,
-				comments: {
-					create: comment && {
-						text: comment.text,
-						authorUser: {
-							connect: {id: user.id},
-						},
-						views: {
-							create: {
-								user: {
-									connect: {id: user.id},
-								},
+	const userId = getUserId(ctx);
+	const userCompany = await ctx.db.user({id: userId}).company();
+	const variables = {};
+
+	if (linkedCustomerId) {
+		variables.linkedCustomer = {
+			connect: {id: linkedCustomerId},
+		};
+	}
+	else if (linkedCustomer) {
+		variables.linkedCustomer = {
+			create: {
+				...linkedCustomer,
+				serviceCompany: {connect: {id: userCompany.id}},
+				address: {
+					create: linkedCustomer.address,
+				},
+			},
+		};
+	}
+
+	const updatedItem = await ctx.db.updateItem({
+		where: {id},
+		data: {
+			...variables,
+			section: sectionId && {connect: {id: wantedSection.id}},
+			name,
+			type,
+			description,
+			unit,
+			reviewer,
+			position,
+			dueDate,
+			comments: {
+				create: comment && {
+					text: comment.text,
+					authorUser: {
+						connect: {id: user.id},
+					},
+					views: {
+						create: {
+							user: {
+								connect: {id: user.id},
 							},
 						},
 					},
 				},
 			},
-		});
-
-		return updatedItem;
-	}
-
-	// QUOTE
-
-	if (item.section.option.quote.status !== 'DRAFT') {
-		throw new Error(`Item '${id}' cannot be updated in this quote state.`);
-	}
-
-	return ctx.db.updateItem({
-		where: {id},
-		data: {
-			name,
-			description,
-			unit,
-			unitPrice,
-			vatRate,
-			status: 'PENDING',
 		},
 	});
+
+	return updatedItem;
 };
 
 module.exports = {

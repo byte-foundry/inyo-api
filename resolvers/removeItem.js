@@ -4,33 +4,24 @@ const {getUserId} = require('../utils');
 const {NotFoundError} = require('../errors');
 
 const removeItem = async (parent, {id}, ctx) => {
+	const userId = getUserId(ctx);
 	const [item] = await ctx.db.items({
 		where: {
 			id,
 			OR: [
 				{
 					section: {
-						option: {
-							quote: {
-								customer: {
-									serviceCompany: {
-										owner: {id: getUserId(ctx)},
-									},
+						project: {
+							customer: {
+								serviceCompany: {
+									owner: {id: userId},
 								},
 							},
 						},
 					},
 				},
 				{
-					section: {
-						project: {
-							customer: {
-								serviceCompany: {
-									owner: {id: getUserId(ctx)},
-								},
-							},
-						},
-					},
+					owner: {id: userId},
 				},
 			],
 		},
@@ -54,28 +45,28 @@ const removeItem = async (parent, {id}, ctx) => {
 		throw new NotFoundError(`Item '${id}' has not been found.`);
 	}
 
-	if (
-		item.section.project.status === 'FINISHED'
-		|| item.status === 'FINISHED'
-	) {
-		throw new Error(`Item '${id}' can't be removed in this state.`);
+	if (item.section) {
+		if (
+			item.section.project.status === 'FINISHED'
+			|| item.status === 'FINISHED'
+		) {
+			throw new Error(`Item '${id}' can't be removed in this state.`);
+		}
+
+		const itemIndex = item.section.items.findIndex(
+			sectionItem => item.id === sectionItem.id,
+		);
+
+		// updating all the positions from the item position
+		await Promise.all(
+			item.section.items.slice(itemIndex + 1).map((sectionItem, index) => ctx.db.updateItem({
+				where: {id: sectionItem.id},
+				data: {position: itemIndex + index},
+			})),
+		);
 	}
 
-	const itemIndex = item.section.items.findIndex(
-		sectionItem => item.id === sectionItem.id,
-	);
-
-	const removedItem = await ctx.db.deleteItem({id});
-
-	// updating all the positions from the item position
-	await Promise.all(
-		item.section.items.slice(itemIndex + 1).map((sectionItem, index) => ctx.db.updateItem({
-			where: {id: sectionItem.id},
-			data: {position: itemIndex + index},
-		})),
-	);
-
-	return removedItem;
+	return ctx.db.deleteItem({id});
 };
 
 module.exports = {

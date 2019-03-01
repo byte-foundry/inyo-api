@@ -62,16 +62,29 @@ const sendCustomersRecapEmail = async ({userId}) => {
 			company {
 				customers(
 					where: {
-						projects_some: {
-							notifyActivityToCustomer: true
-							sections_some: { items_some: { ${itemFilter} } }
-						}
+						OR: [{
+							linkedTasks_some: {
+								${itemFilter}
+							}
+						}, {
+							projects_some: {
+								notifyActivityToCustomer: true
+								sections_some: { items_some: { ${itemFilter} } }
+							}
+						}]
 					}
 				) {
 					title
 					firstName
 					lastName
 					email
+					linkedTasks(
+						where: {
+							${itemFilter}
+						}
+					) {
+						name
+					}
 					projects(
 						where: {
 							notifyActivityToCustomer: true
@@ -115,6 +128,7 @@ const sendCustomersRecapEmail = async ({userId}) => {
 					...project,
 					url: getAppUrl(`/projects/${project.id}/view/${project.token}`),
 				})),
+				tasks: customer.linkedTasks,
 			});
 
 			console.log(

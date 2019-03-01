@@ -1,12 +1,12 @@
 const gql = String.raw;
 
-const {getUserId} = require('../utils');
+const {getUserId, createItemOwnerFilter} = require('../utils');
 const {NotFoundError} = require('../errors');
 const {sendMetric} = require('../stats');
 
 const unfinishItem = async (parent, {id, token}, ctx) => {
 	const fragment = gql`
-		fragment ItemWithQuoteAndProject on Item {
+		fragment ItemWithProject on Item {
 			name
 			status
 			reviewer
@@ -18,17 +18,6 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 			}
 			section {
 				id
-				option {
-					sections {
-						name
-						items {
-							status
-						}
-					}
-					quote {
-						id
-					}
-				}
 				project {
 					id
 					token
@@ -50,10 +39,7 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 			.items({
 				where: {
 					id,
-					OR: [
-						{section: {option: {quote: {token}}}},
-						{section: {project: {token}}},
-					],
+					section: {project: {token}},
 				},
 			})
 			.$fragment(fragment);
@@ -83,43 +69,13 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 	const [item] = await ctx.db
 		.items({
 			where: {
-				id,
-				OR: [
-					{
-						section: {
-							option: {
-								quote: {
-									customer: {
-										serviceCompany: {
-											owner: {id: userId},
-										},
-									},
-								},
-							},
-						},
-					},
-					{
-						section: {
-							project: {
-								customer: {
-									serviceCompany: {
-										owner: {id: userId},
-									},
-								},
-							},
-						},
-					},
-				],
+				AND: [{id}, createItemOwnerFilter(userId)],
 			},
 		})
 		.$fragment(fragment);
 
 	if (!item) {
 		throw new NotFoundError(`Item '${id}' has not been found.`);
-	}
-
-	if (item.section.quote) {
-		throw new Error('Unfinishing a quote task is not supported.');
 	}
 
 	const {project} = item.section;

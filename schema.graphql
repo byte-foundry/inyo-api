@@ -79,6 +79,8 @@ type Mutation {
 	updateProject(
 		id: ID!
 		name: String
+		customerId: ID
+		customer: CustomerInput
 		deadline: DateTime
 		notifyActivityToCustomer: Boolean
 	): Project
@@ -102,12 +104,8 @@ type Mutation {
 	removeQuote(id: ID!): Quote
 		@deprecated(reason: "Quotes are not used anymore.")
 
-	# Add an option to the quote
-	# addOption(quoteId: ID!, name: String!, sections: [SectionInput!]): Option!
 	updateOption(id: ID!, proposal: Json!): Option
 		@deprecated(reason: "Quotes are not used anymore.")
-	# Remove an option
-	# removeOption(id: ID!): Option
 
 	# Add section to one of the quote's option
 	addSection(
@@ -124,15 +122,21 @@ type Mutation {
 
 	# Add an item to a section
 	addItem(
-		sectionId: ID!
+		projectId: ID
+		sectionId: ID
 		name: String!
 		type: ItemType
 		description: String
-		unitPrice: Int
 		unit: Float
-		vatRate: Int
 		reviewer: Reviewer
 		position: Int
+		dueDate: DateTime
+		linkedCustomer: CustomerInput
+		linkedCustomerId: ID
+
+		# deprecated
+		unitPrice: Int
+		vatRate: Int
 	): Item!
 	# Update item properties
 	updateItem(
@@ -143,13 +147,18 @@ type Mutation {
 		name: String
 		type: ItemType
 		description: String
-		unitPrice: Int
 		unit: Float
-		vatRate: Int
 		reviewer: Reviewer
 		comment: CommentInput
-		notifyCustomer: Boolean # deprecated
 		position: Int
+		dueDate: DateTime
+		linkedCustomer: CustomerInput
+		linkedCustomerId: ID
+
+		# deprecated
+		vatRate: Int
+		unitPrice: Int
+		notifyCustomer: Boolean
 	): Item
 	# Update an already validated item
 	updateValidatedItem(id: ID!, unit: Float!, comment: CommentInput!): Item
@@ -241,11 +250,13 @@ input CustomerInput {
 input ItemInput {
 	name: String!
 	description: String
-	unitPrice: Int
 	unit: Float
-	vatRate: Int
 	reviewer: Reviewer
 	type: ItemType
+
+	# deprecated
+	unitPrice: Int
+	vatRate: Int
 }
 
 input SectionInput {
@@ -391,26 +402,34 @@ type Comment {
 
 enum ItemType {
 	DEFAULT
+	CUSTOMER
 	CONTENT_ACQUISITION
+	CUSTOMER_REMINDER
+	VALIDATION
+	USER_REMINDER
 }
 
 type Item {
 	id: ID!
+	owner: User!
+	linkedCustomer: Customer
 	name: String!
 	type: ItemType!
 	description: String
-	unitPrice: Int!
-	# when unit has been changed but not yet validated
-	pendingUnit: Float
 	unit: Float!
-	section: Section!
+	section: Section
 	comments: [Comment!]!
-	vatRate: Int!
 	status: ItemStatus!
 	reviewer: Reviewer!
 	reminders: [Reminder!]!
 	position: Int
 	timeItTook: Float
+	dueDate: DateTime
+
+	unitPrice: Int @deprecated(reason: "Unit price is not used anymore.")
+	pendingUnit: Float
+		@deprecated(reason: "There is no validation anymore. Use `unit` directly.")
+	vatRate: Int! @deprecated(reason: "Vat rate is not used anymore.")
 }
 
 type Section {
@@ -449,7 +468,9 @@ type Project {
 	name: String!
 	template: ProjectTemplate
 	issuer: Company!
-	customer: Customer!
+		@deprecated(reason: "Company is not used anymore. Use `owner` instead")
+	owner: User!
+	customer: Customer
 	status: ProjectStatus!
 	sections: [Section!]!
 	total: Float
@@ -476,9 +497,11 @@ type Company {
 	rm: String
 	vat: String
 	logo: File
-	customers: [Customer!]!
-	quotes: [Quote!]! @deprecated(reason: "Quotes are not used anymore.")
 	projects: [Project!]!
+
+	customers: [Customer!]!
+		@deprecated(reason: "Use `customers` on User instead.")
+	quotes: [Quote!]! @deprecated(reason: "Quotes are not used anymore.")
 }
 
 enum Title {
@@ -495,6 +518,7 @@ enum JobType {
 
 type Settings {
 	askItemFinishConfirmation: Boolean!
+		@deprecated(reason: "Not available anymore.")
 	askSendQuoteConfirmation: Boolean!
 		@deprecated(reason: "Quote are not used anymore.")
 	askStartProjectConfirmation: Boolean!
@@ -505,7 +529,12 @@ type User {
 	email: String!
 	firstName: String
 	lastName: String
+	customers: [Customer!]!
+	projects: [Project!]!
 	company: Company!
+		@deprecated(
+			reason: "Company is not used anymore. User customers and projects instead."
+		)
 	defaultDailyPrice: Int
 		@deprecated(reason: "Price was only needed for the deprecated Quote.")
 	defaultVatRate: Int
@@ -519,6 +548,7 @@ type User {
 	hasUpcomingProject: Boolean
 	settings: Settings!
 	hmacIntercomId: String!
+	tasks(filter: TasksFilterInput, sort: TasksSortInput): [Item!]!
 }
 
 type File {
@@ -526,4 +556,17 @@ type File {
 	mimetype: String!
 	encoding: String!
 	url: String!
+}
+
+input TasksFilterInput {
+	linkedCustomerId: ID
+}
+
+enum TasksSortInput {
+	unit_ASC
+	unit_DESC
+	dueDate_ASC
+	dueDate_DESC
+	createdAt_ASC
+	createdAt_DESC
 }

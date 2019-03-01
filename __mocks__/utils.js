@@ -38,6 +38,32 @@ const formatFullName = normalizeFalsyParams(
 	(title = '', firstName = '', lastName = '') => `${formatTitle(title)} ${formatName(firstName, lastName)}`.trim(),
 );
 
+const createItemOwnerFilter = ownerId => ({
+	OR: [
+		{
+			owner: {id: ownerId},
+		},
+		{
+			section: {
+				project: {
+					OR: [
+						{
+							owner: {id: ownerId},
+						},
+						{
+							customer: {
+								serviceCompany: {
+									owner: {id: ownerId},
+								},
+							},
+						},
+					],
+				},
+			},
+		},
+	],
+});
+
 module.exports = {
 	getUserId,
 	getAppUrl,
@@ -45,4 +71,5 @@ module.exports = {
 	formatTitle,
 	formatName,
 	formatFullName,
+	createItemOwnerFilter,
 };

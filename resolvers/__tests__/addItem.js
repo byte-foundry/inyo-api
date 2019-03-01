@@ -17,6 +17,12 @@ describe('addItem', () => {
 				get: () => 'user-token',
 			},
 			db: {
+				user: () => ({
+					id: 'user-id',
+					company: () => ({
+						id: 'company-id',
+					}),
+				}),
 				sections: () => ({
 					$fragment: () => [
 						{
@@ -55,6 +61,12 @@ describe('addItem', () => {
 				get: () => 'user-token',
 			},
 			db: {
+				user: () => ({
+					id: 'user-id',
+					company: () => ({
+						id: 'company-id',
+					}),
+				}),
 				sections: () => ({
 					$fragment: () => [
 						{
@@ -90,6 +102,12 @@ describe('addItem', () => {
 				get: () => 'user-token',
 			},
 			db: {
+				user: () => ({
+					id: 'user-id',
+					company: () => ({
+						id: 'company-id',
+					}),
+				}),
 				sections: () => ({
 					$fragment: () => [
 						{

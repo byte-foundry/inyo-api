@@ -16,6 +16,7 @@ enum Title {
 # Represents a company or an individual that is going to receive an invoice
 type Customer {
 	id: ID! @unique
+	token: String @unique
 	name: String
 	title: Title
 	firstName: String
@@ -29,6 +30,7 @@ type Customer {
 	serviceCompany: Company! @relation(name: "CompanyCustomers")
 	quotes: [Quote!]! @relation(name: "CustomerQuotes")
 	projects: [Project!]! @relation(name: "CustomerProjects")
+	linkedTasks: [Item!]! @relation(name: "LinkedCustomerTasks")
 	commentViews: [CommentView!]! @relation(name: "CommentViewCustomer")
 }
 
@@ -154,27 +156,30 @@ type Comment {
 
 enum ItemType {
 	DEFAULT
+	CUSTOMER
 	CONTENT_ACQUISITION
+	CUSTOMER_REMINDER
+	VALIDATION
+	USER_REMINDER
 }
 
 type Item {
 	id: ID! @unique
+	owner: User @relation(name: "UserTasks")
+	linkedCustomer: Customer @relation(name: "LinkedCustomerTasks")
 	name: String!
 	type: ItemType! @default(value: DEFAULT)
 	description: String @default(value: "")
-	unitPrice: Int @default(value: 0)
-	# when unit has been changed but not yet validated
-	pendingUnit: Float
 	unit: Float @default(value: 0)
 	comments: [Comment!]! @relation(name: "ItemComments", onDelete: CASCADE)
-	vatRate: Int! @default(value: 0)
 	status: ItemStatus! @default(value: PENDING)
-	section: Section! @relation(name: "SectionItems")
+	section: Section @relation(name: "SectionItems")
 	reviewer: Reviewer! @default(value: USER)
 	reminders: [Reminder!]! @relation(name: "ItemReminders", onDelete: CASCADE)
 	snoozedUntil: Reminder @relation(name: "SnoozeReminders", onDelete: CASCADE)
 	finishedAt: DateTime
 	position: Int!
+	dueDate: DateTime
 	createdAt: DateTime!
 	updatedAt: DateTime!
 	timeItTook: Float
@@ -222,7 +227,8 @@ type Project {
 	id: ID! @unique
 	name: String!
 	template: ProjectTemplate @default(value: BLANK)
-	customer: Customer! @relation(name: "CustomerProjects")
+	customer: Customer @relation(name: "CustomerProjects")
+	owner: User @relation(name: "UserProjects")
 	# this token is a way to restrict access to anyone else than the customer
 	token: String! @unique
 	status: ProjectStatus! @default(value: DRAFT)
@@ -287,6 +293,8 @@ type User {
 	interestedFeatures: [String!]!
 	hasUpcomingProject: Boolean
 	settings: Settings! @relation(name: "UserSettings")
+	tasks: [Item!]! @relation(name: "UserTasks", onDelete: CASCADE)
+	projects: [Project!]! @relation(name: "UserProjects", onDelete: CASCADE)
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }

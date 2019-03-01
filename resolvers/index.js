@@ -9,9 +9,7 @@ const {Settings} = require('./Settings');
 const {Company} = require('./Company');
 const {Item} = require('./Item');
 const {Section} = require('./Section');
-const {Option} = require('./Option');
 const {Project} = require('./Project');
-const {Quote} = require('./Quote');
 const {Customer} = require('./Customer');
 const {Address} = require('./Address');
 const {Author} = require('./Author');
@@ -32,9 +30,13 @@ const resolvers = {
 	Company,
 	Item,
 	Section,
-	Option,
+	Option: () => {
+		throw new Error('Quotes are not supported anymore');
+	},
 	Project,
-	Quote,
+	Quote: () => {
+		throw new Error('Quotes are not supported anymore');
+	},
 	Customer,
 	Address,
 	Author,
