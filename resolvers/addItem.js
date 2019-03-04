@@ -34,7 +34,7 @@ const addItem = async (
 		if (!section) {
 			section = await ctx.db.createSection({
 				project: projectId && {connect: {id: projectId}},
-				name: 'Défaut',
+				name: 'Renommer cette section',
 				position: 0,
 			});
 		}
