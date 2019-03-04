@@ -62,7 +62,13 @@ type Mutation {
 	): User
 
 	# Create a new customer inside the user's company
-	createCustomer(email: String!): Customer!
+	createCustomer(
+		email: String!
+		name: String
+		firstName: String
+		lastName: String
+		title: Title
+	): Customer!
 	updateCustomer(id: ID!, customer: CustomerInput!): Customer!
 
 	# Create a new project for a customer of the user's company
