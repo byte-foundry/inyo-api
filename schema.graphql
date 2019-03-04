@@ -149,6 +149,7 @@ type Mutation {
 		id: ID!
 		# Updating the item's section in the project
 		sectionId: ID
+		projectId: ID
 		token: String
 		name: String
 		type: ItemType
