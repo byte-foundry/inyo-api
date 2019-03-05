@@ -40,6 +40,7 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 			name
 			status
 			unit
+			type
 			owner {
 				email
 				firstName
