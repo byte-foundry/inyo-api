@@ -1,11 +1,7 @@
 import {finishItem} from '../finishItem';
 
 import cancelReminder from '../../reminders/cancelReminder';
-import {
-	sendTaskValidationEmail,
-	sendTaskValidationWaitCustomerEmail,
-	setupItemReminderEmail,
-} from '../../emails/TaskEmail';
+import {sendTaskValidationEmail} from '../../emails/TaskEmail';
 
 jest.mock('../../utils');
 jest.mock('../../stats');
@@ -27,7 +23,6 @@ describe('finishItem', () => {
 						{
 							name: 'Mon item',
 							status: 'PENDING',
-							reviewer: 'USER',
 							unit: 1,
 							pendingReminders: [],
 							section: {
@@ -94,138 +89,6 @@ describe('finishItem', () => {
 		});
 	});
 
-	it("should send a mail and reminders when the customer's action is required", async () => {
-		const args = {
-			id: 'item-id',
-		};
-		const ctx = {
-			request: {
-				get: () => 'user-token',
-			},
-			db: {
-				items: () => ({
-					$fragment: () => [
-						{
-							name: 'Mon item',
-							status: 'PENDING',
-							reviewer: 'USER',
-							pendingReminders: [],
-							section: {
-								id: 'section-id',
-								project: {
-									id: 'project-id',
-									token: 'mon-token',
-									name: "C'est notre projeeet",
-									customer: {
-										title: 'MONSIEUR',
-										firstName: 'Jean',
-										lastName: 'Michel',
-										email: 'jean@michel.org',
-										serviceCompany: {
-											owner: {
-												email: 'chouche@gitan.fm',
-												firstName: 'Adrien',
-												lastName: 'David',
-											},
-										},
-									},
-									status: 'ONGOING',
-									sections: [
-										{
-											name: 'Ma section',
-											items: [
-												{
-													name: 'Mon item',
-													unit: 1,
-													status: 'PENDING',
-												},
-											],
-										},
-									],
-								},
-							},
-						},
-					],
-				}),
-				item: () => ({
-					$fragment: () => ({
-						section: {
-							id: 'section-1',
-							items: [
-								{
-									id: 'next-item-id',
-									name: 'Mon item',
-									type: 'DEFAULT',
-									description: '',
-									reviewer: 'CUSTOMER',
-								},
-								{
-									id: 'another-item-id',
-									name: 'Another item',
-									type: 'DEFAULT',
-									description: '',
-									reviewer: 'CUSTOMER',
-								},
-							],
-							project: {
-								sections: [
-									{
-										id: 'section-2',
-										items: [
-											{
-												id: 'another-2-item-id',
-												name: 'Another item 2',
-												type: 'DEFAULT',
-												description: '',
-												reviewer: 'CUSTOMER',
-											},
-											{
-												id: 'another-3-item-id',
-												name: 'Another item 3',
-												type: 'DEFAULT',
-												description: '',
-												reviewer: 'USER',
-											},
-										],
-									},
-								],
-							},
-						},
-					}),
-				}),
-				updateItem: ({data}) => ({
-					id: 'item-id',
-					...data,
-				}),
-				updateManyReminders: jest.fn(),
-			},
-		};
-
-		const item = await finishItem({}, args, ctx);
-
-		expect(sendTaskValidationWaitCustomerEmail).toHaveBeenCalledWith(
-			expect.objectContaining({
-				email: 'jean@michel.org',
-				items: [
-					expect.objectContaining({id: 'next-item-id'}),
-					expect.objectContaining({id: 'another-item-id'}),
-					expect.objectContaining({id: 'another-2-item-id'}),
-				],
-			}),
-		);
-		expect(setupItemReminderEmail).toHaveBeenCalledWith(
-			expect.objectContaining({
-				itemId: 'next-item-id',
-			}),
-			ctx,
-		);
-
-		expect(item).toMatchObject({
-			id: args.id,
-			status: 'FINISHED',
-		});
-	});
-
 	it('should let a customer finish a project customer item', async () => {
 		const args = {
 			id: 'item-id',
@@ -241,7 +104,7 @@ describe('finishItem', () => {
 						{
 							name: 'Mon item',
 							status: 'PENDING',
-							reviewer: 'CUSTOMER',
+							type: 'CUSTOMER',
 							pendingReminders: [
 								{
 									id: 'reminder-id',
@@ -334,7 +197,7 @@ describe('finishItem', () => {
 						{
 							name: 'Mon item',
 							status: 'PENDING',
-							reviewer: 'CUSTOMER',
+							type: 'CUSTOMER',
 							section: {
 								id: 'section-id',
 								project: {
@@ -408,7 +271,6 @@ describe('finishItem', () => {
 						{
 							name: 'Mon item',
 							status: 'PENDING',
-							reviewer: 'USER',
 							section: {
 								id: 'section-id',
 								project: {
@@ -482,7 +344,6 @@ describe('finishItem', () => {
 						{
 							name: 'Mon item',
 							status: 'PENDING',
-							reviewer: 'USER',
 							unit: 1,
 							pendingReminders: [],
 							section: {

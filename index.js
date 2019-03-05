@@ -9,6 +9,7 @@ const {resolvers} = require('./resolvers');
 const {posthookReceiver} = require('./webhooks/posthookReceiver');
 const {scheduleDailyMails} = require('./webhooks/scheduleDailyMails');
 const sendEmail = require('./emails/SendEmail');
+const {subscribeToUpdateIntercom} = require('./intercomTracking');
 
 const {PORT} = process.env;
 
@@ -142,3 +143,5 @@ else {
 		`Server with Apollo Engine is running on http://localhost:${PORT}`,
 	));
 }
+
+subscribeToUpdateIntercom(prisma);

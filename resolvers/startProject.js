@@ -61,18 +61,15 @@ const startProject = async (parent, {id, notifyCustomer = true}, ctx) => {
 		const {serviceCompany} = customer;
 		const user = serviceCompany.owner;
 
-		// sending the quote via sendgrid
-		// this use the quote template
 		try {
 			await sendProjectStartedEmail({
 				email: customer.email,
 				customerName: String(
-					` ${
-						formatFullName(
-							customer.title,
-							customer.firstName,
-							customer.lastName,
-						)}`,
+					` ${formatFullName(
+						customer.title,
+						customer.firstName,
+						customer.lastName,
+					)}`,
 				).trimRight(),
 				projectName: project.name,
 				user: formatName(user.firstName, user.lastName),

@@ -18,7 +18,6 @@ describe('unfinishItem', () => {
 						{
 							name: 'Mon item',
 							status: 'FINISHED',
-							reviewer: 'USER',
 							section: {
 								id: 'section-id',
 								project: {
@@ -81,7 +80,7 @@ describe('unfinishItem', () => {
 						{
 							name: 'Mon item',
 							status: 'FINISHED',
-							reviewer: 'CUSTOMER',
+							type: 'CUSTOMER',
 							section: {
 								id: 'section-id',
 								project: {
@@ -143,7 +142,7 @@ describe('unfinishItem', () => {
 						{
 							name: 'Mon item',
 							status: 'FINISHED',
-							reviewer: 'CUSTOMER',
+							type: 'CUSTOMER',
 							section: {
 								id: 'section-id',
 								project: {
@@ -203,7 +202,6 @@ describe('unfinishItem', () => {
 						{
 							name: 'Mon item',
 							status: 'FINISHED',
-							reviewer: 'USER',
 							section: {
 								id: 'section-id',
 								project: {

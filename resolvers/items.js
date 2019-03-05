@@ -16,7 +16,7 @@ const items = async (root, args, ctx) => {
 			deadline_not: null,
 			status: 'ONGOING',
 			// the projects must have at least one user's pending item
-			sections_some: {items_some: {status: 'PENDING', reviewer: 'USER'}},
+			sections_some: {items_some: {status: 'PENDING'}},
 		},
 	}).$fragment(gql`
 		fragment Projects on Project {
@@ -34,8 +34,8 @@ const items = async (root, args, ctx) => {
 					id
 					name
 					unit
-					reviewer
 					status
+					type
 				}
 			}
 		}
@@ -47,7 +47,7 @@ const items = async (root, args, ctx) => {
 		for (const section of project.sections) {
 			for (const item of section.items) {
 				if (item.status === 'PENDING') {
-					return item.reviewer === 'USER';
+					return item.type !== 'CUSTOMER';
 				}
 			}
 		}
@@ -84,7 +84,7 @@ const items = async (root, args, ctx) => {
 				// eslint-disable-next-line no-restricted-syntax
 				for (const item of section.items) {
 					// keeping only the tasks user can do
-					if (item.reviewer !== 'USER') {
+					if (item.type === 'CUSTOMER') {
 						break;
 					}
 

@@ -1,7 +1,6 @@
 const uuid = require('uuid/v4');
 
 const {getUserId} = require('../utils');
-const {InsufficientDataError} = require('../errors');
 const {sendMetric} = require('../stats');
 
 const createProject = async (
@@ -17,13 +16,8 @@ const createProject = async (
 	},
 	ctx,
 ) => {
-	const userCompany = await ctx.db.user({id: getUserId(ctx)}).company();
-
-	if (!customerId && !customer) {
-		throw new InsufficientDataError(
-			'You must define either a customer or set an existing customer id.',
-		);
-	}
+	const userId = getUserId(ctx);
+	const userCompany = await ctx.db.user({id: userId}).company();
 
 	const variables = {};
 
@@ -32,7 +26,7 @@ const createProject = async (
 			connect: {id: customerId},
 		};
 	}
-	else {
+	else if (customer) {
 		variables.customer = {
 			create: {
 				...customer,
@@ -49,14 +43,13 @@ const createProject = async (
 		name: name || 'Nom du projet',
 		template,
 		token: uuid(),
+		owner: {connect: {id: userId}},
 		sections: sections && {
 			create: sections.map((section, sectionIndex) => ({
 				...section,
 				items: section.items && {
 					create: section.items.map((item, index) => ({
 						...item,
-						reviewer:
-							notifyActivityToCustomer === false ? 'USER' : item.reviewer,
 						position: index,
 					})),
 				},

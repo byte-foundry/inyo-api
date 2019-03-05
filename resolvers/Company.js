@@ -13,29 +13,8 @@ const Company = {
 	vat: node => node.vat,
 	logo: (node, args, ctx) => ctx.db.company({id: node.id}).logo(),
 	customers: (node, args, ctx) => ctx.db.company({id: node.id}).customers(),
-	quotes: async (node, args, ctx) => {
-		const customers = await ctx.db.company({id: node.id}).customers()
-			.$fragment(gql`
-			fragment CustomerQuotes on Customer {
-				quotes {
-					id
-					name
-					template
-					status
-					viewedByCustomer
-					issuedAt
-					createdAt
-					updatedAt
-				}
-			}
-		`);
-
-		return customers
-			.map(customer => customer.quotes)
-			.reduce(
-				(quotes, quotesPerCustomer) => quotes.concat(quotesPerCustomer),
-				[],
-			);
+	quotes: () => {
+		throw new Error('Quotes are not supported anymore');
 	},
 	projects: async (node, args, ctx) => {
 		const customers = await ctx.db.company({id: node.id}).customers()

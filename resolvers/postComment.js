@@ -1,53 +1,54 @@
 const gql = String.raw;
 
-const {getUserId, getAppUrl} = require('../utils');
-const {NotFoundError} = require('../errors');
-const {sendMetric} = require('../stats');
 const {
-	legacy_sendNewCommentEmail, // eslint-disable-line
-	sendNewCommentEmail,
-} = require('../emails/CommentEmail');
+	getUserId,
+	getAppUrl,
+	formatFullName,
+	formatName,
+	createItemOwnerFilter,
+} = require('../utils');
+const {NotFoundError} = require('../errors');
+const {sendNewCommentEmail} = require('../emails/CommentEmail');
 
 const postComment = async (parent, {itemId, token, comment}, ctx) => {
 	if (token) {
 		const [item] = await ctx.db.items({
 			where: {
 				id: itemId,
-				section: {
-					OR: [{option: {quote: {token}}}, {project: {token}}],
-				},
+				OR: [
+					{
+						section: {
+							project: {token},
+						},
+					},
+					{
+						linkedCustomer: {token},
+					},
+				],
 			},
 		}).$fragment(gql`
 			fragment ItemAndAuthorsForUser on Item {
 				id
 				name
+				owner {
+					email
+					firstName
+					lastName
+				}
+				customer {
+					firstName
+					lastName
+					email
+				}
 				section {
-					option {
-						quote {
-							id
-							name
-							token
-							customer {
-								id
-								firstName
-								lastName
-								email
-								serviceCompany {
-									owner {
-										email
-										firstName
-										lastName
-									}
-								}
-							}
-						}
-					}
 					project {
-						id
-						name
 						token
+						owner {
+							email
+							firstName
+							lastName
+						}
 						customer {
-							id
 							firstName
 							lastName
 							email
@@ -68,18 +69,15 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 			throw new NotFoundError(`Item '${itemId}' has not been found`);
 		}
 
-		const {project, option} = item.section;
-		const {quote} = option || {};
-		let customer;
+		let user = item.owner;
+		let customer = item.linkedCustomer;
 
-		if (project) {
+		if (item.section) {
+			const {project} = item.section;
+
 			({customer} = project);
+			user = project.owner || customer.serviceCompany.owner || user;
 		}
-		else {
-			({customer} = quote);
-		}
-
-		const user = customer.serviceCompany.owner;
 
 		const result = ctx.db.updateItem({
 			where: {id: itemId},
@@ -105,25 +103,20 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 		try {
 			const params = {
 				email: user.email,
-				recipientName: String(`${user.firstName} ${user.lastName}`).trim(),
-				authorName: String(`${customer.firstName} ${customer.lastName}`).trim(),
-				projectName: project ? project.name : quote.name,
+				recipientName: formatName(user.firstName, user.lastName),
+				authorName: formatFullName(
+					customer.title,
+					customer.firstName,
+					customer.lastName,
+				),
 				itemName: item.name,
 				comment,
 			};
 
-			if (project) {
-				sendNewCommentEmail({
-					...params,
-					url: getAppUrl(`/projects/${project.id}/see`),
-				});
-			}
-			else {
-				legacy_sendNewCommentEmail({
-					...params,
-					quoteUrl: getAppUrl(`/quotes/${quote.id}/see`),
-				});
-			}
+			sendNewCommentEmail({
+				...params,
+				url: getAppUrl(`/tasks/${item.id}`),
+			});
 
 			console.log(`New comment email sent to ${user.email}`);
 		}
@@ -131,58 +124,40 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 			console.log(`New comment email not because with error ${error}`);
 		}
 
-		sendMetric({metric: 'inyo.comment.postedByCustomer'});
-
 		return result;
 	}
 
 	const userId = getUserId(ctx);
 	const [item] = await ctx.db.items({
 		where: {
-			id: itemId,
-			section: {
-				OR: [
-					{
-						option: {
-							quote: {customer: {serviceCompany: {owner: {id: userId}}}},
-						},
-					},
-					{
-						project: {customer: {serviceCompany: {owner: {id: userId}}}},
-					},
-				],
-			},
+			AND: [{id: itemId}, createItemOwnerFilter(userId)],
 		},
 	}).$fragment(gql`
 		fragment ItemAndAuthorsForCustomer on Item {
 			id
 			name
+			owner {
+				firstName
+				lastName
+				email
+			}
+			linkedCustomer {
+				id
+				firstName
+				lastName
+				email
+			}
 			section {
-				option {
-					quote {
-						id
-						name
-						token
-						customer {
-							id
-							firstName
-							lastName
-							email
-							serviceCompany {
-								owner {
-									firstName
-									lastName
-									email
-								}
-							}
-						}
-					}
-				}
 				project {
 					id
 					name
 					token
 					notifyActivityToCustomer
+					owner {
+						firstName
+						lastName
+						email
+					}
 					customer {
 						id
 						firstName
@@ -205,18 +180,15 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 		throw new NotFoundError(`Item '${itemId}' has not been found.`);
 	}
 
-	const {project, option} = item.section;
-	const {quote} = option || {};
-	let customer;
+	let user = item.owner;
+	let customer = item.linkedCustomer;
 
-	if (project) {
+	if (item.section) {
+		const {project} = item.section;
+
 		({customer} = project);
+		user = project.owner || customer.serviceCompany.owner || user;
 	}
-	else {
-		({customer} = quote);
-	}
-
-	const user = customer.serviceCompany.owner;
 
 	const result = ctx.db.updateItem({
 		where: {id: itemId},
@@ -242,19 +214,24 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 	try {
 		const params = {
 			email: customer.email,
-			recipientName: String(
-				`${customer.firstName} ${customer.lastName}`,
-			).trim(),
-			authorName: String(`${user.firstName} ${user.lastName}`).trim(),
-			projectName: project ? project.name : quote.name,
+			recipientName: formatFullName(
+				customer.title,
+				customer.firstName,
+				customer.lastName,
+			),
+			authorName: formatName(user.firstName, user.lastName),
 			itemName: item.name,
 			comment,
 		};
 
-		if (project && project.notifyActivityToCustomer) {
+		if (item.section && item.section.project.notifyActivityToCustomer) {
+			const customerToken = item.section.project.token || '';
+
 			await sendNewCommentEmail({
 				...params,
-				url: getAppUrl(`/projects/${project.id}/view/${project.token}`),
+				url: getAppUrl(
+					`/projects/${item.section.project.id}/view/${customerToken}`,
+				),
 			});
 
 			console.log(`New comment email sent to ${customer.email}`);
@@ -263,8 +240,6 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 	catch (error) {
 		console.log(`New comment email not because with error ${error}`);
 	}
-
-	sendMetric({metric: 'inyo.comment.postedByUser'});
 
 	return result;
 };

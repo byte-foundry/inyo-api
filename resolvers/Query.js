@@ -1,6 +1,6 @@
 const {NotFoundError} = require('../errors');
 const {sendMetric} = require('../stats');
-const {getUserId} = require('../utils');
+const {getUserId, createItemOwnerFilter} = require('../utils');
 
 const {items} = require('./items');
 
@@ -43,14 +43,22 @@ const Query = {
 			return project;
 		}
 
+		const userId = getUserId(ctx);
 		const [project] = await ctx.db.projects({
 			where: {
 				id,
-				customer: {
-					serviceCompany: {
-						owner: {id: getUserId(ctx)},
+				OR: [
+					{
+						owner: {id: userId},
 					},
-				},
+					{
+						customer: {
+							serviceCompany: {
+								owner: {id: userId},
+							},
+						},
+					},
+				],
 			},
 		});
 
@@ -60,47 +68,8 @@ const Query = {
 
 		return project;
 	},
-	quote: async (root, {id, token}, ctx) => {
-		// public access with a secret token inserted in a mail
-		if (token) {
-			const [quote] = await ctx.db.quotes({where: {id, token}});
-
-			if (!quote) {
-				throw new NotFoundError(`Quote '${id}' has not been found`);
-			}
-
-			sendMetric({metric: 'inyo.quote.viewed.total'});
-
-			if (!quote.viewedByCustomer) {
-				await ctx.db.updateQuote({
-					where: {id},
-					data: {viewedByCustomer: true},
-				});
-
-				quote.viewedByCustomer = true;
-
-				sendMetric({metric: 'inyo.quote.viewed.unique'});
-			}
-
-			return quote;
-		}
-
-		const [quote] = await ctx.db.quotes({
-			where: {
-				id,
-				customer: {
-					serviceCompany: {
-						owner: {id: getUserId(ctx)},
-					},
-				},
-			},
-		});
-
-		if (!quote) {
-			throw new NotFoundError(`Quote '${id}' has not been found`);
-		}
-
-		return quote;
+	quote: () => {
+		throw Error('Quotes are not supported anymore');
 	},
 	item: async (root, {id, token}, ctx) => {
 		if (token) {
@@ -124,16 +93,7 @@ const Query = {
 
 		const [item] = await ctx.db.items({
 			where: {
-				id,
-				section: {
-					project: {
-						customer: {
-							serviceCompany: {
-								owner: {id: userId},
-							},
-						},
-					},
-				},
+				AND: [{id}, createItemOwnerFilter(userId)],
 			},
 		});
 
@@ -149,28 +109,14 @@ const Query = {
 				where: {
 					item: {
 						id: itemId,
-						OR: [
-							{
-								section: {
-									option: {
-										quote: {token},
-									},
-								},
-							},
-							{
-								section: {
-									project: {token},
-								},
-							},
-						],
+						section: {
+							project: {token},
+						},
 					},
 				},
 			});
 
-			const quoteCustomer = await ctx.db.quote({token}).customer();
-			const projectCustomer = await ctx.db.project({token}).customer();
-
-			const customer = projectCustomer || quoteCustomer;
+			const customer = await ctx.db.project({token}).customer();
 
 			await Promise.all(
 				comments.map(comment => ctx.db.updateComment({
@@ -193,31 +139,7 @@ const Query = {
 		const comments = await ctx.db.comments({
 			where: {
 				item: {
-					id: itemId,
-					section: {
-						OR: [
-							{
-								option: {
-									quote: {
-										customer: {
-											serviceCompany: {
-												owner: {id: userId},
-											},
-										},
-									},
-								},
-							},
-							{
-								project: {
-									customer: {
-										serviceCompany: {
-											owner: {id: userId},
-										},
-									},
-								},
-							},
-						],
-					},
+					AND: [{id: itemId}, createItemOwnerFilter(userId)],
 				},
 			},
 		});
@@ -239,17 +161,7 @@ const Query = {
 	},
 	reminders: async (root, args, ctx) => ctx.db.reminders({
 		where: {
-			item: {
-				section: {
-					project: {
-						customer: {
-							serviceCompany: {
-								owner: {id: getUserId(ctx)},
-							},
-						},
-					},
-				},
-			},
+			item: createItemOwnerFilter(getUserId(ctx)),
 		},
 	}),
 	items,

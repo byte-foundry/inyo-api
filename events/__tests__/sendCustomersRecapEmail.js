@@ -32,7 +32,7 @@ beforeEach(() => {
 	jest.clearAllMocks();
 });
 
-describe('sendDayTasks', async () => {
+describe('sendCustomersRecapEmail', async () => {
 	it('should send an evening email to all the customers projects where tasks have been completed today', async () => {
 		const user = {
 			id: 'user-id',

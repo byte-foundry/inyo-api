@@ -3,9 +3,6 @@ const moment = require('moment');
 const sendEmail = require('./SendEmail.js');
 const createReminder = require('../reminders/createReminder');
 
-// eslint-disable-next-line
-function legacy_sendTaskValidationEmail() {}
-
 async function sendTaskValidationEmail({email, ...data}) {
 	return sendEmail({
 		email,
@@ -135,7 +132,6 @@ async function setupItemReminderEmail(
 }
 
 module.exports = {
-	legacy_sendTaskValidationEmail,
 	sendTaskValidationEmail,
 	sendTaskValidationWaitCustomerEmail,
 	sendItemContentAcquisitionEmail,

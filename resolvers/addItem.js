@@ -1,90 +1,95 @@
 const gql = String.raw;
 
-const {getUserId} = require('../utils');
+const {sendItemContentAcquisitionEmail} = require('../emails/TaskEmail');
+const {getUserId, formatFullName} = require('../utils');
 const {NotFoundError} = require('../errors');
 
 const addItem = async (
 	parent,
 	{
+		projectId,
 		sectionId,
 		name,
 		type,
 		description,
-		unitPrice,
 		unit,
-		vatRate,
-		reviewer,
 		position: wantedPosition,
+		linkedCustomerId,
+		linkedCustomer,
+		dueDate,
 	},
 	ctx,
 ) => {
-	const [section] = await ctx.db.sections({
-		where: {
-			id: sectionId,
-			OR: [
-				{
-					option: {
-						quote: {
+	const userId = getUserId(ctx);
+	let position = 0;
+
+	if (projectId && !sectionId) {
+		let [section] = await ctx.db.sections({
+			where: {project: {id: projectId}},
+			orderBy: 'position_ASC',
+			first: 1,
+		});
+
+		if (!section) {
+			section = await ctx.db.createSection({
+				project: projectId && {connect: {id: projectId}},
+				name: 'Renommer cette section',
+				position: 0,
+			});
+		}
+
+		// eslint-disable-next-line no-param-reassign
+		sectionId = section.id;
+		// eslint-disable-next-line no-param-reassign
+		wantedPosition = wantedPosition || 0;
+	}
+
+	if (sectionId) {
+		const [section] = await ctx.db.sections({
+			where: {
+				id: sectionId,
+				project: {
+					OR: [
+						{
+							owner: {id: userId},
+						},
+						{
 							customer: {
 								serviceCompany: {
-									owner: {id: getUserId(ctx)},
+									owner: {id: userId},
 								},
 							},
 						},
-					},
+					],
 				},
-				{
-					project: {
-						customer: {
-							serviceCompany: {
-								owner: {id: getUserId(ctx)},
-							},
-						},
-					},
-				},
-			],
-		},
-	}).$fragment(gql`
-		fragment SectionWithQuoteAndProject on Section {
-			id
-			items(orderBy: position_ASC) {
+			},
+		}).$fragment(gql`
+			fragment SectionWithProject on Section {
 				id
-				position
-			}
-			option {
-				quote {
+				items(orderBy: position_ASC) {
+					id
+					position
+				}
+				project {
 					status
-					customer {
-						serviceCompany {
-							owner {
-								defaultDailyPrice
-								defaultVatRate
-							}
-						}
-					}
 				}
 			}
-			project {
-				status
-			}
+		`);
+
+		if (!section) {
+			throw new NotFoundError(
+				`No section with id '${sectionId}' has been found`,
+			);
 		}
-	`);
 
-	if (!section) {
-		throw new NotFoundError(`No section with id '${sectionId}' has been found`);
-	}
-
-	// PROJECT
-
-	if (section.project) {
 		if (section.project.status === 'FINISHED') {
 			throw new Error('Item cannot be added in this project state.');
 		}
 
 		// default position: end of the list
-		let position = section.items.length;
+		position = section.items.length;
 
-		if (wantedPosition) {
+		if (typeof wantedPosition === 'number') {
 			const wantedPositionItemIndex = section.items.findIndex(
 				item => item.position === wantedPosition,
 			);
@@ -101,41 +106,75 @@ const addItem = async (
 				);
 			}
 		}
-
-		return ctx.db.createItem({
-			section: {connect: {id: sectionId}},
-			name,
-			type,
-			status: 'PENDING',
-			reviewer,
-			description,
-			unit,
-			position,
-		});
 	}
 
-	// QUOTE
+	const userCompany = await ctx.db.user({id: userId}).company();
+	const variables = {};
 
-	if (section.option.quote.status === 'SENT') {
-		throw new Error('Item cannot be added in this quote state.');
+	if (linkedCustomerId) {
+		variables.linkedCustomer = {
+			connect: {id: linkedCustomerId},
+		};
+	}
+	else if (linkedCustomer) {
+		variables.linkedCustomer = {
+			create: {
+				...linkedCustomer,
+				serviceCompany: {connect: {id: userCompany.id}},
+				address: {
+					create: linkedCustomer.address,
+				},
+			},
+		};
 	}
 
-	const {
-		defaultDailyPrice,
-		defaultVatRate,
-	} = section.option.quote.customer.serviceCompany.owner;
-
-	return ctx.db.createItem({
-		section: {
-			connect: {id: sectionId},
-		},
+	const createdItem = await ctx.db.createItem({
+		section: sectionId && {connect: {id: sectionId}},
+		linkedCustomer: variables.linkedCustomer,
+		owner: {connect: {id: userId}},
 		name,
-		status: section.option.quote.status === 'ACCEPTED' ? 'ADDED' : 'PENDING',
+		type,
+		status: 'PENDING',
 		description,
-		unitPrice: unitPrice || defaultDailyPrice,
 		unit,
-		vatRate: vatRate || defaultVatRate,
+		position,
+		dueDate,
 	});
+
+	if (type === 'CONTENT_ACQUISITION') {
+		const user = await ctx.db.user({id: userId});
+
+		let customer = {
+			title: '🤷‍',
+			firstName: '🤷‍',
+			lastName: '🤷‍',
+			email: '🤷‍',
+			...linkedCustomer,
+		};
+
+		if (linkedCustomerId) {
+			customer = await ctx.db.customer({id: linkedCustomerId});
+		}
+
+		await sendItemContentAcquisitionEmail({
+			userEmail: user.email,
+			name,
+			description,
+			customerName: String(
+				` ${formatFullName(
+					customer.title,
+					customer.firstName,
+					customer.lastName,
+				)}`,
+			).trimRight(),
+			customerEmail: customer.email,
+			url: '🤷‍',
+			id: createdItem.id,
+		});
+		console.log('Content acquisition email sent to us');
+	}
+
+	return createdItem;
 };
 
 module.exports = {

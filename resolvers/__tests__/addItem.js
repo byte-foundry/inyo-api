@@ -10,13 +10,18 @@ describe('addItem', () => {
 			name: 'My item',
 			description: 'My description',
 			unit: 42,
-			reviewer: 'USER',
 		};
 		const ctx = {
 			request: {
 				get: () => 'user-token',
 			},
 			db: {
+				user: () => ({
+					id: 'user-id',
+					company: () => ({
+						id: 'company-id',
+					}),
+				}),
 				sections: () => ({
 					$fragment: () => [
 						{
@@ -48,13 +53,19 @@ describe('addItem', () => {
 			name: 'Send logo',
 			description: 'The logo is required to finish the website.',
 			unit: 2,
-			reviewer: 'CUSTOMER',
+			type: 'CUSTOMER',
 		};
 		const ctx = {
 			request: {
 				get: () => 'user-token',
 			},
 			db: {
+				user: () => ({
+					id: 'user-id',
+					company: () => ({
+						id: 'company-id',
+					}),
+				}),
 				sections: () => ({
 					$fragment: () => [
 						{
@@ -90,6 +101,12 @@ describe('addItem', () => {
 				get: () => 'user-token',
 			},
 			db: {
+				user: () => ({
+					id: 'user-id',
+					company: () => ({
+						id: 'company-id',
+					}),
+				}),
 				sections: () => ({
 					$fragment: () => [
 						{
