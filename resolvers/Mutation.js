@@ -175,14 +175,18 @@ const Mutation = {
 			},
 		});
 	},
-	createCustomer: (parent, {
-		email, name, firstName, lastName, title,
-	}, ctx) => {
-		const userId = getUserId(ctx);
+	createCustomer: async (
+		parent,
+		{
+			email, name, firstName, lastName, title,
+		},
+		ctx,
+	) => {
+		const company = await ctx.db.user({id: getUserId(ctx)}).company();
 
-		return ctx.db.updateUser({
+		return ctx.db.updateCompany({
 			where: {
-				id: userId,
+				id: company.id,
 			},
 			data: {
 				customers: {
