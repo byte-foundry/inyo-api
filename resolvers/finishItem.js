@@ -129,7 +129,7 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 					` ${formatName(user.firstName, user.lastName)}`,
 				).trimRight(),
 				itemName: item.name,
-				// url: getAppUrl(),
+				url: getAppUrl(`/tasks/${item.id}`),
 			});
 			console.log(`Task validation email sent to ${user.email}`);
 		}
