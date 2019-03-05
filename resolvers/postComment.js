@@ -186,8 +186,8 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 	if (item.section) {
 		const {project} = item.section;
 
-		user = project.owner || customer.serviceCompany.owner || user;
 		({customer} = project);
+		user = project.owner || customer.serviceCompany.owner || user;
 	}
 
 	const result = ctx.db.updateItem({
