@@ -3,6 +3,7 @@ const {sendMetric} = require('../stats');
 const {getUserId, createItemOwnerFilter} = require('../utils');
 
 const {items} = require('./items');
+const {tasks} = require('./tasks');
 
 const Query = {
 	me: async (root, args, ctx) => {
@@ -165,6 +166,7 @@ const Query = {
 		},
 	}),
 	items,
+	tasks,
 };
 
 module.exports = {

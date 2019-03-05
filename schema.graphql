@@ -21,6 +21,8 @@ type Query {
 	reminders: [Reminder!]!
 	# Get active items sorted by priority
 	items: [Item!]!
+	# Get tasks
+	tasks(filter: TasksFilterInput, sort: TasksSortInput, token: String): [Item!]!
 }
 
 type Mutation {
