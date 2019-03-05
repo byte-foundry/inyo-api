@@ -34,7 +34,6 @@ const updateItem = async (
 		type,
 		description,
 		unit,
-		reviewer,
 		comment,
 		position: wantedPosition,
 		token,
@@ -215,7 +214,6 @@ const updateItem = async (
 			type,
 			description,
 			unit,
-			reviewer,
 			position,
 			dueDate,
 			comments: {

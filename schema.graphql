@@ -134,13 +134,13 @@ type Mutation {
 		type: ItemType
 		description: String
 		unit: Float
-		reviewer: Reviewer
 		position: Int
 		dueDate: DateTime
 		linkedCustomer: CustomerInput
 		linkedCustomerId: ID
 
 		# deprecated
+		reviewer: Reviewer
 		unitPrice: Int
 		vatRate: Int
 	): Item!
@@ -154,7 +154,6 @@ type Mutation {
 		type: ItemType
 		description: String
 		unit: Float
-		reviewer: Reviewer
 		comment: CommentInput
 		position: Int
 		dueDate: DateTime
@@ -162,6 +161,7 @@ type Mutation {
 		linkedCustomerId: ID
 
 		# deprecated
+		reviewer: Reviewer
 		vatRate: Int
 		unitPrice: Int
 		notifyCustomer: Boolean
@@ -257,10 +257,10 @@ input ItemInput {
 	name: String!
 	description: String
 	unit: Float
-	reviewer: Reviewer
 	type: ItemType
 
 	# deprecated
+	reviewer: Reviewer
 	unitPrice: Int
 	vatRate: Int
 }
@@ -426,12 +426,12 @@ type Item {
 	section: Section
 	comments: [Comment!]!
 	status: ItemStatus!
-	reviewer: Reviewer!
 	reminders: [Reminder!]!
 	position: Int
 	timeItTook: Float
 	dueDate: DateTime
 
+	reviewer: Reviewer! @deprecated(reason: "Use `type: CUSTOMER` instead.")
 	unitPrice: Int @deprecated(reason: "Unit price is not used anymore.")
 	pendingUnit: Float
 		@deprecated(reason: "There is no validation anymore. Use `unit` directly.")

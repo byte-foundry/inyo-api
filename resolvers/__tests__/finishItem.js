@@ -23,7 +23,6 @@ describe('finishItem', () => {
 						{
 							name: 'Mon item',
 							status: 'PENDING',
-							reviewer: 'USER',
 							unit: 1,
 							pendingReminders: [],
 							section: {
@@ -105,7 +104,7 @@ describe('finishItem', () => {
 						{
 							name: 'Mon item',
 							status: 'PENDING',
-							reviewer: 'CUSTOMER',
+							type: 'CUSTOMER',
 							pendingReminders: [
 								{
 									id: 'reminder-id',
@@ -198,7 +197,7 @@ describe('finishItem', () => {
 						{
 							name: 'Mon item',
 							status: 'PENDING',
-							reviewer: 'CUSTOMER',
+							type: 'CUSTOMER',
 							section: {
 								id: 'section-id',
 								project: {
@@ -272,7 +271,6 @@ describe('finishItem', () => {
 						{
 							name: 'Mon item',
 							status: 'PENDING',
-							reviewer: 'USER',
 							section: {
 								id: 'section-id',
 								project: {
@@ -346,7 +344,6 @@ describe('finishItem', () => {
 						{
 							name: 'Mon item',
 							status: 'PENDING',
-							reviewer: 'USER',
 							unit: 1,
 							pendingReminders: [],
 							section: {

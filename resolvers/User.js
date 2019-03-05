@@ -107,7 +107,6 @@ const User = {
 					}
 				}
 				status
-				reviewer
 				position
 				timeItTook
 				dueDate

@@ -39,7 +39,6 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 		fragment ItemWithProject on Item {
 			name
 			status
-			reviewer
 			unit
 			owner {
 				email
@@ -95,7 +94,7 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 			})
 			.$fragment(fragment);
 
-		if (item.reviewer !== 'CUSTOMER') {
+		if (item.type !== 'CUSTOMER') {
 			throw new Error('This item cannot be finished by the customer.');
 		}
 
@@ -161,7 +160,7 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 		throw new NotFoundError(`Item '${id}' has not been found.`);
 	}
 
-	if (item.reviewer !== 'USER') {
+	if (item.type === 'CUSTOMER') {
 		throw new Error('This item cannot be finished by the user.');
 	}
 

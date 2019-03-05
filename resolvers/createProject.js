@@ -50,8 +50,6 @@ const createProject = async (
 				items: section.items && {
 					create: section.items.map((item, index) => ({
 						...item,
-						reviewer:
-							notifyActivityToCustomer === false ? 'USER' : item.reviewer,
 						position: index,
 					})),
 				},

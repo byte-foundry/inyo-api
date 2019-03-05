@@ -39,8 +39,8 @@ const updateProject = async (
 
 	if (!notifyActivityToCustomer) {
 		await ctx.db.updateManyItems({
-			where: {section: {project: {id}}, reviewer: 'CUSTOMER'},
-			data: {reviewer: 'USER'},
+			where: {section: {project: {id}}, type: 'CUSTOMER'},
+			data: {type: 'DEFAULT'},
 		});
 	}
 

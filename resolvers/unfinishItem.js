@@ -9,7 +9,6 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 		fragment ItemWithProject on Item {
 			name
 			status
-			reviewer
 			canceledReminders: reminders(where: {status: CANCELED}) {
 				id
 				postHookId
@@ -44,7 +43,7 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 			})
 			.$fragment(fragment);
 
-		if (item.reviewer !== 'CUSTOMER') {
+		if (item.type !== 'CUSTOMER') {
 			throw new Error('This item cannot be resetted by the customer.');
 		}
 
@@ -80,7 +79,7 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 
 	const {project} = item.section;
 
-	if (item.reviewer !== 'USER') {
+	if (item.type === 'CUSTOMER') {
 		throw new Error('This item cannot be resetted by the user.');
 	}
 

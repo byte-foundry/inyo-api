@@ -29,7 +29,6 @@ describe('updateItem', () => {
 			name: 'new-name',
 			description: 'new-description',
 			unit: 42,
-			reviewer: 'USER',
 		};
 		const ctx = {
 			request: {
@@ -50,7 +49,6 @@ describe('updateItem', () => {
 							status: 'PENDING',
 							description: 'description',
 							unit: 2,
-							reviewer: 'USER',
 							position: 0,
 							section: {
 								id: 'section-id',
@@ -96,7 +94,6 @@ describe('updateItem', () => {
 							status: 'PENDING',
 							description: 'description',
 							unit: 2,
-							reviewer: 'USER',
 							position: 5,
 							section: {
 								id: 'section-id',
@@ -161,7 +158,6 @@ describe('updateItem', () => {
 							status: 'PENDING',
 							description: 'description',
 							unit: 2,
-							reviewer: 'USER',
 							position: 1,
 							section: {
 								id: 'section-id',
@@ -226,7 +222,6 @@ describe('updateItem', () => {
 							status: 'PENDING',
 							description: 'description',
 							unit: 2,
-							reviewer: 'USER',
 							position: 1,
 							section: {
 								id: 'section-id',
@@ -286,7 +281,6 @@ describe('updateItem', () => {
 							status: 'PENDING',
 							description: 'description',
 							unit: 2,
-							reviewer: 'USER',
 							position: 1,
 							section: {
 								id: 'section-id',

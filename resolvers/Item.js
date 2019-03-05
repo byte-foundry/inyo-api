@@ -31,7 +31,7 @@ const Item = {
 	comments: (node, args, ctx) => ctx.db.item({id: node.id}).comments(),
 	vatRate: () => null,
 	status: node => node.status,
-	reviewer: node => node.reviewer,
+	reviewer: node => (node.type === 'CUSTOMER' ? 'CUSTOMER' : 'USER'),
 	position: node => node.position,
 	timeItTook: node => node.timeItTook,
 	dueDate: node => node.dueDate,
