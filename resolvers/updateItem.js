@@ -200,6 +200,11 @@ const updateItem = async (
 			},
 		};
 	}
+	else if (linkedCustomerId === null || linkedCustomer === null) {
+		variables.linkedCustomer = {
+			disconnect: true,
+		};
+	}
 
 	const updatedItem = await ctx.db.updateItem({
 		where: {id},

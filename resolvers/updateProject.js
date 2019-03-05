@@ -64,6 +64,11 @@ const updateProject = async (
 			},
 		};
 	}
+	else if (customerId === null || customer === null) {
+		variables.customer = {
+			disconnect: true,
+		};
+	}
 
 	return ctx.db.updateProject({
 		where: {id},
