@@ -77,9 +77,25 @@ const Query = {
 			const [item] = await ctx.db.items({
 				where: {
 					id,
-					section: {
-						project: {token},
-					},
+					OR: [
+						{
+							section: {
+								project: {
+									OR: [
+										{
+											token,
+										},
+										{
+											customer: {token},
+										},
+									],
+								},
+							},
+						},
+						{
+							linkedCustomer: {token},
+						},
+					],
 				},
 			});
 
@@ -110,14 +126,43 @@ const Query = {
 				where: {
 					item: {
 						id: itemId,
-						section: {
-							project: {token},
-						},
+						OR: [
+							{
+								section: {
+									project: {
+										OR: [
+											{
+												token,
+											},
+											{
+												customer: {token},
+											},
+										],
+									},
+								},
+							},
+							{
+								linkedCustomer: {token},
+							},
+						],
 					},
 				},
 			});
 
-			const customer = await ctx.db.project({token}).customer();
+			const [customer] = await ctx.db.customers({
+				where: {
+					OR: [
+						{
+							projects_some: {
+								token,
+							},
+						},
+						{
+							token,
+						},
+					],
+				},
+			});
 
 			await Promise.all(
 				comments.map(comment => ctx.db.updateComment({

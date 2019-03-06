@@ -85,7 +85,11 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 					id,
 					OR: [
 						{
-							section: {project: {token}},
+							section: {
+								project: {
+									OR: [{token}, {customer: {token}}],
+								},
+							},
 						},
 						{
 							linkedCustomer: {token},
@@ -103,18 +107,14 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 			throw new Error(`Item '${id}' cannot be finished.`);
 		}
 
-		let user;
-		let customer;
+		let user = item.owner;
+		let customer = item.linkedCustomer;
 
 		if (item.section) {
 			const {project} = item.section;
 
-			user = project.customer.serviceCompany.owner;
-			({customer} = project);
-		}
-		else {
-			user = item.owner;
-			customer = item.linkedCustomer;
+			customer = customer || project.customer;
+			user = user || project.owner || project.customer.serviceCompany.owner;
 		}
 
 		try {

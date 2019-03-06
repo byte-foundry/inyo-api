@@ -12,12 +12,8 @@ const tasks = async (root, {token, filter, sort}, ctx) => {
 				{
 					section: {
 						project: {
-							owner: {
-								company: {
-									customer_some: {
-										token,
-									},
-								},
+							customer: {
+								token,
 							},
 						},
 					},
