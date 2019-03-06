@@ -4,31 +4,17 @@ const {getUserId, createItemOwnerFilter} = require('../utils');
 const {NotFoundError} = require('../errors');
 const {sendMetric} = require('../stats');
 
+// TODO: set back the canceled reminders
 const unfinishItem = async (parent, {id, token}, ctx) => {
 	const fragment = gql`
 		fragment ItemWithProject on Item {
-			name
+			type
 			status
 			canceledReminders: reminders(where: {status: CANCELED}) {
 				id
 				postHookId
 				type
 				status
-			}
-			section {
-				id
-				project {
-					id
-					token
-					name
-					status
-					sections(orderBy: position_ASC) {
-						name
-						items(orderBy: position_ASC) {
-							status
-						}
-					}
-				}
 			}
 		}
 	`;
@@ -38,7 +24,18 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 			.items({
 				where: {
 					id,
-					section: {project: {token}},
+					OR: [
+						{
+							section: {
+								project: {
+									OR: [{token}, {customer: {token}}],
+								},
+							},
+						},
+						{
+							linkedCustomer: {token},
+						},
+					],
 				},
 			})
 			.$fragment(fragment);
@@ -47,9 +44,7 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 			throw new Error('This item cannot be resetted by the customer.');
 		}
 
-		const {project} = item.section;
-
-		if (project.status === 'FINISHED' || item.status !== 'FINISHED') {
+		if (item.status !== 'FINISHED') {
 			throw new Error(`Item '${id}' cannot be resetted.`);
 		}
 
@@ -77,13 +72,11 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 		throw new NotFoundError(`Item '${id}' has not been found.`);
 	}
 
-	const {project} = item.section;
-
 	if (item.type === 'CUSTOMER') {
 		throw new Error('This item cannot be resetted by the user.');
 	}
 
-	if (project.status === 'FINISHED' || item.status !== 'FINISHED') {
+	if (item.status !== 'FINISHED') {
 		throw new Error(`Item '${id}' cannot be resetted.`);
 	}
 
