@@ -118,7 +118,7 @@ const updateItem = async (
 	}
 
 	let position;
-	let wantedSection = item.section || {id: sectionId};
+	let wantedSection = item.section || (sectionId && {id: sectionId});
 
 	if (projectId && !sectionId) {
 		let [section] = await ctx.db.sections({
