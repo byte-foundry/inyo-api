@@ -6,6 +6,7 @@ const {
 	formatFullName,
 	formatName,
 	createItemOwnerFilter,
+	isCustomerTask,
 } = require('../utils');
 const {NotFoundError} = require('../errors');
 const {sendTaskValidationEmail} = require('../emails/TaskEmail');
@@ -99,7 +100,7 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 			})
 			.$fragment(fragment);
 
-		if (item.type !== 'CUSTOMER') {
+		if (!isCustomerTask(item)) {
 			throw new Error('This item cannot be finished by the customer.');
 		}
 
@@ -161,7 +162,7 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 		throw new NotFoundError(`Item '${id}' has not been found.`);
 	}
 
-	if (item.type === 'CUSTOMER') {
+	if (isCustomerTask(item)) {
 		throw new Error('This item cannot be finished by the user.');
 	}
 

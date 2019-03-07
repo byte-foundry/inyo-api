@@ -75,6 +75,13 @@ const createItemOwnerFilter = ownerId => ({
 	],
 });
 
+const isCustomerTask = task => [
+	'CUSTOMER',
+	'CONTENT_ACQUISITION',
+	'CUSTOMER_REMINDER',
+	'VALIDATION',
+].includes(task.type);
+
 module.exports = {
 	getUserId,
 	APP_SECRET,
@@ -84,4 +91,5 @@ module.exports = {
 	formatName,
 	formatFullName,
 	createItemOwnerFilter,
+	isCustomerTask,
 };

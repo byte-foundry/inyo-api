@@ -18,6 +18,7 @@ describe('unfinishItem', () => {
 						{
 							name: 'Mon item',
 							status: 'FINISHED',
+							type: 'DEFAULT',
 							section: {
 								id: 'section-id',
 								project: {
@@ -202,6 +203,7 @@ describe('unfinishItem', () => {
 						{
 							name: 'Mon item',
 							status: 'FINISHED',
+							type: 'DEFAULT',
 							section: {
 								id: 'section-id',
 								project: {

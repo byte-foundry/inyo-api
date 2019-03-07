@@ -1,6 +1,6 @@
 const gql = String.raw;
 
-const {getUserId, createItemOwnerFilter} = require('../utils');
+const {getUserId, createItemOwnerFilter, isCustomerTask} = require('../utils');
 const {NotFoundError} = require('../errors');
 const {sendMetric} = require('../stats');
 
@@ -40,7 +40,7 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 			})
 			.$fragment(fragment);
 
-		if (item.type !== 'CUSTOMER') {
+		if (!isCustomerTask(item)) {
 			throw new Error('This item cannot be resetted by the customer.');
 		}
 
@@ -72,7 +72,7 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 		throw new NotFoundError(`Item '${id}' has not been found.`);
 	}
 
-	if (item.type === 'CUSTOMER') {
+	if (isCustomerTask(item)) {
 		throw new Error('This item cannot be resetted by the user.');
 	}
 
