@@ -12,9 +12,7 @@ const tasks = async (root, {token, filter, sort}, ctx) => {
 				{
 					section: {
 						project: {
-							customer: {
-								token,
-							},
+							OR: [{token}, {customer: {token}}],
 						},
 					},
 				},
