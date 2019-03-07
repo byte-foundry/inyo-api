@@ -2,6 +2,7 @@ const uuid = require('uuid/v4');
 
 const {getUserId} = require('../utils');
 const {sendMetric} = require('../stats');
+const {sendProjectCreatedEmail} = require('../emails/ProjectEmail');
 
 const createProject = async (
 	parent,
@@ -61,6 +62,14 @@ const createProject = async (
 		notifyActivityToCustomer,
 		deadline,
 	});
+
+	const user = await ctx.db.user({id: userId});
+
+	await sendProjectCreatedEmail({
+		userEmail: user.email,
+		...result,
+	});
+	console.log('Project created email sent to us');
 
 	sendMetric({metric: 'inyo.project.created'});
 
