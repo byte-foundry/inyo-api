@@ -247,6 +247,14 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 
 			console.log(`New comment email sent to ${customer.email}`);
 		}
+		else if (!item.section) {
+			await sendNewCommentEmail({
+				...params,
+				url: getAppUrl(`/${customer.token}/tasks/${item.id}`),
+			});
+
+			console.log(`New comment email sent to ${customer.email}`);
+		}
 	}
 	catch (error) {
 		console.log(`New comment email not because with error ${error}`);
