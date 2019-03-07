@@ -1,3 +1,5 @@
+const uuid = require('uuid/v4');
+
 const gql = String.raw;
 
 const {getUserId, createItemOwnerFilter} = require('../utils');
@@ -30,6 +32,7 @@ const updateItem = async (
 	{
 		id,
 		sectionId,
+		projectId,
 		name,
 		type,
 		description,
@@ -117,6 +120,27 @@ const updateItem = async (
 	let position;
 	let wantedSection = item.section || {id: sectionId};
 
+	if (projectId && !sectionId) {
+		let [section] = await ctx.db.sections({
+			where: {project: {id: projectId}},
+			orderBy: 'position_ASC',
+			first: 1,
+		});
+
+		if (!section) {
+			section = await ctx.db.createSection({
+				project: projectId && {connect: {id: projectId}},
+				name: 'Renommer cette section',
+				position: 0,
+			});
+		}
+
+		// eslint-disable-next-line no-param-reassign
+		wantedSection = section;
+		// eslint-disable-next-line no-param-reassign
+		wantedPosition = wantedPosition || 0;
+	}
+
 	if (item.section) {
 		const {project} = item.section;
 
@@ -147,7 +171,9 @@ const updateItem = async (
 					`Item '${id}' cannot be moved into Section '${sectionId}', it has not been found in the project.`,
 				);
 			}
+		}
 
+		if (wantedSection && wantedSection.id !== item.section.id) {
 			// if we change section, we need to re-order the previous one
 			// putting it at the end of the section first
 			await reorderSection(
@@ -157,12 +183,13 @@ const updateItem = async (
 				ctx,
 			);
 
-			initialPosition = wantedSection.items.length;
+			initialPosition = wantedSection.items && wantedSection.items.length;
 		}
 
 		if (
-			(typeof wantedPosition === 'number'
-				&& wantedPosition !== initialPosition)
+			(wantedSection.items
+				&& (typeof wantedPosition === 'number'
+					&& wantedPosition !== initialPosition))
 			|| (sectionId && sectionId !== item.section.id)
 		) {
 			if (wantedPosition < 0) {
@@ -192,6 +219,7 @@ const updateItem = async (
 		variables.linkedCustomer = {
 			create: {
 				...linkedCustomer,
+				token: uuid(),
 				serviceCompany: {connect: {id: userCompany.id}},
 				address: {
 					create: linkedCustomer.address,
@@ -209,7 +237,7 @@ const updateItem = async (
 		where: {id},
 		data: {
 			...variables,
-			section: sectionId && {connect: {id: wantedSection.id}},
+			section: wantedSection && {connect: {id: wantedSection.id}},
 			name,
 			type,
 			description,

@@ -1,3 +1,5 @@
+const uuid = require('uuid/v4');
+
 const gql = String.raw;
 
 const {sendItemContentAcquisitionEmail} = require('../emails/TaskEmail');
@@ -120,6 +122,7 @@ const addItem = async (
 		variables.linkedCustomer = {
 			create: {
 				...linkedCustomer,
+				token: uuid(),
 				serviceCompany: {connect: {id: userCompany.id}},
 				address: {
 					create: linkedCustomer.address,

@@ -1,3 +1,4 @@
+const uuid = require('uuid/v4');
 const {hash, compare} = require('bcrypt');
 const {sign, verify} = require('jsonwebtoken');
 
@@ -191,6 +192,7 @@ const Mutation = {
 			data: {
 				customers: {
 					create: {
+						token: uuid(),
 						email,
 						name,
 						firstName,

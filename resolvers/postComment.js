@@ -18,7 +18,16 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 				OR: [
 					{
 						section: {
-							project: {token},
+							project: {
+								OR: [
+									{
+										token,
+									},
+									{
+										customer: {token},
+									},
+								],
+							},
 						},
 					},
 					{
@@ -35,7 +44,8 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 					firstName
 					lastName
 				}
-				customer {
+				linkedCustomer {
+					id
 					firstName
 					lastName
 					email
@@ -49,6 +59,7 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 							lastName
 						}
 						customer {
+							id
 							firstName
 							lastName
 							email
@@ -186,8 +197,8 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 	if (item.section) {
 		const {project} = item.section;
 
-		({customer} = project);
-		user = project.owner || customer.serviceCompany.owner || user;
+		customer = customer || project.customer;
+		user = user || project.owner || customer.serviceCompany.owner;
 	}
 
 	const result = ctx.db.updateItem({

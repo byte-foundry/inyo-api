@@ -21,6 +21,8 @@ type Query {
 	reminders: [Reminder!]!
 	# Get active items sorted by priority
 	items: [Item!]!
+	# Get tasks
+	tasks(filter: TasksFilterInput, sort: TasksSortInput, token: String): [Item!]!
 }
 
 type Mutation {
@@ -149,6 +151,7 @@ type Mutation {
 		id: ID!
 		# Updating the item's section in the project
 		sectionId: ID
+		projectId: ID
 		token: String
 		name: String
 		type: ItemType
@@ -431,7 +434,7 @@ type Item {
 	timeItTook: Float
 	dueDate: DateTime
 
-	reviewer: Reviewer! @deprecated(reason: "Use `type: CUSTOMER` instead.")
+	reviewer: Reviewer @deprecated(reason: "Use `type: CUSTOMER` instead.")
 	unitPrice: Int @deprecated(reason: "Unit price is not used anymore.")
 	pendingUnit: Float
 		@deprecated(reason: "There is no validation anymore. Use `unit` directly.")
