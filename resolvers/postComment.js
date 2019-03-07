@@ -154,6 +154,7 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 			}
 			linkedCustomer {
 				id
+				token
 				firstName
 				lastName
 				email
@@ -171,6 +172,7 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 					}
 					customer {
 						id
+						token
 						firstName
 						lastName
 						email
