@@ -6,6 +6,7 @@ const {
 	formatFullName,
 	formatName,
 	createItemOwnerFilter,
+	isCustomerTask,
 } = require('../utils');
 const {NotFoundError} = require('../errors');
 const {sendTaskValidationEmail} = require('../emails/TaskEmail');
@@ -85,7 +86,11 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 					id,
 					OR: [
 						{
-							section: {project: {token}},
+							section: {
+								project: {
+									OR: [{token}, {customer: {token}}],
+								},
+							},
 						},
 						{
 							linkedCustomer: {token},
@@ -95,7 +100,7 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 			})
 			.$fragment(fragment);
 
-		if (item.type !== 'CUSTOMER') {
+		if (!isCustomerTask(item)) {
 			throw new Error('This item cannot be finished by the customer.');
 		}
 
@@ -103,18 +108,14 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 			throw new Error(`Item '${id}' cannot be finished.`);
 		}
 
-		let user;
-		let customer;
+		let user = item.owner;
+		let customer = item.linkedCustomer;
 
 		if (item.section) {
 			const {project} = item.section;
 
-			user = project.customer.serviceCompany.owner;
-			({customer} = project);
-		}
-		else {
-			user = item.owner;
-			customer = item.linkedCustomer;
+			customer = customer || project.customer;
+			user = user || project.owner || project.customer.serviceCompany.owner;
 		}
 
 		try {
@@ -161,7 +162,7 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 		throw new NotFoundError(`Item '${id}' has not been found.`);
 	}
 
-	if (item.type === 'CUSTOMER') {
+	if (isCustomerTask(item)) {
 		throw new Error('This item cannot be finished by the user.');
 	}
 

@@ -18,7 +18,16 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 				OR: [
 					{
 						section: {
-							project: {token},
+							project: {
+								OR: [
+									{
+										token,
+									},
+									{
+										customer: {token},
+									},
+								],
+							},
 						},
 					},
 					{
@@ -35,7 +44,8 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 					firstName
 					lastName
 				}
-				customer {
+				linkedCustomer {
+					id
 					firstName
 					lastName
 					email
@@ -49,6 +59,7 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 							lastName
 						}
 						customer {
+							id
 							firstName
 							lastName
 							email
@@ -143,6 +154,7 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 			}
 			linkedCustomer {
 				id
+				token
 				firstName
 				lastName
 				email
@@ -160,6 +172,7 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 					}
 					customer {
 						id
+						token
 						firstName
 						lastName
 						email
@@ -186,8 +199,8 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 	if (item.section) {
 		const {project} = item.section;
 
-		({customer} = project);
-		user = project.owner || customer.serviceCompany.owner || user;
+		customer = customer || project.customer;
+		user = user || project.owner || customer.serviceCompany.owner;
 	}
 
 	const result = ctx.db.updateItem({
@@ -232,6 +245,14 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 				url: getAppUrl(
 					`/projects/${item.section.project.id}/view/${customerToken}`,
 				),
+			});
+
+			console.log(`New comment email sent to ${customer.email}`);
+		}
+		else if (!item.section) {
+			await sendNewCommentEmail({
+				...params,
+				url: getAppUrl(`/${customer.token}/tasks/${item.id}`),
 			});
 
 			console.log(`New comment email sent to ${customer.email}`);

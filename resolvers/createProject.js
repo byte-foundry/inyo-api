@@ -30,6 +30,7 @@ const createProject = async (
 		variables.customer = {
 			create: {
 				...customer,
+				token: uuid(),
 				serviceCompany: {connect: {id: userCompany.id}},
 				address: {
 					create: customer.address,

@@ -23,6 +23,7 @@ describe('finishItem', () => {
 						{
 							name: 'Mon item',
 							status: 'PENDING',
+							type: 'DEFAULT',
 							unit: 1,
 							pendingReminders: [],
 							section: {
@@ -271,6 +272,7 @@ describe('finishItem', () => {
 						{
 							name: 'Mon item',
 							status: 'PENDING',
+							type: 'DEFAULT',
 							section: {
 								id: 'section-id',
 								project: {
@@ -344,6 +346,7 @@ describe('finishItem', () => {
 						{
 							name: 'Mon item',
 							status: 'PENDING',
+							type: 'DEFAULT',
 							unit: 1,
 							pendingReminders: [],
 							section: {
