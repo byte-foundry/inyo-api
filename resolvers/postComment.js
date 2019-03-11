@@ -163,7 +163,6 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 				project {
 					id
 					name
-					token
 					notifyActivityToCustomer
 					owner {
 						firstName
@@ -238,13 +237,11 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 		};
 
 		if (item.section && item.section.project.notifyActivityToCustomer) {
-			const customerToken = item.section.project.token || '';
+			const {project} = item.section;
 
 			await sendNewCommentEmail({
 				...params,
-				url: getAppUrl(
-					`/projects/${item.section.project.id}/view/${customerToken}`,
-				),
+				url: getAppUrl(`/${customer.token}/tasks?projectId=${project.id}`),
 			});
 
 			console.log(`New comment email sent to ${customer.email}`);
