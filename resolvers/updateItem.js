@@ -219,6 +219,7 @@ const updateItem = async (
 		variables.linkedCustomer = {
 			create: {
 				...linkedCustomer,
+				email: String(linkedCustomer.email || '').toLowerCase(),
 				token: uuid(),
 				serviceCompany: {connect: {id: userCompany.id}},
 				address: {
