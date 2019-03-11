@@ -66,6 +66,11 @@ describe('sendCustomersRecapEmail', async () => {
 								],
 							},
 						],
+						linkedTasks: [
+							{
+								name: 'Tâche indépendante',
+							},
+						],
 					},
 					{
 						title: 'MADAME',
@@ -101,6 +106,7 @@ describe('sendCustomersRecapEmail', async () => {
 								],
 							},
 						],
+						linkedTasks: [],
 					},
 				],
 			},
@@ -127,6 +133,10 @@ describe('sendCustomersRecapEmail', async () => {
 					project.id
 				}`,
 			})),
+			tasks: user.company.customers[0].linkedTasks.map(task => ({
+				...task,
+				url: `/${user.company.customers[0].token}/tasks/${task.id}`,
+			})),
 		});
 
 		expect(sendCustomerEveningEmail).toHaveBeenNthCalledWith(2, {
@@ -138,6 +148,10 @@ describe('sendCustomersRecapEmail', async () => {
 				url: `/${user.company.customers[1].token}/tasks?projectId=${
 					project.id
 				}`,
+			})),
+			tasks: user.company.customers[1].linkedTasks.map(task => ({
+				...task,
+				url: `/${user.company.customers[1].token}/tasks/${task.id}`,
 			})),
 		});
 	});
