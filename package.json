@@ -24,6 +24,7 @@
 		"graphql-directive-deprecated": "^2.0.1",
 		"graphql-iso-date": "^3.6.1",
 		"graphql-yoga": "^1.16.7",
+		"intercom-client": "^2.10.4",
 		"jsonwebtoken": "^8.3.0",
 		"moment": "^2.22.2",
 		"moment-timezone": "^0.5.23",
