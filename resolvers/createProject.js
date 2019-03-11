@@ -1,6 +1,6 @@
 const uuid = require('uuid/v4');
 
-const {getUserId} = require('../utils');
+const {getUserId, getAppUrl} = require('../utils');
 const {sendMetric} = require('../stats');
 const {sendProjectCreatedEmail} = require('../emails/ProjectEmail');
 
@@ -58,7 +58,7 @@ const createProject = async (
 				position: sectionIndex,
 			})),
 		},
-		status: 'DRAFT',
+		status: 'ONGOING',
 		notifyActivityToCustomer,
 		deadline,
 	});
@@ -67,9 +67,9 @@ const createProject = async (
 
 	await sendProjectCreatedEmail({
 		userEmail: user.email,
-		...result,
+		name: result.name,
+		url: getAppUrl(`/${customer.token}/tasks?projectId=${result.id}`),
 	});
-	console.log('Project created email sent to us');
 
 	sendMetric({metric: 'inyo.project.created'});
 
