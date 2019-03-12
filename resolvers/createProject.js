@@ -63,13 +63,28 @@ const createProject = async (
 		deadline,
 	});
 
-	const user = await ctx.db.user({id: userId});
+	try {
+		const user = await ctx.db.user({id: userId});
+		let token;
 
-	await sendProjectCreatedEmail({
-		userEmail: user.email,
-		name: result.name,
-		url: getAppUrl(`/${customer.token}/tasks?projectId=${result.id}`),
-	});
+		if (customerId) {
+			({token} = await ctx.db.customer({id: customerId}));
+		}
+		else if (customer) {
+			({token} = variables.customer.create);
+		}
+
+		await sendProjectCreatedEmail({
+			userEmail: user.email,
+			name: result.name,
+			url: token
+				? getAppUrl(`/${token}/tasks?projectId=${result.id}`)
+				: 'Pas de client',
+		});
+	}
+	catch (err) {
+		console.log(err);
+	}
 
 	sendMetric({metric: 'inyo.project.created'});
 

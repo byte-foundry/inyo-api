@@ -23,10 +23,9 @@ async function trackProjectCounts(prisma) {
 			mutation_in: ['CREATED', 'UPDATED', 'DELETED'],
 		})
 		.node()
-		.customer()
-		.serviceCompany()
 		.owner();
 
+	// eslint-disable-next-line no-constant-condition
 	while (true) {
 		const {
 			value: {id, email},
@@ -35,11 +34,7 @@ async function trackProjectCounts(prisma) {
 		const count = await prisma
 			.projectsConnection({
 				where: {
-					customer: {
-						serviceCompany: {
-							owner: {id},
-						},
-					},
+					owner: {id},
 				},
 			})
 			.aggregate()
