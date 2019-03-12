@@ -8,6 +8,7 @@ const {prisma} = require('./generated/prisma-client');
 const {resolvers} = require('./resolvers');
 const {posthookReceiver} = require('./webhooks/posthookReceiver');
 const {scheduleDailyMails} = require('./webhooks/scheduleDailyMails');
+const {updateIntercom} = require('./webhooks/updateIntercom');
 const sendEmail = require('./emails/SendEmail');
 const {subscribeToUpdateIntercom} = require('./intercomTracking');
 
@@ -36,6 +37,7 @@ const server = new GraphQLServer({
 });
 
 server.express.post('/schedule-daily-mails', scheduleDailyMails);
+server.express.post('/update-intercom', updateIntercom);
 
 server.express.post('/posthook-receiver', bodyParser.json(), posthookReceiver);
 

@@ -8,6 +8,15 @@ async function sendProjectStartedEmail({email, ...data}) {
 	});
 }
 
+async function sendProjectCreatedEmail({email, ...data}) {
+	return sendEmail({
+		email,
+		data,
+		templateId: 'd-96d142386e474b8992d56cceade9452f',
+	});
+}
+
 module.exports = {
 	sendProjectStartedEmail,
+	sendProjectCreatedEmail,
 };

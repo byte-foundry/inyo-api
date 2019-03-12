@@ -92,7 +92,7 @@ const items = async (root, args, ctx) => {
 						...item,
 						sectionId: section.id,
 						projectId: project.id,
-						url: getAppUrl(`/projects/${project.id}/#${item.id}`),
+						url: getAppUrl(`/tasks?projectId=${project.id}#${item.id}`),
 					});
 				}
 			}

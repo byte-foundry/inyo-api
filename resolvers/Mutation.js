@@ -28,7 +28,8 @@ const {postComment} = require('./postComment');
 const Mutation = {
 	checkEmailAvailability,
 	signup,
-	sendResetPassword: async (parent, {email}, ctx) => {
+	sendResetPassword: async (parent, {email: rawEmail}, ctx) => {
+		const email = String(rawEmail).toLowerCase();
 		const user = await ctx.db.user({email});
 
 		if (!user) {
@@ -110,7 +111,7 @@ const Mutation = {
 	updateUser: async (
 		parent,
 		{
-			email,
+			email: rawEmail,
 			firstName,
 			lastName,
 			company,
@@ -132,6 +133,7 @@ const Mutation = {
 		ctx,
 	) => {
 		const userId = getUserId(ctx);
+		const email = String(rawEmail).toLowerCase();
 
 		let logo;
 
@@ -179,10 +181,11 @@ const Mutation = {
 	createCustomer: async (
 		parent,
 		{
-			email, name, firstName, lastName, title,
+			email: rawEmail, name, firstName, lastName, title,
 		},
 		ctx,
 	) => {
+		const email = String(rawEmail).toLowerCase();
 		const company = await ctx.db.user({id: getUserId(ctx)}).company();
 
 		return ctx.db.updateCompany({

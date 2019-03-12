@@ -78,6 +78,7 @@ const sendCustomersRecapEmail = async ({userId}) => {
 					firstName
 					lastName
 					email
+					token
 					linkedTasks(
 						where: {
 							${itemFilter}
@@ -92,7 +93,6 @@ const sendCustomersRecapEmail = async ({userId}) => {
 						}
 					) {
 						id
-						token
 						name
 						sections(orderBy: position_ASC, where: { items_some: { ${itemFilter} } }) {
 							items(orderBy: position_ASC, where: { ${itemFilter} }) {
@@ -126,9 +126,12 @@ const sendCustomersRecapEmail = async ({userId}) => {
 				).trimRight(),
 				projects: customer.projects.map(project => ({
 					...project,
-					url: getAppUrl(`/projects/${project.id}/view/${project.token}`),
+					url: getAppUrl(`/${customer.token}/tasks?projectId=${project.id}`),
 				})),
-				tasks: customer.linkedTasks,
+				tasks: customer.linkedTasks.map(task => ({
+					...task,
+					url: getAppUrl(`/${customer.token}/tasks/${task.id}`),
+				})),
 			});
 
 			console.log(

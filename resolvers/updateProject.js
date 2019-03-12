@@ -1,3 +1,4 @@
+const uuid = require('uuid/v4');
 const {getUserId} = require('../utils');
 const {NotFoundError} = require('../errors');
 
@@ -57,6 +58,8 @@ const updateProject = async (
 		variables.customer = {
 			create: {
 				...customer,
+				email: String(customer.email || '').toLowerCase(),
+				token: uuid(),
 				serviceCompany: {connect: {id: userCompany.id}},
 				address: {
 					create: customer.address,

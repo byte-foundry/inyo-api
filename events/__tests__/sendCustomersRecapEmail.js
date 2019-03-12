@@ -1,5 +1,3 @@
-import moment from 'moment-timezone';
-
 import {sendCustomersRecapEmail} from '../sendCustomersRecapEmail';
 
 import {prisma} from '../../generated/prisma-client';
@@ -49,10 +47,10 @@ describe('sendCustomersRecapEmail', async () => {
 						firstName: 'Jean',
 						lastName: 'Bon',
 						email: 'jeanbon@meatandgreet.test',
+						token: 'token-customer-1',
 						projects: [
 							{
 								id: 'project-1',
-								token: 'token-customer-project-1',
 								name: "Fabrication d'une planche à découper",
 								sections: [
 									{
@@ -68,16 +66,21 @@ describe('sendCustomersRecapEmail', async () => {
 								],
 							},
 						],
+						linkedTasks: [
+							{
+								name: 'Tâche indépendante',
+							},
+						],
 					},
 					{
 						title: 'MADAME',
 						firstName: 'Camille',
 						lastName: 'Honnête',
 						email: 'camionette@nissanjidosha.jp',
+						token: 'token-customer-2',
 						projects: [
 							{
 								id: 'project-2',
-								token: 'token-customer-project-2',
 								name: "Fabriquer des preuves d'innocence",
 								sections: [
 									{
@@ -91,7 +94,6 @@ describe('sendCustomersRecapEmail', async () => {
 							},
 							{
 								id: 'project-3',
-								token: 'token-customer-project-3',
 								name: 'Nouveau modèle de camionette',
 								sections: [
 									{
@@ -104,6 +106,7 @@ describe('sendCustomersRecapEmail', async () => {
 								],
 							},
 						],
+						linkedTasks: [],
 					},
 				],
 			},
@@ -126,7 +129,13 @@ describe('sendCustomersRecapEmail', async () => {
 			user: 'Jean Michel',
 			projects: user.company.customers[0].projects.map(project => ({
 				...project,
-				url: `/projects/${project.id}/view/${project.token}`,
+				url: `/${user.company.customers[0].token}/tasks?projectId=${
+					project.id
+				}`,
+			})),
+			tasks: user.company.customers[0].linkedTasks.map(task => ({
+				...task,
+				url: `/${user.company.customers[0].token}/tasks/${task.id}`,
 			})),
 		});
 
@@ -136,7 +145,13 @@ describe('sendCustomersRecapEmail', async () => {
 			user: 'Jean Michel',
 			projects: user.company.customers[1].projects.map(project => ({
 				...project,
-				url: `/projects/${project.id}/view/${project.token}`,
+				url: `/${user.company.customers[1].token}/tasks?projectId=${
+					project.id
+				}`,
+			})),
+			tasks: user.company.customers[1].linkedTasks.map(task => ({
+				...task,
+				url: `/${user.company.customers[1].token}/tasks/${task.id}`,
 			})),
 		});
 	});

@@ -22,7 +22,19 @@ const Query = {
 	project: async (root, {id, token}, ctx) => {
 		// public access with a secret token inserted in a mail
 		if (token) {
-			const [project] = await ctx.db.projects({where: {id, token}});
+			const [project] = await ctx.db.projects({
+				where: {
+					id,
+					OR: [
+						{
+							token,
+						},
+						{
+							customer: {token},
+						},
+					],
+				},
+			});
 
 			if (!project) {
 				throw new NotFoundError(`Project '${id}' has not been found`);
