@@ -6,7 +6,7 @@ const gql = String.raw;
 
 const intercom = new IntercomClient({token: process.env.INTERCOM_TOKEN});
 
-const updateIntercom = async () => {
+const updateIntercom = async (req, res) => {
 	console.log('Updating number of active days last 7 days.');
 
 	let sessionsDayFragments = '';
@@ -63,6 +63,7 @@ const updateIntercom = async () => {
 	);
 
 	console.log('Updated number of active days last 7 days.');
+	res.send(200);
 };
 
 module.exports = {
