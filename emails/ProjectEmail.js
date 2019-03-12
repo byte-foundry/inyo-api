@@ -10,7 +10,7 @@ async function sendProjectStartedEmail({email, ...data}) {
 
 async function sendProjectCreatedEmail({email, ...data}) {
 	return sendEmail({
-		email,
+		email: 'edwige@inyo.me',
 		data,
 		templateId: 'd-96d142386e474b8992d56cceade9452f',
 	});

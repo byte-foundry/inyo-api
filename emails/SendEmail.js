@@ -25,9 +25,13 @@ async function sendEmail({email, data, templateId}) {
 		},
 	};
 
-	const [response, body] = await sendGridClient.request(request);
-
-	return [response, body];
+	try {
+		return sendGridClient.request(request);
+	}
+	catch (err) {
+		console.log('Error when calling SendGrid', err.response.body.errors);
+		throw new Error('Error when sending email');
+	}
 }
 
 module.exports = sendEmail;
