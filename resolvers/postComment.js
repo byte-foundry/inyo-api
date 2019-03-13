@@ -241,7 +241,9 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 
 			await sendNewCommentEmail({
 				...params,
-				url: getAppUrl(`/${customer.token}/tasks?projectId=${project.id}`),
+				url: getAppUrl(
+					`/${customer.token}/tasks/${item.id}?projectId=${project.id}`,
+				),
 			});
 
 			console.log(`New comment email sent to ${customer.email}`);
