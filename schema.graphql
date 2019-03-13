@@ -212,6 +212,10 @@ type Mutation {
 	postComment(itemId: ID!, token: String, comment: CommentInput!): Item
 
 	uploadAttachments(files: [Upload!]!, taskId: ID, projectId: ID): [File!]
+
+	updateFile(id: ID!, filename: String!): File
+
+	removeFile(id: ID!): File
 }
 
 input CommentInput {
@@ -565,6 +569,7 @@ type User {
 }
 
 type File {
+	id: ID!
 	filename: String!
 	mimetype: String!
 	encoding: String!
