@@ -113,6 +113,22 @@ const Project = {
 	},
 	createdAt: node => node.createdAt,
 	updatedAt: node => node.updatedAt,
+	attachments: (node, args, ctx) => ctx.db.attachments({
+		where: {
+			OR: [
+				{
+					linkedTask: {
+						section: {
+							project: {id: node.id},
+						},
+					},
+				},
+				{
+					linkedProject: {id: node.id},
+				},
+			],
+		},
+	}),
 };
 
 module.exports = {
