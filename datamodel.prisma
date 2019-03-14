@@ -177,6 +177,7 @@ type Item {
 	reviewer: Reviewer! @default(value: USER)
 	reminders: [Reminder!]! @relation(name: "ItemReminders", onDelete: CASCADE)
 	snoozedUntil: Reminder @relation(name: "SnoozeReminders", onDelete: CASCADE)
+	attachments: [File!]! @relation(name: "TaskAttachments", onDelete: CASCADE)
 	finishedAt: DateTime
 	position: Int!
 	dueDate: DateTime
@@ -237,6 +238,7 @@ type Project {
 	issuedAt: DateTime
 	deadline: DateTime
 	notifyActivityToCustomer: Boolean! @default(value: true)
+	attachments: [File!]! @relation(name: "ProjectAttachments")
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }
@@ -325,6 +327,8 @@ type File {
 	mimetype: String!
 	encoding: String!
 	url: String!
+	linkedTask: Item @relation(name: "TaskAttachments")
+	linkedProject: Project @relation(name: "ProjectAttachments")
 	createdAt: DateTime!
 }
 

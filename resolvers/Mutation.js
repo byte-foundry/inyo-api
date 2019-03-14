@@ -24,6 +24,9 @@ const {unsnoozeItem} = require('./unsnoozeItem');
 const {finishItem} = require('./finishItem');
 const {unfinishItem} = require('./unfinishItem');
 const {postComment} = require('./postComment');
+const {uploadAttachments} = require('./uploadAttachments');
+const {updateFile} = require('./updateFile');
+const {removeFile} = require('./removeFile');
 
 const Mutation = {
 	checkEmailAvailability,
@@ -484,6 +487,9 @@ const Mutation = {
 		throw Error('Amendments are not supported anymore');
 	},
 	postComment,
+	uploadAttachments,
+	updateFile,
+	removeFile,
 };
 
 module.exports = {

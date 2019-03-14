@@ -210,6 +210,12 @@ type Mutation {
 
 	#post a comment on an item
 	postComment(itemId: ID!, token: String, comment: CommentInput!): Item
+
+	uploadAttachments(files: [Upload!]!, taskId: ID, projectId: ID): [File!]
+
+	updateFile(id: ID!, filename: String!): File
+
+	removeFile(id: ID!): File
 }
 
 input CommentInput {
@@ -433,6 +439,7 @@ type Item {
 	position: Int
 	timeItTook: Float
 	dueDate: DateTime
+	attachments: [File!]!
 
 	reviewer: Reviewer @deprecated(reason: "Use `type: CUSTOMER` instead.")
 	unitPrice: Int @deprecated(reason: "Unit price is not used anymore.")
@@ -488,6 +495,7 @@ type Project {
 	deadline: DateTime
 	notifyActivityToCustomer: Boolean!
 	daysUntilDeadline: Int
+	attachments: [File!]!
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }
@@ -561,6 +569,7 @@ type User {
 }
 
 type File {
+	id: ID!
 	filename: String!
 	mimetype: String!
 	encoding: String!
