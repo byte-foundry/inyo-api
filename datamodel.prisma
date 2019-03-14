@@ -99,6 +99,9 @@ enum ReminderType {
 
 	# End of a snooze period
 	SNOOZE_END
+
+	# Slipping away users notification
+	SLIPPING_AWAY
 }
 
 enum ReminderStatus {
@@ -280,6 +283,7 @@ type User {
 	workingDays: [DAY!]!
 	timeZone: String
 	userEvents: [UserEvent!]! @relation(name: "UserUserEvents", onDelete: CASCADE)
+	reminders: [Reminder!]! @relation(name: "UserReminders", onDelete: CASCADE)
 	morningReminders: [Reminder!]!
 		@relation(name: "UserMorningReminders", onDelete: CASCADE)
 	eveningReminders: [Reminder!]!
@@ -305,6 +309,7 @@ type Reminder {
 	id: ID! @unique
 	quote: Quote @relation(name: "QuoteReminders")
 	item: Item @relation(name: "ItemReminders")
+	user: User @relation(name: "UserReminder")
 	morningRemindersUser: User @relation(name: "UserMorningReminders")
 	eveningRemindersUser: User @relation(name: "UserEveningReminders")
 	snoozedItem: Item @relation(name: "SnoozeReminders")
