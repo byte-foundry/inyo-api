@@ -116,7 +116,14 @@ const scheduleDailyMails = async (req, res) => {
 			startWorkAt_not: null,
 			reminders_none: {
 				type: 'SLIPPING_AWAY',
-				sendingDate_lt: new Date().toJSON(),
+				OR: [
+								{
+												sendingDate_gt: new Date().toJSON(),
+								},
+								{
+												sendingDate_lt: moment().subtract(3, 'days'),
+								},
+				],
 			},
 		},
 	}).$fragment(gql`
