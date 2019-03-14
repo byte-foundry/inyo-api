@@ -1,6 +1,6 @@
 const {getUserId} = require('../utils');
 const {processUpload} = require('../files');
-const {NotFound} = require('../errors');
+const {NotFoundError} = require('../errors');
 
 const uploadAttachments = async (
 	parent,
@@ -14,37 +14,27 @@ const uploadAttachments = async (
 	}
 
 	if (token) {
-		const [customer] = await ctx.customer({
+		const [customer] = await ctx.db.customers({
 			token,
-			OR: [
-				{
-					linkedTasks_some: {id: taskId},
-				},
-				{
-					projects_some: {id: projectId},
-				},
-			],
+			linkedTasks_some: taskId ? {id: taskId} : undefined,
+			projects_some: projectId ? {id: projectId} : undefined,
 		});
 
-		if (customer) {
-			throw new NotFound('Task or project not found.');
+		if (!customer) {
+			throw new NotFoundError('Task or project not found.');
 		}
 	}
 	else {
-		const [user] = await ctx.user({
-			id: getUserId(ctx),
-			OR: [
-				{
-					tasks_some: {id: taskId},
-				},
-				{
-					projects_some: {id: projectId},
-				},
-			],
+		const [user] = await ctx.db.users({
+			where: {
+				id: getUserId(ctx),
+				tasks_some: taskId ? {id: taskId} : undefined,
+				projects_some: projectId ? {id: projectId} : undefined,
+			},
 		});
 
-		if (user) {
-			throw new NotFound('Task or project not found.');
+		if (!user) {
+			throw new NotFoundError('Task or project not found.');
 		}
 	}
 
