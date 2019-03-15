@@ -70,8 +70,19 @@ type Mutation {
 		firstName: String
 		lastName: String
 		title: Title
+		phone: String
 	): Customer!
-	updateCustomer(id: ID!, customer: CustomerInput!): Customer!
+	# Update a customer with new date
+	updateCustomer(
+		id: ID!
+		email: String
+		name: String
+		firstName: String
+		lastName: String
+		title: Title
+		phone: String
+		customer: CustomerInput
+	): Customer!
 
 	# Create a new project for a customer of the user's company
 	createProject(
