@@ -28,6 +28,7 @@ const sendSlippingAwayEmail = async ({userId}) => {
 	await sendEmail({
 		email: user.email,
 		user: formatName(user.firstName, user.lastName),
+		emailForSurvey: user.email,
 	});
 
 	console.log("Sent today's slipping away prevention to", user.email);
