@@ -32,6 +32,7 @@ type Customer {
 	projects: [Project!]! @relation(name: "CustomerProjects")
 	linkedTasks: [Item!]! @relation(name: "LinkedCustomerTasks")
 	commentViews: [CommentView!]! @relation(name: "CommentViewCustomer")
+	files: [File!]! @relation(name: "CustomerFiles")
 }
 
 enum QuoteStatus {
@@ -290,7 +291,8 @@ type User {
 		@relation(name: "UserEveningReminders", onDelete: CASCADE)
 	defaultDailyPrice: Int @default(value: 350)
 	defaultVatRate: Int @default(value: 20)
-	commentViews: [CommentView!]! @relation(name: "CommentViewUser")
+	commentViews: [CommentView!]!
+		@relation(name: "CommentViewUser", onDelete: CASCADE)
 	workingFields: [String!]!
 	otherPain: String
 	painsExpressed: [String!]!
@@ -301,6 +303,7 @@ type User {
 	settings: Settings! @relation(name: "UserSettings")
 	tasks: [Item!]! @relation(name: "UserTasks", onDelete: CASCADE)
 	projects: [Project!]! @relation(name: "UserProjects", onDelete: CASCADE)
+	files: [File!]! @relation(name: "UserFiles", onDelete: CASCADE)
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }
@@ -328,6 +331,8 @@ type Log {
 
 type File {
 	id: ID! @unique
+	ownerUser: User @relation(name: "UserFiles")
+	ownerCustomer: Customer @relation(name: "CustomerFiles")
 	filename: String!
 	mimetype: String!
 	encoding: String!

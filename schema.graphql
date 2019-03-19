@@ -579,8 +579,11 @@ type User {
 	tasks(filter: TasksFilterInput, sort: TasksSortInput): [Item!]!
 }
 
+union Owner = User | Customer
+
 type File {
 	id: ID!
+	uploader: Owner
 	filename: String!
 	mimetype: String!
 	encoding: String!
