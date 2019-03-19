@@ -64,9 +64,9 @@ const uploadAttachments = async (
 		files.map(file => processUpload(file, ctx, taskId || projectId)),
 	);
 
+	// TODO: owners
+
 	const data = {
-		ownerUser: !token && {connect: {id: ownerId}},
-		ownerCustomer: token && {connect: {id: ownerId}},
 		attachments: {
 			connect: attachments.map(a => ({id: a.id})),
 		},
