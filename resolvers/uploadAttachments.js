@@ -17,25 +17,27 @@ const uploadAttachments = async (
 
 	if (token) {
 		const [customer] = await ctx.db.customers({
-			token,
-			OR: taskId
-				? [
-					{
-						linkedTasks_some: {id: taskId},
-					},
-					{
-						projects_some: {
-							sections_some: {
-								items_some: {id: taskId},
+			where: {
+				token,
+				OR: taskId
+					? [
+						{
+							linkedTasks_some: {id: taskId},
+						},
+						{
+							projects_some: {
+								sections_some: {
+									items_some: {id: taskId},
+								},
 							},
 						},
-					},
-				  ]
-				: [
-					{
-						projects_some: {id: projectId},
-					},
-				  ],
+					  ]
+					: [
+						{
+							projects_some: {id: projectId},
+						},
+					  ],
+			},
 		});
 
 		if (!customer) {
