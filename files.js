@@ -20,6 +20,13 @@ const processUpload = async (upload, ctx, prefix) => {
 	const {
 		stream, filename, mimetype, encoding,
 	} = await upload;
+
+	if (!stream) {
+		throw new Error(
+			'File is not defined, did you forget to use Content-Type: multipart/form-data?',
+		);
+	}
+
 	const {
 		Location, ETag, Bucket, Key,
 	} = await storeUpload({
