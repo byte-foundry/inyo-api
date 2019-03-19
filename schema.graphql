@@ -583,7 +583,7 @@ union Owner = User | Customer
 
 type File {
 	id: ID!
-	uploader: Owner
+	owner: Owner
 	filename: String!
 	mimetype: String!
 	encoding: String!
