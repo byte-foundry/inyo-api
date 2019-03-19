@@ -222,7 +222,12 @@ type Mutation {
 	#post a comment on an item
 	postComment(itemId: ID!, token: String, comment: CommentInput!): Item
 
-	uploadAttachments(files: [Upload!]!, taskId: ID, projectId: ID): [File!]
+	uploadAttachments(
+		files: [Upload!]!
+		taskId: ID
+		projectId: ID
+		token: String
+	): [File!]
 
 	updateFile(id: ID!, filename: String!): File
 
