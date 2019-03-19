@@ -65,8 +65,8 @@ const uploadAttachments = async (
 	);
 
 	const data = {
-		userOwner: !token && {connect: {id: ownerId}},
-		customerOwner: token && {connect: {id: ownerId}},
+		ownerUser: !token && {connect: {id: ownerId}},
+		ownerCustomer: token && {connect: {id: ownerId}},
 		attachments: {
 			connect: attachments.map(a => ({id: a.id})),
 		},
