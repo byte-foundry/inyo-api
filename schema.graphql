@@ -70,8 +70,19 @@ type Mutation {
 		firstName: String
 		lastName: String
 		title: Title
+		phone: String
 	): Customer!
-	updateCustomer(id: ID!, customer: CustomerInput!): Customer!
+	# Update a customer with new date
+	updateCustomer(
+		id: ID!
+		email: String
+		name: String
+		firstName: String
+		lastName: String
+		title: Title
+		phone: String
+		customer: CustomerInput
+	): Customer!
 
 	# Create a new project for a customer of the user's company
 	createProject(
@@ -210,6 +221,17 @@ type Mutation {
 
 	#post a comment on an item
 	postComment(itemId: ID!, token: String, comment: CommentInput!): Item
+
+	uploadAttachments(
+		files: [Upload!]!
+		taskId: ID
+		projectId: ID
+		token: String
+	): [File!]
+
+	updateFile(id: ID!, filename: String!): File
+
+	removeFile(id: ID!): File
 }
 
 input CommentInput {
@@ -433,6 +455,7 @@ type Item {
 	position: Int
 	timeItTook: Float
 	dueDate: DateTime
+	attachments: [File!]!
 
 	reviewer: Reviewer @deprecated(reason: "Use `type: CUSTOMER` instead.")
 	unitPrice: Int @deprecated(reason: "Unit price is not used anymore.")
@@ -488,6 +511,7 @@ type Project {
 	deadline: DateTime
 	notifyActivityToCustomer: Boolean!
 	daysUntilDeadline: Int
+	attachments: [File!]!
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }
@@ -560,7 +584,11 @@ type User {
 	tasks(filter: TasksFilterInput, sort: TasksSortInput): [Item!]!
 }
 
+union Owner = User | Customer
+
 type File {
+	id: ID!
+	owner: Owner
 	filename: String!
 	mimetype: String!
 	encoding: String!

@@ -35,6 +35,7 @@ const Item = {
 	position: node => node.position,
 	timeItTook: node => node.timeItTook,
 	dueDate: node => node.dueDate,
+	attachments: (node, args, ctx) => ctx.db.item({id: node.id}).attachments(),
 };
 
 module.exports = {

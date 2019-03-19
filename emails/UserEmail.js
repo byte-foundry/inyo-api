@@ -16,7 +16,16 @@ async function sendMorningEmail({email, ...data}) {
 	});
 }
 
+async function sendSlippingAwayEmail({email, ...data}) {
+	return sendEmail({
+		email,
+		data,
+		templateId: 'd-3e839ac33e8445d583bb5705d0dcf08f',
+	});
+}
+
 module.exports = {
 	sendResetPasswordEmail,
 	sendMorningEmail,
+	sendSlippingAwayEmail,
 };

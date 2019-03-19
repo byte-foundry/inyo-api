@@ -32,6 +32,7 @@ type Customer {
 	projects: [Project!]! @relation(name: "CustomerProjects")
 	linkedTasks: [Item!]! @relation(name: "LinkedCustomerTasks")
 	commentViews: [CommentView!]! @relation(name: "CommentViewCustomer")
+	files: [File!]! @relation(name: "CustomerFiles")
 }
 
 enum QuoteStatus {
@@ -99,6 +100,9 @@ enum ReminderType {
 
 	# End of a snooze period
 	SNOOZE_END
+
+	# Slipping away users notification
+	SLIPPING_AWAY
 }
 
 enum ReminderStatus {
@@ -177,6 +181,7 @@ type Item {
 	reviewer: Reviewer! @default(value: USER)
 	reminders: [Reminder!]! @relation(name: "ItemReminders", onDelete: CASCADE)
 	snoozedUntil: Reminder @relation(name: "SnoozeReminders", onDelete: CASCADE)
+	attachments: [File!]! @relation(name: "TaskAttachments", onDelete: CASCADE)
 	finishedAt: DateTime
 	position: Int!
 	dueDate: DateTime
@@ -237,6 +242,7 @@ type Project {
 	issuedAt: DateTime
 	deadline: DateTime
 	notifyActivityToCustomer: Boolean! @default(value: true)
+	attachments: [File!]! @relation(name: "ProjectAttachments")
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }
@@ -278,13 +284,15 @@ type User {
 	workingDays: [DAY!]!
 	timeZone: String
 	userEvents: [UserEvent!]! @relation(name: "UserUserEvents", onDelete: CASCADE)
+	reminders: [Reminder!]! @relation(name: "UserReminders", onDelete: CASCADE)
 	morningReminders: [Reminder!]!
 		@relation(name: "UserMorningReminders", onDelete: CASCADE)
 	eveningReminders: [Reminder!]!
 		@relation(name: "UserEveningReminders", onDelete: CASCADE)
 	defaultDailyPrice: Int @default(value: 350)
 	defaultVatRate: Int @default(value: 20)
-	commentViews: [CommentView!]! @relation(name: "CommentViewUser")
+	commentViews: [CommentView!]!
+		@relation(name: "CommentViewUser", onDelete: CASCADE)
 	workingFields: [String!]!
 	otherPain: String
 	painsExpressed: [String!]!
@@ -295,6 +303,7 @@ type User {
 	settings: Settings! @relation(name: "UserSettings")
 	tasks: [Item!]! @relation(name: "UserTasks", onDelete: CASCADE)
 	projects: [Project!]! @relation(name: "UserProjects", onDelete: CASCADE)
+	files: [File!]! @relation(name: "UserFiles", onDelete: CASCADE)
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }
@@ -303,6 +312,7 @@ type Reminder {
 	id: ID! @unique
 	quote: Quote @relation(name: "QuoteReminders")
 	item: Item @relation(name: "ItemReminders")
+	user: User @relation(name: "UserReminder")
 	morningRemindersUser: User @relation(name: "UserMorningReminders")
 	eveningRemindersUser: User @relation(name: "UserEveningReminders")
 	snoozedItem: Item @relation(name: "SnoozeReminders")
@@ -321,10 +331,14 @@ type Log {
 
 type File {
 	id: ID! @unique
+	ownerUser: User @relation(name: "UserFiles")
+	ownerCustomer: Customer @relation(name: "CustomerFiles")
 	filename: String!
 	mimetype: String!
 	encoding: String!
 	url: String!
+	linkedTask: Item @relation(name: "TaskAttachments")
+	linkedProject: Project @relation(name: "ProjectAttachments")
 	createdAt: DateTime!
 }
 

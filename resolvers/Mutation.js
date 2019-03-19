@@ -24,12 +24,16 @@ const {unsnoozeItem} = require('./unsnoozeItem');
 const {finishItem} = require('./finishItem');
 const {unfinishItem} = require('./unfinishItem');
 const {postComment} = require('./postComment');
+const {uploadAttachments} = require('./uploadAttachments');
+const {updateFile} = require('./updateFile');
+const {removeFile} = require('./removeFile');
+const {updateCustomer} = require('./updateCustomer');
 
 const Mutation = {
 	checkEmailAvailability,
 	signup,
 	sendResetPassword: async (parent, {email: rawEmail}, ctx) => {
-		const email = String(rawEmail).toLowerCase();
+		const email = String(rawEmail || '').toLowerCase();
 		const user = await ctx.db.user({email});
 
 		if (!user) {
@@ -133,7 +137,7 @@ const Mutation = {
 		ctx,
 	) => {
 		const userId = getUserId(ctx);
-		const email = String(rawEmail).toLowerCase();
+		const email = String(rawEmail || '').toLowerCase() || undefined;
 
 		let logo;
 
@@ -181,40 +185,27 @@ const Mutation = {
 	createCustomer: async (
 		parent,
 		{
-			email: rawEmail, name, firstName, lastName, title,
+			email: rawEmail, name, firstName, lastName, title, phone,
 		},
 		ctx,
 	) => {
-		const email = String(rawEmail).toLowerCase();
+		const email = String(rawEmail || '').toLowerCase() || undefined;
 		const company = await ctx.db.user({id: getUserId(ctx)}).company();
 
-		return ctx.db.updateCompany({
-			where: {
-				id: company.id,
-			},
-			data: {
-				customers: {
-					create: {
-						token: uuid(),
-						email,
-						name,
-						firstName,
-						lastName,
-						title,
-					},
-				},
+		return ctx.db.createCustomer({
+			token: uuid(),
+			email,
+			name,
+			firstName,
+			lastName,
+			title,
+			phone,
+			serviceCompany: {
+				connect: {id: company.id},
 			},
 		});
 	},
-	updateCustomer: async (parent, {id, customer}, ctx) => ctx.db.updateCustomer({
-		where: {
-			id,
-			serviceCompany: {
-				owner: {id: getUserId(ctx)},
-			},
-		},
-		data: customer,
-	}),
+	updateCustomer,
 	createProject,
 	updateProject,
 	finishProject,
@@ -418,17 +409,27 @@ const Mutation = {
 		});
 	},
 	removeSection: async (parent, {id}, ctx) => {
+		const userId = getUserId(ctx);
 		const [section] = await ctx.db.sections({
 			where: {
 				id,
 				project: {
-					customer: {
-						serviceCompany: {
+					OR: [
+						{
 							owner: {
-								id: getUserId(ctx),
+								id: userId,
 							},
 						},
-					},
+						{
+							customer: {
+								serviceCompany: {
+									owner: {
+										id: userId,
+									},
+								},
+							},
+						},
+					],
 				},
 			},
 		});
@@ -474,6 +475,9 @@ const Mutation = {
 		throw Error('Amendments are not supported anymore');
 	},
 	postComment,
+	uploadAttachments,
+	updateFile,
+	removeFile,
 };
 
 module.exports = {
