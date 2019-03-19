@@ -33,7 +33,7 @@ const Mutation = {
 	checkEmailAvailability,
 	signup,
 	sendResetPassword: async (parent, {email: rawEmail}, ctx) => {
-		const email = String(rawEmail).toLowerCase();
+		const email = String(rawEmail || '').toLowerCase();
 		const user = await ctx.db.user({email});
 
 		if (!user) {
@@ -137,7 +137,7 @@ const Mutation = {
 		ctx,
 	) => {
 		const userId = getUserId(ctx);
-		const email = String(rawEmail).toLowerCase();
+		const email = String(rawEmail || '').toLowerCase() || undefined;
 
 		let logo;
 

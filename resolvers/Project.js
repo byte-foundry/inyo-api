@@ -113,7 +113,7 @@ const Project = {
 	},
 	createdAt: node => node.createdAt,
 	updatedAt: node => node.updatedAt,
-	attachments: (node, args, ctx) => ctx.db.attachments({
+	attachments: (node, args, ctx) => ctx.db.files({
 		where: {
 			OR: [
 				{
