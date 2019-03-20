@@ -82,7 +82,7 @@ const Query = {
 		return project;
 	},
 	quote: () => {
-		throw Error('Quotes are not supported anymore');
+		throw new Error('Quotes are not supported anymore');
 	},
 	item: async (root, {id, token}, ctx) => {
 		if (token) {
