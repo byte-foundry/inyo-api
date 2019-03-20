@@ -66,26 +66,17 @@ const uploadAttachments = async (
 		files.map(file => processUpload(file, ctx, taskId || projectId)),
 	);
 
-	// TODO: owners
-
-	const data = {
-		attachments: {
-			connect: attachments.map(a => ({id: a.id})),
-		},
-	};
-
-	if (taskId) {
-		await ctx.db.updateItem({
-			where: {id: taskId},
-			data,
-		});
-	}
-	else if (projectId) {
-		await ctx.db.updateItem({
-			where: {id: taskId},
-			data,
-		});
-	}
+	await Promise.all(
+		attachments.map(a => ctx.db.updateFile({
+			where: {id: a.id},
+			data: {
+				linkedTask: taskId && {connect: {id: taskId}},
+				linkedProject: projectId && {connect: {id: projectId}},
+				ownerUser: !token && {connect: {id: ownerId}},
+				ownerCustomer: token && {connect: {id: ownerId}},
+			},
+		})),
+	);
 
 	return attachments;
 };
