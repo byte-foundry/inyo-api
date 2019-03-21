@@ -21,7 +21,7 @@ const updateCustomer = async (
 	});
 
 	if (!existingCustomer) {
-		throw NotFoundError(`Customer '${id}' has not been found.`);
+		throw new NotFoundError(`Customer '${id}' has not been found.`);
 	}
 
 	const email

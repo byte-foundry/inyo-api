@@ -83,6 +83,8 @@ type Mutation {
 		phone: String
 		customer: CustomerInput
 	): Customer!
+	# Remove a customer
+	removeCustomer(id: ID!): Customer!
 
 	# Create a new project for a customer of the user's company
 	createProject(

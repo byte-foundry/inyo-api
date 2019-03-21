@@ -13,6 +13,7 @@ const {Project} = require('./Project');
 const {Customer} = require('./Customer');
 const {Address} = require('./Address');
 const {Author} = require('./Author');
+const {Owner} = require('./Owner');
 const {Comment} = require('./Comment');
 const {Viewer} = require('./Viewer');
 const {CommentView} = require('./CommentView');
@@ -40,6 +41,7 @@ const resolvers = {
 	Customer,
 	Address,
 	Author,
+	Owner,
 	Comment,
 	Viewer,
 	CommentView,

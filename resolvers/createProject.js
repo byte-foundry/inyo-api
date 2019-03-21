@@ -77,9 +77,7 @@ const createProject = async (
 		await sendProjectCreatedEmail({
 			userEmail: user.email,
 			name: result.name,
-			url: token
-				? getAppUrl(`/${token}/tasks?projectId=${result.id}`)
-				: 'Pas de client',
+			url: getAppUrl(`/${token || result.token}/tasks?projectId=${result.id}`),
 		});
 	}
 	catch (err) {

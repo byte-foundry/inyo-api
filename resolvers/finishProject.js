@@ -28,14 +28,14 @@ const finishProject = async (parent, {id}, ctx) => {
 	`);
 
 	if (!project) {
-		throw NotFoundError(`Project ${id} has not been found.`);
+		throw new NotFoundError(`Project ${id} has not been found.`);
 	}
 
 	if (
 		project.status !== 'ONGOING'
 		|| project.sections.some(section => section.items.some(item => item.status !== 'FINISHED'))
 	) {
-		throw Error(`Project ${id} can't be finished.`);
+		throw new Error(`Project ${id} can't be finished.`);
 	}
 
 	return ctx.db.updateProject({

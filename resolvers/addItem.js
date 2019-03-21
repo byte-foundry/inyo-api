@@ -3,7 +3,7 @@ const uuid = require('uuid/v4');
 const gql = String.raw;
 
 const {sendItemContentAcquisitionEmail} = require('../emails/TaskEmail');
-const {getUserId, formatFullName} = require('../utils');
+const {getUserId, getAppUrl, formatFullName} = require('../utils');
 const {NotFoundError} = require('../errors');
 
 const addItem = async (
@@ -155,9 +155,22 @@ const addItem = async (
 			email: '🤷‍',
 			...linkedCustomer,
 		};
+		let url = 'Pas de projet ni client 🤷‍';
+
+		if (sectionId) {
+			const project = await ctx.db.section({id: sectionId}).project();
+
+			url = getAppUrl(
+				`/${project.token}/tasks/${createdItem.id}?projectId=${project.id}`,
+			);
+		}
 
 		if (linkedCustomerId) {
 			customer = await ctx.db.customer({id: linkedCustomerId});
+		}
+
+		if (customer.token) {
+			url = getAppUrl(`/${customer.token}/tasks/${createdItem.id}`);
 		}
 
 		await sendItemContentAcquisitionEmail({
@@ -172,7 +185,7 @@ const addItem = async (
 				)}`,
 			).trimRight(),
 			customerEmail: customer.email,
-			url: '🤷‍',
+			url,
 			id: createdItem.id,
 		});
 		console.log('Content acquisition email sent to us');
