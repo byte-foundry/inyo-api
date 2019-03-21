@@ -28,6 +28,7 @@ const {uploadAttachments} = require('./uploadAttachments');
 const {updateFile} = require('./updateFile');
 const {removeFile} = require('./removeFile');
 const {updateCustomer} = require('./updateCustomer');
+const {removeCustomer} = require('./removeCustomer');
 
 const Mutation = {
 	checkEmailAvailability,
@@ -206,6 +207,7 @@ const Mutation = {
 		});
 	},
 	updateCustomer,
+	removeCustomer,
 	createProject,
 	updateProject,
 	finishProject,
