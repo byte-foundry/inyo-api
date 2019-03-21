@@ -72,8 +72,8 @@ const uploadAttachments = async (
 			data: {
 				linkedTask: taskId && {connect: {id: taskId}},
 				linkedProject: projectId && {connect: {id: projectId}},
-				ownerUser: !token && {connect: {id: ownerId}},
-				ownerCustomer: token && {connect: {id: ownerId}},
+				ownerUser: token ? undefined : {connect: {id: ownerId}},
+				ownerCustomer: token ? {connect: {id: ownerId}} : undefined,
 			},
 		})),
 	);
