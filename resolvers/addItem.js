@@ -3,7 +3,7 @@ const uuid = require('uuid/v4');
 const gql = String.raw;
 
 const {sendItemContentAcquisitionEmail} = require('../emails/TaskEmail');
-const {getUserId, formatFullName} = require('../utils');
+const {getUserId, getAppUrl, formatFullName} = require('../utils');
 const {NotFoundError} = require('../errors');
 
 const addItem = async (
