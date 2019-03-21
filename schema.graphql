@@ -91,6 +91,7 @@ type Mutation {
 		customerId: ID
 		customer: CustomerInput
 		name: String
+		notes: Json
 		template: ProjectTemplate
 		sections: [SectionInput!]
 		deadline: DateTime
@@ -100,6 +101,7 @@ type Mutation {
 	updateProject(
 		id: ID!
 		name: String
+		notes: Json
 		customerId: ID
 		customer: CustomerInput
 		deadline: DateTime
@@ -501,6 +503,7 @@ type Project {
 	id: ID!
 	name: String!
 	template: ProjectTemplate
+	notes: Json
 	issuer: Company!
 		@deprecated(reason: "Company is not used anymore. Use `owner` instead")
 	owner: User!

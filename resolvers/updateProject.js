@@ -5,10 +5,35 @@ const {NotFoundError} = require('../errors');
 const updateProject = async (
 	parent,
 	{
-		id, name, customerId, customer, deadline, notifyActivityToCustomer,
+		id,
+		token,
+		name,
+		notes,
+		customerId,
+		customer,
+		deadline,
+		notifyActivityToCustomer,
 	},
 	ctx,
 ) => {
+	if (token) {
+		const projectExists = await ctx.db.$exists.project({
+			where: {
+				id,
+				customer: {token},
+			},
+		});
+
+		if (projectExists) {
+			throw new NotFoundError(`Project '${id}' has not been found.`);
+		}
+
+		return ctx.db.updateProject({
+			where: {id},
+			data: {notes},
+		});
+	}
+
 	const userId = getUserId(ctx);
 	const [project] = await ctx.db.projects({
 		where: {
@@ -78,6 +103,7 @@ const updateProject = async (
 		data: {
 			...variables,
 			name,
+			notes,
 			deadline,
 			notifyActivityToCustomer,
 		},
