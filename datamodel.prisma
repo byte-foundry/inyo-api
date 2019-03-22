@@ -231,7 +231,7 @@ type Quote {
 type Project {
 	id: ID! @unique
 	name: String!
-	notes: Json! @default(value: "{}")
+	sharedNotes: Json! @default(value: "{}")
 	template: ProjectTemplate @default(value: BLANK)
 	customer: Customer @relation(name: "CustomerProjects")
 	owner: User @relation(name: "UserProjects")

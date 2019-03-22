@@ -8,7 +8,7 @@ const updateProject = async (
 		id,
 		token,
 		name,
-		notes,
+		sharedNotes,
 		customerId,
 		customer,
 		deadline,
@@ -30,7 +30,7 @@ const updateProject = async (
 
 		return ctx.db.updateProject({
 			where: {id},
-			data: {notes},
+			data: {sharedNotes},
 		});
 	}
 
@@ -103,7 +103,7 @@ const updateProject = async (
 		data: {
 			...variables,
 			name,
-			notes,
+			sharedNotes,
 			deadline,
 			notifyActivityToCustomer,
 		},
