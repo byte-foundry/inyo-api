@@ -92,6 +92,7 @@ type Mutation {
 		customer: CustomerInput
 		name: String
 		sharedNotes: Json
+		personalNotes: Json
 		template: ProjectTemplate
 		sections: [SectionInput!]
 		deadline: DateTime
@@ -102,6 +103,7 @@ type Mutation {
 		id: ID!
 		name: String
 		sharedNotes: Json
+		personalNotes: Json
 		customerId: ID
 		customer: CustomerInput
 		deadline: DateTime
@@ -503,7 +505,8 @@ type Project {
 	id: ID!
 	name: String!
 	template: ProjectTemplate
-		sharedNotes: Json
+	sharedNotes: Json
+	personalNotes: Json
 	issuer: Company!
 		@deprecated(reason: "Company is not used anymore. Use `owner` instead")
 	owner: User!
