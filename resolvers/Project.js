@@ -28,7 +28,7 @@ const Project = {
 			.serviceCompany()
 			.owner();
 	},
-	sharedNotes: node => node.notes,
+	sharedNotes: node => node.sharedNotes,
 	issuer: async (node, args, ctx) => {
 		const owner = await ctx.db
 			.project({id: node.id})
