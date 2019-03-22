@@ -10,6 +10,8 @@ const createProject = async (
 		customerId,
 		customer,
 		name,
+		sharedNotes,
+		personalNotes,
 		template,
 		sections,
 		deadline,
@@ -43,6 +45,8 @@ const createProject = async (
 	const result = await ctx.db.createProject({
 		...variables,
 		name: name || 'Nom du projet',
+		sharedNotes,
+		personalNotes,
 		template,
 		token: uuid(),
 		owner: {connect: {id: userId}},
