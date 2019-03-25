@@ -231,6 +231,8 @@ type Quote {
 type Project {
 	id: ID! @unique
 	name: String!
+	sharedNotes: Json! @default(value: "{}")
+	personalNotes: Json! @default(value: "{}")
 	template: ProjectTemplate @default(value: BLANK)
 	customer: Customer @relation(name: "CustomerProjects")
 	owner: User @relation(name: "UserProjects")
@@ -300,7 +302,7 @@ type User {
 	jobType: JobType
 	interestedFeatures: [String!]!
 	hasUpcomingProject: Boolean
-	settings: Settings! @relation(name: "UserSettings")
+	settings: Settings! @relation(name: "UserSettings", onDelete: CASCADE)
 	tasks: [Item!]! @relation(name: "UserTasks", onDelete: CASCADE)
 	projects: [Project!]! @relation(name: "UserProjects", onDelete: CASCADE)
 	files: [File!]! @relation(name: "UserFiles", onDelete: CASCADE)
