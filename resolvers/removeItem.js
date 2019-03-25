@@ -1,6 +1,6 @@
 const gql = String.raw;
 
-const {getUserId} = require('../utils');
+const {getUserId, createItemOwnerFilter} = require('../utils');
 const {NotFoundError} = require('../errors');
 
 const removeItem = async (parent, {id}, ctx) => {
@@ -8,22 +8,7 @@ const removeItem = async (parent, {id}, ctx) => {
 	const [item] = await ctx.db.items({
 		where: {
 			id,
-			OR: [
-				{
-					section: {
-						project: {
-							customer: {
-								serviceCompany: {
-									owner: {id: userId},
-								},
-							},
-						},
-					},
-				},
-				{
-					owner: {id: userId},
-				},
-			],
+			...createItemOwnerFilter(userId),
 		},
 	}).$fragment(gql`
 		fragment ItemWithSectionItems on Item {
