@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const {prisma} = require('../generated/prisma-client');
 const {
 	sendSlippingAwayEmail,
+	sendDeadlineApproachingEmail,
 	sendCustomersRecapEmail,
 	endSnoozeItem,
 	sendReminderEmail,
@@ -20,6 +21,7 @@ const posthookReceiver = async (req, res) => {
 	if (hmacSignature !== req.get('x-ph-signature')) {
 		console.error('The signature has not been verified.');
 		res.status(400).send();
+		return;
 	}
 
 	const [reminder] = await prisma.reminders({
@@ -62,6 +64,9 @@ const posthookReceiver = async (req, res) => {
 			return;
 		case 'SLIPPING_AWAY':
 			callback = sendSlippingAwayEmail;
+			break;
+		case 'DEADLINE_APPROACHING':
+			callback = sendDeadlineApproachingEmail;
 			break;
 		case 'EVENING_RECAP':
 			callback = sendCustomersRecapEmail;

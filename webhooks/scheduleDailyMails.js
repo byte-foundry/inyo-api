@@ -45,6 +45,21 @@ const scheduleSlippingAwayMail = async (user, startNextWorkDayAt) => {
 	});
 };
 
+const scheduleDeadlineApproachingMail = async (user, startNextWorkDayAt) => {
+	console.log('Scheduling approaching deadline mail for', user.email);
+
+	return createPosthookReminder({
+		type: 'DEADLINE_APPROACHING',
+		postAt: startNextWorkDayAt,
+		deadlineApproachingUser: {
+			connect: {id: user.id},
+		},
+		data: {
+			userId: user.id,
+		},
+	});
+};
+
 const scheduleEveningEmail = async (user, endNextWorkDayAt) => {
 	console.log('Scheduling evening emails for', user.email);
 
@@ -210,6 +225,39 @@ const scheduleDailyMails = async (req, res) => {
 			workingDays
 		}
 	`);
+
+	// potential deadline email users
+	const deadlineUsers = await prisma.users({
+		where: {
+			// didn't come since the last 2 days or more
+			userEvents_none: {
+				createdAt_gt: moment()
+					.subtract(2, 'days')
+					.format(),
+			},
+			OR: [
+				{
+					tasks_some: {
+						dueDate_gt: moment(),
+					},
+				},
+				{
+					projects: {
+						deadline_gt: moment(),
+					},
+				},
+			],
+		},
+	}).$fragment(gql`
+		fragment UserSessions on User {
+			email
+		}
+	`);
+
+	// retention email is more important
+	deadlineUsers
+		.filter(user => !slippingAwayUsers.find(u => u.id === user.id))
+		.forEach(user => scheduleDeadlineApproachingMail(user));
 
 	slippingAwayUsers.forEach((user) => {
 		const now = new Date();
