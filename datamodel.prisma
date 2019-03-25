@@ -170,6 +170,7 @@ enum ItemType {
 type Item {
 	id: ID! @unique
 	owner: User @relation(name: "UserTasks")
+	focusedBy: User @relation(name: "UserFocusedTasks")
 	linkedCustomer: Customer @relation(name: "LinkedCustomerTasks")
 	name: String!
 	type: ItemType! @default(value: DEFAULT)
@@ -304,6 +305,7 @@ type User {
 	hasUpcomingProject: Boolean
 	settings: Settings! @relation(name: "UserSettings", onDelete: CASCADE)
 	tasks: [Item!]! @relation(name: "UserTasks", onDelete: CASCADE)
+	focusedTasks: [Item!]! @relation(name: "UserFocusedTasks", onDelete: CASCADE)
 	projects: [Project!]! @relation(name: "UserProjects", onDelete: CASCADE)
 	files: [File!]! @relation(name: "UserFiles", onDelete: CASCADE)
 	createdAt: DateTime!

@@ -449,6 +449,7 @@ enum ItemType {
 type Item {
 	id: ID!
 	owner: User!
+	isFocused: Boolean!
 	linkedCustomer: Customer
 	name: String!
 	type: ItemType!
@@ -590,6 +591,7 @@ type User {
 	settings: Settings!
 	hmacIntercomId: String!
 	tasks(filter: TasksFilterInput, sort: TasksSortInput): [Item!]!
+	focusedTasks: [Item!]!
 }
 
 union Owner = User | Customer
