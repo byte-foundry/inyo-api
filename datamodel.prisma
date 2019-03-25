@@ -302,7 +302,7 @@ type User {
 	jobType: JobType
 	interestedFeatures: [String!]!
 	hasUpcomingProject: Boolean
-	settings: Settings! @relation(name: "UserSettings")
+	settings: Settings! @relation(name: "UserSettings", onDelete: CASCADE)
 	tasks: [Item!]! @relation(name: "UserTasks", onDelete: CASCADE)
 	projects: [Project!]! @relation(name: "UserProjects", onDelete: CASCADE)
 	files: [File!]! @relation(name: "UserFiles", onDelete: CASCADE)
