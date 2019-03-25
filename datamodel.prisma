@@ -136,6 +136,8 @@ enum DAY {
 
 enum UserEventType {
 	ME_CALL
+	FOCUSED_TASK
+	UNFOCUSED_TASK
 }
 
 type CommentView {
@@ -351,4 +353,5 @@ type UserEvent {
 	type: UserEventType!
 	createdAt: DateTime!
 	user: User @relation(name: "UserUserEvents")
+	metadata: Json @default(value: "{}")
 }

@@ -186,6 +186,13 @@ type Mutation {
 		unitPrice: Int
 		notifyCustomer: Boolean
 	): Item
+
+	# Add task to the focus zone
+	focusTask(id: ID!): Item!
+
+	# Remove task from the focus zone
+	unfocusTask(id: ID!): Item!
+
 	# Update an already validated item
 	updateValidatedItem(id: ID!, unit: Float!, comment: CommentInput!): Item
 		@deprecated(reason: "Use updateItem instead.")

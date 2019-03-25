@@ -18,6 +18,8 @@ const {removeProject} = require('./removeProject');
 const {startProject} = require('./startProject');
 const {addItem} = require('./addItem');
 const {updateItem} = require('./updateItem');
+const {focusTask} = require('./focusTask');
+const {unfocusTask} = require('./unfocusTask');
 const {removeItem} = require('./removeItem');
 const {snoozeItem} = require('./snoozeItem');
 const {unsnoozeItem} = require('./unsnoozeItem');
@@ -444,6 +446,8 @@ const Mutation = {
 	},
 	addItem,
 	updateItem,
+	focusTask,
+	unfocusTask,
 	updateValidatedItem: () => {
 		throw Error('Validated item are not supported.');
 	},
