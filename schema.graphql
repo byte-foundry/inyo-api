@@ -423,7 +423,7 @@ type Reminder {
 union Viewer = User | Customer
 
 type CommentView {
-	viewer: Viewer
+	viewer: Viewer!
 	viewedAt: DateTime!
 }
 
