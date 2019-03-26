@@ -423,7 +423,7 @@ type Reminder {
 union Viewer = User | Customer
 
 type CommentView {
-	viewer: Viewer!
+	viewer: Viewer
 	viewedAt: DateTime!
 }
 
@@ -432,7 +432,7 @@ union Author = User | Customer
 type Comment {
 	id: ID!
 	text: String!
-	author: Author!
+	author: Author
 	views: [CommentView!]!
 	createdAt: DateTime!
 }
