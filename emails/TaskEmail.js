@@ -1,7 +1,7 @@
 const moment = require('moment');
 
 const sendEmail = require('./SendEmail.js');
-const createPosthookReminder = require('../reminders/createPosthookReminder');
+const {createPosthookReminder} = require('../reminders/createPosthookReminder');
 
 async function sendTaskValidationEmail({email, ...data}) {
 	return sendEmail({

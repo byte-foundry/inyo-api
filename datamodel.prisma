@@ -83,6 +83,8 @@ enum ReminderType {
 	AMENDMENT_AFTER_5_DAYS
 	AMENDMENT_AFTER_10_DAYS
 
+	# Delay sending
+	DELAY
 	# 2 day reminder
 	FIRST
 	# FIRST + days reminder

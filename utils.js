@@ -82,6 +82,8 @@ const isCustomerTask = task => [
 	'VALIDATION',
 ].includes(task.type);
 
+const filterDescription = description => description.split(/# content-acquisition-list[\s\S]+/).join('');
+
 module.exports = {
 	getUserId,
 	APP_SECRET,
@@ -92,4 +94,5 @@ module.exports = {
 	formatFullName,
 	createItemOwnerFilter,
 	isCustomerTask,
+	filterDescription,
 };
