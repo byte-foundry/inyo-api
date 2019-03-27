@@ -50,6 +50,9 @@ const focusTask = async (parent, {id}, ctx) => {
 			focusedBy {
 				id
 			}
+			pendingReminders: reminders(where: {status: PENDING, sendingDate_gt: ${new Date().toJSON()}}) {
+				type
+			}
 		}
 	`);
 
@@ -115,16 +118,18 @@ const focusTask = async (parent, {id}, ctx) => {
 		}
 		// TODO: Are they quite identical?
 		else if (item.type === 'CUSTOMER') {
-			await setupItemReminderEmail(
-				{
-					...basicInfos,
-					itemId: item.id,
-					description: filterDescription(item.description),
-					issueDate: new Date(),
-				},
-				ctx,
-			);
-			console.log(`Item '${item.id}': Reminders set.`);
+			if (!item.pendingReminders.length) {
+				await setupItemReminderEmail(
+					{
+						...basicInfos,
+						itemId: item.id,
+						description: filterDescription(item.description),
+						issueDate: new Date(),
+					},
+					ctx,
+				);
+				console.log(`Item '${item.id}': Reminders set.`);
+			}
 		}
 		else if (item.type === 'CUSTOMER_REMINDER') {
 			// send customer email
