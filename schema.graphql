@@ -386,6 +386,8 @@ enum Reviewer {
 }
 
 enum ReminderType {
+	# Delay sending
+	DELAY
 	# 2 day reminder
 	FIRST
 	# FIRST + days reminder

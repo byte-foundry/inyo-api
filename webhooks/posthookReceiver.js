@@ -5,6 +5,7 @@ const {
 	sendSlippingAwayEmail,
 	sendCustomersRecapEmail,
 	endSnoozeItem,
+	sendReminderEmail,
 } = require('../events');
 
 const posthookReceiver = async (req, res) => {
@@ -64,11 +65,17 @@ const posthookReceiver = async (req, res) => {
 		case 'SNOOZE_END':
 			callback = endSnoozeItem;
 			break;
+		case 'DELAY':
+		case 'FIRST':
+		case 'SECOND':
+		case 'LAST':
+			callback = sendReminderEmail;
+			break;
 		default:
 			throw new Error('Unknown reminder', reminder.type);
 		}
 
-		const {status = 'SENT'} = (await callback(req.body.data)) || {};
+		const {status = 'SENT'} = (await callback(req.body.data, reminder)) || {};
 
 		await prisma.updateReminder({
 			where: {id: reminder.id},

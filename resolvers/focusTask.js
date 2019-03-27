@@ -3,10 +3,15 @@ const {
 	getAppUrl,
 	createItemOwnerFilter,
 	isCustomerTask,
+	formatName,
 	formatFullName,
+	filterDescription,
 } = require('../utils');
 const {NotFoundError, InsufficientDataError} = require('../errors');
-const {sendItemContentAcquisitionEmail} = require('../emails/TaskEmail');
+const {
+	setupItemReminderEmail,
+	sendItemContentAcquisitionEmail,
+} = require('../emails/TaskEmail');
 
 const gql = String.raw;
 
@@ -66,43 +71,60 @@ const focusTask = async (parent, {id}, ctx) => {
 			);
 		}
 
+		const user = await ctx.db.user({id: userId});
+
+		let url = 'Pas de projet ni client 🤷‍';
+
+		if (item.section && item.section.project.customer === customer) {
+			const {project} = item.section;
+
+			url = getAppUrl(
+				`/${customer.token}/tasks/${item.id}?projectId=${project.id}`,
+			);
+		}
+		else {
+			url = getAppUrl(`/${customer.token}/tasks/${item.id}`);
+		}
+
+		const basicInfos = {
+			email: customer.email,
+			userEmail: user.email,
+			user: formatName(user.firstName, user.lastName),
+			customerName: String(
+				` ${formatFullName(
+					customer.title,
+					customer.firstName,
+					customer.lastName,
+				)}`,
+			).trimRight(),
+			customerEmail: customer.email,
+			customerPhone: customer.phone,
+			projectName: item.section && item.section.project.name,
+			itemName: item.name,
+			url,
+		};
+
 		if (item.type === 'CONTENT_ACQUISITION') {
-			const user = await ctx.db.user({id: userId});
-
-			let url = 'Pas de projet ni client 🤷‍';
-
-			if (item.section && item.section.project.customer === customer) {
-				const {project} = item.section;
-
-				url = getAppUrl(
-					`/${customer.token}/tasks/${item.id}?projectId=${project.id}`,
-				);
-			}
-			else {
-				url = getAppUrl(`/${customer.token}/tasks/${item.id}`);
-			}
-
 			await sendItemContentAcquisitionEmail({
-				userEmail: user.email,
+				...basicInfos,
 				name: item.name,
 				description: item.description,
-				customerName: String(
-					` ${formatFullName(
-						customer.title,
-						customer.firstName,
-						customer.lastName,
-					)}`,
-				).trimRight(),
-				customerEmail: customer.email,
-				url,
 				id: item.id,
 			});
 			console.log('Content acquisition email sent to us');
 		}
 		// TODO: Are they quite identical?
 		else if (item.type === 'CUSTOMER') {
-			// send customer email
-			// set reminders
+			await setupItemReminderEmail(
+				{
+					...basicInfos,
+					itemId: item.id,
+					description: filterDescription(item.description),
+					issueDate: new Date(),
+				},
+				ctx,
+			);
+			console.log(`Item '${item.id}': Reminders set.`);
 		}
 		else if (item.type === 'CUSTOMER_REMINDER') {
 			// send customer email
