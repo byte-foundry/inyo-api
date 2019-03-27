@@ -137,19 +137,22 @@ const focusTask = async (parent, {id}, ctx) => {
 	}
 
 	const focusedTask = await ctx.db.updateItem({
-		focusedTasks: {
-			connect: {id},
+		where: {id},
+		data: {
+			focusedBy: {
+				connect: {id: userId},
+			},
 		},
 	});
 
 	await ctx.db.createUserEvent({
 		type: 'FOCUSED_TASK',
 		user: {
-			connect: {id: getUserId(ctx)},
+			connect: {id: userId},
 		},
-		metadata: JSON.stringify({
+		metadata: {
 			id: focusedTask.id,
-		}),
+		},
 	});
 
 	return focusedTask;

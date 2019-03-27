@@ -41,6 +41,7 @@ const Item = {
 	timeItTook: node => node.timeItTook,
 	dueDate: node => node.dueDate,
 	attachments: (node, args, ctx) => ctx.db.item({id: node.id}).attachments(),
+	reminders: (node, args, ctx) => ctx.db.item({id: node.id}).reminders(),
 };
 
 module.exports = {
