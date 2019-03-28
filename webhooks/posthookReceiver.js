@@ -6,6 +6,7 @@ const {
 	sendCustomersRecapEmail,
 	endSnoozeItem,
 	sendReminderEmail,
+	resetFocusedTasks,
 } = require('../events');
 
 const posthookReceiver = async (req, res) => {
@@ -48,6 +49,9 @@ const posthookReceiver = async (req, res) => {
 		let callback;
 
 		switch (reminder.type) {
+		case 'RESET_FOCUSED_TASKS':
+			callback = resetFocusedTasks;
+			break;
 		case 'MORNING_TASKS':
 			await prisma.updateReminder({
 				where: {id: reminder.id},

@@ -99,6 +99,8 @@ enum ReminderType {
 	MORNING_TASKS
 	# Evening email with what happened during the day
 	EVENING_RECAP
+	# Reset focused tasks time
+	RESET_FOCUSED_TASKS
 
 	# End of a snooze period
 	SNOOZE_END
