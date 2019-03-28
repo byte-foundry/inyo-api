@@ -42,7 +42,7 @@ const createProject = async (
 		};
 	}
 
-	const result = await ctx.db.createProject({
+	const createdProject = await ctx.db.createProject({
 		...variables,
 		name: name || 'Nom du projet',
 		sharedNotes,
@@ -80,8 +80,12 @@ const createProject = async (
 
 		await sendProjectCreatedEmail({
 			userEmail: user.email,
-			name: result.name,
-			url: getAppUrl(`/${token || result.token}/tasks?projectId=${result.id}`),
+			name: createdProject.name,
+			url: getAppUrl(
+				`/${token || createdProject.token}/tasks?projectId=${
+					createdProject.id
+				}`,
+			),
 		});
 	}
 	catch (err) {
@@ -90,7 +94,17 @@ const createProject = async (
 
 	sendMetric({metric: 'inyo.project.created'});
 
-	return result;
+	await ctx.db.createUserEvent({
+		type: 'CREATED_PROJECT',
+		user: {
+			connect: {id: userId},
+		},
+		metadata: {
+			id: createdProject.id,
+		},
+	});
+
+	return createdProject;
 };
 
 module.exports = {

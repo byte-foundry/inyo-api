@@ -29,6 +29,13 @@ const updateIntercom = async (req, res) => {
 				type_in: [
 					FOCUSED_TASK
 					UNFOCUSED_TASK
+					CANCELED_REMINDER
+					ADDED_TASK
+					UPDATED_TASK
+					REMOVED_TASK
+					CREATED_PROJECT
+					UPDATED_PROJECT
+					REMOVED_PROJECT
 				]
 				createdAt_gt: "${moment()
 		.subtract(index + 1, 'days')

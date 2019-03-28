@@ -145,6 +145,16 @@ const addItem = async (
 		dueDate,
 	});
 
+	await ctx.db.createUserEvent({
+		type: 'ADDED_TASK',
+		user: {
+			connect: {id: userId},
+		},
+		metadata: {
+			id: createdItem.id,
+		},
+	});
+
 	return createdItem;
 };
 
