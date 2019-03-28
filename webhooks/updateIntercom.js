@@ -24,10 +24,24 @@ const updateIntercom = async (req, res) => {
 			}, first: 1) {
 				createdAt
 			}
+
+			dayActive${index}: userEvents(where: {
+				type_in: [
+					FOCUSED_TASK
+					UNFOCUSED_TASK
+				]
+				createdAt_gt: "${moment()
+		.subtract(index + 1, 'days')
+		.format()}"
+				createdAt_lt: "${moment()
+		.subtract(index, 'days')
+		.format()}"
+			}, first: 1) {
+				createdAt
+			}
 		`;
 	}
 
-	// checking to whom we can send an evening mail
 	const users = await prisma.users({
 		where: {
 			userEvents_some: {
@@ -46,17 +60,21 @@ const updateIntercom = async (req, res) => {
 	await Promise.all(
 		users.map((user) => {
 			const sessions = [];
+			const activeSessions = [];
 
 			for (let index = 6; index >= 0; index--) {
 				sessions.push(...user[`day${index}`]);
+				activeSessions.push(...user[`dayActive${index}`]);
 			}
 
 			const sessionsCount = sessions.length;
+			const activeSessionsCount = activeSessions.length;
 
 			return intercom.users.update({
 				email: user.email,
 				custom_attributes: {
-					'active-days-last-7-days': sessionsCount,
+					'visit-days-last-7-days': sessionsCount,
+					'active-days-last-7-days': activeSessionsCount,
 				},
 			});
 		}),
