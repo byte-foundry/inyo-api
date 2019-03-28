@@ -31,6 +31,7 @@ const {updateFile} = require('./updateFile');
 const {removeFile} = require('./removeFile');
 const {updateCustomer} = require('./updateCustomer');
 const {removeCustomer} = require('./removeCustomer');
+const {cancelReminder} = require('./cancelReminder');
 
 const Mutation = {
 	checkEmailAvailability,
@@ -484,6 +485,7 @@ const Mutation = {
 	uploadAttachments,
 	updateFile,
 	removeFile,
+	cancelReminder,
 };
 
 module.exports = {

@@ -245,6 +245,8 @@ type Mutation {
 	updateFile(id: ID!, filename: String!): File
 
 	removeFile(id: ID!): File
+
+	cancelReminder(id: ID!): Reminder
 }
 
 input CommentInput {
@@ -386,22 +388,12 @@ enum Reviewer {
 }
 
 enum ReminderType {
-	# Delay sending
-	DELAY
 	# 2 day reminder
 	FIRST
 	# FIRST + days reminder
 	SECOND
 	# SECOND + 1 days reminder
 	LAST
-
-	# customer has not replied, user warning at LAST + 2 days
-	USER_WARNING
-
-	# Morning email with tasks the user can complete
-	MORNING_TASKS
-	# Evening email with what happened during the day
-	EVENING_RECAP
 }
 
 enum ReminderStatus {
