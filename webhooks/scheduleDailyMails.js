@@ -107,7 +107,7 @@ const scheduleDailyMails = async (req, res) => {
 		}
 
 		const oneThirdBeforeNextStart = moment(startNextWorkDayAt)
-			.add((endNextWorkDayAt - startNextWorkDayAt) / 3)
+			.add((endNextWorkDayAt - startNextWorkDayAt) / 3, 'ms')
 			.toDate();
 
 		if (now > oneThirdBeforeNextStart) {
