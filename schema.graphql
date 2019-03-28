@@ -388,6 +388,8 @@ enum Reviewer {
 }
 
 enum ReminderType {
+	# 5 min delay before sending
+	DELAY
 	# 2 day reminder
 	FIRST
 	# FIRST + days reminder
