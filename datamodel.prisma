@@ -142,6 +142,7 @@ enum UserEventType {
 	ME_CALL
 	FOCUSED_TASK
 	UNFOCUSED_TASK
+	CANCELED_REMINDER
 }
 
 type CommentView {
