@@ -193,15 +193,11 @@ const scheduleDailyMails = async (req, res) => {
 		where: {
 			// didn't come since the last 3 days
 			userEvents_none: {
-				createdAt_gt: moment()
-					.subtract(3, 'days')
-					.format(),
+				createdAt_gt: moment().subtract(3, 'days'),
 			},
 			// but came just before (to avoid spamming them everyday)
 			userEvents_some: {
-				createdAt_gt: moment()
-					.subtract(4, 'days')
-					.format(),
+				createdAt_gt: moment().subtract(4, 'days'),
 			},
 			startWorkAt_not: null,
 			reminders_none: {
@@ -231,18 +227,18 @@ const scheduleDailyMails = async (req, res) => {
 		where: {
 			// didn't come since the last 2 days or more
 			userEvents_none: {
-				createdAt_gt: moment()
-					.subtract(2, 'days')
-					.format(),
+				createdAt_gt: moment().subtract(2, 'days'),
 			},
 			OR: [
 				{
 					tasks_some: {
+						dueDate_lt: moment().add(1, 'days'),
 						dueDate_gt: moment(),
 					},
 				},
 				{
 					projects: {
+						deadline_lt: moment().add(1, 'days'),
 						deadline_gt: moment(),
 					},
 				},

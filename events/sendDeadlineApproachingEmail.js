@@ -10,20 +10,20 @@ const sendDeadlineApproachingEmail = async ({userId}) => {
 			id: userId,
 			// confirm the user didn't come since the last 3 days
 			userEvents_none: {
-				createdAt_gt: moment()
-					.subtract(2, 'days')
-					.format(),
+				createdAt_gt: moment().subtract(2, 'days'),
 			},
 			// verifying the deadline is after this email
 			// TODO: what about if it was 5 min before?
 			OR: [
 				{
 					tasks_some: {
+						dueDate_lt: moment().add(1, 'days'),
 						dueDate_gt: moment(),
 					},
 				},
 				{
 					projects: {
+						deadline_lt: moment().add(1, 'days'),
 						deadline_gt: moment(),
 					},
 				},
