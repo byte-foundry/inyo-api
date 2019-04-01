@@ -50,7 +50,7 @@ const focusTask = async (parent, {id}, ctx) => {
 			focusedBy {
 				id
 			}
-			pendingReminders: reminders(where: {status: PENDING, sendingDate_gt: ${new Date().toJSON()}}) {
+			pendingReminders: reminders(where: {status: PENDING, sendingDate_gt: "${new Date().toJSON()}"}) {
 				type
 			}
 		}
