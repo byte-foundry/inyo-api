@@ -22,6 +22,16 @@ const project = {
 	},
 };
 
+const db = {
+	user: () => ({
+		id: 'user-id',
+		firstName: 'Jean',
+		lastName: 'Michel',
+		company: () => ({id: 'company-id'}),
+	}),
+	createUserEvent() {},
+};
+
 describe('updateItem', () => {
 	it('should let a user update a project item', async () => {
 		const args = {
@@ -35,12 +45,7 @@ describe('updateItem', () => {
 				get: () => 'user-token',
 			},
 			db: {
-				user: () => ({
-					id: 'user-id',
-					firstName: 'Jean',
-					lastName: 'Michel',
-					company: () => ({id: 'company-id'}),
-				}),
+				...db,
 				items: () => ({
 					$fragment: () => [
 						{
@@ -80,12 +85,7 @@ describe('updateItem', () => {
 				get: () => 'user-token',
 			},
 			db: {
-				user: () => ({
-					id: 'user-id',
-					firstName: 'Jean',
-					lastName: 'Michel',
-					company: () => ({id: 'company-id'}),
-				}),
+				...db,
 				items: () => ({
 					$fragment: () => [
 						{
@@ -144,12 +144,7 @@ describe('updateItem', () => {
 				get: () => 'user-token',
 			},
 			db: {
-				user: () => ({
-					id: 'user-id',
-					firstName: 'Jean',
-					lastName: 'Michel',
-					company: () => ({id: 'company-id'}),
-				}),
+				...db,
 				items: () => ({
 					$fragment: () => [
 						{
@@ -208,12 +203,7 @@ describe('updateItem', () => {
 				get: () => 'user-token',
 			},
 			db: {
-				user: () => ({
-					id: 'user-id',
-					firstName: 'Jean',
-					lastName: 'Michel',
-					company: () => ({id: 'company-id'}),
-				}),
+				...db,
 				items: () => ({
 					$fragment: () => [
 						{
@@ -267,12 +257,7 @@ describe('updateItem', () => {
 				get: () => 'user-token',
 			},
 			db: {
-				user: () => ({
-					id: 'user-id',
-					firstName: 'Jean',
-					lastName: 'Michel',
-					company: () => ({id: 'company-id'}),
-				}),
+				...db,
 				items: () => ({
 					$fragment: () => [
 						{

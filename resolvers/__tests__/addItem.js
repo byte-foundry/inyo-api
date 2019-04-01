@@ -3,6 +3,16 @@ import {addItem} from '../addItem';
 jest.mock('../../utils');
 jest.mock('../../stats');
 
+const db = {
+	user: () => ({
+		id: 'user-id',
+		company: () => ({
+			id: 'company-id',
+		}),
+	}),
+	createUserEvent() {},
+};
+
 describe('addItem', () => {
 	it('should let a user add a project item', async () => {
 		const args = {
@@ -16,12 +26,7 @@ describe('addItem', () => {
 				get: () => 'user-token',
 			},
 			db: {
-				user: () => ({
-					id: 'user-id',
-					company: () => ({
-						id: 'company-id',
-					}),
-				}),
+				...db,
 				sections: () => ({
 					$fragment: () => [
 						{
@@ -60,12 +65,7 @@ describe('addItem', () => {
 				get: () => 'user-token',
 			},
 			db: {
-				user: () => ({
-					id: 'user-id',
-					company: () => ({
-						id: 'company-id',
-					}),
-				}),
+				...db,
 				sections: () => ({
 					$fragment: () => [
 						{
@@ -101,12 +101,7 @@ describe('addItem', () => {
 				get: () => 'user-token',
 			},
 			db: {
-				user: () => ({
-					id: 'user-id',
-					company: () => ({
-						id: 'company-id',
-					}),
-				}),
+				...db,
 				sections: () => ({
 					$fragment: () => [
 						{
