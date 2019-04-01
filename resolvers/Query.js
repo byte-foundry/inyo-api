@@ -219,6 +219,7 @@ const Query = {
 	},
 	reminders: async (root, args, ctx) => ctx.db.reminders({
 		where: {
+			type_in: ['DELAY', 'FIRST', 'SECOND', 'LAST'],
 			item: createItemOwnerFilter(getUserId(ctx)),
 		},
 	}),

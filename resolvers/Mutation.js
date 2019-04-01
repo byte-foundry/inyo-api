@@ -18,6 +18,8 @@ const {removeProject} = require('./removeProject');
 const {startProject} = require('./startProject');
 const {addItem} = require('./addItem');
 const {updateItem} = require('./updateItem');
+const {focusTask} = require('./focusTask');
+const {unfocusTask} = require('./unfocusTask');
 const {removeItem} = require('./removeItem');
 const {snoozeItem} = require('./snoozeItem');
 const {unsnoozeItem} = require('./unsnoozeItem');
@@ -29,6 +31,7 @@ const {updateFile} = require('./updateFile');
 const {removeFile} = require('./removeFile');
 const {updateCustomer} = require('./updateCustomer');
 const {removeCustomer} = require('./removeCustomer');
+const {cancelReminder} = require('./cancelReminder');
 
 const Mutation = {
 	checkEmailAvailability,
@@ -444,6 +447,8 @@ const Mutation = {
 	},
 	addItem,
 	updateItem,
+	focusTask,
+	unfocusTask,
 	updateValidatedItem: () => {
 		throw Error('Validated item are not supported.');
 	},
@@ -480,6 +485,7 @@ const Mutation = {
 	uploadAttachments,
 	updateFile,
 	removeFile,
+	cancelReminder,
 };
 
 module.exports = {

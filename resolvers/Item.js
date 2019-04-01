@@ -23,6 +23,11 @@ const Item = {
 
 		return owner || projectOwner;
 	},
+	isFocused: async (node, args, ctx) => {
+		const focusedBy = await ctx.db.item({id: node.id}).focusedBy();
+
+		return !!focusedBy;
+	},
 	type: node => node.type,
 	unitPrice: () => null,
 	pendingUnit: node => node.pendingUnit,
@@ -36,6 +41,11 @@ const Item = {
 	timeItTook: node => node.timeItTook,
 	dueDate: node => node.dueDate,
 	attachments: (node, args, ctx) => ctx.db.item({id: node.id}).attachments(),
+	reminders: (node, args, ctx) => ctx.db.item({id: node.id}).reminders({
+		where: {
+			type_in: ['DELAY', 'FIRST', 'SECOND', 'LAST'],
+		},
+	}),
 };
 
 module.exports = {

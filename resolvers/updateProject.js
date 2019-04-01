@@ -99,7 +99,7 @@ const updateProject = async (
 		};
 	}
 
-	return ctx.db.updateProject({
+	const updatedProject = ctx.db.updateProject({
 		where: {id},
 		data: {
 			...variables,
@@ -110,6 +110,18 @@ const updateProject = async (
 			notifyActivityToCustomer,
 		},
 	});
+
+	await ctx.db.createUserEvent({
+		type: 'UPDATED_PROJECT',
+		user: {
+			connect: {id: userId},
+		},
+		metadata: {
+			id: updatedProject.id,
+		},
+	});
+
+	return updatedProject;
 };
 
 module.exports = {

@@ -263,6 +263,16 @@ const updateItem = async (
 		},
 	});
 
+	await ctx.db.createUserEvent({
+		type: 'UPDATED_TASK',
+		user: {
+			connect: {id: userId},
+		},
+		metadata: {
+			id: updatedItem.id,
+		},
+	});
+
 	return updatedItem;
 };
 
