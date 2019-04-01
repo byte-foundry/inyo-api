@@ -37,6 +37,7 @@ const focusTask = async (parent, {id}, ctx) => {
 			}
 			section {
 				project {
+					id
 					token
 					customer {
 						title
