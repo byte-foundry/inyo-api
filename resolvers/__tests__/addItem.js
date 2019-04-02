@@ -33,6 +33,7 @@ describe('addItem', () => {
 							id: 'section-id',
 							items: [],
 							project: {
+								notifyActivityToCustomer: true,
 								status: 'ONGOING',
 							},
 						},
@@ -72,6 +73,7 @@ describe('addItem', () => {
 							id: 'section-id',
 							items: [],
 							project: {
+								notifyActivityToCustomer: true,
 								status: 'ONGOING',
 							},
 						},
@@ -112,6 +114,7 @@ describe('addItem', () => {
 								{id: 'item-2', position: 2},
 							],
 							project: {
+								notifyActivityToCustomer: true,
 								status: 'ONGOING',
 							},
 						},
