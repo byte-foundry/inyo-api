@@ -2,8 +2,7 @@ const uuid = require('uuid/v4');
 
 const gql = String.raw;
 
-const {sendItemContentAcquisitionEmail} = require('../emails/TaskEmail');
-const {getUserId, getAppUrl, formatFullName} = require('../utils');
+const {getUserId, isCustomerTask} = require('../utils');
 const {NotFoundError} = require('../errors');
 
 const addItem = async (
@@ -74,6 +73,7 @@ const addItem = async (
 				}
 				project {
 					status
+					notifyActivityToCustomer
 				}
 			}
 		`);
@@ -86,6 +86,12 @@ const addItem = async (
 
 		if (section.project.status === 'FINISHED') {
 			throw new Error('Item cannot be added in this project state.');
+		}
+
+		if (!section.project.notifyActivityToCustomer && isCustomerTask({type})) {
+			throw new Error(
+				'Project needs to have notifyActivityToCustomer activated to add customer tasks.',
+			);
 		}
 
 		// default position: end of the list
