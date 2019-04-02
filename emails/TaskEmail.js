@@ -69,7 +69,7 @@ async function setupItemReminderEmail({
 			date, templateId, reminderType, email: emailToSend,
 		}) => {
 			try {
-				createPosthookReminder({
+				await createPosthookReminder({
 					type: reminderType,
 					postAt: date.format(),
 					data: {
