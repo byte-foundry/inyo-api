@@ -64,8 +64,8 @@ async function setupItemReminderEmail({
 		},
 	];
 
-	dates.forEach(
-		async ({
+	return Promise.all(
+		dates.map(async ({
 			date, templateId, reminderType, email: emailToSend,
 		}) => {
 			try {
@@ -94,7 +94,7 @@ async function setupItemReminderEmail({
 					error,
 				);
 			}
-		},
+		}),
 	);
 }
 
