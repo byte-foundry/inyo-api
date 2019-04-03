@@ -112,11 +112,9 @@ type Mutation {
 	# Finish project
 	archiveProject(id: ID!): Project!
 	unarchiveProject(id: ID!): Project!
+	# Remove project
 	removeProject(id: ID!): Project!
 	unremoveProject(id: ID!): Project!
-	# Remove project
-	removeProject(id: ID!): Project
-
 	# Create a new quote for a customer of the user's company
 	createQuote(
 		customerId: ID
