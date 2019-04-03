@@ -60,7 +60,7 @@ describe('archiveProject', () => {
 		);
 	});
 
-	it('should not let a user finish a non existent project', async () => {
+	it('should not let a user archive a non existent project', async () => {
 		const args = {
 			id: 'item-id',
 		};
