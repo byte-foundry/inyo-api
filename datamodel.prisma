@@ -54,6 +54,7 @@ enum QuoteTemplate {
 enum ProjectStatus {
 	DRAFT
 	ONGOING
+	FINISHED # deprecated
 	ARCHIVED
 	DELETED
 }
