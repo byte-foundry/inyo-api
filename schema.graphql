@@ -110,7 +110,10 @@ type Mutation {
 		notifyActivityToCustomer: Boolean
 	): Project
 	# Finish project
-	finishProject(id: ID!): Project!
+	archiveProject(id: ID!): Project!
+	unarchiveProject(id: ID!): Project!
+	deleteProject(id: ID!): Project!
+	undeleteProject(id: ID!): Project!
 	# Remove project
 	removeProject(id: ID!): Project
 

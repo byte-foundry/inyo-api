@@ -13,7 +13,10 @@ const {checkEmailAvailability} = require('./checkEmailAvailability');
 const {signup} = require('./signup');
 const {createProject} = require('./createProject');
 const {updateProject} = require('./updateProject');
-const {finishProject} = require('./finishProject');
+const {archiveProject} = require('./archiveProject');
+const {unarchiveProject} = require('./unarchiveProject');
+const {deleteProject} = require('./deleteProject');
+const {undeleteProject} = require('./undeleteProject');
 const {removeProject} = require('./removeProject');
 const {startProject} = require('./startProject');
 const {addItem} = require('./addItem');
@@ -213,7 +216,10 @@ const Mutation = {
 	removeCustomer,
 	createProject,
 	updateProject,
-	finishProject,
+	archiveProject,
+	unarchiveProject,
+	deleteProject,
+	undeleteProject,
 	removeProject,
 	startProject,
 	createQuote: () => {
