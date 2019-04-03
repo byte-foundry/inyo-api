@@ -4,7 +4,7 @@ jest.mock('../../utils');
 jest.mock('../../stats');
 
 describe('deleteProject', () => {
-	it('should let a user project an ongoing projet', async () => {
+	it('should let a user delete an ongoing projet', async () => {
 		const args = {
 			id: 'item-id',
 		};
