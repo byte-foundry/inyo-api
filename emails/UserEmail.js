@@ -24,8 +24,17 @@ async function sendSlippingAwayEmail({email, ...data}) {
 	});
 }
 
+async function sendDeadlineApproachingMail({email, ...data}) {
+	return sendEmail({
+		email,
+		data,
+		templateId: 'd-58819ee68aaf4d4f8a3c69a31bc830aa',
+	});
+}
+
 module.exports = {
 	sendResetPasswordEmail,
 	sendMorningEmail,
 	sendSlippingAwayEmail,
+	sendDeadlineApproachingMail,
 };

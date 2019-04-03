@@ -2,13 +2,14 @@ const {getUserId} = require('../utils');
 const {NotFoundError} = require('../errors');
 
 const removeProject = async (parent, {id}, ctx) => {
+	const userId = getUserId(ctx);
 	const [project] = await ctx.db.projects({
 		where: {
 			id,
 			customer: {
 				serviceCompany: {
 					owner: {
-						id: getUserId(ctx),
+						id: userId,
 					},
 				},
 			},
@@ -23,7 +24,19 @@ const removeProject = async (parent, {id}, ctx) => {
 		throw new Error('Deleting an ongoing project is not possible');
 	}
 
-	return ctx.db.deleteProject({id});
+	const removedProject = ctx.db.deleteProject({id});
+
+	await ctx.db.createUserEvent({
+		type: 'REMOVED_PROJECT',
+		user: {
+			connect: {id: userId},
+		},
+		metadata: {
+			id: removedProject.id,
+		},
+	});
+
+	return removedProject;
 };
 
 module.exports = {

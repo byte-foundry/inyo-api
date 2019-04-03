@@ -2,8 +2,7 @@ const uuid = require('uuid/v4');
 
 const gql = String.raw;
 
-const {sendItemContentAcquisitionEmail} = require('../emails/TaskEmail');
-const {getUserId, getAppUrl, formatFullName} = require('../utils');
+const {getUserId, isCustomerTask} = require('../utils');
 const {NotFoundError} = require('../errors');
 
 const addItem = async (
@@ -74,6 +73,7 @@ const addItem = async (
 				}
 				project {
 					status
+					notifyActivityToCustomer
 				}
 			}
 		`);
@@ -86,6 +86,12 @@ const addItem = async (
 
 		if (section.project.status === 'FINISHED') {
 			throw new Error('Item cannot be added in this project state.');
+		}
+
+		if (!section.project.notifyActivityToCustomer && isCustomerTask({type})) {
+			throw new Error(
+				'Project needs to have notifyActivityToCustomer activated to add customer tasks.',
+			);
 		}
 
 		// default position: end of the list
@@ -145,51 +151,15 @@ const addItem = async (
 		dueDate,
 	});
 
-	if (type === 'CONTENT_ACQUISITION') {
-		const user = await ctx.db.user({id: userId});
-
-		let customer = {
-			title: '🤷‍',
-			firstName: '🤷‍',
-			lastName: '🤷‍',
-			email: '🤷‍',
-			...linkedCustomer,
-		};
-		let url = 'Pas de projet ni client 🤷‍';
-
-		if (sectionId) {
-			const project = await ctx.db.section({id: sectionId}).project();
-
-			url = getAppUrl(
-				`/${project.token}/tasks/${createdItem.id}?projectId=${project.id}`,
-			);
-		}
-
-		if (linkedCustomerId) {
-			customer = await ctx.db.customer({id: linkedCustomerId});
-		}
-
-		if (customer.token) {
-			url = getAppUrl(`/${customer.token}/tasks/${createdItem.id}`);
-		}
-
-		await sendItemContentAcquisitionEmail({
-			userEmail: user.email,
-			name,
-			description,
-			customerName: String(
-				` ${formatFullName(
-					customer.title,
-					customer.firstName,
-					customer.lastName,
-				)}`,
-			).trimRight(),
-			customerEmail: customer.email,
-			url,
+	await ctx.db.createUserEvent({
+		type: 'ADDED_TASK',
+		user: {
+			connect: {id: userId},
+		},
+		metadata: {
 			id: createdItem.id,
-		});
-		console.log('Content acquisition email sent to us');
-	}
+		},
+	});
 
 	return createdItem;
 };

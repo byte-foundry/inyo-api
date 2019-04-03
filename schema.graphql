@@ -186,6 +186,13 @@ type Mutation {
 		unitPrice: Int
 		notifyCustomer: Boolean
 	): Item
+
+	# Add task to the focus zone
+	focusTask(id: ID!): Item!
+
+	# Remove task from the focus zone
+	unfocusTask(id: ID!): Item!
+
 	# Update an already validated item
 	updateValidatedItem(id: ID!, unit: Float!, comment: CommentInput!): Item
 		@deprecated(reason: "Use updateItem instead.")
@@ -238,6 +245,8 @@ type Mutation {
 	updateFile(id: ID!, filename: String!): File
 
 	removeFile(id: ID!): File
+
+	cancelReminder(id: ID!): Reminder
 }
 
 input CommentInput {
@@ -379,20 +388,14 @@ enum Reviewer {
 }
 
 enum ReminderType {
+	# 5 min delay before sending
+	DELAY
 	# 2 day reminder
 	FIRST
 	# FIRST + days reminder
 	SECOND
 	# SECOND + 1 days reminder
 	LAST
-
-	# customer has not replied, user warning at LAST + 2 days
-	USER_WARNING
-
-	# Morning email with tasks the user can complete
-	MORNING_TASKS
-	# Evening email with what happened during the day
-	EVENING_RECAP
 }
 
 enum ReminderStatus {
@@ -432,7 +435,7 @@ union Author = User | Customer
 type Comment {
 	id: ID!
 	text: String!
-	author: Author!
+	author: Author
 	views: [CommentView!]!
 	createdAt: DateTime!
 }
@@ -449,6 +452,7 @@ enum ItemType {
 type Item {
 	id: ID!
 	owner: User!
+	isFocused: Boolean!
 	linkedCustomer: Customer
 	name: String!
 	type: ItemType!
@@ -590,6 +594,7 @@ type User {
 	settings: Settings!
 	hmacIntercomId: String!
 	tasks(filter: TasksFilterInput, sort: TasksSortInput): [Item!]!
+	focusedTasks: [Item!]!
 }
 
 union Owner = User | Customer

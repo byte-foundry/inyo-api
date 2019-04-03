@@ -3,8 +3,11 @@ const crypto = require('crypto');
 const {prisma} = require('../generated/prisma-client');
 const {
 	sendSlippingAwayEmail,
+	sendDeadlineApproachingEmail,
 	sendCustomersRecapEmail,
 	endSnoozeItem,
+	sendReminderEmail,
+	resetFocusedTasks,
 } = require('../events');
 
 const posthookReceiver = async (req, res) => {
@@ -18,6 +21,7 @@ const posthookReceiver = async (req, res) => {
 	if (hmacSignature !== req.get('x-ph-signature')) {
 		console.error('The signature has not been verified.');
 		res.status(400).send();
+		return;
 	}
 
 	const [reminder] = await prisma.reminders({
@@ -47,6 +51,9 @@ const posthookReceiver = async (req, res) => {
 		let callback;
 
 		switch (reminder.type) {
+		case 'RESET_FOCUSED_TASKS':
+			callback = resetFocusedTasks;
+			break;
 		case 'MORNING_TASKS':
 			await prisma.updateReminder({
 				where: {id: reminder.id},
@@ -58,17 +65,26 @@ const posthookReceiver = async (req, res) => {
 		case 'SLIPPING_AWAY':
 			callback = sendSlippingAwayEmail;
 			break;
+		case 'DEADLINE_APPROACHING':
+			callback = sendDeadlineApproachingEmail;
+			break;
 		case 'EVENING_RECAP':
 			callback = sendCustomersRecapEmail;
 			break;
 		case 'SNOOZE_END':
 			callback = endSnoozeItem;
 			break;
+		case 'DELAY':
+		case 'FIRST':
+		case 'SECOND':
+		case 'LAST':
+			callback = sendReminderEmail;
+			break;
 		default:
 			throw new Error('Unknown reminder', reminder.type);
 		}
 
-		const {status = 'SENT'} = (await callback(req.body.data)) || {};
+		const {status = 'SENT'} = (await callback(req.body.data, reminder)) || {};
 
 		await prisma.updateReminder({
 			where: {id: reminder.id},

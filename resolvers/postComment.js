@@ -193,12 +193,11 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 	}
 
 	let user = item.owner;
-	let customer = item.linkedCustomer;
 
 	if (item.section) {
 		const {project} = item.section;
+		const customer = item.linkedCustomer || project.customer;
 
-		customer = customer || project.customer;
 		user = user || project.owner || customer.serviceCompany.owner;
 	}
 
@@ -225,36 +224,67 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 
 	try {
 		const params = {
-			email: customer.email,
-			recipientName: formatFullName(
-				customer.title,
-				customer.firstName,
-				customer.lastName,
-			),
 			authorName: formatName(user.firstName, user.lastName),
 			itemName: item.name,
 			comment,
 		};
 
 		if (item.section && item.section.project.notifyActivityToCustomer) {
-			const {project} = item.section;
+			const {linkedCustomer, section} = item;
+			const {customer} = section.project;
 
-			await sendNewCommentEmail({
-				...params,
-				url: getAppUrl(
-					`/${customer.token}/tasks/${item.id}?projectId=${project.id}`,
-				),
-			});
+			// send to project customer
+			if (customer) {
+				await sendNewCommentEmail({
+					...params,
+					email: customer.email,
+					recipientName: formatFullName(
+						customer.title,
+						customer.firstName,
+						customer.lastName,
+					),
+					url: getAppUrl(
+						`/${customer.token}/tasks/${item.id}?projectId=${
+							section.project.id
+						}`,
+					),
+				});
 
-			console.log(`New comment email sent to ${customer.email}`);
+				console.log(`New comment email sent to ${customer.email}`);
+			}
+
+			// send to linked
+			if (linkedCustomer) {
+				await sendNewCommentEmail({
+					...params,
+					email: linkedCustomer.email,
+					recipientName: formatFullName(
+						linkedCustomer.title,
+						linkedCustomer.firstName,
+						linkedCustomer.lastName,
+					),
+					url: getAppUrl(`/${linkedCustomer.token}/tasks/${item.id}`),
+				});
+
+				console.log(`New comment email sent to ${linkedCustomer.email}`);
+			}
 		}
-		else if (!item.section) {
+		else if (!item.section && item.linkedCustomer) {
+			const {linkedCustomer} = item;
+
+			// send to linked
 			await sendNewCommentEmail({
 				...params,
-				url: getAppUrl(`/${customer.token}/tasks/${item.id}`),
+				email: linkedCustomer.email,
+				recipientName: formatFullName(
+					linkedCustomer.title,
+					linkedCustomer.firstName,
+					linkedCustomer.lastName,
+				),
+				url: getAppUrl(`/${linkedCustomer.token}/tasks/${item.id}`),
 			});
 
-			console.log(`New comment email sent to ${customer.email}`);
+			console.log(`New comment email sent to ${linkedCustomer.email}`);
 		}
 	}
 	catch (error) {

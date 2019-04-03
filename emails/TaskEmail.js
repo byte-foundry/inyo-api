@@ -1,7 +1,7 @@
 const moment = require('moment');
 
 const sendEmail = require('./SendEmail.js');
-const createReminder = require('../reminders/createReminder');
+const {createPosthookReminder} = require('../reminders/createPosthookReminder');
 
 async function sendTaskValidationEmail({email, ...data}) {
 	return sendEmail({
@@ -19,24 +19,25 @@ async function sendItemContentAcquisitionEmail({email, ...data}) {
 	});
 }
 
-async function setupItemReminderEmail(
-	{
-		email,
-		userEmail,
-		user,
-		customerName,
-		projectName,
-		itemName,
-		items,
-		nextItemName,
-		nextItemDescription,
-		url,
-		itemId,
-		issueDate,
-	},
-	ctx,
-) {
+async function setupItemReminderEmail({
+	email,
+	userEmail,
+	user,
+	customerName,
+	projectName,
+	itemName,
+	items,
+	url,
+	itemId,
+	issueDate,
+}) {
 	const dates = [
+		/* 5 min before actually sending it */ {
+			date: moment(issueDate).add(5, 'minutes'),
+			templateId: 'd-90847153d18843ad97755874cf092130',
+			reminderType: 'DELAY',
+			email,
+		},
 		/* 2 days */ {
 			date: moment(issueDate).add(2, 'days'),
 			templateId: 'd-e39a839701644fd9935f437056ad535a',
@@ -63,55 +64,29 @@ async function setupItemReminderEmail(
 		},
 	];
 
-	dates.forEach(
-		async ({
+	return Promise.all(
+		dates.map(async ({
 			date, templateId, reminderType, email: emailToSend,
 		}) => {
 			try {
-				const {data} = await createReminder({
-					email: emailToSend,
+				await createPosthookReminder({
+					type: reminderType,
+					postAt: date.format(),
 					data: {
+						templateId,
+						email: emailToSend,
+						itemId,
 						user,
 						customerName,
 						projectName,
 						itemName,
 						items,
-						nextItemName,
-						nextItemDescription,
 						url,
 					},
-					postDate: date.format(),
-					templateId,
+					item: {
+						connect: {id: itemId},
+					},
 				});
-
-				try {
-					const reminder = await ctx.db.createReminder({
-						item: {
-							connect: {id: itemId},
-						},
-						postHookId: data.id,
-						type: reminderType,
-						sendingDate: date.format(),
-						status: 'PENDING',
-					});
-
-					console.log(
-						`Reminder '${
-							reminder.id
-						}' of type '${reminderType}' created with posthook id '${
-							data.id
-						}'.`,
-					);
-				}
-				catch (error) {
-					// Here we should do something to store the errors
-					console.error(
-						`Reminder of type '${reminderType}' NOT created with posthook id '${
-							data.id
-						}'`,
-						error,
-					);
-				}
 			}
 			catch (error) {
 				console.error(
@@ -119,7 +94,7 @@ async function setupItemReminderEmail(
 					error,
 				);
 			}
-		},
+		}),
 	);
 }
 

@@ -1,3 +1,5 @@
+const {createItemOwnerFilter} = require('../utils');
+
 const gql = String.raw;
 
 const User = {
@@ -66,31 +68,7 @@ const User = {
 							},
 						],
 					},
-					{
-						OR: [
-							{
-								owner: {id: node.id},
-							},
-							{
-								section: {
-									project: {
-										owner: {id: node.id},
-									},
-								},
-							},
-							{
-								section: {
-									project: {
-										customer: {
-											serviceCompany: {
-												owner: {id: node.id},
-											},
-										},
-									},
-								},
-							},
-						],
-					},
+					createItemOwnerFilter(node.id),
 				],
 				orderBy: sort,
 			},
@@ -130,6 +108,7 @@ const User = {
 
 		return tasks;
 	},
+	focusedTasks: async (node, args, ctx) => ctx.db.user({id: node.id}).focusedTasks(),
 };
 
 module.exports = {

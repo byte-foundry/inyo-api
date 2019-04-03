@@ -51,7 +51,19 @@ const removeItem = async (parent, {id}, ctx) => {
 		);
 	}
 
-	return ctx.db.deleteItem({id});
+	const removedItem = await ctx.db.deleteItem({id});
+
+	await ctx.db.createUserEvent({
+		type: 'REMOVED_TASK',
+		user: {
+			connect: {id: userId},
+		},
+		metadata: {
+			id: removedItem.id,
+		},
+	});
+
+	return removedItem;
 };
 
 module.exports = {

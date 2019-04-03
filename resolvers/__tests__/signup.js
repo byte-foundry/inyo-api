@@ -5,6 +5,15 @@ import {AlreadyExistingError} from '../../errors';
 jest.mock('../../utils');
 jest.mock('../../stats');
 
+jest.mock('crypto', () => {
+	const crypto = jest.requireActual('crypto');
+
+	return {
+		...crypto,
+		createHmac: jest.fn(() => ({digest: () => '', update: jest.fn()})),
+	};
+});
+
 describe('signup', () => {
 	it('should create a simple user account', async () => {
 		const args = {
