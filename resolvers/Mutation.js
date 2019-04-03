@@ -32,6 +32,7 @@ const {removeFile} = require('./removeFile');
 const {updateCustomer} = require('./updateCustomer');
 const {removeCustomer} = require('./removeCustomer');
 const {cancelReminder} = require('./cancelReminder');
+const {sendReminderTestEmail} = require('./sendReminderTestEmail');
 
 const Mutation = {
 	checkEmailAvailability,
@@ -486,6 +487,7 @@ const Mutation = {
 	updateFile,
 	removeFile,
 	cancelReminder,
+	sendReminderTestEmail,
 };
 
 module.exports = {
