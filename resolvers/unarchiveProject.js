@@ -43,6 +43,16 @@ const unarchiveProject = async (parent, {id}, ctx) => {
 		throw new Error(`Project ${id} can't be unarchived.`);
 	}
 
+	await ctx.db.createUserEvent({
+		type: 'UNARCHIVED_PROJECT',
+		user: {
+			connect: {id: userId},
+		},
+		metadata: {
+			id: project.id,
+		},
+	});
+
 	return ctx.db.updateProject({
 		where: {id},
 		data: {

@@ -43,6 +43,16 @@ const archiveProject = async (parent, {id}, ctx) => {
 		throw new Error(`Project ${id} can't be finished.`);
 	}
 
+	await ctx.db.createUserEvent({
+		type: 'ARCHIVED_PROJECT',
+		user: {
+			connect: {id: userId},
+		},
+		metadata: {
+			id: project.id,
+		},
+	});
+
 	return ctx.db.updateProject({
 		where: {id},
 		data: {

@@ -15,8 +15,7 @@ const {createProject} = require('./createProject');
 const {updateProject} = require('./updateProject');
 const {archiveProject} = require('./archiveProject');
 const {unarchiveProject} = require('./unarchiveProject');
-const {deleteProject} = require('./deleteProject');
-const {undeleteProject} = require('./undeleteProject');
+const {unremoveProject} = require('./unremoveProject');
 const {removeProject} = require('./removeProject');
 const {startProject} = require('./startProject');
 const {addItem} = require('./addItem');
@@ -218,8 +217,8 @@ const Mutation = {
 	updateProject,
 	archiveProject,
 	unarchiveProject,
-	deleteProject,
-	undeleteProject,
+	removeProject,
+	unremoveProject,
 	removeProject,
 	startProject,
 	createQuote: () => {

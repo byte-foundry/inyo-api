@@ -1,9 +1,9 @@
-import {undeleteProject} from '../undeleteProject';
+import {unremoveProject} from '../unremoveProject';
 
 jest.mock('../../utils');
 jest.mock('../../stats');
 
-describe('undeleteProject', () => {
+describe('unremoveProject', () => {
 	it('should let a user project an ongoing projet', async () => {
 		const args = {
 			id: 'item-id',
@@ -13,6 +13,7 @@ describe('undeleteProject', () => {
 				get: () => 'user-token',
 			},
 			db: {
+				createUserEvent: () => {},
 				projects: () => ({
 					$fragment: () => [
 						{
@@ -26,14 +27,14 @@ describe('undeleteProject', () => {
 			},
 		};
 
-		const item = await undeleteProject({}, args, ctx);
+		const item = await unremoveProject({}, args, ctx);
 
 		expect(item).toMatchObject({
 			status: 'ONGOING',
 		});
 	});
 
-	it('should not let a user delete a non deleted project', async () => {
+	it('should not let a user undelete a non deleted project', async () => {
 		const args = {
 			id: 'item-id',
 		};
@@ -42,6 +43,7 @@ describe('undeleteProject', () => {
 				get: () => 'user-token',
 			},
 			db: {
+				createUserEvent: () => {},
 				projects: () => ({
 					$fragment: () => [
 						{
@@ -55,12 +57,12 @@ describe('undeleteProject', () => {
 			},
 		};
 
-		await expect(undeleteProject({}, args, ctx)).rejects.toThrow(
+		await expect(unremoveProject({}, args, ctx)).rejects.toThrow(
 			/can't be undeleted/,
 		);
 	});
 
-	it('should not let a user delete a non existent project', async () => {
+	it('should not let a user undelete a non existent project', async () => {
 		const args = {
 			id: 'item-id',
 		};
@@ -69,6 +71,7 @@ describe('undeleteProject', () => {
 				get: () => 'user-token',
 			},
 			db: {
+				createUserEvent: () => {},
 				projects: () => ({$fragment: () => []}),
 				updateProject: ({data}) => ({
 					...data,
@@ -76,7 +79,7 @@ describe('undeleteProject', () => {
 			},
 		};
 
-		await expect(undeleteProject({}, args, ctx)).rejects.toThrow(
+		await expect(unremoveProject({}, args, ctx)).rejects.toThrow(
 			/has not been found/,
 		);
 	});

@@ -13,6 +13,7 @@ describe('archiveProject', () => {
 				get: () => 'user-token',
 			},
 			db: {
+				createUserEvent: () => {},
 				projects: () => ({
 					$fragment: () => [
 						{
@@ -42,6 +43,7 @@ describe('archiveProject', () => {
 				get: () => 'user-token',
 			},
 			db: {
+				createUserEvent: () => {},
 				projects: () => ({
 					$fragment: () => [
 						{
@@ -69,6 +71,7 @@ describe('archiveProject', () => {
 				get: () => 'user-token',
 			},
 			db: {
+				createUserEvent: () => {},
 				projects: () => ({$fragment: () => []}),
 				updateProject: ({data}) => ({
 					...data,

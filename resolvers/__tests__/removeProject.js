@@ -1,9 +1,9 @@
-import {deleteProject} from '../deleteProject';
+import {removeProject} from '../removeProject';
 
 jest.mock('../../utils');
 jest.mock('../../stats');
 
-describe('deleteProject', () => {
+describe('removeProject', () => {
 	it('should let a user delete an ongoing projet', async () => {
 		const args = {
 			id: 'item-id',
@@ -13,6 +13,7 @@ describe('deleteProject', () => {
 				get: () => 'user-token',
 			},
 			db: {
+				createUserEvent: () => {},
 				projects: () => ({
 					$fragment: () => [
 						{
@@ -26,7 +27,7 @@ describe('deleteProject', () => {
 			},
 		};
 
-		const item = await deleteProject({}, args, ctx);
+		const item = await removeProject({}, args, ctx);
 
 		expect(item).toMatchObject({
 			status: 'DELETED',
@@ -42,6 +43,7 @@ describe('deleteProject', () => {
 				get: () => 'user-token',
 			},
 			db: {
+				createUserEvent: () => {},
 				projects: () => ({$fragment: () => []}),
 				updateProject: ({data}) => ({
 					...data,
@@ -49,7 +51,7 @@ describe('deleteProject', () => {
 			},
 		};
 
-		await expect(deleteProject({}, args, ctx)).rejects.toThrow(
+		await expect(removeProject({}, args, ctx)).rejects.toThrow(
 			/has not been found/,
 		);
 	});

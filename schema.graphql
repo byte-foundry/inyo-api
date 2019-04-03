@@ -112,8 +112,8 @@ type Mutation {
 	# Finish project
 	archiveProject(id: ID!): Project!
 	unarchiveProject(id: ID!): Project!
-	deleteProject(id: ID!): Project!
-	undeleteProject(id: ID!): Project!
+	removeProject(id: ID!): Project!
+	unremoveProject(id: ID!): Project!
 	# Remove project
 	removeProject(id: ID!): Project
 
