@@ -232,6 +232,7 @@ type Mutation {
 
 	# Send project, DRAFT -> ONGOING. If not specified, send an email
 	startProject(id: ID!, notifyCustomer: Boolean): Project!
+		@deprecated(reason: "Project are automatically started now.")
 
 	#post a comment on an item
 	postComment(itemId: ID!, token: String, comment: CommentInput!): Item
@@ -354,8 +355,11 @@ enum QuoteStatus {
 }
 
 enum ProjectStatus {
-	DRAFT
 	ONGOING
+	ARCHIVED
+	REMOVED
+
+	# deprecated
 	FINISHED
 }
 

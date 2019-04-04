@@ -12,7 +12,6 @@ const {archiveProject} = require('./archiveProject');
 const {unarchiveProject} = require('./unarchiveProject');
 const {unremoveProject} = require('./unremoveProject');
 const {removeProject} = require('./removeProject');
-const {startProject} = require('./startProject');
 const {addSection} = require('./addSection');
 const {updateSection} = require('./updateSection');
 const {removeSection} = require('./removeSection');
@@ -52,8 +51,9 @@ const Mutation = {
 	unarchiveProject,
 	removeProject,
 	unremoveProject,
-	removeProject,
-	startProject,
+	startProject: () => {
+		throw Error("It's not possible to start a project anymore.");
+	},
 	createQuote: () => {
 		throw Error("It's not possible to create quote anymore.");
 	},

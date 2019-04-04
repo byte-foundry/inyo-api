@@ -52,7 +52,6 @@ enum QuoteTemplate {
 }
 
 enum ProjectStatus {
-	DRAFT
 	ONGOING
 	FINISHED # deprecated
 	ARCHIVED
@@ -263,7 +262,7 @@ type Project {
 	owner: User @relation(name: "UserProjects")
 	# this token is a way to restrict access to anyone else than the customer
 	token: String! @unique
-	status: ProjectStatus! @default(value: DRAFT)
+	status: ProjectStatus! @default(value: ONGOING)
 	sections: [Section!]! @relation(name: "ProjectSections", onDelete: CASCADE)
 	viewedByCustomer: Boolean! @default(value: false)
 	issuedAt: DateTime
