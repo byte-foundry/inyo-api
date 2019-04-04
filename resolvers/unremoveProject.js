@@ -3,7 +3,7 @@ const {NotFoundError} = require('../errors');
 
 const gql = String.raw;
 
-const removeProject = async (parent, {id}, ctx) => {
+const unremoveProject = async (parent, {id}, ctx) => {
 	const userId = getUserId(ctx);
 	const [project] = await ctx.db.projects({
 		where: {
@@ -39,8 +39,12 @@ const removeProject = async (parent, {id}, ctx) => {
 		throw new NotFoundError(`Project ${id} has not been found.`);
 	}
 
+	if (project.status !== 'DELETED') {
+		throw new Error(`Project ${id} can't be undeleted.`);
+	}
+
 	await ctx.db.createUserEvent({
-		type: 'REMOVED_PROJECT',
+		type: 'UNREMOVED_PROJECT',
 		user: {
 			connect: {id: userId},
 		},
@@ -52,11 +56,11 @@ const removeProject = async (parent, {id}, ctx) => {
 	return ctx.db.updateProject({
 		where: {id},
 		data: {
-			status: 'DELETED',
+			status: 'ONGOING',
 		},
 	});
 };
 
 module.exports = {
-	removeProject,
+	unremoveProject,
 };

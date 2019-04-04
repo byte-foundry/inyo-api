@@ -8,7 +8,9 @@ const {updatePassword} = require('./updatePassword');
 const {updateUser} = require('./updateUser');
 const {createProject} = require('./createProject');
 const {updateProject} = require('./updateProject');
-const {finishProject} = require('./finishProject');
+const {archiveProject} = require('./archiveProject');
+const {unarchiveProject} = require('./unarchiveProject');
+const {unremoveProject} = require('./unremoveProject');
 const {removeProject} = require('./removeProject');
 const {startProject} = require('./startProject');
 const {addSection} = require('./addSection');
@@ -46,7 +48,10 @@ const Mutation = {
 	removeCustomer,
 	createProject,
 	updateProject,
-	finishProject,
+	archiveProject,
+	unarchiveProject,
+	removeProject,
+	unremoveProject,
 	removeProject,
 	startProject,
 	createQuote: () => {

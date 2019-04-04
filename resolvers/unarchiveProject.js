@@ -3,17 +3,25 @@ const {NotFoundError} = require('../errors');
 
 const gql = String.raw;
 
-const finishProject = async (parent, {id}, ctx) => {
+const unarchiveProject = async (parent, {id}, ctx) => {
+	const userId = getUserId(ctx);
 	const [project] = await ctx.db.projects({
 		where: {
 			id,
-			customer: {
-				serviceCompany: {
-					owner: {
-						id: getUserId(ctx),
+			OR: [
+				{
+					owner: {id: userId},
+				},
+				{
+					customer: {
+						serviceCompany: {
+							owner: {
+								id: userId,
+							},
+						},
 					},
 				},
-			},
+			],
 		},
 	}).$fragment(gql`
 		fragment ProjectWithItemStatuses on Project {
@@ -31,21 +39,28 @@ const finishProject = async (parent, {id}, ctx) => {
 		throw new NotFoundError(`Project ${id} has not been found.`);
 	}
 
-	if (
-		project.status !== 'ONGOING'
-		|| project.sections.some(section => section.items.some(item => item.status !== 'FINISHED'))
-	) {
-		throw new Error(`Project ${id} can't be finished.`);
+	if (project.status !== 'ARCHIVED') {
+		throw new Error(`Project ${id} can't be unarchived.`);
 	}
+
+	await ctx.db.createUserEvent({
+		type: 'UNARCHIVED_PROJECT',
+		user: {
+			connect: {id: userId},
+		},
+		metadata: {
+			id: project.id,
+		},
+	});
 
 	return ctx.db.updateProject({
 		where: {id},
 		data: {
-			status: 'FINISHED',
+			status: 'ONGOING',
 		},
 	});
 };
 
 module.exports = {
-	finishProject,
+	unarchiveProject,
 };

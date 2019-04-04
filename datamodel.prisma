@@ -54,7 +54,9 @@ enum QuoteTemplate {
 enum ProjectStatus {
 	DRAFT
 	ONGOING
-	FINISHED
+	FINISHED # deprecated
+	ARCHIVED
+	DELETED
 }
 
 enum ProjectTemplate {
@@ -151,7 +153,10 @@ enum UserEventType {
 	REMOVED_TASK
 	CREATED_PROJECT
 	UPDATED_PROJECT
+	ARCHIVED_PROJECT
+	UNARCHIVED_PROJECT
 	REMOVED_PROJECT
+	UNREMOVED_PROJECT
 }
 
 type CommentView {
