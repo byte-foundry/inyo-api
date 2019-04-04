@@ -77,13 +77,25 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 		throw new Error(`Item '${id}' cannot be resetted.`);
 	}
 
-	return ctx.db.updateItem({
+	const updatedItem = ctx.db.updateItem({
 		where: {id},
 		data: {
 			status: 'PENDING',
 			finishedAt: null,
 		},
 	});
+
+	await ctx.db.createUserEvent({
+		type: 'UNFINISHED_TASK',
+		user: {
+			connect: {id: userId},
+		},
+		metadata: {
+			id: updatedItem.id,
+		},
+	});
+
+	return updatedItem;
 };
 
 module.exports = {

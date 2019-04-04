@@ -33,6 +33,8 @@ const updateIntercom = async (req, res) => {
 					ADDED_TASK
 					UPDATED_TASK
 					REMOVED_TASK
+					FINISHED_TASK
+					UNFINISHED_TASK
 					CREATED_PROJECT
 					UPDATED_PROJECT
 					REMOVED_PROJECT

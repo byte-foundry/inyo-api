@@ -172,7 +172,7 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 
 	await cancelPendingReminders(item.pendingReminders, id, ctx);
 
-	return ctx.db.updateItem({
+	const updatedItem = ctx.db.updateItem({
 		where: {id},
 		data: {
 			status: 'FINISHED',
@@ -180,6 +180,18 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 			timeItTook: timeItTook || item.unit,
 		},
 	});
+
+	await ctx.db.createUserEvent({
+		type: 'FINISHED_TASK',
+		user: {
+			connect: {id: userId},
+		},
+		metadata: {
+			id: updatedItem.id,
+		},
+	});
+
+	return updatedItem;
 };
 
 module.exports = {

@@ -7,6 +7,10 @@ jest.mock('../../utils');
 jest.mock('../../emails/TaskEmail');
 jest.mock('../../reminders/cancelReminder');
 
+const db = {
+	createUserEvent() {},
+};
+
 describe('finishItem', () => {
 	it('should let a user finish a project user item', async () => {
 		const args = {
@@ -17,6 +21,7 @@ describe('finishItem', () => {
 				get: () => 'user-token',
 			},
 			db: {
+				...db,
 				items: () => ({
 					$fragment: () => [
 						{
@@ -99,6 +104,7 @@ describe('finishItem', () => {
 				get: () => '',
 			},
 			db: {
+				...db,
 				items: () => ({
 					$fragment: () => [
 						{
@@ -192,6 +198,7 @@ describe('finishItem', () => {
 				get: () => 'user-token',
 			},
 			db: {
+				...db,
 				items: () => ({
 					$fragment: () => [
 						{
@@ -266,6 +273,7 @@ describe('finishItem', () => {
 				get: () => '',
 			},
 			db: {
+				...db,
 				items: () => ({
 					$fragment: () => [
 						{
@@ -340,6 +348,7 @@ describe('finishItem', () => {
 				get: () => 'user-token',
 			},
 			db: {
+				...db,
 				items: () => ({
 					$fragment: () => [
 						{
