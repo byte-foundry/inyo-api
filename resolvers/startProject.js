@@ -4,7 +4,6 @@ const {
 	getUserId, getAppUrl, formatFullName, formatName,
 } = require('../utils');
 const {NotFoundError} = require('../errors');
-const {sendMetric} = require('../stats');
 const {sendProjectStartedEmail} = require('../emails/ProjectEmail');
 
 const startProject = async (parent, {id, notifyCustomer = true}, ctx) => {
@@ -80,11 +79,7 @@ const startProject = async (parent, {id, notifyCustomer = true}, ctx) => {
 		catch (error) {
 			console.log('Error: Project email not sent', error);
 		}
-
-		sendMetric({metric: 'inyo.project.sent'});
 	}
-
-	sendMetric({metric: 'inyo.project.started'});
 
 	return ctx.db.updateProject({
 		where: {id},

@@ -4,7 +4,6 @@ const {sign} = require('jsonwebtoken');
 
 const {APP_SECRET} = require('../utils');
 const {AlreadyExistingError} = require('../errors');
-const {sendMetric} = require('../stats');
 const {sendSignupEmail} = require('../emails/SignupEmail');
 
 const signup = async (
@@ -41,8 +40,6 @@ const signup = async (
 				create: settings,
 			},
 		});
-
-		sendMetric({metric: 'inyo.user.created'});
 
 		console.log(`user with email ${email} created`);
 

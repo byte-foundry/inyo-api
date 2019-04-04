@@ -1,7 +1,6 @@
 import {Mutation} from '../Mutation';
 
 jest.mock('../../utils');
-jest.mock('../../stats');
 
 describe('finishItem', () => {
 	it('should update the user properties', async () => {

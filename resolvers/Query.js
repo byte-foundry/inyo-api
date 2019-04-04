@@ -1,5 +1,4 @@
 const {NotFoundError} = require('../errors');
-const {sendMetric} = require('../stats');
 const {getUserId, createItemOwnerFilter} = require('../utils');
 
 const {items} = require('./items');
@@ -40,8 +39,6 @@ const Query = {
 				throw new NotFoundError(`Project '${id}' has not been found`);
 			}
 
-			sendMetric({metric: 'inyo.project.viewed.total'});
-
 			if (!project.viewedByCustomer) {
 				await ctx.db.updateProject({
 					where: {id},
@@ -49,8 +46,6 @@ const Query = {
 				});
 
 				project.viewedByCustomer = true;
-
-				sendMetric({metric: 'inyo.project.viewed.unique'});
 			}
 
 			return project;

@@ -2,7 +2,6 @@ const gql = String.raw;
 
 const {getUserId, createItemOwnerFilter, isCustomerTask} = require('../utils');
 const {NotFoundError} = require('../errors');
-const {sendMetric} = require('../stats');
 
 // TODO: set back the canceled reminders
 const unfinishItem = async (parent, {id, token}, ctx) => {
@@ -48,8 +47,6 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 			throw new Error(`Item '${id}' cannot be resetted.`);
 		}
 
-		sendMetric({metric: 'inyo.item.unvalidated'});
-
 		return ctx.db.updateItem({
 			where: {id},
 			data: {
@@ -79,8 +76,6 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 	if (item.status !== 'FINISHED') {
 		throw new Error(`Item '${id}' cannot be resetted.`);
 	}
-
-	sendMetric({metric: 'inyo.item.unvalidated'});
 
 	return ctx.db.updateItem({
 		where: {id},

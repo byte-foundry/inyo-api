@@ -4,7 +4,6 @@ import cancelReminder from '../../reminders/cancelReminder';
 import {sendTaskValidationEmail} from '../../emails/TaskEmail';
 
 jest.mock('../../utils');
-jest.mock('../../stats');
 jest.mock('../../emails/TaskEmail');
 jest.mock('../../reminders/cancelReminder');
 

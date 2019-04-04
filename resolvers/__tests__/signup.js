@@ -3,7 +3,6 @@ import {signup} from '../signup';
 import {AlreadyExistingError} from '../../errors';
 
 jest.mock('../../utils');
-jest.mock('../../stats');
 
 jest.mock('crypto', () => {
 	const crypto = jest.requireActual('crypto');

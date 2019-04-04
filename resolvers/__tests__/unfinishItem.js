@@ -1,7 +1,6 @@
 import {unfinishItem} from '../unfinishItem';
 
 jest.mock('../../utils');
-jest.mock('../../stats');
 
 describe('unfinishItem', () => {
 	it('should let a user reset a project user item', async () => {
