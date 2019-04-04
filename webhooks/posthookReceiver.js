@@ -31,8 +31,12 @@ const posthookReceiver = async (req, res) => {
 	});
 
 	if (!reminder) {
-		res.status(400).send();
-		throw new Error('Not found reminder', req.body);
+		console.log(
+			`Reminder '${reminder.id}' has not been found, ignoring`,
+			req.body,
+		);
+		res.status(200).send();
+		return;
 	}
 
 	try {
