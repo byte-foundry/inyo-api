@@ -291,6 +291,16 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 		console.log(`New comment email not because with error ${error}`);
 	}
 
+	await ctx.db.createUserEvent({
+		type: 'POSTED_COMMENT',
+		user: {
+			connect: {id: userId},
+		},
+		metadata: {
+			itemId: result.id,
+		},
+	});
+
 	return result;
 };
 
