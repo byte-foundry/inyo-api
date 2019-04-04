@@ -13,7 +13,7 @@ const createCustomer = async (
 	const userId = getUserId(ctx);
 	const company = await ctx.db.user({id: userId}).company();
 
-	const createdCustomer = ctx.db.createCustomer({
+	const createdCustomer = await ctx.db.createCustomer({
 		token: uuid(),
 		email,
 		name,

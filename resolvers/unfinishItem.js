@@ -77,7 +77,7 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 		throw new Error(`Item '${id}' cannot be resetted.`);
 	}
 
-	const updatedItem = ctx.db.updateItem({
+	const updatedItem = await ctx.db.updateItem({
 		where: {id},
 		data: {
 			status: 'PENDING',

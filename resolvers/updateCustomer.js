@@ -27,7 +27,7 @@ const updateCustomer = async (
 	const email
 		= String(rawEmail || customer.email || '').toLowerCase() || undefined;
 
-	const updatedCustomer = ctx.db.updateCustomer({
+	const updatedCustomer = await ctx.db.updateCustomer({
 		where: {id},
 		data: {
 			...customer,

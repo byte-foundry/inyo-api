@@ -172,7 +172,7 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 
 	await cancelPendingReminders(item.pendingReminders, id, ctx);
 
-	const updatedItem = ctx.db.updateItem({
+	const updatedItem = await ctx.db.updateItem({
 		where: {id},
 		data: {
 			status: 'FINISHED',
