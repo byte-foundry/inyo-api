@@ -1,8 +1,8 @@
-import {Mutation} from '../Mutation';
+import {updateUser} from '../updateUser';
 
 jest.mock('../../utils');
 
-describe('finishItem', () => {
+describe('updateUser', () => {
 	it('should update the user properties', async () => {
 		const args = {
 			id: 'item-id',
@@ -23,7 +23,7 @@ describe('finishItem', () => {
 			},
 		};
 
-		const user = await Mutation.updateUser({}, args, ctx);
+		const user = await updateUser({}, args, ctx);
 
 		expect(user).toMatchObject({
 			id: args.id,
