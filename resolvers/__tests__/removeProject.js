@@ -1,7 +1,6 @@
 import {removeProject} from '../removeProject';
 
 jest.mock('../../utils');
-jest.mock('../../stats');
 
 describe('removeProject', () => {
 	it('should let a user delete an ongoing projet', async () => {

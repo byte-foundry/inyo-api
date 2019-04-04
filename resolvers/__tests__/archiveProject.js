@@ -1,7 +1,6 @@
 import {archiveProject} from '../archiveProject';
 
 jest.mock('../../utils');
-jest.mock('../../stats');
 
 describe('archiveProject', () => {
 	it('should let a user archive an ongoing projet', async () => {
