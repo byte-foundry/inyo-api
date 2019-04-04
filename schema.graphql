@@ -135,8 +135,7 @@ type Mutation {
 
 	# Add section to one of the quote's option
 	addSection(
-		optionId: ID
-		projectId: ID
+		projectId: ID!
 		name: String!
 		items: [ItemInput!]
 		position: Int

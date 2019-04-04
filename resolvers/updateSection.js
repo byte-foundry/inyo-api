@@ -100,10 +100,22 @@ const updateSection = async (
 		reorderProject(project.sections, initialPosition, position, ctx);
 	}
 
-	return ctx.db.updateSection({
+	const updatedSection = await ctx.db.updateSection({
 		where: {id},
 		data: {name, position},
 	});
+
+	await ctx.db.createUserEvent({
+		type: 'UPDATED_SECTION',
+		user: {
+			connect: {id: userId},
+		},
+		metadata: {
+			id: updatedSection.id,
+		},
+	});
+
+	return updatedSection;
 };
 
 module.exports = {

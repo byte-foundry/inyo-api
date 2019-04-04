@@ -31,7 +31,19 @@ const removeSection = async (parent, {id}, ctx) => {
 		throw new NotFoundError(`Section '${id}' has not been found.`);
 	}
 
-	return ctx.db.deleteSection({id});
+	const removedSection = await ctx.db.deleteSection({id});
+
+	await ctx.db.createUserEvent({
+		type: 'REMOVED_SECTION',
+		user: {
+			connect: {id: userId},
+		},
+		metadata: {
+			id: removedSection.id,
+		},
+	});
+
+	return removedSection;
 };
 
 module.exports = {
