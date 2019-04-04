@@ -38,6 +38,9 @@ const updateIntercom = async (req, res) => {
 					CREATED_PROJECT
 					UPDATED_PROJECT
 					REMOVED_PROJECT
+					CREATED_CUSTOMER
+					UPDATED_CUSTOMER
+					REMOVED_CUSTOMER
 				]
 				createdAt_gt: "${moment()
 		.subtract(index + 1, 'days')

@@ -10,9 +10,10 @@ const createCustomer = async (
 	ctx,
 ) => {
 	const email = String(rawEmail || '').toLowerCase() || undefined;
-	const company = await ctx.db.user({id: getUserId(ctx)}).company();
+	const userId = getUserId(ctx);
+	const company = await ctx.db.user({id: userId}).company();
 
-	return ctx.db.createCustomer({
+	const createdCustomer = ctx.db.createCustomer({
 		token: uuid(),
 		email,
 		name,
@@ -24,6 +25,18 @@ const createCustomer = async (
 			connect: {id: company.id},
 		},
 	});
+
+	await ctx.db.createUserEvent({
+		type: 'CREATED_CUSTOMER',
+		user: {
+			connect: {id: userId},
+		},
+		metadata: {
+			id: createdCustomer.id,
+		},
+	});
+
+	return createdCustomer;
 };
 
 module.exports = {
