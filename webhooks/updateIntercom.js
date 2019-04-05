@@ -71,6 +71,7 @@ const updateIntercom = async (req, res) => {
 		},
 	}).$fragment(gql`
 		fragment UserSessions on User {
+			id
 			email
 			${sessionsDayFragments}
 		}
@@ -90,6 +91,7 @@ const updateIntercom = async (req, res) => {
 			const activeSessionsCount = activeSessions.length;
 
 			return intercom.users.update({
+				user_id: user.id,
 				email: user.email,
 				custom_attributes: {
 					'visit-days-last-7-days': sessionsCount,
@@ -97,10 +99,12 @@ const updateIntercom = async (req, res) => {
 				},
 			});
 		}),
-	);
+	).catch((e) => {
+		console.error('Error updating intercom values', e.body);
+	});
 
 	console.log('Updated number of active days last 7 days.');
-	res.send(200);
+	res.status(200).send();
 };
 
 module.exports = {
