@@ -29,7 +29,7 @@ describe('removeProject', () => {
 		const item = await removeProject({}, args, ctx);
 
 		expect(item).toMatchObject({
-			status: 'DELETED',
+			status: 'REMOVED',
 		});
 	});
 

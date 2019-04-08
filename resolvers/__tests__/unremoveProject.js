@@ -16,7 +16,7 @@ describe('unremoveProject', () => {
 				projects: () => ({
 					$fragment: () => [
 						{
-							status: 'DELETED',
+							status: 'REMOVED',
 						},
 					],
 				}),

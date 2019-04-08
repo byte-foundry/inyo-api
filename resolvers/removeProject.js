@@ -52,7 +52,7 @@ const removeProject = async (parent, {id}, ctx) => {
 	return ctx.db.updateProject({
 		where: {id},
 		data: {
-			status: 'DELETED',
+			status: 'REMOVED',
 		},
 	});
 };

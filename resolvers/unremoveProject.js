@@ -39,7 +39,7 @@ const unremoveProject = async (parent, {id}, ctx) => {
 		throw new NotFoundError(`Project ${id} has not been found.`);
 	}
 
-	if (project.status !== 'DELETED') {
+	if (project.status !== 'REMOVED') {
 		throw new Error(`Project ${id} can't be undeleted.`);
 	}
 
