@@ -58,6 +58,7 @@ describe('postComment', () => {
 					id: 'item-id',
 					comments: [data.comments.create],
 				}),
+				createUserEvent: () => {},
 			},
 		};
 
