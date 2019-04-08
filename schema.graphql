@@ -248,6 +248,9 @@ type Mutation {
 	removeFile(id: ID!): File
 
 	cancelReminder(id: ID!): Reminder
+
+	# sends a test email to the user
+	sendReminderTestEmail(id: ID!): Boolean!
 }
 
 input CommentInput {
