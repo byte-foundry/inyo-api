@@ -55,6 +55,7 @@ const createProject = async (
 				items: section.items && {
 					create: section.items.map((item, index) => ({
 						...item,
+						owner: {connect: {id: userId}},
 						position: index,
 					})),
 				},

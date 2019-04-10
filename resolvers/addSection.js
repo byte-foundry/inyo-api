@@ -65,16 +65,17 @@ const addSection = async (
 		}
 	}
 
-	// eslint-disable-next-line no-param-reassign
-	items.forEach((item, index) => {
-		item.position = index;
-	});
-
 	const addedSection = await ctx.db.createSection({
 		project: {connect: {id: projectId}},
 		position,
 		name,
-		items: {create: items},
+		items: {
+			create: items.map((item, index) => ({
+				...item,
+				owner: {connect: {id: userId}},
+				position: index,
+			})),
+		},
 	});
 
 	await ctx.db.createUserEvent({
