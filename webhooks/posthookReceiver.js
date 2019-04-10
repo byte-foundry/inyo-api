@@ -32,7 +32,7 @@ const posthookReceiver = async (req, res) => {
 
 	if (!reminder) {
 		console.log(
-			`Reminder '${reminder.id}' has not been found, ignoring`,
+			`Reminder '${req.body.id}' has not been found, ignoring`,
 			req.body,
 		);
 		res.status(200).send();
@@ -85,7 +85,8 @@ const posthookReceiver = async (req, res) => {
 			callback = sendReminderEmail;
 			break;
 		default:
-			throw new Error('Unknown reminder', reminder.type);
+			console.error('Unknow reminder', reminder, req.body);
+			throw new Error('Unknown reminder');
 		}
 
 		const {status = 'SENT'} = (await callback(req.body.data, reminder)) || {};
