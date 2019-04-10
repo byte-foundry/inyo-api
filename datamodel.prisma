@@ -55,7 +55,7 @@ enum ProjectStatus {
 	ONGOING
 	FINISHED # deprecated
 	ARCHIVED
-	DELETED
+	REMOVED
 }
 
 enum ProjectTemplate {
