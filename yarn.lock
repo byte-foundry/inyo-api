@@ -3234,6 +3234,11 @@ globby@^8.0.1:
     pify "^3.0.0"
     slash "^1.0.0"
 
+glouton@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/glouton/-/glouton-1.0.0.tgz#fc290f46ae2cb239bb4e00873ae2fa26c8ba9be8"
+  integrity sha1-/CkPRq4ssjm7TgCHOuL6Jsi6m+g=
+
 got@^6.7.1:
   version "6.7.1"
   resolved "https://registry.yarnpkg.com/got/-/got-6.7.1.tgz#240cd05785a9a18e561dc1b44b41c763ef1e8db0"

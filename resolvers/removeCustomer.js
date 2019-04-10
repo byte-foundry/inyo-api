@@ -16,7 +16,19 @@ const removeCustomer = async (parent, {id}, ctx) => {
 		throw new NotFoundError(`Customer '${id}' has not been found.`);
 	}
 
-	return ctx.db.deleteCustomer({id});
+	const removedCustomer = await ctx.db.deleteCustomer({id});
+
+	await ctx.db.createUserEvent({
+		type: 'REMOVED_CUSTOMER',
+		user: {
+			connect: {id: userId},
+		},
+		metadata: {
+			id: removedCustomer.id,
+		},
+	});
+
+	return removedCustomer;
 };
 
 module.exports = {

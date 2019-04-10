@@ -1,7 +1,6 @@
 import {updateItem} from '../updateItem';
 
 jest.mock('../../utils');
-jest.mock('../../stats');
 jest.mock('../../emails/TaskEmail');
 
 const project = {

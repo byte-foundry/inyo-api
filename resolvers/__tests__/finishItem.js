@@ -4,9 +4,12 @@ import cancelReminder from '../../reminders/cancelReminder';
 import {sendTaskValidationEmail} from '../../emails/TaskEmail';
 
 jest.mock('../../utils');
-jest.mock('../../stats');
 jest.mock('../../emails/TaskEmail');
 jest.mock('../../reminders/cancelReminder');
+
+const db = {
+	createUserEvent() {},
+};
 
 describe('finishItem', () => {
 	it('should let a user finish a project user item', async () => {
@@ -18,6 +21,7 @@ describe('finishItem', () => {
 				get: () => 'user-token',
 			},
 			db: {
+				...db,
 				items: () => ({
 					$fragment: () => [
 						{
@@ -100,6 +104,7 @@ describe('finishItem', () => {
 				get: () => '',
 			},
 			db: {
+				...db,
 				items: () => ({
 					$fragment: () => [
 						{
@@ -193,6 +198,7 @@ describe('finishItem', () => {
 				get: () => 'user-token',
 			},
 			db: {
+				...db,
 				items: () => ({
 					$fragment: () => [
 						{
@@ -267,6 +273,7 @@ describe('finishItem', () => {
 				get: () => '',
 			},
 			db: {
+				...db,
 				items: () => ({
 					$fragment: () => [
 						{
@@ -341,6 +348,7 @@ describe('finishItem', () => {
 				get: () => 'user-token',
 			},
 			db: {
+				...db,
 				items: () => ({
 					$fragment: () => [
 						{

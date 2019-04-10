@@ -5,6 +5,10 @@ import {sendNewCommentEmail} from '../../emails/CommentEmail';
 jest.mock('../../utils');
 jest.mock('../../emails/CommentEmail');
 
+const db = {
+	createUserEvent() {},
+};
+
 describe('postComment', () => {
 	it('should post a comment and notify customers', async () => {
 		const args = {
@@ -18,6 +22,7 @@ describe('postComment', () => {
 				get: () => 'user-token',
 			},
 			db: {
+				...db,
 				items: () => ({
 					$fragment: () => [
 						{
@@ -58,6 +63,7 @@ describe('postComment', () => {
 					id: 'item-id',
 					comments: [data.comments.create],
 				}),
+				createUserEvent: () => {},
 			},
 		};
 

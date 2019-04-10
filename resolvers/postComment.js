@@ -90,7 +90,7 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 			user = project.owner || customer.serviceCompany.owner || user;
 		}
 
-		const result = ctx.db.updateItem({
+		const result = await ctx.db.updateItem({
 			where: {id: itemId},
 			data: {
 				comments: {
@@ -201,7 +201,7 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 		user = user || project.owner || customer.serviceCompany.owner;
 	}
 
-	const result = ctx.db.updateItem({
+	const result = await ctx.db.updateItem({
 		where: {id: itemId},
 		data: {
 			comments: {
@@ -290,6 +290,16 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 	catch (error) {
 		console.log(`New comment email not because with error ${error}`);
 	}
+
+	await ctx.db.createUserEvent({
+		type: 'POSTED_COMMENT',
+		user: {
+			connect: {id: userId},
+		},
+		metadata: {
+			itemId: result.id,
+		},
+	});
 
 	return result;
 };

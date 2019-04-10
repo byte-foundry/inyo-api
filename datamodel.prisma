@@ -52,9 +52,10 @@ enum QuoteTemplate {
 }
 
 enum ProjectStatus {
-	DRAFT
 	ONGOING
-	FINISHED
+	FINISHED # deprecated
+	ARCHIVED
+	REMOVED
 }
 
 enum ProjectTemplate {
@@ -146,10 +147,22 @@ enum UserEventType {
 	CANCELED_REMINDER
 	ADDED_TASK
 	UPDATED_TASK
+	FINISHED_TASK
+	UNFINISHED_TASK
 	REMOVED_TASK
 	CREATED_PROJECT
 	UPDATED_PROJECT
+	ARCHIVED_PROJECT
+	UNARCHIVED_PROJECT
 	REMOVED_PROJECT
+	UNREMOVED_PROJECT
+	CREATED_CUSTOMER
+	UPDATED_CUSTOMER
+	REMOVED_CUSTOMER
+	POSTED_COMMENT
+	ADDED_SECTION
+	UPDATED_SECTION
+	REMOVED_SECTION
 }
 
 type CommentView {
@@ -253,7 +266,7 @@ type Project {
 	owner: User @relation(name: "UserProjects")
 	# this token is a way to restrict access to anyone else than the customer
 	token: String! @unique
-	status: ProjectStatus! @default(value: DRAFT)
+	status: ProjectStatus! @default(value: ONGOING)
 	sections: [Section!]! @relation(name: "ProjectSections", onDelete: CASCADE)
 	viewedByCustomer: Boolean! @default(value: false)
 	issuedAt: DateTime

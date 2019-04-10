@@ -99,7 +99,7 @@ const updateProject = async (
 		};
 	}
 
-	const updatedProject = ctx.db.updateProject({
+	const updatedProject = await ctx.db.updateProject({
 		where: {id},
 		data: {
 			...variables,

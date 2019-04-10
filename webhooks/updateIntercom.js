@@ -1,10 +1,27 @@
 const moment = require('moment');
+const glouton = require('glouton');
 const IntercomClient = require('intercom-client').Client;
 const {prisma} = require('../generated/prisma-client');
 
 const gql = String.raw;
 
 const intercom = new IntercomClient({token: process.env.INTERCOM_TOKEN});
+
+const updateIntercomUser = glouton(
+	(...args) => intercom.users.update(...args),
+	{
+		concurrency: 100,
+		validateResponse: (r) => {
+			if (r.statusCode !== 200) {
+				// TODO: postpone until limit end
+				console.log(r.headers);
+				return 10000;
+			}
+
+			return true;
+		},
+	},
+);
 
 const updateIntercom = async (req, res) => {
 	console.log('Updating number of active days last 7 days.');
@@ -33,9 +50,21 @@ const updateIntercom = async (req, res) => {
 					ADDED_TASK
 					UPDATED_TASK
 					REMOVED_TASK
+					FINISHED_TASK
+					UNFINISHED_TASK
 					CREATED_PROJECT
 					UPDATED_PROJECT
+					ARCHIVED_PROJECT
+					UNARCHIVED_PROJECT
 					REMOVED_PROJECT
+					UNREMOVED_PROJECT
+					CREATED_CUSTOMER
+					UPDATED_CUSTOMER
+					REMOVED_CUSTOMER
+					POSTED_COMMENT
+					ADDED_SECTION
+					UPDATED_SECTION
+					REMOVED_SECTION
 				]
 				createdAt_gt: "${moment()
 		.subtract(index + 1, 'days')
@@ -59,6 +88,7 @@ const updateIntercom = async (req, res) => {
 		},
 	}).$fragment(gql`
 		fragment UserSessions on User {
+			id
 			email
 			${sessionsDayFragments}
 		}
@@ -77,7 +107,8 @@ const updateIntercom = async (req, res) => {
 			const sessionsCount = sessions.length;
 			const activeSessionsCount = activeSessions.length;
 
-			return intercom.users.update({
+			return updateIntercomUser({
+				user_id: user.id,
 				email: user.email,
 				custom_attributes: {
 					'visit-days-last-7-days': sessionsCount,
@@ -85,10 +116,12 @@ const updateIntercom = async (req, res) => {
 				},
 			});
 		}),
-	);
+	).catch((e) => {
+		console.error('Error updating intercom values', e.body);
+	});
 
 	console.log('Updated number of active days last 7 days.');
-	res.send(200);
+	res.status(200).send();
 };
 
 module.exports = {

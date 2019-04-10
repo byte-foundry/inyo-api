@@ -110,10 +110,11 @@ type Mutation {
 		notifyActivityToCustomer: Boolean
 	): Project
 	# Finish project
-	finishProject(id: ID!): Project!
+	archiveProject(id: ID!): Project!
+	unarchiveProject(id: ID!): Project!
 	# Remove project
-	removeProject(id: ID!): Project
-
+	removeProject(id: ID!): Project!
+	unremoveProject(id: ID!): Project!
 	# Create a new quote for a customer of the user's company
 	createQuote(
 		customerId: ID
@@ -134,8 +135,7 @@ type Mutation {
 
 	# Add section to one of the quote's option
 	addSection(
-		optionId: ID
-		projectId: ID
+		projectId: ID!
 		name: String!
 		items: [ItemInput!]
 		position: Int
@@ -231,6 +231,7 @@ type Mutation {
 
 	# Send project, DRAFT -> ONGOING. If not specified, send an email
 	startProject(id: ID!, notifyCustomer: Boolean): Project!
+		@deprecated(reason: "Project are automatically started now.")
 
 	#post a comment on an item
 	postComment(itemId: ID!, token: String, comment: CommentInput!): Item
@@ -247,6 +248,9 @@ type Mutation {
 	removeFile(id: ID!): File
 
 	cancelReminder(id: ID!): Reminder
+
+	# sends a test email to the user
+	sendReminderTestEmail(id: ID!): Boolean!
 }
 
 input CommentInput {
@@ -353,8 +357,11 @@ enum QuoteStatus {
 }
 
 enum ProjectStatus {
-	DRAFT
 	ONGOING
+	ARCHIVED
+	REMOVED
+
+	# deprecated
 	FINISHED
 }
 

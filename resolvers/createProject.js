@@ -1,7 +1,6 @@
 const uuid = require('uuid/v4');
 
 const {getUserId, getAppUrl} = require('../utils');
-const {sendMetric} = require('../stats');
 const {sendProjectCreatedEmail} = require('../emails/ProjectEmail');
 
 const createProject = async (
@@ -56,6 +55,7 @@ const createProject = async (
 				items: section.items && {
 					create: section.items.map((item, index) => ({
 						...item,
+						owner: {connect: {id: userId}},
 						position: index,
 					})),
 				},
@@ -91,8 +91,6 @@ const createProject = async (
 	catch (err) {
 		console.log(err);
 	}
-
-	sendMetric({metric: 'inyo.project.created'});
 
 	await ctx.db.createUserEvent({
 		type: 'CREATED_PROJECT',

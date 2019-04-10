@@ -27,7 +27,7 @@ const updateCustomer = async (
 	const email
 		= String(rawEmail || customer.email || '').toLowerCase() || undefined;
 
-	return ctx.db.updateCustomer({
+	const updatedCustomer = await ctx.db.updateCustomer({
 		where: {id},
 		data: {
 			...customer,
@@ -39,6 +39,18 @@ const updateCustomer = async (
 			phone,
 		},
 	});
+
+	await ctx.db.createUserEvent({
+		type: 'UPDATED_CUSTOMER',
+		user: {
+			connect: {id: userId},
+		},
+		metadata: {
+			id: updatedCustomer.id,
+		},
+	});
+
+	return updatedCustomer;
 };
 
 module.exports = {

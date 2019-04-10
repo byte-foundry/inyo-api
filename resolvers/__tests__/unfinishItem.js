@@ -1,7 +1,10 @@
 import {unfinishItem} from '../unfinishItem';
 
 jest.mock('../../utils');
-jest.mock('../../stats');
+
+const db = {
+	createUserEvent() {},
+};
 
 describe('unfinishItem', () => {
 	it('should let a user reset a project user item', async () => {
@@ -13,6 +16,7 @@ describe('unfinishItem', () => {
 				get: () => 'user-token',
 			},
 			db: {
+				...db,
 				items: () => ({
 					$fragment: () => [
 						{
@@ -76,6 +80,7 @@ describe('unfinishItem', () => {
 				get: () => '',
 			},
 			db: {
+				...db,
 				items: () => ({
 					$fragment: () => [
 						{
@@ -138,6 +143,7 @@ describe('unfinishItem', () => {
 				get: () => 'user-token',
 			},
 			db: {
+				...db,
 				items: () => ({
 					$fragment: () => [
 						{
@@ -198,6 +204,7 @@ describe('unfinishItem', () => {
 				get: () => '',
 			},
 			db: {
+				...db,
 				items: () => ({
 					$fragment: () => [
 						{

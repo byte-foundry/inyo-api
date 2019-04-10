@@ -1,7 +1,6 @@
 import {addItem} from '../addItem';
 
 jest.mock('../../utils');
-jest.mock('../../stats');
 
 const db = {
 	user: () => ({
