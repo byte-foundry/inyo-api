@@ -216,6 +216,7 @@ const Query = {
 		where: {
 			type_in: ['DELAY', 'FIRST', 'SECOND', 'LAST'],
 			item: createItemOwnerFilter(getUserId(ctx)),
+			sendingDate_gt: new Date(),
 		},
 	}),
 	items,
