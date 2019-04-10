@@ -1,10 +1,27 @@
 const moment = require('moment');
+const glouton = require('glouton');
 const IntercomClient = require('intercom-client').Client;
 const {prisma} = require('../generated/prisma-client');
 
 const gql = String.raw;
 
 const intercom = new IntercomClient({token: process.env.INTERCOM_TOKEN});
+
+const updateIntercomUser = glouton(
+	(...args) => intercom.users.update(...args),
+	{
+		concurrency: 100,
+		validateResponse: (r) => {
+			if (r.statusCode !== 200) {
+				// TODO: postpone until limit end
+				console.log(r.headers);
+				return 10000;
+			}
+
+			return true;
+		},
+	},
+);
 
 const updateIntercom = async (req, res) => {
 	console.log('Updating number of active days last 7 days.');
@@ -90,7 +107,7 @@ const updateIntercom = async (req, res) => {
 			const sessionsCount = sessions.length;
 			const activeSessionsCount = activeSessions.length;
 
-			return intercom.users.update({
+			return updateIntercomUser({
 				user_id: user.id,
 				email: user.email,
 				custom_attributes: {
