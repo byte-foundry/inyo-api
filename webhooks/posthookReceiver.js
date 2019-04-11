@@ -82,10 +82,11 @@ const posthookReceiver = async (req, res) => {
 		case 'FIRST':
 		case 'SECOND':
 		case 'LAST':
+		case 'USER_WARNING':
 			callback = sendReminderEmail;
 			break;
 		default:
-			console.error('Unknow reminder', reminder, req.body);
+			console.error('Unknown reminder', reminder, req.body);
 			throw new Error('Unknown reminder');
 		}
 
