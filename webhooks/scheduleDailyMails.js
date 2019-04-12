@@ -237,7 +237,7 @@ const scheduleDailyMails = async (req, res) => {
 					},
 				},
 				{
-					projects: {
+					projects_some: {
 						deadline_lt: moment().add(1, 'days'),
 						deadline_gt: moment(),
 					},
