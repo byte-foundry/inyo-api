@@ -17,6 +17,7 @@ const Project = {
 	name: node => node.name,
 	template: node => node.template,
 	customer: (node, args, ctx) => ctx.db.project({id: node.id}).customer(),
+	token: node => node.token,
 	owner: async (node, args, ctx) => {
 		const owner = await ctx.db.project({id: node.id}).owner();
 
