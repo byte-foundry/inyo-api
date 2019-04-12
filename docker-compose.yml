@@ -20,6 +20,8 @@ services:
     image: postgres:10.5
     restart: always
     environment:
+			SLOW_QUERIES_LOGGING: "true"
+			SLOW_QUERIES_LOGGING_THRESHOLD: "5000"
       POSTGRES_USER: prisma
       POSTGRES_PASSWORD: prisma
     volumes:
