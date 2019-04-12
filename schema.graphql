@@ -339,6 +339,7 @@ type Customer {
 	lastName: String
 	name: String
 	email: String!
+	token: String
 	address: Address
 	phone: String
 	siret: String
@@ -522,6 +523,7 @@ type Project {
 		@deprecated(reason: "Company is not used anymore. Use `owner` instead")
 	owner: User!
 	customer: Customer
+	token: String
 	status: ProjectStatus!
 	sections: [Section!]!
 	total: Float
