@@ -318,6 +318,8 @@ type User {
 		@relation(name: "UserMorningReminders", onDelete: CASCADE)
 	eveningReminders: [Reminder!]!
 		@relation(name: "UserEveningReminders", onDelete: CASCADE)
+	resetFocusReminders: [Reminder!]!
+		@relation(name: "UserResetFocusReminders", onDelete: CASCADE)
 	defaultDailyPrice: Int @default(value: 350)
 	defaultVatRate: Int @default(value: 20)
 	commentViews: [CommentView!]!
@@ -345,6 +347,7 @@ type Reminder {
 	user: User @relation(name: "UserReminder")
 	morningRemindersUser: User @relation(name: "UserMorningReminders")
 	eveningRemindersUser: User @relation(name: "UserEveningReminders")
+	resetFocusRemindersUser: User @relation(name: "UserResetFocusReminders")
 	snoozedItem: Item @relation(name: "SnoozeReminders")
 	postHookId: String!
 	type: ReminderType!
