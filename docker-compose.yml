@@ -4,7 +4,7 @@ services:
     image: prismagraphql/prisma:1.30.1
     restart: always
     ports:
-    - "4470:4470"
+      - '4470:4470'
     environment:
       PRISMA_CONFIG: |
         port: 4470
@@ -20,8 +20,8 @@ services:
     image: postgres:10.5
     restart: always
     environment:
-			SLOW_QUERIES_LOGGING: "true"
-			SLOW_QUERIES_LOGGING_THRESHOLD: "5000"
+      SLOW_QUERIES_LOGGING: 'true'
+      SLOW_QUERIES_LOGGING_THRESHOLD: '5000'
       POSTGRES_USER: prisma
       POSTGRES_PASSWORD: prisma
     volumes:
