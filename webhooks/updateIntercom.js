@@ -24,7 +24,7 @@ const updateIntercomUser = glouton(
 );
 
 const updateIntercom = async (req, res) => {
-	console.log('Updating number of active days last 7 days.');
+	console.log('Updating intercom active stats');
 
 	let sessionsDayFragments = '';
 
@@ -75,15 +75,43 @@ const updateIntercom = async (req, res) => {
 			}, first: 1) {
 				createdAt
 			}
+
+			finishedTasksEvents: userEvents(where: {
+				type_in: FINISHED_TASK
+				createdAt_gt: "${moment()
+		.subtract(7, 'days')
+		.format()}"
+			}) {
+				createdAt
+			}
+
+			createdProjectsEvents: userEvents(where: {
+				type_in: CREATED_PROJECT
+				createdAt_gt: "${moment()
+		.subtract(30, 'days')
+		.format()}"
+			}) {
+				createdAt
+			}
 		`;
 	}
 
 	const users = await prisma.users({
 		where: {
 			userEvents_some: {
-				createdAt_gt: moment()
-					.subtract(8, 'days')
-					.format(),
+				OR: [
+					{
+						createdAt_gt: moment()
+							.subtract(8, 'days')
+							.format(),
+					},
+					{
+						type_in: 'CREATED_PROJECT',
+						createdAt_gt: moment()
+							.subtract(31, 'days')
+							.format(),
+					},
+				],
 			},
 		},
 	}).$fragment(gql`
@@ -93,6 +121,8 @@ const updateIntercom = async (req, res) => {
 			${sessionsDayFragments}
 		}
 	`);
+
+	console.log(users.length, 'users to update');
 
 	await Promise.all(
 		users.map((user) => {
@@ -106,6 +136,8 @@ const updateIntercom = async (req, res) => {
 
 			const sessionsCount = sessions.length;
 			const activeSessionsCount = activeSessions.length;
+			const finishedTasksEventsCount = user.finishedTasksEvents.length;
+			const createdProjectsEventsCount = user.createdProjectsEvents.length;
 
 			return updateIntercomUser({
 				user_id: user.id,
@@ -113,6 +145,8 @@ const updateIntercom = async (req, res) => {
 				custom_attributes: {
 					'visit-days-last-7-days': sessionsCount,
 					'active-days-last-7-days': activeSessionsCount,
+					'tasks-finished-last-7-days': finishedTasksEventsCount,
+					'projects-created-last-30-days': createdProjectsEventsCount,
 				},
 			});
 		}),
@@ -120,7 +154,7 @@ const updateIntercom = async (req, res) => {
 		console.error('Error updating intercom values', e.body);
 	});
 
-	console.log('Updated number of active days last 7 days.');
+	console.log('Updating intercom active stats');
 	res.status(200).send();
 };
 
