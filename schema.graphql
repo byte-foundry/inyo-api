@@ -433,7 +433,6 @@ type Reminder {
 }
 
 type ReminderPreview {
-	item: Item!
 	type: ReminderType!
 	sendingDate: DateTime!
 	delay: Int!
