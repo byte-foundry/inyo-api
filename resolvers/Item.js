@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const Item = {
 	id: node => node.id,
 	name: node => node.name,
@@ -46,6 +48,28 @@ const Item = {
 			type_in: ['DELAY', 'FIRST', 'SECOND', 'LAST'],
 		},
 	}),
+	remindersPreviews: () => [
+		{
+			type: 'DELAY',
+			sendingDate: moment().add(5, 'minutes'),
+			delay: moment.duration(5, 'minutes'),
+		},
+		{
+			type: 'FIRST',
+			sendingDate: moment().add(2, 'days'),
+			delay: moment.duration(2, 'days'),
+		},
+		{
+			type: 'SECOND',
+			sendingDate: moment().add(2 + 3, 'days'),
+			delay: moment.duration(2 + 3, 'days'),
+		},
+		{
+			type: 'LAST',
+			sendingDate: moment().add(2 + 3 + 1, 'days'),
+			delay: moment.duration(2 + 3 + 1, 'days'),
+		},
+	],
 };
 
 module.exports = {
