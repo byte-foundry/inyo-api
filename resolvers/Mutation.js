@@ -33,6 +33,9 @@ const {updateCustomer} = require('./updateCustomer');
 const {removeCustomer} = require('./removeCustomer');
 const {cancelReminder} = require('./cancelReminder');
 const {sendReminderTestEmail} = require('./sendReminderTestEmail');
+const {
+	sendReminderPreviewTestEmail,
+} = require('./sendReminderPreviewTestEmail');
 
 const Mutation = {
 	checkEmailAvailability,
@@ -112,6 +115,7 @@ const Mutation = {
 	removeFile,
 	cancelReminder,
 	sendReminderTestEmail,
+	sendReminderPreviewTestEmail,
 };
 
 module.exports = {
