@@ -252,7 +252,7 @@ type Mutation {
 	# sends a test email to the user
 	sendReminderTestEmail(id: ID!): Boolean!
 	# sends a test preview email to the user
-	sendReminderPreviewTestEmail(itemId: ID!, type: ReminderType): Boolean!
+	sendReminderPreviewTestEmail(taskId: ID!, type: ReminderType!): Boolean!
 }
 
 input CommentInput {

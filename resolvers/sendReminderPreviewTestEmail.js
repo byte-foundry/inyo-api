@@ -31,6 +31,7 @@ const sendReminderPreviewTestEmail = async (parent, {taskId, type}, ctx) => {
 		fragment Item on Item {
 			id
 			name
+			status
 			focusedBy {
 				id
 			}
