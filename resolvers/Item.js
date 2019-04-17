@@ -52,22 +52,22 @@ const Item = {
 		{
 			type: 'DELAY',
 			sendingDate: moment().add(5, 'minutes'),
-			delay: moment.duration(5, 'minutes').seconds(),
+			delay: moment.duration(5, 'minutes').asSeconds(),
 		},
 		{
 			type: 'FIRST',
 			sendingDate: moment().add(2, 'days'),
-			delay: moment.duration(2, 'days').seconds(),
+			delay: moment.duration(2, 'days').asSeconds(),
 		},
 		{
 			type: 'SECOND',
 			sendingDate: moment().add(2 + 3, 'days'),
-			delay: moment.duration(2 + 3, 'days').seconds(),
+			delay: moment.duration(2 + 3, 'days').asSeconds(),
 		},
 		{
 			type: 'LAST',
 			sendingDate: moment().add(2 + 3 + 1, 'days'),
-			delay: moment.duration(2 + 3 + 1, 'days').seconds(),
+			delay: moment.duration(2 + 3 + 1, 'days').asSeconds(),
 		},
 	],
 };
