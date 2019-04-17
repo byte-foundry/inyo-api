@@ -142,6 +142,7 @@ enum DAY {
 }
 
 enum CustomerEventType {
+	VIEWED_PROJECT
 	POSTED_COMMENT
 }
 
