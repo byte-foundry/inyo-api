@@ -93,26 +93,55 @@ const updateIntercom = async (req, res) => {
 			}) {
 				createdAt
 			}
+
+			projects(where: {customer: {customerEvents_some: {created_gt: "${moment()
+		.subtract(15, 'days')
+		.format()}"}}}) {
+				customer(where: {customerEvents_some: {created_gt: "${moment()
+		.subtract(15, 'days')
+		.format()}"}}) {
+					customerEvents(where: {created_gt: "${moment()
+		.subtract(15, 'days')
+		.format()}"}) {
+						createdAt
+					},
+				},
+			},
 		`;
 	}
 
 	const users = await prisma.users({
 		where: {
-			userEvents_some: {
-				OR: [
-					{
-						createdAt_gt: moment()
-							.subtract(8, 'days')
-							.format(),
+			OR: [
+				{
+					userEvents_some: {
+						OR: [
+							{
+								createdAt_gt: moment()
+									.subtract(8, 'days')
+									.format(),
+							},
+							{
+								type_in: 'CREATED_PROJECT',
+								createdAt_gt: moment()
+									.subtract(31, 'days')
+									.format(),
+							},
+						],
 					},
-					{
-						type_in: 'CREATED_PROJECT',
-						createdAt_gt: moment()
-							.subtract(31, 'days')
-							.format(),
+				},
+				{
+					projects_some: {
+						customer: {
+							customerEvents_some: {
+								createdAt_gt: moment()
+									.subtract(16, 'days')
+									.format(),
+							},
+						},
 					},
-				],
-			},
+				},
+			],
 		},
 	}).$fragment(gql`
 		fragment UserSessions on User {
@@ -138,6 +167,10 @@ const updateIntercom = async (req, res) => {
 			const activeSessionsCount = activeSessions.length;
 			const finishedTasksEventsCount = user.finishedTasksEvents.length;
 			const createdProjectsEventsCount = user.createdProjectsEvents.length;
+			const customerProjectViewsCount = user.projects.reduce(
+				(sum, project) => sum + project.customer.customerEvents.length,
+				0,
+			);
 
 			return updateIntercomUser({
 				user_id: user.id,
@@ -147,6 +180,7 @@ const updateIntercom = async (req, res) => {
 					'active-days-last-7-days': activeSessionsCount,
 					'tasks-finished-last-7-days': finishedTasksEventsCount,
 					'projects-created-last-30-days': createdProjectsEventsCount,
+					'customer-project-views-last-15-days': customerProjectViewsCount,
 				},
 			});
 		}),

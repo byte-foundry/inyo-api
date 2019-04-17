@@ -34,6 +34,8 @@ type Customer {
 	commentViews: [CommentView!]!
 		@relation(name: "CommentViewCustomer", onDelete: CASCADE)
 	files: [File!]! @relation(name: "CustomerFiles")
+	customerEvents: [CustomerEvent!]!
+		@relation(name: "CustomerCustomerEvents", onDelete: CASCADE)
 }
 
 enum QuoteStatus {
@@ -137,6 +139,10 @@ enum DAY {
 	FRIDAY
 	SATURDAY
 	SUNDAY
+}
+
+enum CustomerEventType {
+	POSTED_COMMENT
 }
 
 enum UserEventType {
@@ -380,5 +386,13 @@ type UserEvent {
 	type: UserEventType!
 	createdAt: DateTime!
 	user: User @relation(name: "UserUserEvents")
+	metadata: Json @default(value: "{}")
+}
+
+type CustomerEvent {
+	id: ID! @unique
+	type: CustomerEventType!
+	createdAt: DateTime!
+	customer: Customer! @relation(name: "CustomerCustomerEvents")
 	metadata: Json @default(value: "{}")
 }

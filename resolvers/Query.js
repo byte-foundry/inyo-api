@@ -48,6 +48,16 @@ const Query = {
 				project.viewedByCustomer = true;
 			}
 
+			await ctx.db.createCustomerEvent({
+				type: 'VIEWED_PROJECT',
+				customer: {
+					connect: {token},
+				},
+				metadata: {
+					projectId: project.id,
+				},
+			});
+
 			return project;
 		}
 
