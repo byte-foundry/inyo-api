@@ -94,13 +94,13 @@ const updateIntercom = async (req, res) => {
 				createdAt
 			}
 
-			projects(where: {customer: {customerEvents_some: {created_gt: "${moment()
+			projects(where: {customer: {customerEvents_some: {createdAt_gt: "${moment()
 		.subtract(15, 'days')
 		.format()}"}}}) {
-				customer(where: {customerEvents_some: {created_gt: "${moment()
+				customer(where: {customerEvents_some: {createdAt_gt: "${moment()
 		.subtract(15, 'days')
 		.format()}"}}) {
-					customerEvents(where: {created_gt: "${moment()
+					customerEvents(where: {createdAt_gt: "${moment()
 		.subtract(15, 'days')
 		.format()}"}) {
 						createdAt
