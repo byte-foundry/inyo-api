@@ -97,9 +97,7 @@ const updateIntercom = async (req, res) => {
 			projects(where: {customer: {customerEvents_some: {createdAt_gt: "${moment()
 		.subtract(15, 'days')
 		.format()}"}}}) {
-				customer(where: {customerEvents_some: {createdAt_gt: "${moment()
-		.subtract(15, 'days')
-		.format()}"}}) {
+				customer {
 					customerEvents(where: {createdAt_gt: "${moment()
 		.subtract(15, 'days')
 		.format()}"}) {
