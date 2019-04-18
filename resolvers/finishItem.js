@@ -38,6 +38,7 @@ const cancelPendingReminders = async (pendingReminders, itemId, ctx) => {
 const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 	const fragment = gql`
 		fragment ItemWithProject on Item {
+			id
 			name
 			status
 			unit
@@ -60,6 +61,11 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 			}
 			section {
 				project {
+					owner {
+						email
+						firstName
+						lastName
+					}
 					customer {
 						title
 						firstName

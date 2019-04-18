@@ -34,6 +34,8 @@ type Customer {
 	commentViews: [CommentView!]!
 		@relation(name: "CommentViewCustomer", onDelete: CASCADE)
 	files: [File!]! @relation(name: "CustomerFiles")
+	customerEvents: [CustomerEvent!]!
+		@relation(name: "CustomerCustomerEvents", onDelete: CASCADE)
 }
 
 enum QuoteStatus {
@@ -53,7 +55,6 @@ enum QuoteTemplate {
 
 enum ProjectStatus {
 	ONGOING
-	FINISHED # deprecated
 	ARCHIVED
 	REMOVED
 }
@@ -138,6 +139,11 @@ enum DAY {
 	FRIDAY
 	SATURDAY
 	SUNDAY
+}
+
+enum CustomerEventType {
+	VIEWED_PROJECT
+	POSTED_COMMENT
 }
 
 enum UserEventType {
@@ -319,6 +325,8 @@ type User {
 		@relation(name: "UserMorningReminders", onDelete: CASCADE)
 	eveningReminders: [Reminder!]!
 		@relation(name: "UserEveningReminders", onDelete: CASCADE)
+	resetFocusReminders: [Reminder!]!
+		@relation(name: "UserResetFocusReminders", onDelete: CASCADE)
 	defaultDailyPrice: Int @default(value: 350)
 	defaultVatRate: Int @default(value: 20)
 	commentViews: [CommentView!]!
@@ -346,6 +354,7 @@ type Reminder {
 	user: User @relation(name: "UserReminder")
 	morningRemindersUser: User @relation(name: "UserMorningReminders")
 	eveningRemindersUser: User @relation(name: "UserEveningReminders")
+	resetFocusRemindersUser: User @relation(name: "UserResetFocusReminders")
 	snoozedItem: Item @relation(name: "SnoozeReminders")
 	postHookId: String!
 	type: ReminderType!
@@ -378,5 +387,13 @@ type UserEvent {
 	type: UserEventType!
 	createdAt: DateTime!
 	user: User @relation(name: "UserUserEvents")
+	metadata: Json @default(value: "{}")
+}
+
+type CustomerEvent {
+	id: ID! @unique
+	type: CustomerEventType!
+	createdAt: DateTime!
+	customer: Customer! @relation(name: "CustomerCustomerEvents")
 	metadata: Json @default(value: "{}")
 }

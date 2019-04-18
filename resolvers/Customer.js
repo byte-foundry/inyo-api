@@ -5,6 +5,7 @@ const Customer = {
 	address: (node, args, ctx) => ctx.db.customer({id: node.id}).address(),
 	phone: node => node.phone,
 	siret: node => node.siret,
+	token: node => node.token,
 	rcs: node => node.rcs,
 	rm: node => node.rm,
 	vat: node => node.vat,

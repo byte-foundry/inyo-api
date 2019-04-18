@@ -81,6 +81,7 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 		}
 
 		let user = item.owner;
+
 		let customer = item.linkedCustomer;
 
 		if (item.section) {
@@ -134,6 +135,17 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 		catch (error) {
 			console.log(`New comment email not because with error ${error}`);
 		}
+
+		await ctx.db.createCustomerEvent({
+			type: 'POSTED_COMMENT',
+			customer: {
+				connect: {id: customer.id},
+			},
+			metadata: {
+				itemId,
+				commentId: result.id,
+			},
+		});
 
 		return result;
 	}

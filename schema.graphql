@@ -251,6 +251,8 @@ type Mutation {
 
 	# sends a test email to the user
 	sendReminderTestEmail(id: ID!): Boolean!
+	# sends a test preview email to the user
+	sendReminderPreviewTestEmail(taskId: ID!, type: ReminderType!): Boolean!
 }
 
 input CommentInput {
@@ -339,6 +341,7 @@ type Customer {
 	lastName: String
 	name: String
 	email: String!
+	token: String
 	address: Address
 	phone: String
 	siret: String
@@ -430,6 +433,12 @@ type Reminder {
 	status: ReminderStatus
 }
 
+type ReminderPreview {
+	type: ReminderType!
+	sendingDate: DateTime!
+	delay: Int!
+}
+
 union Viewer = User | Customer
 
 type CommentView {
@@ -469,6 +478,7 @@ type Item {
 	comments: [Comment!]!
 	status: ItemStatus!
 	reminders: [Reminder!]!
+	remindersPreviews: [ReminderPreview!]!
 	position: Int
 	timeItTook: Float
 	dueDate: DateTime
@@ -522,6 +532,7 @@ type Project {
 		@deprecated(reason: "Company is not used anymore. Use `owner` instead")
 	owner: User!
 	customer: Customer
+	token: String
 	status: ProjectStatus!
 	sections: [Section!]!
 	total: Float

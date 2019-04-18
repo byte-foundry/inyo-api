@@ -119,6 +119,14 @@ const focusTask = async (parent, {id}, ctx) => {
 		}
 		// TODO: Are they quite identical?
 		else if (item.type === 'CUSTOMER') {
+			let userUrl = getAppUrl(`/tasks/${item.id}`);
+
+			if (item.section) {
+				const {project} = item.section;
+
+				userUrl = getAppUrl(`/tasks/${item.id}?projectId=${project.id}`);
+			}
+
 			if (!item.pendingReminders.length) {
 				await setupItemReminderEmail(
 					{
@@ -126,6 +134,7 @@ const focusTask = async (parent, {id}, ctx) => {
 						itemId: item.id,
 						description: filterDescription(item.description),
 						issueDate: new Date(),
+						userUrl,
 					},
 					ctx,
 				);

@@ -48,6 +48,16 @@ const Query = {
 				project.viewedByCustomer = true;
 			}
 
+			await ctx.db.createCustomerEvent({
+				type: 'VIEWED_PROJECT',
+				customer: {
+					connect: {token},
+				},
+				metadata: {
+					projectId: project.id,
+				},
+			});
+
 			return project;
 		}
 
@@ -216,6 +226,7 @@ const Query = {
 		where: {
 			type_in: ['DELAY', 'FIRST', 'SECOND', 'LAST'],
 			item: createItemOwnerFilter(getUserId(ctx)),
+			sendingDate_gt: new Date(),
 		},
 	}),
 	items,

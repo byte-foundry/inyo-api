@@ -28,6 +28,7 @@ async function setupItemReminderEmail({
 	itemName,
 	items,
 	url,
+	userUrl,
 	itemId,
 	issueDate,
 }) {
@@ -37,64 +38,75 @@ async function setupItemReminderEmail({
 			templateId: 'd-90847153d18843ad97755874cf092130',
 			reminderType: 'DELAY',
 			email,
+			url,
 		},
 		/* 2 days */ {
 			date: moment(issueDate).add(2, 'days'),
 			templateId: 'd-e39a839701644fd9935f437056ad535a',
 			reminderType: 'FIRST',
 			email,
+			url,
 		},
 		/* 3 days */ {
 			date: moment(issueDate).add(2 + 3, 'days'),
 			templateId: 'd-4ad0e13f00dd485ca0d98fd1d62cd7f6',
 			reminderType: 'SECOND',
 			email,
+			url,
 		},
 		/* 1 day */ {
 			date: moment(issueDate).add(2 + 3 + 1, 'days'),
 			templateId: 'd-97b5ce25a4464a3888b359ac02f34168',
 			reminderType: 'LAST',
 			email,
+			url,
 		},
 		/* 1 day */ {
 			date: moment(issueDate).add(2 + 3 + 1 + 1, 'days'),
 			templateId: 'd-f0a78ca3f43d4f558afa87dc32d3905d',
 			reminderType: 'USER_WARNING',
 			email: userEmail,
+			url: userUrl,
 		},
 	];
 
 	return Promise.all(
-		dates.map(async ({
-			date, templateId, reminderType, email: emailToSend,
-		}) => {
-			try {
-				await createPosthookReminder({
-					type: reminderType,
-					postAt: date.format(),
-					data: {
-						templateId,
-						email: emailToSend,
-						itemId,
-						user,
-						customerName,
-						projectName,
-						itemName,
-						items,
-						url,
-					},
-					item: {
-						connect: {id: itemId},
-					},
-				});
-			}
-			catch (error) {
-				console.error(
-					`Reminder of type '${reminderType}' for item '${itemId}' NOT created in posthook.`,
-					error,
-				);
-			}
-		}),
+		dates.map(
+			async ({
+				date,
+				templateId,
+				reminderType,
+				email: emailToSend,
+				url: taskUrl,
+			}) => {
+				try {
+					await createPosthookReminder({
+						type: reminderType,
+						postAt: date.format(),
+						data: {
+							templateId,
+							email: emailToSend,
+							itemId,
+							user,
+							customerName,
+							projectName,
+							itemName,
+							items,
+							url: taskUrl,
+						},
+						item: {
+							connect: {id: itemId},
+						},
+					});
+				}
+				catch (error) {
+					console.error(
+						`Reminder of type '${reminderType}' for item '${itemId}' NOT created in posthook.`,
+						error,
+					);
+				}
+			},
+		),
 	);
 }
 
