@@ -302,6 +302,9 @@ type Company {
 
 type Settings {
 	user: User! @relation(name: "UserSettings")
+	assistantName: String! @default(value: "Edwige")
+
+	# deprecated
 	askItemFinishConfirmation: Boolean! @default(value: true)
 	askSendQuoteConfirmation: Boolean! @default(value: true)
 	askStartProjectConfirmation: Boolean! @default(value: true)

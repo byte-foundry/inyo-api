@@ -281,6 +281,7 @@ input CompanyInput {
 }
 
 input SettingsInput {
+	assistantName: String
 	askItemFinishConfirmation: Boolean
 	askSendQuoteConfirmation: Boolean
 	askStartProjectConfirmation: Boolean
@@ -580,6 +581,7 @@ enum JobType {
 }
 
 type Settings {
+	assistantName: String!
 	askItemFinishConfirmation: Boolean!
 		@deprecated(reason: "Not available anymore.")
 	askSendQuoteConfirmation: Boolean!
