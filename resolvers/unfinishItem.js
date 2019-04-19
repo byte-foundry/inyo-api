@@ -82,6 +82,7 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 		data: {
 			status: 'PENDING',
 			finishedAt: null,
+			timeItTook: null,
 		},
 	});
 

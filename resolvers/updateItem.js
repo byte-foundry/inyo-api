@@ -37,6 +37,7 @@ const updateItem = async (
 		type,
 		description,
 		unit,
+		timeItTook,
 		comment,
 		position: wantedPosition,
 		token,
@@ -117,7 +118,12 @@ const updateItem = async (
 		throw new NotFoundError(`Item '${id}' has not been found.`);
 	}
 
+	if (item.status !== 'FINISHED' && typeof timeItTook === 'number') {
+		throw new Error('Cannot update timeItTook in this state.');
+	}
+
 	let position;
+
 	let wantedSection = item.section || (sectionId && {id: sectionId});
 
 	if (projectId && !sectionId) {
@@ -243,6 +249,7 @@ const updateItem = async (
 			type,
 			description,
 			unit,
+			timeItTook,
 			position,
 			dueDate,
 			comments: {
