@@ -9,14 +9,12 @@ async function sendEmail({
 	let assistantName = 'Edwige';
 
 	if (meta && meta.userId) {
-		const user = await ctx.db.user({
-			id: meta.userId,
-		});
+		const settings = await ctx.db.user({}).settings();
 
-		({assistantName} = user);
+		({assistantName} = settings);
 	}
 
-	const assistantEmailName = slugify(assistantName);
+	const assistantEmailName = slugify(assistantName.toLowerCase());
 
 	const request = {
 		method: 'POST',

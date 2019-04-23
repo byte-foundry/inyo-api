@@ -180,6 +180,7 @@ describe('finishItem', () => {
 			expect.objectContaining({
 				email: 'chouche@gitan.fm',
 			}),
+			ctx,
 		);
 		expect(cancelReminder).toHaveBeenCalledWith('posthook-id');
 

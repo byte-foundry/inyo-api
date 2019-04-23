@@ -75,6 +75,7 @@ describe('postComment', () => {
 				email: 'bernarddavid@customer-project.test',
 				url: '/token-customer-project/tasks/item-id?projectId=project-id',
 			}),
+			ctx,
 		);
 
 		// linked customer
@@ -83,6 +84,7 @@ describe('postComment', () => {
 				email: 'jeanmichel@customer-task.test',
 				url: '/token-customer-task/tasks/item-id',
 			}),
+			ctx,
 		);
 
 		expect(result.comments[0]).toMatchObject(args.comment);
