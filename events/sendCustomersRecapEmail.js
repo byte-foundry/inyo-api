@@ -114,25 +114,29 @@ const sendCustomersRecapEmail = async ({userId}) => {
 
 	await Promise.all(
 		user.company.customers.map(async (customer) => {
-			await sendCustomerEveningEmail({
-				email: customer.email,
-				user: formatName(user.firstName, user.lastName),
-				customerName: String(
-					` ${formatFullName(
-						customer.title,
-						customer.firstName,
-						customer.lastName,
-					)}`,
-				).trimRight(),
-				projects: customer.projects.map(project => ({
-					...project,
-					url: getAppUrl(`/${customer.token}/tasks?projectId=${project.id}`),
-				})),
-				tasks: customer.linkedTasks.map(task => ({
-					...task,
-					url: getAppUrl(`/${customer.token}/tasks/${task.id}`),
-				})),
-			});
+			await sendCustomerEveningEmail(
+				{
+					meta: {userId},
+					email: customer.email,
+					user: formatName(user.firstName, user.lastName),
+					customerName: String(
+						` ${formatFullName(
+							customer.title,
+							customer.firstName,
+							customer.lastName,
+						)}`,
+					).trimRight(),
+					projects: customer.projects.map(project => ({
+						...project,
+						url: getAppUrl(`/${customer.token}/tasks?projectId=${project.id}`),
+					})),
+					tasks: customer.linkedTasks.map(task => ({
+						...task,
+						url: getAppUrl(`/${customer.token}/tasks/${task.id}`),
+					})),
+				},
+				{db: prisma},
+			);
 
 			console.log(
 				`Sent today's '${user.email}'s completed tasks to ${customer.email}`,

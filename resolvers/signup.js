@@ -44,10 +44,14 @@ const signup = async (
 		console.log(`user with email ${email} created`);
 
 		if (email.includes('gmail.com')) {
-			sendSignupEmail({
-				email,
-				user: String(`${firstName} ${lastName}`).trim(),
-			});
+			sendSignupEmail(
+				{
+					meta: {userId: user.id},
+					email,
+					user: String(`${firstName} ${lastName}`).trim(),
+				},
+				ctx,
+			);
 		}
 
 		return {

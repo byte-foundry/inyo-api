@@ -86,6 +86,7 @@ const sendReminderPreviewTestEmail = async (parent, {taskId, type}, ctx) => {
 	}
 
 	const basicInfos = {
+		meta: {userId},
 		templateId: templatesId[type],
 		email: user.email,
 
@@ -101,7 +102,60 @@ const sendReminderPreviewTestEmail = async (parent, {taskId, type}, ctx) => {
 		) {
 			const {linkedCustomer} = item;
 
-			await sendReminderEmail({
+			await sendReminderEmail(
+				{
+					...basicInfos,
+					customerName: String(
+						` ${formatFullName(
+							linkedCustomer.title,
+							linkedCustomer.firstName,
+							linkedCustomer.lastName,
+						)}`,
+					).trimRight(),
+					customerEmail: linkedCustomer.email,
+					customerPhone: linkedCustomer.phone,
+					projectName: item.section.project.name,
+					url: getAppUrl(`/${linkedCustomer.token}/tasks/${item.id}`),
+				},
+				ctx,
+			);
+
+			return true;
+		}
+
+		if (item.section.project.customer) {
+			await sendReminderEmail(
+				{
+					...basicInfos,
+					customerName: String(
+						` ${formatFullName(
+							customer.title,
+							customer.firstName,
+							customer.lastName,
+						)}`,
+					).trimRight(),
+					customerEmail: customer.email,
+					customerPhone: customer.phone,
+					projectName: item.section.project.name,
+					url: getAppUrl(
+						`/${customer.token}/tasks/${item.id}?projectId=${
+							item.section.project.id
+						}`,
+					),
+				},
+				ctx,
+			);
+
+			return true;
+		}
+
+		throw new Error('The task linked to the reminder has no customer.');
+	}
+	else if (item.linkedCustomer) {
+		const {linkedCustomer} = item;
+
+		await sendReminderEmail(
+			{
 				...basicInfos,
 				customerName: String(
 					` ${formatFullName(
@@ -112,54 +166,10 @@ const sendReminderPreviewTestEmail = async (parent, {taskId, type}, ctx) => {
 				).trimRight(),
 				customerEmail: linkedCustomer.email,
 				customerPhone: linkedCustomer.phone,
-				projectName: item.section.project.name,
 				url: getAppUrl(`/${linkedCustomer.token}/tasks/${item.id}`),
-			});
-
-			return true;
-		}
-
-		if (item.section.project.customer) {
-			await sendReminderEmail({
-				...basicInfos,
-				customerName: String(
-					` ${formatFullName(
-						customer.title,
-						customer.firstName,
-						customer.lastName,
-					)}`,
-				).trimRight(),
-				customerEmail: customer.email,
-				customerPhone: customer.phone,
-				projectName: item.section.project.name,
-				url: getAppUrl(
-					`/${customer.token}/tasks/${item.id}?projectId=${
-						item.section.project.id
-					}`,
-				),
-			});
-
-			return true;
-		}
-
-		throw new Error('The task linked to the reminder has no customer.');
-	}
-	else if (item.linkedCustomer) {
-		const {linkedCustomer} = item;
-
-		await sendReminderEmail({
-			...basicInfos,
-			customerName: String(
-				` ${formatFullName(
-					linkedCustomer.title,
-					linkedCustomer.firstName,
-					linkedCustomer.lastName,
-				)}`,
-			).trimRight(),
-			customerEmail: linkedCustomer.email,
-			customerPhone: linkedCustomer.phone,
-			url: getAppUrl(`/${linkedCustomer.token}/tasks/${item.id}`),
-		});
+			},
+			ctx,
+		);
 
 		return true;
 	}

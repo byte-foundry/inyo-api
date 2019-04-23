@@ -14,11 +14,15 @@ const sendResetPassword = async (parent, {email: rawEmail}, ctx) => {
 	try {
 		const resetToken = sign({email}, APP_SECRET, {expiresIn: 2 * 60 * 60});
 
-		sendResetPasswordEmail({
-			email,
-			user: String(`${user.firstName} ${user.lastName}`).trim(),
-			url: getRootUrl(`/auth/reset/${resetToken}`),
-		});
+		sendResetPasswordEmail(
+			{
+				meta: {userId: user.id},
+				email,
+				user: String(`${user.firstName} ${user.lastName}`).trim(),
+				url: getRootUrl(`/auth/reset/${resetToken}`),
+			},
+			ctx,
+		);
 	}
 	catch (err) {
 		throw new Error(

@@ -25,11 +25,15 @@ const sendSlippingAwayEmail = async ({userId}) => {
 		return {status: 'CANCELED'};
 	}
 
-	await sendEmail({
-		email: user.email,
-		user: formatName(user.firstName, user.lastName),
-		emailForSurvey: user.email,
-	});
+	await sendEmail(
+		{
+			meta: {userId},
+			email: user.email,
+			user: formatName(user.firstName, user.lastName),
+			emailForSurvey: user.email,
+		},
+		{db: prisma},
+	);
 
 	console.log("Sent today's slipping away prevention to", user.email);
 	return {status: 'SENT'};

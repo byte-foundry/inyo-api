@@ -115,6 +115,7 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 		}
 
 		let user = item.owner;
+
 		let customer = item.linkedCustomer;
 
 		if (item.section) {
@@ -125,19 +126,23 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 		}
 
 		try {
-			await sendTaskValidationEmail({
-				email: user.email,
-				user: formatFullName(
-					customer.title,
-					customer.firstName,
-					customer.lastName,
-				),
-				customerName: String(
-					` ${formatName(user.firstName, user.lastName)}`,
-				).trimRight(),
-				itemName: item.name,
-				url: getAppUrl(`/tasks/${item.id}`),
-			});
+			await sendTaskValidationEmail(
+				{
+					meta: {userId: user.id},
+					email: user.email,
+					user: formatFullName(
+						customer.title,
+						customer.firstName,
+						customer.lastName,
+					),
+					customerName: String(
+						` ${formatName(user.firstName, user.lastName)}`,
+					).trimRight(),
+					itemName: item.name,
+					url: getAppUrl(`/tasks/${item.id}`),
+				},
+				ctx,
+			);
 			console.log(`Task validation email sent to ${user.email}`);
 		}
 		catch (error) {
