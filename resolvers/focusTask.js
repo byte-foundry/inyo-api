@@ -91,6 +91,7 @@ const focusTask = async (parent, {id}, ctx) => {
 		}
 
 		const basicInfos = {
+			meta: {userId},
 			email: customer.email,
 			userEmail: user.email,
 			user: formatName(user.firstName, user.lastName),
@@ -109,12 +110,15 @@ const focusTask = async (parent, {id}, ctx) => {
 		};
 
 		if (item.type === 'CONTENT_ACQUISITION') {
-			await sendItemContentAcquisitionEmail({
-				...basicInfos,
-				name: item.name,
-				description: item.description,
-				id: item.id,
-			});
+			await sendItemContentAcquisitionEmail(
+				{
+					...basicInfos,
+					name: item.name,
+					description: item.description,
+					id: item.id,
+				},
+				ctx,
+			);
 			console.log('Content acquisition email sent to us');
 		}
 		// TODO: Are they quite identical?
@@ -140,14 +144,6 @@ const focusTask = async (parent, {id}, ctx) => {
 				);
 				console.log(`Item '${item.id}': Reminders set.`);
 			}
-		}
-		else if (item.type === 'CUSTOMER_REMINDER') {
-			// send customer email
-			// set reminders
-		}
-		else if (item.type === 'VALIDATION') {
-			// send customer email
-			// set reminders
 		}
 	}
 

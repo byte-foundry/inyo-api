@@ -69,6 +69,7 @@ const createProject = async (
 
 	try {
 		const user = await ctx.db.user({id: userId});
+
 		let token;
 
 		if (customerId) {
@@ -78,15 +79,19 @@ const createProject = async (
 			({token} = variables.customer.create);
 		}
 
-		await sendProjectCreatedEmail({
-			userEmail: user.email,
-			name: createdProject.name,
-			url: getAppUrl(
-				`/${token || createdProject.token}/tasks?projectId=${
-					createdProject.id
-				}`,
-			),
-		});
+		await sendProjectCreatedEmail(
+			{
+				meta: {userId},
+				userEmail: user.email,
+				name: createdProject.name,
+				url: getAppUrl(
+					`/${token || createdProject.token}/tasks?projectId=${
+						createdProject.id
+					}`,
+				),
+			},
+			ctx,
+		);
 	}
 	catch (err) {
 		console.log(err);

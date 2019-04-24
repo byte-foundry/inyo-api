@@ -114,6 +114,9 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 
 		try {
 			const params = {
+				meta: {
+					userId: user.id,
+				},
 				email: user.email,
 				recipientName: formatName(user.firstName, user.lastName),
 				authorName: formatFullName(
@@ -125,10 +128,13 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 				comment,
 			};
 
-			sendNewCommentEmail({
-				...params,
-				url: getAppUrl(`/tasks/${item.id}`),
-			});
+			sendNewCommentEmail(
+				{
+					...params,
+					url: getAppUrl(`/tasks/${item.id}`),
+				},
+				ctx,
+			);
 
 			console.log(`New comment email sent to ${user.email}`);
 		}
@@ -236,6 +242,7 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 
 	try {
 		const params = {
+			meta: {userId},
 			authorName: formatName(user.firstName, user.lastName),
 			itemName: item.name,
 			comment,
@@ -247,36 +254,42 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 
 			// send to project customer
 			if (customer) {
-				await sendNewCommentEmail({
-					...params,
-					email: customer.email,
-					recipientName: formatFullName(
-						customer.title,
-						customer.firstName,
-						customer.lastName,
-					),
-					url: getAppUrl(
-						`/${customer.token}/tasks/${item.id}?projectId=${
-							section.project.id
-						}`,
-					),
-				});
+				await sendNewCommentEmail(
+					{
+						...params,
+						email: customer.email,
+						recipientName: formatFullName(
+							customer.title,
+							customer.firstName,
+							customer.lastName,
+						),
+						url: getAppUrl(
+							`/${customer.token}/tasks/${item.id}?projectId=${
+								section.project.id
+							}`,
+						),
+					},
+					ctx,
+				);
 
 				console.log(`New comment email sent to ${customer.email}`);
 			}
 
 			// send to linked
 			if (linkedCustomer) {
-				await sendNewCommentEmail({
-					...params,
-					email: linkedCustomer.email,
-					recipientName: formatFullName(
-						linkedCustomer.title,
-						linkedCustomer.firstName,
-						linkedCustomer.lastName,
-					),
-					url: getAppUrl(`/${linkedCustomer.token}/tasks/${item.id}`),
-				});
+				await sendNewCommentEmail(
+					{
+						...params,
+						email: linkedCustomer.email,
+						recipientName: formatFullName(
+							linkedCustomer.title,
+							linkedCustomer.firstName,
+							linkedCustomer.lastName,
+						),
+						url: getAppUrl(`/${linkedCustomer.token}/tasks/${item.id}`),
+					},
+					ctx,
+				);
 
 				console.log(`New comment email sent to ${linkedCustomer.email}`);
 			}
@@ -285,16 +298,19 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 			const {linkedCustomer} = item;
 
 			// send to linked
-			await sendNewCommentEmail({
-				...params,
-				email: linkedCustomer.email,
-				recipientName: formatFullName(
-					linkedCustomer.title,
-					linkedCustomer.firstName,
-					linkedCustomer.lastName,
-				),
-				url: getAppUrl(`/${linkedCustomer.token}/tasks/${item.id}`),
-			});
+			await sendNewCommentEmail(
+				{
+					...params,
+					email: linkedCustomer.email,
+					recipientName: formatFullName(
+						linkedCustomer.title,
+						linkedCustomer.firstName,
+						linkedCustomer.lastName,
+					),
+					url: getAppUrl(`/${linkedCustomer.token}/tasks/${item.id}`),
+				},
+				ctx,
+			);
 
 			console.log(`New comment email sent to ${linkedCustomer.email}`);
 		}

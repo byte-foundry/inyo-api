@@ -1,15 +1,32 @@
+const slugify = require('slugify');
 const sendGridClient = require('@sendgrid/client');
 
 sendGridClient.setApiKey(process.env.SENDGRID_API_KEY);
 
-async function sendEmail({email, data, templateId}) {
+async function sendEmail({
+	email, meta, data, templateId,
+}, ctx) {
+	let assistantName = 'Edwige';
+
+	if (meta && meta.userId) {
+		const settings = await ctx.db.user({}).settings();
+
+		({assistantName} = settings);
+	}
+
+	const assistantEmailName = slugify(assistantName.toLowerCase());
+
 	const request = {
 		method: 'POST',
 		url: '/v3/mail/send',
 		body: {
 			from: {
-				name: 'Edwige Inyo',
-				email: 'edwige@inyo.me',
+				name: assistantName,
+				email: `${assistantEmailName}@inyo.me`,
+			},
+			reply_to: {
+				email: 'suivi@inyo.me',
+				name: 'Suivi Inyo',
 			},
 			personalizations: [
 				{
@@ -18,7 +35,7 @@ async function sendEmail({email, data, templateId}) {
 							email,
 						},
 					],
-					dynamic_template_data: data,
+					dynamic_template_data: {...data, assistantName},
 				},
 			],
 			template_id: templateId,

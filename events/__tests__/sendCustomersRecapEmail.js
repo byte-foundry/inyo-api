@@ -30,7 +30,7 @@ beforeEach(() => {
 	jest.clearAllMocks();
 });
 
-describe('sendCustomersRecapEmail', async () => {
+describe('sendCustomersRecapEmail', () => {
 	it('should send an evening email to all the customers projects where tasks have been completed today', async () => {
 		const user = {
 			id: 'user-id',
@@ -123,36 +123,46 @@ describe('sendCustomersRecapEmail', async () => {
 
 		await sendCustomersRecapEmail(data);
 
-		expect(sendCustomerEveningEmail).toHaveBeenNthCalledWith(1, {
-			email: 'jeanbon@meatandgreet.test',
-			customerName: ' M. Jean Bon',
-			user: 'Jean Michel',
-			projects: user.company.customers[0].projects.map(project => ({
-				...project,
-				url: `/${user.company.customers[0].token}/tasks?projectId=${
-					project.id
-				}`,
-			})),
-			tasks: user.company.customers[0].linkedTasks.map(task => ({
-				...task,
-				url: `/${user.company.customers[0].token}/tasks/${task.id}`,
-			})),
-		});
+		expect(sendCustomerEveningEmail).toHaveBeenNthCalledWith(
+			1,
+			{
+				meta: {userId: 'user-id'},
+				email: 'jeanbon@meatandgreet.test',
+				customerName: ' M. Jean Bon',
+				user: 'Jean Michel',
+				projects: user.company.customers[0].projects.map(project => ({
+					...project,
+					url: `/${user.company.customers[0].token}/tasks?projectId=${
+						project.id
+					}`,
+				})),
+				tasks: user.company.customers[0].linkedTasks.map(task => ({
+					...task,
+					url: `/${user.company.customers[0].token}/tasks/${task.id}`,
+				})),
+			},
+			expect.objectContaining({db: prisma}),
+		);
 
-		expect(sendCustomerEveningEmail).toHaveBeenNthCalledWith(2, {
-			email: 'camionette@nissanjidosha.jp',
-			customerName: ' Mme Camille Honnête',
-			user: 'Jean Michel',
-			projects: user.company.customers[1].projects.map(project => ({
-				...project,
-				url: `/${user.company.customers[1].token}/tasks?projectId=${
-					project.id
-				}`,
-			})),
-			tasks: user.company.customers[1].linkedTasks.map(task => ({
-				...task,
-				url: `/${user.company.customers[1].token}/tasks/${task.id}`,
-			})),
-		});
+		expect(sendCustomerEveningEmail).toHaveBeenNthCalledWith(
+			2,
+			{
+				meta: {userId: 'user-id'},
+				email: 'camionette@nissanjidosha.jp',
+				customerName: ' Mme Camille Honnête',
+				user: 'Jean Michel',
+				projects: user.company.customers[1].projects.map(project => ({
+					...project,
+					url: `/${user.company.customers[1].token}/tasks?projectId=${
+						project.id
+					}`,
+				})),
+				tasks: user.company.customers[1].linkedTasks.map(task => ({
+					...task,
+					url: `/${user.company.customers[1].token}/tasks/${task.id}`,
+				})),
+			},
+			expect.objectContaining({db: prisma}),
+		);
 	});
 });

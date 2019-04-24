@@ -16,7 +16,19 @@ const sendReminderEmail = async ({templateId, email, ...data}) => {
 		return {status: 'CANCELED'};
 	}
 
-	await sendEmail({templateId, email, data});
+	const user = await prisma.item({id: itemId}).owner();
+
+	await sendEmail(
+		{
+			templateId,
+			meta: {
+				userId: user.id,
+			},
+			email,
+			data,
+		},
+		{db: prisma},
+	);
 
 	console.log(`Reminder for Item '${itemId}' sent.`);
 

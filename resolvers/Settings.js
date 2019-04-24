@@ -1,5 +1,5 @@
 const Settings = {
-	askStartProjectConfirmation: node => node.askStartProjectConfirmation,
+	assistantName: node => node.assistantName,
 };
 
 module.exports = {

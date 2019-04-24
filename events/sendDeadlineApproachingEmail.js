@@ -39,10 +39,14 @@ const sendDeadlineApproachingEmail = async ({userId}) => {
 		return {status: 'CANCELED'};
 	}
 
-	await sendEmail({
-		email: user.email,
-		user: formatName(user.firstName, user.lastName),
-	});
+	await sendEmail(
+		{
+			meta: {userId},
+			email: user.email,
+			user: formatName(user.firstName, user.lastName),
+		},
+		{db: prisma},
+	);
 
 	console.log("Sent today's deadline approaching email to", user.email);
 	return {status: 'SENT'};

@@ -3,20 +3,28 @@ const moment = require('moment');
 const sendEmail = require('./SendEmail.js');
 const {createPosthookReminder} = require('../reminders/createPosthookReminder');
 
-async function sendTaskValidationEmail({email, ...data}) {
-	return sendEmail({
-		email,
-		data,
-		templateId: 'd-fd9cee6d49d54e179210d5a080e58fb3',
-	});
+async function sendTaskValidationEmail({email, meta, ...data}, ctx) {
+	return sendEmail(
+		{
+			email,
+			meta,
+			data,
+			templateId: 'd-fd9cee6d49d54e179210d5a080e58fb3',
+		},
+		ctx,
+	);
 }
 
-async function sendItemContentAcquisitionEmail({email, ...data}) {
-	return sendEmail({
-		email: 'edwige@inyo.me',
-		data,
-		templateId: 'd-1b94796059eb45d49fbafafa101f5ddd',
-	});
+async function sendItemContentAcquisitionEmail({email, meta, ...data}, ctx) {
+	return sendEmail(
+		{
+			email: 'edwige@inyo.me',
+			meta,
+			data,
+			templateId: 'd-1b94796059eb45d49fbafafa101f5ddd',
+		},
+		ctx,
+	);
 }
 
 async function setupItemReminderEmail({
