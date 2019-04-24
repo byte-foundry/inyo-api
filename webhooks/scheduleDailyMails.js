@@ -102,6 +102,7 @@ const scheduleDailyMails = async (req, res) => {
 		fragment FocusedUser on User {
 			id
 			email
+			startWorkAt
 			endWorkAt
 			timeZone
 			workingDays
