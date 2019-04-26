@@ -71,6 +71,8 @@ type Mutation {
 		lastName: String
 		title: Title
 		phone: String
+		occupation: String
+		userNotes: Json
 	): Customer!
 	# Update a customer with new date
 	updateCustomer(
@@ -81,6 +83,8 @@ type Mutation {
 		lastName: String
 		title: Title
 		phone: String
+		occupation: String
+		userNotes: Json
 		customer: CustomerInput
 	): Customer!
 	# Remove a customer
@@ -296,6 +300,8 @@ input CustomerInput {
 	email: String!
 	address: AddressInput
 	phone: String
+	occupation: String
+	userNotes: Json
 	siret: String
 	rcs: String
 	rm: String

@@ -24,6 +24,8 @@ type Customer {
 	email: String!
 	address: Address
 	phone: String
+	occupation: String
+	userNotes: Json @default(value: "{}")
 	siret: String
 	rcs: String
 	rm: String
