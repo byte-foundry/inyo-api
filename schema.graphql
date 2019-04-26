@@ -193,7 +193,7 @@ type Mutation {
 	): Item
 
 	# Add task to the focus zone
-	focusTask(id: ID!): Item!
+	focusTask(id: ID!, reminder: [ReminderInput]): Item!
 
 	# Remove task from the focus zone
 	unfocusTask(id: ID!): Item!
@@ -327,6 +327,12 @@ input SectionInput {
 input OptionInput {
 	proposal: Json
 	sections: [SectionInput!]!
+}
+
+input ReminderInput {
+	# seconds after focus needed before notifying
+	delay: Int
+	type: ReminderType
 }
 
 type AuthPayload {
