@@ -358,6 +358,8 @@ type Customer {
 	token: String
 	address: Address
 	phone: String
+	occupation: String
+	userNotes: Json
 	siret: String
 	rcs: String
 	rm: String
