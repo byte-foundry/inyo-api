@@ -193,7 +193,7 @@ type Mutation {
 	): Item
 
 	# Add task to the focus zone
-	focusTask(id: ID!, reminder: [ReminderInput]): Item!
+	focusTask(id: ID!, reminders: [ReminderInput]): Item!
 
 	# Remove task from the focus zone
 	unfocusTask(id: ID!): Item!
