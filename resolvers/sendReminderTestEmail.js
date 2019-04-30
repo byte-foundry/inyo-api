@@ -93,6 +93,7 @@ const sendReminderTestEmail = async (parent, {id}, ctx) => {
 
 		userEmail: user.email,
 		user: formatName(user.firstName, user.lastName),
+		itemId: item.id,
 		itemName: item.name,
 	};
 
