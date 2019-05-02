@@ -27,6 +27,14 @@ async function sendItemContentAcquisitionEmail({email, meta, ...data}, ctx) {
 	);
 }
 
+const reminderTypesTemplateIds = {
+	DELAY: 'd-90847153d18843ad97755874cf092130',
+	FIRST: 'd-e39a839701644fd9935f437056ad535a',
+	SECOND: 'd-4ad0e13f00dd485ca0d98fd1d62cd7f6',
+	LAST: 'd-97b5ce25a4464a3888b359ac02f34168',
+	USER_WARNING: 'd-f0a78ca3f43d4f558afa87dc32d3905d',
+};
+
 async function setupItemReminderEmail({
 	email,
 	userEmail,
@@ -39,82 +47,67 @@ async function setupItemReminderEmail({
 	userUrl,
 	itemId,
 	issueDate,
+	reminders,
 }) {
-	const dates = [
+	const dates = reminders || [
 		/* 5 min before actually sending it */ {
-			date: moment(issueDate).add(5, 'minutes'),
-			templateId: 'd-90847153d18843ad97755874cf092130',
-			reminderType: 'DELAY',
-			email,
-			url,
+			delay: moment.duration(5, 'minutes').asSeconds(),
+			type: 'DELAY',
 		},
 		/* 2 days */ {
-			date: moment(issueDate).add(2, 'days'),
-			templateId: 'd-e39a839701644fd9935f437056ad535a',
-			reminderType: 'FIRST',
-			email,
-			url,
+			delay: moment.duration(2, 'days').asSeconds(),
+			type: 'FIRST',
 		},
 		/* 3 days */ {
-			date: moment(issueDate).add(2 + 3, 'days'),
-			templateId: 'd-4ad0e13f00dd485ca0d98fd1d62cd7f6',
-			reminderType: 'SECOND',
-			email,
-			url,
+			delay: moment.duration(2 + 3, 'days').asSeconds(),
+			type: 'SECOND',
 		},
 		/* 1 day */ {
-			date: moment(issueDate).add(2 + 3 + 1, 'days'),
-			templateId: 'd-97b5ce25a4464a3888b359ac02f34168',
-			reminderType: 'LAST',
-			email,
-			url,
-		},
-		/* 1 day */ {
-			date: moment(issueDate).add(2 + 3 + 1 + 1, 'days'),
-			templateId: 'd-f0a78ca3f43d4f558afa87dc32d3905d',
-			reminderType: 'USER_WARNING',
-			email: userEmail,
-			url: userUrl,
+			delay: moment.duration(2 + 3 + 1, 'days').asSeconds(),
+			type: 'LAST',
 		},
 	];
 
+	// adding user warning 1 day after last reminder
+	if (dates.length > 0) {
+		dates.push({
+			delay:
+				dates[dates.length - 1].delay + moment.duration(1, 'days').asSeconds(),
+			type: 'USER_WARNING',
+		});
+	}
+
 	return Promise.all(
-		dates.map(
-			async ({
-				date,
-				templateId,
-				reminderType,
-				email: emailToSend,
-				url: taskUrl,
-			}) => {
-				try {
-					await createPosthookReminder({
-						type: reminderType,
-						postAt: date.format(),
-						data: {
-							templateId,
-							email: emailToSend,
-							itemId,
-							user,
-							customerName,
-							projectName,
-							itemName,
-							items,
-							url: taskUrl,
-						},
-						item: {
-							connect: {id: itemId},
-						},
-					});
-				}
-				catch (error) {
-					console.error(
-						`Reminder of type '${reminderType}' for item '${itemId}' NOT created in posthook.`,
-						error,
-					);
-				}
-			},
-		),
+		dates.map(async ({delay, type}) => {
+			try {
+				await createPosthookReminder({
+					type,
+					postAt: moment(issueDate)
+						.add(delay, 'seconds')
+						.format(),
+					data: {
+						templateId: reminderTypesTemplateIds[type],
+						email: type === 'USER_WARNING' ? userEmail : email,
+						itemId,
+						user,
+						customerName,
+						projectName,
+						itemName,
+						items,
+						url: type === 'USER_WARNING' ? userUrl : url,
+					},
+					item: {
+						connect: {id: itemId},
+					},
+				});
+			}
+			catch (error) {
+				console.error(
+					`Reminder of type '${type}' for item '${itemId}' NOT created in posthook.`,
+					error,
+				);
+			}
+		}),
 	);
 }
 

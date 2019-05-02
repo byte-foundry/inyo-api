@@ -9,7 +9,7 @@ async function sendEmail({
 	let assistantName = 'Edwige';
 
 	if (meta && meta.userId) {
-		const settings = await ctx.db.user({}).settings();
+		const settings = await ctx.db.user({id: meta.userId}).settings();
 
 		({assistantName} = settings);
 	}

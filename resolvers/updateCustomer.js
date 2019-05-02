@@ -4,7 +4,16 @@ const {NotFoundError} = require('../errors');
 const updateCustomer = async (
 	parent,
 	{
-		id, email: rawEmail, name, firstName, lastName, title, phone, customer = {},
+		id,
+		email: rawEmail,
+		name,
+		firstName,
+		lastName,
+		title,
+		phone,
+		occupation,
+		userNotes,
+		customer = {},
 	},
 	ctx,
 ) => {
@@ -37,6 +46,8 @@ const updateCustomer = async (
 			lastName,
 			title,
 			phone,
+			occupation,
+			userNotes,
 		},
 	});
 

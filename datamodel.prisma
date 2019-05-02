@@ -24,6 +24,8 @@ type Customer {
 	email: String!
 	address: Address
 	phone: String
+	occupation: String
+	userNotes: Json @default(value: "{}")
 	siret: String
 	rcs: String
 	rm: String
@@ -31,6 +33,7 @@ type Customer {
 	quotes: [Quote!]! @relation(name: "CustomerQuotes")
 	projects: [Project!]! @relation(name: "CustomerProjects")
 	linkedTasks: [Item!]! @relation(name: "LinkedCustomerTasks")
+	comments: [Comment!]! @relation(name: "CommentAuthorCustomer")
 	commentViews: [CommentView!]!
 		@relation(name: "CommentViewCustomer", onDelete: CASCADE)
 	files: [File!]! @relation(name: "CustomerFiles")
@@ -182,8 +185,8 @@ type CommentView {
 type Comment {
 	id: ID! @unique
 	text: String!
-	authorUser: User
-	authorCustomer: Customer
+	authorUser: User @relation(name: "CommentAuthorUser")
+	authorCustomer: Customer @relation(name: "CommentAuthorCustomer")
 	viewedByUser: Boolean! @default(value: false)
 	viewedByCustomer: Boolean! @default(value: false)
 	views: [CommentView!]! @relation(name: "CommentViews", onDelete: CASCADE)
@@ -346,6 +349,7 @@ type User {
 	focusedTasks: [Item!]! @relation(name: "UserFocusedTasks", onDelete: CASCADE)
 	projects: [Project!]! @relation(name: "UserProjects", onDelete: CASCADE)
 	files: [File!]! @relation(name: "UserFiles", onDelete: CASCADE)
+	comments: [Comment!]! @relation(name: "CommentAuthorUser")
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }

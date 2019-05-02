@@ -5,7 +5,14 @@ const {getUserId} = require('../utils');
 const createCustomer = async (
 	parent,
 	{
-		email: rawEmail, name, firstName, lastName, title, phone,
+		email: rawEmail,
+		name,
+		firstName,
+		lastName,
+		title,
+		phone,
+		occupation,
+		userNotes,
 	},
 	ctx,
 ) => {
@@ -21,6 +28,8 @@ const createCustomer = async (
 		lastName,
 		title,
 		phone,
+		occupation,
+		userNotes,
 		serviceCompany: {
 			connect: {id: company.id},
 		},

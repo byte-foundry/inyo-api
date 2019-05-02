@@ -71,6 +71,8 @@ type Mutation {
 		lastName: String
 		title: Title
 		phone: String
+		occupation: String
+		userNotes: Json
 	): Customer!
 	# Update a customer with new date
 	updateCustomer(
@@ -81,6 +83,8 @@ type Mutation {
 		lastName: String
 		title: Title
 		phone: String
+		occupation: String
+		userNotes: Json
 		customer: CustomerInput
 	): Customer!
 	# Remove a customer
@@ -189,7 +193,7 @@ type Mutation {
 	): Item
 
 	# Add task to the focus zone
-	focusTask(id: ID!): Item!
+	focusTask(id: ID!, reminders: [ReminderInput]): Item!
 
 	# Remove task from the focus zone
 	unfocusTask(id: ID!): Item!
@@ -296,6 +300,8 @@ input CustomerInput {
 	email: String!
 	address: AddressInput
 	phone: String
+	occupation: String
+	userNotes: Json
 	siret: String
 	rcs: String
 	rm: String
@@ -323,6 +329,12 @@ input OptionInput {
 	sections: [SectionInput!]!
 }
 
+input ReminderInput {
+	# seconds after focus needed before notifying
+	delay: Int
+	type: ReminderType
+}
+
 type AuthPayload {
 	token: String!
 	user: User!
@@ -346,6 +358,8 @@ type Customer {
 	token: String
 	address: Address
 	phone: String
+	occupation: String
+	userNotes: Json
 	siret: String
 	rcs: String
 	rm: String

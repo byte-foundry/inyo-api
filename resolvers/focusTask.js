@@ -15,7 +15,7 @@ const {
 
 const gql = String.raw;
 
-const focusTask = async (parent, {id}, ctx) => {
+const focusTask = async (parent, {id, reminders}, ctx) => {
 	const userId = getUserId(ctx);
 	const [item] = await ctx.db.items({
 		where: {
@@ -139,6 +139,7 @@ const focusTask = async (parent, {id}, ctx) => {
 						description: filterDescription(item.description),
 						issueDate: new Date(),
 						userUrl,
+						reminders,
 					},
 					ctx,
 				);
