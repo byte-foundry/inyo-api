@@ -92,6 +92,7 @@ const sendReminderPreviewTestEmail = async (parent, {taskId, type}, ctx) => {
 
 		userEmail: user.email,
 		user: formatName(user.firstName, user.lastName),
+		itemId: item.id,
 		itemName: item.name,
 	};
 
