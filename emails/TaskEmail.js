@@ -83,7 +83,7 @@ async function setupItemReminderEmail({
 				await createPosthookReminder({
 					type,
 					postAt: moment(issueDate)
-						.add(delay)
+						.add(delay, 'seconds')
 						.format(),
 					data: {
 						templateId: reminderTypesTemplateIds[type],
