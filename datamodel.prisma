@@ -33,7 +33,7 @@ type Customer {
 	quotes: [Quote!]! @relation(name: "CustomerQuotes")
 	projects: [Project!]! @relation(name: "CustomerProjects")
 	linkedTasks: [Item!]! @relation(name: "LinkedCustomerTasks")
-	comments: [Comment!]! @relation(name: "CommentAuthorUser")
+	comments: [Comment!]! @relation(name: "CommentAuthorCustomer")
 	commentViews: [CommentView!]!
 		@relation(name: "CommentViewCustomer", onDelete: CASCADE)
 	files: [File!]! @relation(name: "CustomerFiles")
