@@ -44,6 +44,7 @@ const updateItem = async (
 		linkedCustomerId,
 		linkedCustomer,
 		dueDate,
+		tags,
 	},
 	ctx,
 ) => {

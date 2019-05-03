@@ -499,6 +499,7 @@ type Item {
 	timeItTook: Float
 	dueDate: DateTime
 	attachments: [File!]!
+	tags: [Tag!]!
 
 	reviewer: Reviewer @deprecated(reason: "Use `type: CUSTOMER` instead.")
 	unitPrice: Int @deprecated(reason: "Unit price is not used anymore.")
@@ -630,6 +631,7 @@ type User {
 	hmacIntercomId: String!
 	tasks(filter: TasksFilterInput, sort: TasksSortInput): [Item!]!
 	focusedTasks: [Item!]!
+	tags: [Tag!]!
 }
 
 union Owner = User | Customer
@@ -654,4 +656,12 @@ enum TasksSortInput {
 	dueDate_DESC
 	createdAt_ASC
 	createdAt_DESC
+}
+
+type Tag {
+	id: ID! @unique
+	name: String!
+	color: String!
+	item: Item
+	user: User
 }

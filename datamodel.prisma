@@ -225,6 +225,7 @@ type Item {
 	createdAt: DateTime!
 	updatedAt: DateTime!
 	timeItTook: Float
+	tags: [Tag!]! @relation(name: "ItemTags")
 }
 
 type Section {
@@ -352,6 +353,7 @@ type User {
 	comments: [Comment!]! @relation(name: "CommentAuthorUser")
 	createdAt: DateTime!
 	updatedAt: DateTime!
+	tags: [Tag!]! @relation(name: "UserTags", onDelete: CASCADE)
 }
 
 type Reminder {
@@ -403,4 +405,12 @@ type CustomerEvent {
 	createdAt: DateTime!
 	customer: Customer! @relation(name: "CustomerCustomerEvents")
 	metadata: Json @default(value: "{}")
+}
+
+type Tag {
+	id: ID! @unique
+	item: @relation(name: "ItemTags")
+	name: String!
+	color: String!
+	owner: @relation(name: "UserTags")
 }
