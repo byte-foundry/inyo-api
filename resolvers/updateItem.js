@@ -253,6 +253,12 @@ const updateItem = async (
 			timeItTook,
 			position,
 			dueDate,
+			tags:
+				tags && tags.length > 0
+					? {
+						connect: tags,
+					  }
+					: undefined,
 			comments: {
 				create: comment && {
 					text: comment.text,

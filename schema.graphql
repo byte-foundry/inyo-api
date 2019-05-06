@@ -659,7 +659,7 @@ enum TasksSortInput {
 }
 
 type Tag {
-	id: ID! @unique
+	id: ID!
 	name: String!
 	color: String!
 	item: Item

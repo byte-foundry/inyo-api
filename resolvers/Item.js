@@ -42,6 +42,7 @@ const Item = {
 	position: node => node.position,
 	timeItTook: node => node.timeItTook,
 	dueDate: node => node.dueDate,
+	tags: node => (node, args, ctx) => ctx.db.item({id: node.id}).tags(),
 	attachments: (node, args, ctx) => ctx.db.item({id: node.id}).attachments(),
 	reminders: (node, args, ctx) => ctx.db.item({id: node.id}).reminders({
 		where: {
