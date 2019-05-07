@@ -184,6 +184,7 @@ type Mutation {
 		dueDate: DateTime
 		linkedCustomer: CustomerInput
 		linkedCustomerId: ID
+		tags: [ID!]
 
 		# deprecated
 		reviewer: Reviewer
@@ -258,6 +259,8 @@ type Mutation {
 	sendReminderTestEmail(id: ID!): Boolean!
 	# sends a test preview email to the user
 	sendReminderPreviewTestEmail(taskId: ID!, type: ReminderType!): Boolean!
+
+	createTag(name: String!, color: String!): Tag!
 }
 
 input CommentInput {
@@ -662,6 +665,4 @@ type Tag {
 	id: ID!
 	name: String!
 	color: String!
-	item: Item
-	user: User
 }

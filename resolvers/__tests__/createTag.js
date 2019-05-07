@@ -1,4 +1,4 @@
-import {createTags} from '../createTags';
+import {createTag} from '../createTag';
 
 jest.mock('../../utils');
 
@@ -11,7 +11,7 @@ const db = {
 	}),
 };
 
-describe('createTags', () => {
+describe('createTag', () => {
 	it('should add one tag to a user', async () => {
 		const expectedUser = {
 			...db.user,
@@ -44,73 +44,17 @@ describe('createTags', () => {
 				}),
 				updateUser: ({data}) => ({
 					...db.user,
-					tags: data.tags.create.map((tag, i) => ({
-						id: i,
-						...tag,
-					})),
-				}),
-			},
-		};
-
-		const user = await createTags(
-			{},
-			{tags: [{name: 'yo', color: '#3445ab'}]},
-			ctx,
-		);
-
-		expect(user).toMatchObject(expectedUser);
-	});
-
-	it('should add tags to a user', async () => {
-		const expectedUser = {
-			...db.user,
-			tags: [
-				{
-					id: 0,
-					name: 'yo',
-					color: '#3445ab',
-				},
-				{
-					id: 1,
-					name: 'yi',
-					color: '#45AFDE',
-				},
-			],
-		};
-
-		const ctx = {
-			request: {
-				get: () => 'user-token',
-			},
-			db: {
-				...db,
-				sections: () => ({
-					$fragment: () => [
+					tags: [
 						{
-							id: 'section-id',
-							items: [],
-							project: {
-								notifyActivityToCustomer: true,
-								status: 'ONGOING',
-							},
+							id: 0,
+							...data.tags.create,
 						},
 					],
 				}),
-				updateUser: ({data}) => ({
-					...db.user,
-					tags: data.tags.create.map((tag, i) => ({
-						id: i,
-						...tag,
-					})),
-				}),
 			},
 		};
 
-		const user = await createTags(
-			{},
-			{tags: [{name: 'yo', color: '#3445ab'}, {name: 'yi', color: '#45AFDE'}]},
-			ctx,
-		);
+		const user = await createTag({}, {name: 'yo', color: '#3445ab'}, ctx);
 
 		expect(user).toMatchObject(expectedUser);
 	});
@@ -124,11 +68,6 @@ describe('createTags', () => {
 					name: 'yo',
 					color: '#3445ab',
 				},
-				{
-					id: 1,
-					name: 'yi',
-					color: '#45AFDE',
-				},
 			],
 		};
 
@@ -152,25 +91,18 @@ describe('createTags', () => {
 				}),
 				updateUser: ({data}) => ({
 					...db.user,
-					tags: data.tags.create.map((tag, i) => ({
-						id: i,
-						...tag,
-					})),
+					tags: [
+						{
+							id: 0,
+							...data.tags.create,
+						},
+					],
 				}),
 			},
 		};
 
 		await expect(
-			createTags(
-				{},
-				{
-					tags: [
-						{name: 'yo', color: '#3445ag'},
-						{name: 'yi', color: '#45AFDE'},
-					],
-				},
-				ctx,
-			),
+			createTag({}, {name: 'yo', color: '#3445ag'}, ctx),
 		).rejects.toThrow(/color must be a valid/);
 	});
 });
