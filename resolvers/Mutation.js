@@ -36,6 +36,7 @@ const {sendReminderTestEmail} = require('./sendReminderTestEmail');
 const {
 	sendReminderPreviewTestEmail,
 } = require('./sendReminderPreviewTestEmail');
+const {markNotificationsAsRead} = require('./markNotificationsAsRead');
 
 const Mutation = {
 	checkEmailAvailability,
@@ -116,6 +117,7 @@ const Mutation = {
 	cancelReminder,
 	sendReminderTestEmail,
 	sendReminderPreviewTestEmail,
+	markNotificationsAsRead,
 };
 
 module.exports = {
