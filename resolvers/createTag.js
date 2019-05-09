@@ -14,9 +14,11 @@ const createTag = async (parent, tag, ctx) => {
 	}
 
 	return ctx.db.createTag({
-		...tag,
-		owner: {
-			connect: userId,
+		data: {
+			...tag,
+			owner: {
+				connect: {id: userId},
+			},
 		},
 	});
 };

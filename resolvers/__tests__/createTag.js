@@ -39,11 +39,11 @@ describe('createTag', () => {
 						},
 					],
 				}),
-				createTag: data => ({
+				createTag: ({data}) => ({
 					id: 0,
 					...data,
 					owner: {
-						id: data.owner.connect,
+						id: data.owner.connect.id,
 					},
 				}),
 			},
@@ -77,11 +77,11 @@ describe('createTag', () => {
 						},
 					],
 				}),
-				createTag: data => ({
+				createTag: ({data}) => ({
 					id: 0,
 					...data,
 					owner: {
-						id: data.owner.connect,
+						id: data.owner.connect.id,
 					},
 				}),
 			},
@@ -115,11 +115,11 @@ describe('createTag', () => {
 						},
 					],
 				}),
-				createTag: data => ({
+				createTag: ({data}) => ({
 					id: 0,
 					...data,
 					owner: {
-						id: data.owner.connect,
+						id: data.owner.connect.id,
 					},
 				}),
 			},
