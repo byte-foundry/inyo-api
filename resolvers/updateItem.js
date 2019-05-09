@@ -255,7 +255,7 @@ const updateItem = async (
 			dueDate,
 			tags: tags
 				? {
-					connect: tags,
+					set: tags,
 				  }
 				: undefined,
 			comments: {
