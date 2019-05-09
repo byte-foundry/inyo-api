@@ -39,7 +39,7 @@ describe('createTag', () => {
 						},
 					],
 				}),
-				createTag: ({data}) => ({
+				createTag: data => ({
 					id: 0,
 					...data,
 					owner: {
@@ -77,7 +77,7 @@ describe('createTag', () => {
 						},
 					],
 				}),
-				createTag: ({data}) => ({
+				createTag: data => ({
 					id: 0,
 					...data,
 					owner: {
@@ -115,7 +115,7 @@ describe('createTag', () => {
 						},
 					],
 				}),
-				createTag: ({data}) => ({
+				createTag: data => ({
 					id: 0,
 					...data,
 					owner: {
