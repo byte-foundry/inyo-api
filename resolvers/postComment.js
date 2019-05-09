@@ -40,6 +40,7 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 				id
 				name
 				owner {
+					id
 					email
 					firstName
 					lastName
@@ -53,23 +54,11 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 				section {
 					project {
 						token
-						owner {
-							email
-							firstName
-							lastName
-						}
 						customer {
 							id
 							firstName
 							lastName
 							email
-							serviceCompany {
-								owner {
-									email
-									firstName
-									lastName
-								}
-							}
 						}
 					}
 				}
@@ -80,7 +69,7 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 			throw new NotFoundError(`Item '${itemId}' has not been found`);
 		}
 
-		let user = item.owner;
+		const user = item.owner;
 
 		let customer = item.linkedCustomer;
 
@@ -88,7 +77,6 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 			const {project} = item.section;
 
 			({customer} = project);
-			user = project.owner || customer.serviceCompany.owner || user;
 		}
 
 		const result = await ctx.db.updateItem({
@@ -150,6 +138,11 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 			metadata: {
 				itemId,
 				commentId: result.id,
+			},
+			notifications: {
+				create: {
+					user: {connect: {id: user.id}},
+				},
 			},
 		});
 

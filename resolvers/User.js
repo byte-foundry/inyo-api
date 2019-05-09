@@ -109,6 +109,13 @@ const User = {
 		return tasks;
 	},
 	focusedTasks: async (node, args, ctx) => ctx.db.user({id: node.id}).focusedTasks(),
+	notifications: async (node, {from}, ctx) => ctx.db.user({id: node.id}).notifications({
+		where: {
+			createdAt_lt: from,
+		},
+		first: 20,
+		orderBy: 'createdAt_DESC',
+	}),
 };
 
 module.exports = {
