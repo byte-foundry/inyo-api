@@ -13,16 +13,12 @@ const db = {
 
 describe('createTag', () => {
 	it('should add one tag to a user', async () => {
-		const expectedUser = {
-			...db.user,
-			tags: [
-				{
-					id: 0,
-					name: 'yo',
-					colorBg: '#3445ab',
-					colorText: '#3445ab',
-				},
-			],
+		const expectedTag = {
+			id: 0,
+			name: 'yo',
+			colorBg: '#3445ab',
+			colorText: '#3445ab',
+			owner: {id: 'user-token'},
 		};
 
 		const ctx = {
@@ -43,39 +39,26 @@ describe('createTag', () => {
 						},
 					],
 				}),
-				updateUser: ({data}) => ({
-					...db.user,
-					tags: [
-						{
-							id: 0,
-							...data.tags.create,
-						},
-					],
+				createTag: data => ({
+					id: 0,
+					...data,
+					owner: {
+						id: data.owner.connect,
+					},
 				}),
 			},
 		};
 
-		const user = await createTag(
+		const tag = await createTag(
 			{},
 			{name: 'yo', colorBg: '#3445ab', colorText: '#3445ab'},
 			ctx,
 		);
 
-		expect(user).toMatchObject(expectedUser);
+		expect(tag).toMatchObject(expectedTag);
 	});
 
 	it('should not allow user to add tags with an unproper background color', async () => {
-		const expectedUser = {
-			...db.user,
-			tags: [
-				{
-					id: 0,
-					name: 'yo',
-					color: '#3445ab',
-				},
-			],
-		};
-
 		const ctx = {
 			request: {
 				get: () => 'user-token',
@@ -94,14 +77,12 @@ describe('createTag', () => {
 						},
 					],
 				}),
-				updateUser: ({data}) => ({
-					...db.user,
-					tags: [
-						{
-							id: 0,
-							...data.tags.create,
-						},
-					],
+				createTag: data => ({
+					id: 0,
+					...data,
+					owner: {
+						id: data.owner.connect,
+					},
 				}),
 			},
 		};
@@ -116,17 +97,6 @@ describe('createTag', () => {
 	});
 
 	it('should not allow user to add tags with an unproper text color', async () => {
-		const expectedUser = {
-			...db.user,
-			tags: [
-				{
-					id: 0,
-					name: 'yo',
-					color: '#3445ab',
-				},
-			],
-		};
-
 		const ctx = {
 			request: {
 				get: () => 'user-token',
@@ -145,14 +115,12 @@ describe('createTag', () => {
 						},
 					],
 				}),
-				updateUser: ({data}) => ({
-					...db.user,
-					tags: [
-						{
-							id: 0,
-							...data.tags.create,
-						},
-					],
+				createTag: data => ({
+					id: 0,
+					...data,
+					owner: {
+						id: data.owner.connect,
+					},
 				}),
 			},
 		};

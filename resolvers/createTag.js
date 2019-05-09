@@ -13,14 +13,10 @@ const createTag = async (parent, tag, ctx) => {
 		throw new Error(`tags text color must be a valid color not ${tag.color}`);
 	}
 
-	return ctx.db.updateUser({
-		where: {id: userId},
-		data: {
-			tags: tag
-				? {
-					create: tag,
-				  }
-				: undefined,
+	return ctx.db.createTag({
+		...tag,
+		owner: {
+			connect: userId,
 		},
 	});
 };
