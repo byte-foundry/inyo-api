@@ -260,7 +260,7 @@ type Mutation {
 	# sends a test preview email to the user
 	sendReminderPreviewTestEmail(taskId: ID!, type: ReminderType!): Boolean!
 
-	createTag(name: String!, colorBg: String!, colorText: String!): User!
+	createTag(name: String!, colorBg: String!, colorText: String!): Tag!
 }
 
 input CommentInput {
