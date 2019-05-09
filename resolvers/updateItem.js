@@ -255,7 +255,7 @@ const updateItem = async (
 			dueDate,
 			tags: tags
 				? {
-					set: tags,
+					set: tags.map(tag => ({id: tag})),
 				  }
 				: undefined,
 			comments: {
