@@ -19,7 +19,8 @@ describe('createTag', () => {
 				{
 					id: 0,
 					name: 'yo',
-					color: '#3445ab',
+					colorBg: '#3445ab',
+					colorText: '#3445ab',
 				},
 			],
 		};
@@ -54,12 +55,16 @@ describe('createTag', () => {
 			},
 		};
 
-		const user = await createTag({}, {name: 'yo', color: '#3445ab'}, ctx);
+		const user = await createTag(
+			{},
+			{name: 'yo', colorBg: '#3445ab', colorText: '#3445ab'},
+			ctx,
+		);
 
 		expect(user).toMatchObject(expectedUser);
 	});
 
-	it('should not allow user to add tags with an unproper color', async () => {
+	it('should not allow user to add tags with an unproper background color', async () => {
 		const expectedUser = {
 			...db.user,
 			tags: [
@@ -102,7 +107,62 @@ describe('createTag', () => {
 		};
 
 		await expect(
-			createTag({}, {name: 'yo', color: '#3445ag'}, ctx),
+			createTag(
+				{},
+				{name: 'yo', colorBg: '#3445ag', colorText: '#3445ab'},
+				ctx,
+			),
+		).rejects.toThrow(/color must be a valid/);
+	});
+
+	it('should not allow user to add tags with an unproper text color', async () => {
+		const expectedUser = {
+			...db.user,
+			tags: [
+				{
+					id: 0,
+					name: 'yo',
+					color: '#3445ab',
+				},
+			],
+		};
+
+		const ctx = {
+			request: {
+				get: () => 'user-token',
+			},
+			db: {
+				...db,
+				sections: () => ({
+					$fragment: () => [
+						{
+							id: 'section-id',
+							items: [],
+							project: {
+								notifyActivityToCustomer: true,
+								status: 'ONGOING',
+							},
+						},
+					],
+				}),
+				updateUser: ({data}) => ({
+					...db.user,
+					tags: [
+						{
+							id: 0,
+							...data.tags.create,
+						},
+					],
+				}),
+			},
+		};
+
+		await expect(
+			createTag(
+				{},
+				{name: 'yo', colorBg: '#3445ab', colorText: '#3445aq'},
+				ctx,
+			),
 		).rejects.toThrow(/color must be a valid/);
 	});
 });

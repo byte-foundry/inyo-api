@@ -1,7 +1,8 @@
 const Tag = {
 	id: node => node.id,
 	name: node => node.name,
-	color: node => node.color,
+	colorBg: node => node.colorBg,
+	colorText: node => node.colorText,
 };
 
 module.exports = {

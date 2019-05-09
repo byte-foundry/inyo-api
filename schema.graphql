@@ -664,5 +664,6 @@ enum TasksSortInput {
 type Tag {
 	id: ID!
 	name: String!
-	color: String!
+	colorBg: String!
+	colorText: String!
 }
