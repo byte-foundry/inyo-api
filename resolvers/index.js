@@ -19,6 +19,7 @@ const {Viewer} = require('./Viewer');
 const {CommentView} = require('./CommentView');
 const {File} = require('./File');
 const {Reminder} = require('./Reminder');
+const {Tag} = require('./Tag');
 
 const resolvers = {
 	TimeZone: GraphQLTimeZone,
@@ -47,6 +48,7 @@ const resolvers = {
 	CommentView,
 	File,
 	Reminder,
+	Tag,
 };
 
 module.exports = {
