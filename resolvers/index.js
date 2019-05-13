@@ -19,6 +19,9 @@ const {Viewer} = require('./Viewer');
 const {CommentView} = require('./CommentView');
 const {File} = require('./File');
 const {Reminder} = require('./Reminder');
+const {Notification} = require('./Notification');
+const {NotificationEmitter} = require('./NotificationEmitter');
+const {NotificationObject} = require('./NotificationObject');
 
 const resolvers = {
 	TimeZone: GraphQLTimeZone,
@@ -47,6 +50,9 @@ const resolvers = {
 	CommentView,
 	File,
 	Reminder,
+	NotificationEmitter,
+	NotificationObject,
+	Notification,
 };
 
 module.exports = {

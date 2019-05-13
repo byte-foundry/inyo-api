@@ -350,6 +350,7 @@ type User {
 	projects: [Project!]! @relation(name: "UserProjects", onDelete: CASCADE)
 	files: [File!]! @relation(name: "UserFiles", onDelete: CASCADE)
 	comments: [Comment!]! @relation(name: "CommentAuthorUser")
+	notifications: [Notification!]! @relation(name: "UserNotifications")
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }
@@ -403,4 +404,14 @@ type CustomerEvent {
 	createdAt: DateTime!
 	customer: Customer! @relation(name: "CustomerCustomerEvents")
 	metadata: Json @default(value: "{}")
+	notifications: [Notification!]! @relation(name: "CustomerEventNotifications")
+}
+
+type Notification {
+	id: ID! @unique
+	unread: Boolean! @default(value: true)
+	customerEvent: CustomerEvent! @relation(name: "CustomerEventNotifications")
+	user: User! @relation(name: "UserNotifications")
+	createdAt: DateTime!
+	updatedAt: DateTime!
 }

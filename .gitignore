@@ -4,3 +4,4 @@ sendgrid.env
 posthook.env
 _vimrc*
 yarn-error.log
+.envrc

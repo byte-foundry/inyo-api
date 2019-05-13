@@ -4,6 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
+		"dev": "nodemon index.js",
 		"format": "prettier-eslint *.js ./__tests__/**.js ./resolvers/**.js ./reminders/**.js ./emails/**.js .eslintrc .babelrc schema.graphql --write",
 		"test": "jest",
 		"deploy": "prisma deploy",
@@ -51,6 +52,7 @@
 		"jest-cli": "^24.7.1",
 		"jest-transform-graphql": "^2.1.0",
 		"lint-staged": "^8.0.4",
+		"nodemon": "^1.19.0",
 		"prettier-eslint": "^8.8.2",
 		"prettier-eslint-cli": "^4.7.1"
 	},

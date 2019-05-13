@@ -258,6 +258,8 @@ type Mutation {
 	sendReminderTestEmail(id: ID!): Boolean!
 	# sends a test preview email to the user
 	sendReminderPreviewTestEmail(taskId: ID!, type: ReminderType!): Boolean!
+
+	markNotificationsAsRead: Boolean!
 }
 
 input CommentInput {
@@ -630,6 +632,7 @@ type User {
 	hmacIntercomId: String!
 	tasks(filter: TasksFilterInput, sort: TasksSortInput): [Item!]!
 	focusedTasks: [Item!]!
+	notifications(before: DateTime): [Notification!]!
 }
 
 union Owner = User | Customer
@@ -654,4 +657,22 @@ enum TasksSortInput {
 	dueDate_DESC
 	createdAt_ASC
 	createdAt_DESC
+}
+
+enum EventType {
+	VIEWED_PROJECT
+	POSTED_COMMENT
+}
+
+union NotificationEmitter = User | Customer
+union NotificationObject = Project | Item
+
+type Notification {
+	id: ID!
+	unread: Boolean!
+	from: NotificationEmitter
+	object: NotificationObject
+	eventType: EventType!
+	createdAt: DateTime!
+	updatedAt: DateTime!
 }
