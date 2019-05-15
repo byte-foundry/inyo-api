@@ -409,7 +409,7 @@ type CustomerEvent {
 
 type Tag {
 	id: ID! @unique
-	item: [Item!]! @relation(name: "ItemTags")
+	items: [Item!]! @relation(name: "ItemTags")
 	name: String!
 	colorBg: String!
 	colorText: String!

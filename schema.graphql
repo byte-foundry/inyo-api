@@ -666,4 +666,5 @@ type Tag {
 	name: String!
 	colorBg: String!
 	colorText: String!
+	items: [Item!]!
 }
