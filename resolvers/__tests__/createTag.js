@@ -93,7 +93,7 @@ describe('createTag', () => {
 				{name: 'yo', colorBg: '#3445ag', colorText: '#3445ab'},
 				ctx,
 			),
-		).rejects.toThrow(/color must be a valid/);
+		).rejects.toThrow(/background color must be a valid/);
 	});
 
 	it('should not allow user to add tags with an unproper text color', async () => {
@@ -131,6 +131,6 @@ describe('createTag', () => {
 				{name: 'yo', colorBg: '#3445ab', colorText: '#3445aq'},
 				ctx,
 			),
-		).rejects.toThrow(/color must be a valid/);
+		).rejects.toThrow(/text color must be a valid/);
 	});
 });
