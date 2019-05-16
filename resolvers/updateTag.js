@@ -28,7 +28,7 @@ const updateTag = async (parent, {id, ...tag}, ctx) => {
 	}
 
 	return ctx.db.updateTag({
-		where: {id: tag.id},
+		where: {id},
 		data: tag,
 	});
 };
