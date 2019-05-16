@@ -34,6 +34,7 @@ const {removeCustomer} = require('./removeCustomer');
 const {cancelReminder} = require('./cancelReminder');
 const {createTag} = require('./createTag');
 const {updateTag} = require('./updateTag');
+const {removeTag} = require('./removeTag');
 const {sendReminderTestEmail} = require('./sendReminderTestEmail');
 const {
 	sendReminderPreviewTestEmail,
@@ -118,6 +119,7 @@ const Mutation = {
 	cancelReminder,
 	createTag,
 	updateTag,
+	removeTag,
 	sendReminderTestEmail,
 	sendReminderPreviewTestEmail,
 };

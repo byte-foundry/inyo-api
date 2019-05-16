@@ -262,6 +262,7 @@ type Mutation {
 
 	createTag(name: String!, colorBg: String!, colorText: String!): Tag!
 	updateTag(id: ID!, name: String, colorBg: String, colorText: String): Tag!
+	deleteTag(id: ID!): Tag!
 }
 
 input CommentInput {
