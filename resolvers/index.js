@@ -22,6 +22,7 @@ const {Reminder} = require('./Reminder');
 const {Notification} = require('./Notification');
 const {NotificationEmitter} = require('./NotificationEmitter');
 const {NotificationObject} = require('./NotificationObject');
+const {Tag} = require('./Tag');
 
 const resolvers = {
 	TimeZone: GraphQLTimeZone,
@@ -53,6 +54,7 @@ const resolvers = {
 	NotificationEmitter,
 	NotificationObject,
 	Notification,
+	Tag,
 };
 
 module.exports = {
