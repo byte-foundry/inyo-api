@@ -225,6 +225,7 @@ type Item {
 	createdAt: DateTime!
 	updatedAt: DateTime!
 	timeItTook: Float
+	tags: [Tag!]! @relation(name: "ItemTags")
 }
 
 type Section {
@@ -353,6 +354,7 @@ type User {
 	notifications: [Notification!]! @relation(name: "UserNotifications")
 	createdAt: DateTime!
 	updatedAt: DateTime!
+	tags: [Tag!]! @relation(name: "UserTags", onDelete: CASCADE)
 }
 
 type Reminder {
@@ -414,4 +416,13 @@ type Notification {
 	user: User! @relation(name: "UserNotifications")
 	createdAt: DateTime!
 	updatedAt: DateTime!
+}
+
+type Tag {
+	id: ID! @unique
+	items: [Item!]! @relation(name: "ItemTags")
+	name: String!
+	colorBg: String!
+	colorText: String!
+	owner: User @relation(name: "UserTags")
 }

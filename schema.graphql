@@ -184,6 +184,7 @@ type Mutation {
 		dueDate: DateTime
 		linkedCustomer: CustomerInput
 		linkedCustomerId: ID
+		tags: [ID!]
 
 		# deprecated
 		reviewer: Reviewer
@@ -260,6 +261,9 @@ type Mutation {
 	sendReminderPreviewTestEmail(taskId: ID!, type: ReminderType!): Boolean!
 
 	markNotificationsAsRead: Boolean!
+	createTag(name: String!, colorBg: String!, colorText: String!): Tag!
+	updateTag(id: ID!, name: String, colorBg: String, colorText: String): Tag!
+	removeTag(id: ID!): Tag!
 }
 
 input CommentInput {
@@ -501,6 +505,7 @@ type Item {
 	timeItTook: Float
 	dueDate: DateTime
 	attachments: [File!]!
+	tags: [Tag!]!
 
 	reviewer: Reviewer @deprecated(reason: "Use `type: CUSTOMER` instead.")
 	unitPrice: Int @deprecated(reason: "Unit price is not used anymore.")
@@ -633,6 +638,7 @@ type User {
 	tasks(filter: TasksFilterInput, sort: TasksSortInput): [Item!]!
 	focusedTasks: [Item!]!
 	notifications(before: DateTime): [Notification!]!
+	tags: [Tag!]!
 }
 
 union Owner = User | Customer
@@ -675,4 +681,12 @@ type Notification {
 	eventType: EventType!
 	createdAt: DateTime!
 	updatedAt: DateTime!
+}
+
+type Tag {
+	id: ID!
+	name: String!
+	colorBg: String!
+	colorText: String!
+	items: [Item!]!
 }

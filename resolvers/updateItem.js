@@ -44,6 +44,7 @@ const updateItem = async (
 		linkedCustomerId,
 		linkedCustomer,
 		dueDate,
+		tags,
 	},
 	ctx,
 ) => {
@@ -252,6 +253,11 @@ const updateItem = async (
 			timeItTook,
 			position,
 			dueDate,
+			tags: tags
+				? {
+					set: tags.map(tag => ({id: tag})),
+				  }
+				: undefined,
 			comments: {
 				create: comment && {
 					text: comment.text,

@@ -39,6 +39,7 @@ const User = {
 	jobType: node => node.jobType,
 	interestedFeatures: node => node.interestedFeatures,
 	hasUpcomingProject: node => node.hasUpcomingProject,
+	tags: (node, args, ctx) => ctx.db.user({id: node.id}).tags(),
 	settings: (node, args, ctx) => ctx.db.user({id: node.id}).settings(),
 	tasks: async (node, {filter, sort}, ctx) => {
 		const tasks = await ctx.db.items({
