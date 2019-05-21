@@ -65,6 +65,7 @@ const updateIntercom = async (req, res) => {
 					ADDED_SECTION
 					UPDATED_SECTION
 					REMOVED_SECTION
+					UPLOADED_ATTACHMENT
 				]
 				createdAt_gt: "${moment()
 		.subtract(index + 1, 'days')
