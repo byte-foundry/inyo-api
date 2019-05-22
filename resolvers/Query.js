@@ -53,21 +53,6 @@ const Query = {
 			const hasCustomer = await ctx.db.$exists.customer({token});
 
 			if (hasCustomer) {
-				// checking if the event has already been notified
-				const [user] = await ctx.db.users({
-					where: {
-						company: {
-							customers_some: {token},
-						},
-						notifications_none: {
-							customerEvent: {type: 'VIEWED_PROJECT'},
-							createdAt_gt: moment()
-								.subtract(1, 'days')
-								.format(),
-						},
-					},
-				});
-
 				await ctx.db.createCustomerEvent({
 					type: 'VIEWED_PROJECT',
 					customer: {
@@ -75,11 +60,6 @@ const Query = {
 					},
 					metadata: {
 						projectId: project.id,
-					},
-					notifications: user && {
-						create: {
-							user: {connect: {id: user.id}},
-						},
 					},
 				});
 			}
