@@ -9,6 +9,7 @@ jest.mock('../../reminders/cancelReminder');
 
 const db = {
 	createUserEvent() {},
+	createCustomerEvent() {},
 };
 
 describe('finishItem', () => {
@@ -28,6 +29,12 @@ describe('finishItem', () => {
 							name: 'Mon item',
 							status: 'PENDING',
 							type: 'DEFAULT',
+							owner: {
+								id: 'user-id',
+								email: 'chouche@gitan.fm',
+								firstName: 'Adrien',
+								lastName: 'David',
+							},
 							unit: 1,
 							pendingReminders: [],
 							section: {
@@ -37,17 +44,11 @@ describe('finishItem', () => {
 									token: 'mon-token',
 									name: "C'est notre projeeet",
 									customer: {
+										id: 'customer-id',
 										title: 'MONSIEUR',
 										firstName: 'Jean',
 										lastName: 'Michel',
 										email: 'jean@michel.org',
-										serviceCompany: {
-											owner: {
-												email: 'chouche@gitan.fm',
-												firstName: 'Adrien',
-												lastName: 'David',
-											},
-										},
 									},
 									status: 'ONGOING',
 									sections: [
@@ -111,6 +112,12 @@ describe('finishItem', () => {
 							name: 'Mon item',
 							status: 'PENDING',
 							type: 'CUSTOMER',
+							owner: {
+								id: 'user-id',
+								email: 'chouche@gitan.fm',
+								firstName: 'Adrien',
+								lastName: 'David',
+							},
 							pendingReminders: [
 								{
 									id: 'reminder-id',
@@ -126,17 +133,11 @@ describe('finishItem', () => {
 									token: 'customer-token',
 									name: "C'est notre projeeet",
 									customer: {
+										id: 'customer-id',
 										title: 'MONSIEUR',
 										firstName: 'Jean',
 										lastName: 'Michel',
 										email: 'jean@michel.org',
-										serviceCompany: {
-											owner: {
-												email: 'chouche@gitan.fm',
-												firstName: 'Adrien',
-												lastName: 'David',
-											},
-										},
 									},
 									status: 'ONGOING',
 									sections: [
@@ -206,6 +207,12 @@ describe('finishItem', () => {
 							name: 'Mon item',
 							status: 'PENDING',
 							type: 'CUSTOMER',
+							owner: {
+								id: 'user-id',
+								email: 'chouche@gitan.fm',
+								firstName: 'Adrien',
+								lastName: 'David',
+							},
 							section: {
 								id: 'section-id',
 								project: {
@@ -213,16 +220,11 @@ describe('finishItem', () => {
 									token: 'customer-token',
 									name: "C'est notre projeeet",
 									customer: {
+										id: 'customer-id',
 										title: 'MONSIEUR',
 										firstName: 'Jean',
 										lastName: 'Michel',
 										email: 'jean@michel.org',
-										serviceCompany: {
-											owner: {
-												firstName: 'Adrien',
-												lastName: 'David',
-											},
-										},
 									},
 									status: 'ONGOING',
 									sections: [
@@ -281,6 +283,12 @@ describe('finishItem', () => {
 							name: 'Mon item',
 							status: 'PENDING',
 							type: 'DEFAULT',
+							owner: {
+								id: 'user-id',
+								email: 'chouche@gitan.fm',
+								firstName: 'Adrien',
+								lastName: 'David',
+							},
 							section: {
 								id: 'section-id',
 								project: {
@@ -288,16 +296,11 @@ describe('finishItem', () => {
 									token: 'customer-token',
 									name: "C'est notre projeeet",
 									customer: {
+										id: 'customer-id',
 										title: 'MONSIEUR',
 										firstName: 'Jean',
 										lastName: 'Michel',
 										email: 'jean@michel.org',
-										serviceCompany: {
-											owner: {
-												firstName: 'Adrien',
-												lastName: 'David',
-											},
-										},
 									},
 									status: 'ONGOING',
 									sections: [
@@ -356,6 +359,12 @@ describe('finishItem', () => {
 							name: 'Mon item',
 							status: 'PENDING',
 							type: 'DEFAULT',
+							owner: {
+								id: 'user-id',
+								email: 'chouche@gitan.fm',
+								firstName: 'Adrien',
+								lastName: 'David',
+							},
 							unit: 1,
 							pendingReminders: [],
 							section: {
@@ -365,17 +374,11 @@ describe('finishItem', () => {
 									token: 'mon-token',
 									name: "C'est notre projeeet",
 									customer: {
+										id: 'customer-id',
 										title: 'MONSIEUR',
 										firstName: 'Jean',
 										lastName: 'Michel',
 										email: 'jean@michel.org',
-										serviceCompany: {
-											owner: {
-												email: 'chouche@gitan.fm',
-												firstName: 'Adrien',
-												lastName: 'David',
-											},
-										},
 									},
 									status: 'ONGOING',
 									sections: [

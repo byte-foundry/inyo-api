@@ -147,6 +147,8 @@ enum DAY {
 enum CustomerEventType {
 	VIEWED_PROJECT
 	POSTED_COMMENT
+	UPLOADED_ATTACHMENT
+	FINISHED_TASK
 }
 
 enum UserEventType {
@@ -172,6 +174,7 @@ enum UserEventType {
 	ADDED_SECTION
 	UPDATED_SECTION
 	REMOVED_SECTION
+	UPLOADED_ATTACHMENT
 }
 
 type CommentView {

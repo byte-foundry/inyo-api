@@ -44,11 +44,13 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 			unit
 			type
 			owner {
+				id
 				email
 				firstName
 				lastName
 			}
 			linkedCustomer {
+				id
 				title
 				firstName
 				lastName
@@ -61,22 +63,11 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 			}
 			section {
 				project {
-					owner {
-						email
-						firstName
-						lastName
-					}
 					customer {
+						id
 						title
 						firstName
 						lastName
-						serviceCompany {
-							owner {
-								email
-								firstName
-								lastName
-							}
-						}
 					}
 				}
 			}
@@ -114,7 +105,7 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 			throw new Error(`Item '${id}' cannot be finished.`);
 		}
 
-		let user = item.owner;
+		const user = item.owner;
 
 		let customer = item.linkedCustomer;
 
@@ -122,7 +113,6 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 			const {project} = item.section;
 
 			customer = customer || project.customer;
-			user = user || project.owner || project.customer.serviceCompany.owner;
 		}
 
 		try {
@@ -151,13 +141,28 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 
 		await cancelPendingReminders(item.pendingReminders, id, ctx);
 
-		return ctx.db.updateItem({
+		const finishedItem = await ctx.db.updateItem({
 			where: {id},
 			data: {
 				status: 'FINISHED',
 				finishedAt: new Date(),
 			},
 		});
+
+		await ctx.db.createCustomerEvent({
+			type: 'FINISHED_TASK',
+			customer: {
+				connect: {id: customer.id},
+			},
+			metadata: {id: finishedItem.id},
+			notifications: {
+				create: {
+					user: {connect: {id: user.id}},
+				},
+			},
+		});
+
+		return finishedItem;
 	}
 
 	const userId = getUserId(ctx);

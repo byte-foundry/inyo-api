@@ -668,6 +668,8 @@ enum TasksSortInput {
 enum EventType {
 	VIEWED_PROJECT
 	POSTED_COMMENT
+	UPLOADED_ATTACHMENT
+	FINISHED_TASK
 }
 
 union NotificationEmitter = User | Customer
