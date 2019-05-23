@@ -28,6 +28,9 @@ const focusTask = async (parent, {id, reminders}, ctx) => {
 			status
 			name
 			description
+			attachments {
+				url
+			}
 			linkedCustomer {
 				title
 				firstName
@@ -140,10 +143,38 @@ const focusTask = async (parent, {id, reminders}, ctx) => {
 						issueDate: new Date(),
 						userUrl,
 						reminders,
+						taskType: item.type,
 					},
 					ctx,
 				);
 				console.log(`Item '${item.id}': Reminders set.`);
+			}
+		}
+		else if (item.type ==='INVOICE') {
+			const fileUrls = item.attachments.map(a => a.url);
+
+			let userUrl = getAppUrl(`/tasks/${item.id}`);
+
+			if (item.section) {
+				const {project} = item.section;
+
+				userUrl = getAppUrl(`/tasks/${item.id}?projectId=${project.id}`);
+			}
+
+			if (!item.pendingReminders.length) {
+				await setupItemReminderEmail(
+					{
+						...basicInfos,
+						itemId: itemId,
+						description: filterDescription(item.description),
+						issueDate: new Date(),
+						userUrl,
+						reminders,
+						fileUrls,
+						taskType: item.type,
+					},
+					ctx,
+				);
 			}
 		}
 	}

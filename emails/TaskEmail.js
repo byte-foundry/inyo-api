@@ -27,29 +27,8 @@ async function sendItemContentAcquisitionEmail({email, meta, ...data}, ctx) {
 	);
 }
 
-const reminderTypesTemplateIds = {
-	DELAY: 'd-90847153d18843ad97755874cf092130',
-	FIRST: 'd-e39a839701644fd9935f437056ad535a',
-	SECOND: 'd-4ad0e13f00dd485ca0d98fd1d62cd7f6',
-	LAST: 'd-97b5ce25a4464a3888b359ac02f34168',
-	USER_WARNING: 'd-f0a78ca3f43d4f558afa87dc32d3905d',
-};
-
-async function setupItemReminderEmail({
-	email,
-	userEmail,
-	user,
-	customerName,
-	projectName,
-	itemName,
-	items,
-	url,
-	userUrl,
-	itemId,
-	issueDate,
-	reminders,
-}) {
-	const dates = reminders || [
+const defaultSequences = {
+	'CUSTOMER': [
 		/* 5 min before actually sending it */ {
 			delay: moment.duration(5, 'minutes').asSeconds(),
 			type: 'DELAY',
@@ -66,7 +45,52 @@ async function setupItemReminderEmail({
 			delay: moment.duration(2 + 3 + 1, 'days').asSeconds(),
 			type: 'LAST',
 		},
-	];
+	],
+	'INVOICE': [
+		/* 5 min before actually sending it */ {
+			delay: moment.duration(5, 'minutes').asSeconds(),
+			type: 'INVOICE_DELAY',
+		},
+		/* 2 days */ {
+			delay: moment.duration(2, 'days').asSeconds(),
+			type: 'INVOICE_FIRST',
+		},
+		/* 3 days */ {
+			delay: moment.duration(2 + 3, 'days').asSeconds(),
+			type: 'INVOICE_SECOND',
+		},
+		/* 1 day */ {
+			delay: moment.duration(2 + 3 + 1, 'days').asSeconds(),
+			type: 'INVOICE_LAST',
+		},
+	],
+};
+
+const reminderTypesTemplateIds = {
+	DELAY: 'd-90847153d18843ad97755874cf092130',
+	FIRST: 'd-e39a839701644fd9935f437056ad535a',
+	SECOND: 'd-4ad0e13f00dd485ca0d98fd1d62cd7f6',
+	LAST: 'd-97b5ce25a4464a3888b359ac02f34168',
+	USER_WARNING: 'd-f0a78ca3f43d4f558afa87dc32d3905d',
+	INVOICE_DELAY: 'd-9fbbba215e7e47fc81482ae86e5ca6b9',
+	INVOICE_FIRST: 'd-e8d66688a551478bb54d2000380d5a1e',
+	INVOICE_SECOND: 'd-54e1e542af7b42a88d330b1b5c590747',
+	INVOICE_LAST: 'd-9711c3779d3043f8a477b3a7cc8940b3',
+	INVOICE_USER_WARNING: 'd-6bc50e76ff6d45ef88842c3cdefd6d42',
+};
+
+async function setupItemReminderEmail({
+	email,
+	userEmail,
+	url,
+	userUrl,
+	itemId,
+	issueDate,
+	reminders,
+	taskType,
+	...rest,
+}) {
+	const dates = reminders || defaultSequences[taskType];
 
 	// adding user warning 1 day after last reminder
 	if (dates.length > 0) {
@@ -86,14 +110,10 @@ async function setupItemReminderEmail({
 						.add(delay, 'seconds')
 						.format(),
 					data: {
+						...rest,
 						templateId: reminderTypesTemplateIds[type],
 						email: type === 'USER_WARNING' ? userEmail : email,
 						itemId,
-						user,
-						customerName,
-						projectName,
-						itemName,
-						items,
 						url: type === 'USER_WARNING' ? userUrl : url,
 					},
 					item: {
