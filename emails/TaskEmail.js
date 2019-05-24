@@ -27,18 +27,21 @@ async function sendItemContentAcquisitionEmail({email, meta, ...data}, ctx) {
 	);
 }
 
-const defaultSequences = {
-	'CUSTOMER': [
+const remindersSequences = {
+	CUSTOMER: [
 		/* 5 min before actually sending it */ {
 			delay: moment.duration(5, 'minutes').asSeconds(),
+			sendingDate: moment().add(5, 'minutes'),
 			type: 'DELAY',
 		},
 		/* 2 days */ {
 			delay: moment.duration(2, 'days').asSeconds(),
+			sendingDate: moment().add(2, 'days'),
 			type: 'FIRST',
 		},
 		/* 3 days */ {
 			delay: moment.duration(2 + 3, 'days').asSeconds(),
+			sendingDate: moment().add(2 + 3, 'days'),
 			type: 'SECOND',
 		},
 		/* 1 day */ {
@@ -46,7 +49,7 @@ const defaultSequences = {
 			type: 'LAST',
 		},
 	],
-	'INVOICE': [
+	INVOICE: [
 		/* 5 min before actually sending it */ {
 			delay: moment.duration(5, 'minutes').asSeconds(),
 			type: 'INVOICE_DELAY',
@@ -58,6 +61,14 @@ const defaultSequences = {
 		/* 3 days */ {
 			delay: moment.duration(2 + 3, 'days').asSeconds(),
 			type: 'INVOICE_SECOND',
+		},
+		/* 1 day */ {
+			delay: moment.duration(2 + 3 + 1, 'days').asSeconds(),
+			type: 'INVOICE_THIRD',
+		},
+		/* 1 day */ {
+			delay: moment.duration(2 + 3 + 1, 'days').asSeconds(),
+			type: 'INVOICE_FOURTH',
 		},
 		/* 1 day */ {
 			delay: moment.duration(2 + 3 + 1, 'days').asSeconds(),
@@ -75,7 +86,9 @@ const reminderTypesTemplateIds = {
 	INVOICE_DELAY: 'd-9fbbba215e7e47fc81482ae86e5ca6b9',
 	INVOICE_FIRST: 'd-e8d66688a551478bb54d2000380d5a1e',
 	INVOICE_SECOND: 'd-54e1e542af7b42a88d330b1b5c590747',
-	INVOICE_LAST: 'd-9711c3779d3043f8a477b3a7cc8940b3',
+	INVOICE_THIRD: 'd-9711c3779d3043f8a477b3a7cc8940b3',
+	INVOICE_FOURTH: 'd-ccf43fb2df0e4822a22bc55fe02ced4a',
+	INVOICE_LAST: 'd-45388ea561144c57831c6d69241d31f3',
 };
 
 async function setupItemReminderEmail({
@@ -87,9 +100,9 @@ async function setupItemReminderEmail({
 	issueDate,
 	reminders,
 	taskType,
-	...rest,
+	...rest
 }) {
-	const dates = reminders || defaultSequences[taskType];
+	const dates = reminders || remindersSequences[taskType];
 
 	// adding user warning 1 day after last reminder
 	if (dates.length > 0) {
@@ -131,6 +144,7 @@ async function setupItemReminderEmail({
 }
 
 module.exports = {
+	remindersSequences,
 	sendTaskValidationEmail,
 	sendItemContentAcquisitionEmail,
 	setupItemReminderEmail,
