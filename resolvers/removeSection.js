@@ -1,6 +1,8 @@
 const {getUserId} = require('../utils');
 const {NotFoundError} = require('../errors');
 
+const gql = String.raw;
+
 const removeSection = async (parent, {id}, ctx) => {
 	const userId = getUserId(ctx);
 	const [section] = await ctx.db.sections({
