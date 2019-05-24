@@ -98,6 +98,13 @@ enum ReminderType {
 	# SECOND + 1 days reminder
 	LAST
 
+	INVOICE_DELAY
+	INVOICE_FIRST
+	INVOICE_SECOND
+	INVOICE_THIRD
+	INVOICE_FOURTH
+	INVOICE_LAST
+
 	# customer has not replied, user warning at LAST + 2 days
 	USER_WARNING
 
