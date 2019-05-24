@@ -31,9 +31,15 @@ const removeSection = async (parent, {id}, ctx) => {
 		throw new NotFoundError(`Section '${id}' has not been found.`);
 	}
 
-	const project = await section.project();
+	const projectId = section.project.id;
 	const removedSection = await ctx.db.deleteSection({id});
-	const projectSections = await project.sections({orderBy: 'position_ASC'});
+	const projectSections = await ctx.db.sections({
+		where: {
+			project: {
+				id: projectId,
+			},
+		},
+	});
 
 	projectSections.map((section, index) => ctx.db.updateSection({
 		where: {id: section.id},
