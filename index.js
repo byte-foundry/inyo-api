@@ -9,6 +9,7 @@ const {posthookReceiver} = require('./webhooks/posthookReceiver');
 const {scheduleDailyMails} = require('./webhooks/scheduleDailyMails');
 const {updateIntercom} = require('./webhooks/updateIntercom');
 const {subscribeToUpdateIntercom} = require('./intercomTracking');
+const {notifyViewedProject} = require('./notifyViewedProject');
 
 const {PORT} = process.env;
 
@@ -67,3 +68,4 @@ else {
 }
 
 subscribeToUpdateIntercom(prisma);
+notifyViewedProject(prisma);

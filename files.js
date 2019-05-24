@@ -18,8 +18,10 @@ const storeUpload = async ({stream, prefix, filename}) => {
 
 const processUpload = async (upload, ctx, prefix) => {
 	const {
-		stream, filename, mimetype, encoding,
+		createReadStream, filename, mimetype, encoding,
 	} = await upload;
+
+	const stream = createReadStream();
 
 	if (!stream) {
 		throw new Error(

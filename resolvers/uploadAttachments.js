@@ -2,6 +2,8 @@ const {getUserId} = require('../utils');
 const {processUpload} = require('../files');
 const {NotFoundError} = require('../errors');
 
+const gql = String.raw;
+
 const uploadAttachments = async (
 	parent,
 	{
@@ -14,6 +16,8 @@ const uploadAttachments = async (
 	}
 
 	let ownerId;
+
+	let userId;
 
 	if (token) {
 		const [customer] = await ctx.db.customers({
@@ -38,13 +42,23 @@ const uploadAttachments = async (
 						},
 					  ],
 			},
-		});
+		}).$fragment(gql`
+			fragment CustomerWithUser on Customer {
+				id
+				serviceCompany {
+					owner {
+						id
+					}
+				}
+			}
+		`);
 
 		if (!customer) {
 			throw new NotFoundError('Task or project not found.');
 		}
 
 		ownerId = customer.id;
+		userId = customer.serviceCompany.owner.id;
 	}
 	else {
 		const [user] = await ctx.db.users({
@@ -60,6 +74,7 @@ const uploadAttachments = async (
 		}
 
 		ownerId = user.id;
+		userId = user.id;
 	}
 
 	const attachments = await Promise.all(
@@ -67,15 +82,41 @@ const uploadAttachments = async (
 	);
 
 	await Promise.all(
-		attachments.map(a => ctx.db.updateFile({
-			where: {id: a.id},
-			data: {
-				linkedTask: taskId && {connect: {id: taskId}},
-				linkedProject: projectId && {connect: {id: projectId}},
-				ownerUser: token ? undefined : {connect: {id: ownerId}},
-				ownerCustomer: token ? {connect: {id: ownerId}} : undefined,
-			},
-		})),
+		attachments.map(async (a) => {
+			await ctx.db.updateFile({
+				where: {id: a.id},
+				data: {
+					linkedTask: taskId && {connect: {id: taskId}},
+					linkedProject: projectId && {connect: {id: projectId}},
+					ownerUser: token ? undefined : {connect: {id: ownerId}},
+					ownerCustomer: token ? {connect: {id: ownerId}} : undefined,
+				},
+			});
+
+			if (token) {
+				await ctx.db.createCustomerEvent({
+					type: 'UPLOADED_ATTACHMENT',
+					customer: {
+						connect: {id: ownerId},
+					},
+					metadata: {itemId: taskId},
+					notifications: {
+						create: {
+							user: {connect: {id: userId}},
+						},
+					},
+				});
+			}
+			else {
+				await ctx.db.createUserEvent({
+					type: 'UPLOADED_ATTACHMENT',
+					user: {
+						connect: {id: ownerId},
+					},
+					metadata: {itemId: taskId},
+				});
+			}
+		}),
 	);
 
 	return attachments;
