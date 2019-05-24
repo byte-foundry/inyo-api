@@ -25,7 +25,14 @@ const removeSection = async (parent, {id}, ctx) => {
 				],
 			},
 		},
-	});
+	}).$fragment(gql`
+		fragment SectionAndProject on Section {
+			id
+			project {
+				id
+			}
+		}
+	`);
 
 	if (!section) {
 		throw new NotFoundError(`Section '${id}' has not been found.`);
