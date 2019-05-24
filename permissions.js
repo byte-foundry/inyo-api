@@ -34,71 +34,71 @@ const isCustomer = rule()((parent, {token = null}, ctx) => ctx.db.$exists.custom
 
 const isItemOwner = and(
 	isAuthenticated,
-	rule()((parent, {id}, ctx) => ctx.db.$exists.item({id, owner: getUserId(ctx)})),
+	rule()((parent, {id}, ctx) => ctx.db.$exists.item({id, owner: {id: getUserId(ctx)}})),
 );
 
-const isItemCustomer = rule()(async (parent, {id, token = null}, ctx) => ctx.db.$exists.item({
-	id,
-	OR: [
-		{
-			section: {
-				project: {
-					OR: [
-						{
-							token,
-						},
-						{
-							customer: {token},
-						},
-					],
+const isItemCustomer = and(
+	isCustomer,
+	rule()(async (parent, {id, token = null}, ctx) => ctx.db.$exists.item({
+		id,
+		OR: [
+			{
+				section: {
+					project: {
+						OR: [
+							{
+								token,
+							},
+							{
+								customer: {token},
+							},
+						],
+					},
 				},
 			},
-		},
-		{
-			linkedCustomer: {token},
-		},
-	],
-}));
+			{
+				linkedCustomer: {token},
+			},
+		],
+	})),
+);
 
-const isProjectOwner = rule()((parent, {id}, ctx) => ctx.db.$exists.project({
-	id,
-	OR: [
-		{
-			owner: {id: getUserId(ctx)},
-		},
-		{
-			customer: {
-				serviceCompany: {
-					owner: {id: getUserId(ctx)},
+const isProjectOwner = and(
+	isAuthenticated,
+	rule()((parent, {id}, ctx) => ctx.db.$exists.project({
+		id,
+		OR: [
+			{
+				owner: {id: getUserId(ctx)},
+			},
+			{
+				customer: {
+					serviceCompany: {
+						owner: {id: getUserId(ctx)},
+					},
 				},
 			},
-		},
-	],
-}));
+		],
+	})),
+);
 
-const isProjectCustomer = rule()(async (parent, {id, token = null}, ctx) => ctx.db.$exists.project({
-	id,
-	customer: {
-		token,
-	},
-}));
+const isProjectCustomer = and(
+	isCustomer,
+	rule()(async (parent, {id, token = null}, ctx) => ctx.db.$exists.project({
+		id,
+		customer: {
+			token,
+		},
+	})),
+);
 
 const permissions = shield(
 	{
 		Query: {
 			me: isAuthenticated,
 			customer: isAuthenticated,
-			project: or(
-				isAdmin,
-				or(
-					and(isAuthenticated, isProjectOwner),
-					and(isCustomer, isProjectCustomer),
-				),
-			),
-			item: or(
-				isAdmin,
-				or(and(isAuthenticated, isItemOwner), and(isCustomer, isItemCustomer)),
-			),
+			project: or(isAdmin, or(isProjectOwner, isProjectCustomer)),
+			item: or(isAdmin, or(isItemOwner, isItemCustomer)),
 		},
 	},
 	{

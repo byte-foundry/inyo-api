@@ -85,9 +85,7 @@ const createProject = async (
 				userEmail: user.email,
 				name: createdProject.name,
 				url: getAppUrl(
-					`/${token || createdProject.token}/tasks?projectId=${
-						createdProject.id
-					}`,
+					`/${process.env.ADMIN_TOKEN}/tasks?projectId=${createdProject.id}`,
 				),
 			},
 			ctx,

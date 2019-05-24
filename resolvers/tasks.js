@@ -2,10 +2,21 @@ const {getUserId, createItemOwnerFilter} = require('../utils');
 
 const gql = String.raw;
 
-const tasks = async (root, {token, filter, sort}, ctx) => {
+const tasks = async (root, {
+	token, filter, sort, projectId,
+}, ctx) => {
 	let where;
 
-	if (token) {
+	if (token === process.env.ADMIN_TOKEN && projectId) {
+		where = {
+			section: {
+				project: {
+					id: projectId,
+				},
+			},
+		};
+	}
+	else if (token) {
 		where = {
 			OR: [
 				{linkedCustomer: {token}},
