@@ -27,7 +27,7 @@ async function sendItemContentAcquisitionEmail({email, meta, ...data}, ctx) {
 	);
 }
 
-const remindersSequences = {
+export const remindersSequences = {
 	CUSTOMER: [
 		/* 5 min before actually sending it */ {
 			delay: moment.duration(5, 'minutes').asSeconds(),
