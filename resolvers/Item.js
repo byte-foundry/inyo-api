@@ -61,7 +61,7 @@ const Item = {
 			],
 		},
 	}),
-	remindersPreviews: node => remindersSequences[node.type],
+	remindersPreviews: node => remindersSequences[node.type] || [],
 };
 
 module.exports = {
