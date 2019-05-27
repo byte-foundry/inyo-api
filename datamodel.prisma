@@ -208,6 +208,7 @@ enum ItemType {
 	CUSTOMER_REMINDER
 	VALIDATION
 	USER_REMINDER
+	INVOICE
 }
 
 type Item {
