@@ -55,23 +55,23 @@ const remindersSequences = {
 			type: 'INVOICE_DELAY',
 		},
 		/* 2 days */ {
-			delay: moment.duration(2, 'days').asSeconds(),
+			delay: moment.duration(12, 'days').asSeconds(),
 			type: 'INVOICE_FIRST',
 		},
 		/* 3 days */ {
-			delay: moment.duration(2 + 3, 'days').asSeconds(),
+			delay: moment.duration(20, 'days').asSeconds(),
 			type: 'INVOICE_SECOND',
 		},
 		/* 1 day */ {
-			delay: moment.duration(2 + 3 + 1, 'days').asSeconds(),
+			delay: moment.duration(25, 'days').asSeconds(),
 			type: 'INVOICE_THIRD',
 		},
 		/* 1 day */ {
-			delay: moment.duration(2 + 3 + 1, 'days').asSeconds(),
+			delay: moment.duration(30, 'days').asSeconds(),
 			type: 'INVOICE_FOURTH',
 		},
 		/* 1 day */ {
-			delay: moment.duration(2 + 3 + 1, 'days').asSeconds(),
+			delay: moment.duration(40, 'days').asSeconds(),
 			type: 'INVOICE_LAST',
 		},
 	],
@@ -148,4 +148,5 @@ module.exports = {
 	sendTaskValidationEmail,
 	sendItemContentAcquisitionEmail,
 	setupItemReminderEmail,
+	reminderTypesTemplateIds,
 };
