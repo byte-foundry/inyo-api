@@ -1,5 +1,5 @@
 const moment = require('moment');
-const remindersSequences = require('../emails/TaskEmail');
+const {remindersSequences} = require('../emails/TaskEmail');
 
 const Item = {
 	id: node => node.id,
