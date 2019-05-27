@@ -31,6 +31,7 @@ const sendReminderPreviewTestEmail = async (parent, {taskId, type}, ctx) => {
 			}
 			attachments {
 				url
+				filename
 			}
 			owner {
 				firstName
@@ -91,7 +92,7 @@ const sendReminderPreviewTestEmail = async (parent, {taskId, type}, ctx) => {
 		user: formatName(user.firstName, user.lastName),
 		itemId: item.id,
 		itemName: item.name,
-		fileUrls: item.attachments.map(a => a.url),
+		fileUrls: item.attachments,
 	};
 
 	if (item.section) {

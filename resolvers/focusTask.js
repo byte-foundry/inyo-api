@@ -30,6 +30,7 @@ const focusTask = async (parent, {id, reminders}, ctx) => {
 			description
 			attachments {
 				url
+				filename
 			}
 			linkedCustomer {
 				title
@@ -150,8 +151,8 @@ const focusTask = async (parent, {id, reminders}, ctx) => {
 				console.log(`Item '${item.id}': Reminders set.`);
 			}
 		}
-		else if (item.type ==='INVOICE') {
-			const fileUrls = item.attachments.map(a => a.url);
+		else if (item.type === 'INVOICE') {
+			const fileUrls = item.attachments;
 
 			let userUrl = getAppUrl(`/tasks/${item.id}`);
 
@@ -165,7 +166,7 @@ const focusTask = async (parent, {id, reminders}, ctx) => {
 				await setupItemReminderEmail(
 					{
 						...basicInfos,
-						itemId: itemId,
+						itemId,
 						description: filterDescription(item.description),
 						issueDate: new Date(),
 						userUrl,
