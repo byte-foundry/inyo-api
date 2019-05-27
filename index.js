@@ -5,6 +5,7 @@ const {DeprecatedDirective} = require('graphql-directive-deprecated');
 
 const {prisma} = require('./generated/prisma-client');
 const {resolvers} = require('./resolvers');
+const {permissions} = require('./permissions');
 const {posthookReceiver} = require('./webhooks/posthookReceiver');
 const {scheduleDailyMails} = require('./webhooks/scheduleDailyMails');
 const {updateIntercom} = require('./webhooks/updateIntercom');
@@ -19,6 +20,7 @@ const server = new GraphQLServer({
 		deprecated: DeprecatedDirective,
 	},
 	resolvers,
+	middlewares: [permissions],
 	context: (req) => {
 		const {request} = req;
 		const xForwardedFor = (request.headers['x-forwarded-for'] || '').replace(
