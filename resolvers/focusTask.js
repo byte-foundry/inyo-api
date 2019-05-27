@@ -166,7 +166,7 @@ const focusTask = async (parent, {id, reminders}, ctx) => {
 				await setupItemReminderEmail(
 					{
 						...basicInfos,
-						itemId,
+						itemId: item.id,
 						description: filterDescription(item.description),
 						issueDate: new Date(),
 						userUrl,
