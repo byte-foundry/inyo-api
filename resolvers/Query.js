@@ -250,7 +250,18 @@ const Query = {
 	},
 	reminders: async (root, args, ctx) => ctx.db.reminders({
 		where: {
-			type_in: ['DELAY', 'FIRST', 'SECOND', 'LAST'],
+			type_in: [
+				'DELAY',
+				'FIRST',
+				'SECOND',
+				'LAST',
+				'INVOICE_DELAY',
+				'INVOICE_FIRST',
+				'INVOICE_SECOND',
+				'INVOICE_THIRD',
+				'INVOICE_FOURTH',
+				'INVOICE_LAST',
+			],
 			item: createItemOwnerFilter(getUserId(ctx)),
 			sendingDate_gt: new Date(),
 		},
