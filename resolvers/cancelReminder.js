@@ -7,7 +7,18 @@ const cancelReminder = async (parent, {id}, ctx) => {
 	const [reminder] = await ctx.db.reminders({
 		where: {
 			id,
-			type_in: ['DELAY', 'FIRST', 'SECOND', 'LAST'],
+			type_in: [
+				'DELAY',
+				'FIRST',
+				'SECOND',
+				'LAST',
+				'INVOICE_DELAY',
+				'INVOICE_FIRST',
+				'INVOICE_SECOND',
+				'INVOICE_THIRD',
+				'INVOICE_FOURTH',
+				'INVOICE_LAST',
+			],
 			item: createItemOwnerFilter(userId),
 		},
 	});
