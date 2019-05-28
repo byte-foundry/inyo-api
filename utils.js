@@ -78,6 +78,7 @@ const createItemOwnerFilter = ownerId => ({
 const isCustomerTask = task => [
 	'CUSTOMER',
 	'CONTENT_ACQUISITION',
+	'INVOICE',
 	'CUSTOMER_REMINDER',
 	'VALIDATION',
 ].includes(task.type);

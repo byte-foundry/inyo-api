@@ -1,3 +1,4 @@
+const moment = require('moment');
 const {
 	getUserId,
 	getAppUrl,
@@ -28,6 +29,10 @@ const focusTask = async (parent, {id, reminders}, ctx) => {
 			status
 			name
 			description
+			attachments {
+				url
+				filename
+			}
 			linkedCustomer {
 				title
 				firstName
@@ -141,10 +146,39 @@ const focusTask = async (parent, {id, reminders}, ctx) => {
 						issueDate: new Date(),
 						userUrl,
 						reminders,
+						taskType: item.type,
 					},
 					ctx,
 				);
 				console.log(`Item '${item.id}': Reminders set.`);
+			}
+		}
+		else if (item.type === 'INVOICE') {
+			const fileUrls = item.attachments;
+
+			let userUrl = getAppUrl(`/tasks/${item.id}`);
+
+			if (item.section) {
+				const {project} = item.section;
+
+				userUrl = getAppUrl(`/tasks/${item.id}?projectId=${project.id}`);
+			}
+
+			if (!item.pendingReminders.length) {
+				await setupItemReminderEmail(
+					{
+						...basicInfos,
+						itemId: item.id,
+						description: filterDescription(item.description),
+						issueDate: new Date(),
+						formattedIssueDate: moment().format('DD/MM/YYYY'),
+						userUrl,
+						reminders,
+						fileUrls,
+						taskType: item.type,
+					},
+					ctx,
+				);
 			}
 		}
 	}

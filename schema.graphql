@@ -21,8 +21,13 @@ type Query {
 	reminders: [Reminder!]!
 	# Get active items sorted by priority
 	items: [Item!]!
-	# Get tasks
-	tasks(filter: TasksFilterInput, sort: TasksSortInput, token: String): [Item!]!
+	# Get tasks, projectId can only be used with an admin token
+	tasks(
+		filter: TasksFilterInput
+		sort: TasksSortInput
+		projectId: ID
+		token: String
+	): [Item!]!
 }
 
 type Mutation {
@@ -428,6 +433,12 @@ enum ReminderType {
 	SECOND
 	# SECOND + 1 days reminder
 	LAST
+	INVOICE_DELAY
+	INVOICE_FIRST
+	INVOICE_SECOND
+	INVOICE_THIRD
+	INVOICE_FOURTH
+	INVOICE_LAST
 }
 
 enum ReminderStatus {
@@ -485,6 +496,7 @@ enum ItemType {
 	CUSTOMER_REMINDER
 	VALIDATION
 	USER_REMINDER
+	INVOICE
 }
 
 type Item {

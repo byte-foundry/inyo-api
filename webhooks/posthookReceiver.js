@@ -82,6 +82,11 @@ const posthookReceiver = async (req, res) => {
 		case 'FIRST':
 		case 'SECOND':
 		case 'LAST':
+		case 'INVOICE_DELAY':
+		case 'INVOICE_FIRST':
+		case 'INVOICE_SECOND':
+		case 'INVOICE_THIRD':
+		case 'INVOICE_FOURTH':
 		case 'USER_WARNING':
 			callback = sendReminderEmail;
 			break;
