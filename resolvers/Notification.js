@@ -12,7 +12,7 @@ const Notification = {
 		if (projectId) {
 			return ctx.db.project({id: projectId});
 		}
-		if (itemId) {
+		if (id || itemId) {
 			return ctx.db.item({id: itemId || id});
 		}
 
