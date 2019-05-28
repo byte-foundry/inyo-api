@@ -1,3 +1,4 @@
+const moment = require('moment');
 const {sendReminderEmail} = require('../events');
 const {
 	createItemOwnerFilter,
@@ -95,6 +96,7 @@ const sendReminderTestEmail = async (parent, {id}, ctx) => {
 		user: formatName(user.firstName, user.lastName),
 		itemId: item.id,
 		itemName: item.name,
+		formattedIssueDate: moment().format('DD/MM/YYYY'),
 	};
 
 	if (item.section) {

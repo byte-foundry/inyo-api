@@ -1,3 +1,4 @@
+const moment = require('moment');
 const {sendReminderEmail} = require('../events');
 const {reminderTypesTemplateIds} = require('../emails/TaskEmail');
 const {
@@ -93,6 +94,7 @@ const sendReminderPreviewTestEmail = async (parent, {taskId, type}, ctx) => {
 		itemId: item.id,
 		itemName: item.name,
 		fileUrls: item.attachments,
+		formattedIssueDate: moment().format('DD/MM/YYYY'),
 	};
 
 	if (item.section) {
