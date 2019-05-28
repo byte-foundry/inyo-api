@@ -1,3 +1,4 @@
+const moment = require('moment');
 const {
 	getUserId,
 	getAppUrl,
@@ -169,6 +170,7 @@ const focusTask = async (parent, {id, reminders}, ctx) => {
 						itemId: item.id,
 						description: filterDescription(item.description),
 						issueDate: new Date(),
+						formattedIssueDate: moment().format('DD/MM/YYYY'),
 						userUrl,
 						reminders,
 						fileUrls,
