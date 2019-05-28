@@ -433,6 +433,12 @@ enum ReminderType {
 	SECOND
 	# SECOND + 1 days reminder
 	LAST
+	INVOICE_DELAY
+	INVOICE_FIRST
+	INVOICE_SECOND
+	INVOICE_THIRD
+	INVOICE_FOURTH
+	INVOICE_LAST
 }
 
 enum ReminderStatus {
@@ -490,6 +496,7 @@ enum ItemType {
 	CUSTOMER_REMINDER
 	VALIDATION
 	USER_REMINDER
+	INVOICE
 }
 
 type Item {

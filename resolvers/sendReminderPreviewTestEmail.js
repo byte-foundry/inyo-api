@@ -1,4 +1,5 @@
 const {sendReminderEmail} = require('../events');
+const {reminderTypesTemplateIds} = require('../emails/TaskEmail');
 const {
 	createItemOwnerFilter,
 	formatFullName,
@@ -8,13 +9,6 @@ const {
 } = require('../utils');
 
 const gql = String.raw;
-
-const templatesId = {
-	DELAY: 'd-90847153d18843ad97755874cf092130',
-	FIRST: 'd-e39a839701644fd9935f437056ad535a',
-	SECOND: 'd-4ad0e13f00dd485ca0d98fd1d62cd7f6',
-	LAST: 'd-97b5ce25a4464a3888b359ac02f34168',
-};
 
 const sendReminderPreviewTestEmail = async (parent, {taskId, type}, ctx) => {
 	const userId = getUserId(ctx);
@@ -34,6 +28,10 @@ const sendReminderPreviewTestEmail = async (parent, {taskId, type}, ctx) => {
 			status
 			focusedBy {
 				id
+			}
+			attachments {
+				url
+				filename
 			}
 			owner {
 				firstName
@@ -87,13 +85,14 @@ const sendReminderPreviewTestEmail = async (parent, {taskId, type}, ctx) => {
 
 	const basicInfos = {
 		meta: {userId},
-		templateId: templatesId[type],
+		templateId: reminderTypesTemplateIds[type],
 		email: user.email,
 
 		userEmail: user.email,
 		user: formatName(user.firstName, user.lastName),
 		itemId: item.id,
 		itemName: item.name,
+		fileUrls: item.attachments,
 	};
 
 	if (item.section) {
