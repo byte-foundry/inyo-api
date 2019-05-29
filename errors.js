@@ -35,4 +35,5 @@ module.exports = {
 	InsufficientDataError,
 	NotFoundError,
 	AlreadyExistingError,
+	PaymentError,
 };
