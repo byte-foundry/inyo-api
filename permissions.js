@@ -1,9 +1,10 @@
 const {verify} = require('jsonwebtoken');
+const moment = require('moment');
 const {
 	rule, shield, and, or, not, deny, allow,
 } = require('graphql-shield');
 
-const {AuthError} = require('./errors');
+const {AuthError, PaymentError} = require('./errors');
 
 const {APP_SECRET, ADMIN_TOKEN} = process.env;
 
@@ -28,12 +29,26 @@ const isAuthenticated = rule()(async (parent, args, ctx) => {
 	return new AuthError();
 });
 
-const isAdmin = rule()((parent, {token = null}, ctx) => ADMIN_TOKEN === token);
+const isPayingOrInTrial = rule()(async (parent, args, ctx) => {
+	const user = await ctx.db.user({id: getUserId(ctx)});
+
+	if (
+		user.lifetimePayment
+		|| moment().diff(moment(user.createdAt), 'days') <= 21
+	) {
+		return true;
+	}
+
+	return new PaymentError();
+});
+
+const isAdmin = rule()((parent, {token = null}) => ADMIN_TOKEN === token);
 
 const isCustomer = rule()((parent, {token = null}, ctx) => ctx.db.$exists.customer({token}));
 
 const isItemOwner = and(
 	isAuthenticated,
+	isPayingOrInTrial,
 	rule()((parent, {id}, ctx) => ctx.db.$exists.item({id, owner: {id: getUserId(ctx)}})),
 );
 
@@ -65,6 +80,7 @@ const isItemCustomer = and(
 
 const isProjectOwner = and(
 	isAuthenticated,
+	isPayingOrInTrial,
 	rule()((parent, {id}, ctx) => ctx.db.$exists.project({
 		id,
 		OR: [
@@ -95,7 +111,7 @@ const isProjectCustomer = and(
 const permissions = shield(
 	{
 		Query: {
-			me: isAuthenticated,
+			me: and(isAuthenticated, isPayingOrInTrial),
 			customer: isAuthenticated,
 			project: or(isAdmin, or(isProjectOwner, isProjectCustomer)),
 			item: or(isAdmin, or(isItemOwner, isItemCustomer)),

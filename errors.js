@@ -6,6 +6,12 @@ class AuthError extends ApolloError {
 	}
 }
 
+class PaymentError extends ApolloError {
+	constructor(message = 'Not authorized') {
+		super(message, 'Payment');
+	}
+}
+
 class InsufficientDataError extends ApolloError {
 	constructor(message = 'Missing required data') {
 		super(message, 'InsufficientData');
