@@ -7,6 +7,7 @@ const {
 	formatName,
 	formatFullName,
 	filterDescription,
+	reorderList,
 } = require('../utils');
 const {NotFoundError, InsufficientDataError} = require('../errors');
 const {
@@ -35,6 +36,8 @@ const focusTask = async (
 			status
 			name
 			description
+			scheduledFor
+			schedulePosition
 			attachments {
 				url
 				filename
@@ -186,6 +189,56 @@ const focusTask = async (
 				);
 			}
 		}
+	}
+
+	let position = schedulePosition;
+
+	if (
+		!(
+			schedulePosition === item.schedulePosition
+			&& scheduledFor === item.scheduledFor
+		)
+	) {
+		const dayTasks = await ctx.db.items({
+			where: {scheduledFor},
+			orderBy: 'schedulePosition_ASC',
+		});
+
+		let initialPosition = dayTasks.findIndex(task => task.id === id);
+
+		// not the same list
+		if (initialPosition < 0 && item.scheduledFor) {
+			const previousList = await ctx.db.items({
+				where: {scheduledFor: item.scheduledFor},
+				orderBy: 'schedulePosition_ASC',
+			});
+
+			reorderList(
+				previousList,
+				item.schedulePosition,
+				previousList.length,
+				(task, pos) => ctx.db.updateItem({
+					where: {id: task.id},
+					data: {schedulePosition: pos},
+				}),
+			);
+		}
+
+		if (initialPosition < 0) {
+			initialPosition = dayTasks.length;
+		}
+
+		if (schedulePosition < 0) {
+			position = 0;
+		}
+		else if (schedulePosition > dayTasks.length) {
+			position = dayTasks.length;
+		}
+
+		await reorderList(dayTasks, initialPosition, position, (task, pos) => ctx.db.updateItem({
+			where: {id: task.id},
+			data: {schedulePosition: pos},
+		}));
 	}
 
 	const focusedTask = await ctx.db.updateItem({
