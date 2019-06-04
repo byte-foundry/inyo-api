@@ -1,4 +1,5 @@
 scalar DateTime
+scalar Date
 scalar Time
 scalar Json
 scalar Upload
@@ -199,7 +200,12 @@ type Mutation {
 	): Item
 
 	# Add task to the focus zone
-	focusTask(id: ID!, reminders: [ReminderInput]): Item!
+	focusTask(
+		id: ID!
+		reminders: [ReminderInput]
+		for: Date
+		schedulePosition: Int
+	): Item!
 
 	# Remove task from the focus zone
 	unfocusTask(id: ID!): Item!
@@ -502,7 +508,8 @@ enum ItemType {
 type Item {
 	id: ID!
 	owner: User!
-	isFocused: Boolean!
+	scheduledFor: Date
+	schedulePosition: Int
 	linkedCustomer: Customer
 	name: String!
 	type: ItemType!
@@ -519,6 +526,8 @@ type Item {
 	attachments: [File!]!
 	tags: [Tag!]!
 
+	isFocused: Boolean!
+		@deprecated(reason: "Focus has been replaced with scheduleFor.")
 	reviewer: Reviewer @deprecated(reason: "Use `type: CUSTOMER` instead.")
 	unitPrice: Int @deprecated(reason: "Unit price is not used anymore.")
 	pendingUnit: Float

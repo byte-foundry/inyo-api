@@ -16,7 +16,13 @@ const {
 
 const gql = String.raw;
 
-const focusTask = async (parent, {id, reminders}, ctx) => {
+const focusTask = async (
+	parent,
+	{
+		id, reminders, for: scheduledFor, schedulePosition,
+	},
+	ctx,
+) => {
 	const userId = getUserId(ctx);
 	const [item] = await ctx.db.items({
 		where: {
@@ -185,6 +191,10 @@ const focusTask = async (parent, {id, reminders}, ctx) => {
 	const focusedTask = await ctx.db.updateItem({
 		where: {id},
 		data: {
+			scheduledFor: isCustomerTask(item.type) ? undefined : scheduledFor,
+			schedulePosition: isCustomerTask(item.type)
+				? undefined
+				: schedulePosition,
 			focusedBy: {
 				connect: {id: userId},
 			},

@@ -77,6 +77,8 @@ const User = {
 			fragment TaskWithProjet on Item {
 				id
 				name
+				scheduledFor
+				schedulePosition
 				type
 				unit
 				description
