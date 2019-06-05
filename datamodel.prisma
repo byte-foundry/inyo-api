@@ -320,6 +320,7 @@ type Company {
 type Settings {
 	user: User! @relation(name: "UserSettings")
 	assistantName: String! @default(value: "Edwige")
+	hasFullWeekSchedule: Boolean @default(value: false)
 
 	# deprecated
 	askItemFinishConfirmation: Boolean! @default(value: true)
