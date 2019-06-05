@@ -209,7 +209,7 @@ const focusTask = async (
 		// not the same list
 		if (initialPosition < 0 && item.scheduledFor) {
 			const previousList = await ctx.db.items({
-				where: {scheduledFor: item.scheduledFor},
+				where: {scheduledFor: item.scheduledFor, NOT: {id: item.id}},
 				orderBy: 'schedulePosition_ASC',
 			});
 
