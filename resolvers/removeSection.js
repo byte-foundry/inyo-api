@@ -30,6 +30,7 @@ const removeSection = async (parent, {id}, ctx) => {
 	}).$fragment(gql`
 		fragment SectionAndProject on Section {
 			id
+			position
 			project {
 				id
 			}
@@ -40,23 +41,20 @@ const removeSection = async (parent, {id}, ctx) => {
 		throw new NotFoundError(`Section '${id}' has not been found.`);
 	}
 
-	const projectId = section.project.id;
 	const removedSection = await ctx.db.deleteSection({id});
+
 	const projectSections = await ctx.db.sections({
 		where: {
-			project: {
-				id: projectId,
-			},
+			project: {id: section.project.id},
+			position_gt: section.position,
 		},
+		orderBy: 'position_ASC',
 	});
 
-	projectSections.map((section, index) => ctx.db.updateSection({
-		where: {id: section.id},
-		data: {
-			position: index,
-		},
+	projectSections.forEach((sectionToUpdate, index) => ctx.db.updateSection({
+		where: {id: sectionToUpdate.id},
+		data: {position: index},
 	}));
-
 
 	await ctx.db.createUserEvent({
 		type: 'REMOVED_SECTION',
