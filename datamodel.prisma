@@ -54,9 +54,6 @@ enum QuoteTemplate {
 	BLANK
 	WEBSITE
 	IDENTITY
-	PROSPECTION
-	MOTION
-	LANDING
 }
 
 enum ProjectStatus {
