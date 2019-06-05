@@ -399,6 +399,9 @@ enum ProjectTemplate {
 	BLANK
 	WEBSITE
 	IDENTITY
+	PROSPECTION
+	MOTION
+	LANDING
 }
 
 enum QuoteTemplate {
