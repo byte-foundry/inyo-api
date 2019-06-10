@@ -44,6 +44,7 @@ const focusTask = async (parent, {id, reminders}, ctx) => {
 				project {
 					id
 					token
+					name
 					customer {
 						title
 						firstName
