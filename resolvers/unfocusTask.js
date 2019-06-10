@@ -40,6 +40,8 @@ const unfocusTask = async (parent, {id}, ctx) => {
 			status
 			name
 			description
+			scheduledFor
+			schedulePosition
 			linkedCustomer {
 				title
 				firstName
@@ -76,8 +78,24 @@ const unfocusTask = async (parent, {id}, ctx) => {
 	}
 
 	// ignoring when already unfocused
-	if (!item.focusedBy) {
+	if (!item.focusedBy && !item.scheduledFor && !item.schedulePosition) {
 		return ctx.db.item({id});
+	}
+
+	if (item.scheduledFor && item.schedulePosition) {
+		// resetting dashboard list
+		const dayTasks = await ctx.db.items({
+			where: {
+				scheduledFor: item.scheduledFor,
+				schedulePosition_gt: item.schedulePosition,
+			},
+			orderBy: 'schedulePosition_ASC',
+		});
+
+		dayTasks.forEach((task, index) => ctx.db.updateItem({
+			where: {id: task.id},
+			data: {schedulePosition: item.schedulePosition + index},
+		}));
 	}
 
 	await cancelPendingReminders(item.pendingReminders, id, ctx);
@@ -85,7 +103,9 @@ const unfocusTask = async (parent, {id}, ctx) => {
 	const unfocusedTask = await ctx.db.updateItem({
 		where: {id},
 		data: {
-			focusedBy: {
+			scheduledFor: null,
+			schedulePosition: null,
+			focusedBy: item.focusedBy && {
 				disconnect: true,
 			},
 		},
