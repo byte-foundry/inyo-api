@@ -14,6 +14,8 @@ const removeItem = async (parent, {id}, ctx) => {
 		fragment ItemWithSectionItems on Item {
 			id
 			status
+			scheduledFor
+			schedulePosition
 			section {
 				project {
 					status
@@ -49,6 +51,22 @@ const removeItem = async (parent, {id}, ctx) => {
 				data: {position: itemIndex + index},
 			})),
 		);
+	}
+
+	if (item.scheduledFor && item.schedulePosition) {
+		// resetting dashboard list
+		const dayTasks = await ctx.db.items({
+			where: {
+				scheduledFor: item.scheduledFor,
+				schedulePosition_gt: item.schedulePosition,
+			},
+			orderBy: 'schedulePosition_ASC',
+		});
+
+		dayTasks.forEach((task, index) => ctx.db.updateItem({
+			where: {id: task.id},
+			data: {schedulePosition: item.schedulePosition + index},
+		}));
 	}
 
 	const removedItem = await ctx.db.deleteItem({id});

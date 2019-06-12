@@ -85,6 +85,24 @@ const isCustomerTask = task => [
 
 const filterDescription = description => description.split(/# content-acquisition-list[\s\S]+/).join('');
 
+const reorderList = async (list, position, nextPosition, updateItem) => {
+	const initialPosition = typeof position === 'number' ? position : list.length;
+	const wantedPosition
+		= typeof nextPosition === 'number' ? nextPosition : list.length;
+
+	const itemsToUpdate
+		= wantedPosition > initialPosition
+			? list.slice(initialPosition + 1, wantedPosition + 1)
+			: list.slice(wantedPosition, initialPosition);
+
+	const startIndex
+		= wantedPosition > initialPosition ? initialPosition : wantedPosition + 1;
+
+	await Promise.all(
+		itemsToUpdate.map((item, index) => updateItem(item, startIndex + index, initialPosition)),
+	);
+};
+
 module.exports = {
 	getUserId,
 	APP_SECRET,
@@ -96,4 +114,5 @@ module.exports = {
 	createItemOwnerFilter,
 	isCustomerTask,
 	filterDescription,
+	reorderList,
 };
