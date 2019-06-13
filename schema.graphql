@@ -38,6 +38,7 @@ type Mutation {
 		password: String!
 		firstName: String!
 		lastName: String!
+		referrer: String
 		company: CompanyInput
 	): AuthPayload!
 	sendResetPassword(email: String!): Boolean

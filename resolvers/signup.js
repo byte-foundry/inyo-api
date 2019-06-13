@@ -9,7 +9,13 @@ const {sendSignupEmail} = require('../emails/SignupEmail');
 const signup = async (
 	parent,
 	{
-		email: rawEmail, password, firstName, lastName, company = {}, settings = {},
+		email: rawEmail,
+		password,
+		firstName,
+		lastName,
+		referrer,
+		company = {},
+		settings = {},
 	},
 	ctx,
 ) => {
@@ -26,6 +32,12 @@ const signup = async (
 
 	const hashedPassword = await hash(password, 10);
 
+	let hasReferrer = false;
+
+	if (referrer) {
+		hasReferrer = await ctx.db.$exists.user({email: referrer});
+	}
+
 	try {
 		const user = await ctx.db.createUser({
 			email,
@@ -33,6 +45,7 @@ const signup = async (
 			firstName,
 			hmacIntercomId,
 			lastName,
+			referral: hasReferrer && {connect: {email: referrer}},
 			company: {
 				create: company,
 			},
