@@ -102,7 +102,7 @@ async function setupItemReminderEmail({
 	taskType,
 	...rest
 }) {
-	const dates = reminders || remindersSequences[taskType];
+	const dates = [...(reminders || remindersSequences[taskType])];
 
 	// adding user warning 1 day after last reminder
 	if (dates.length > 0) {
