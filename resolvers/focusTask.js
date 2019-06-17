@@ -30,7 +30,7 @@ const focusTask = async (
 			AND: [{id}, createItemOwnerFilter(userId)],
 		},
 	}).$fragment(gql`
-		fragment ItemWithProject on Item {
+		fragment FocusingItemWithProject on Item {
 			id
 			type
 			status
@@ -76,11 +76,7 @@ const focusTask = async (
 		throw new NotFoundError(`Item '${id}' has not been found.`);
 	}
 
-	if (item.status === 'FINISHED') {
-		throw new Error(`Item '${id}' is finished, it cannot be focused.`);
-	}
-
-	if (!item.focusedBy && isCustomerTask(item)) {
+	if (!item.scheduledFor && !item.focusedBy && isCustomerTask(item)) {
 		const customer
 			= item.linkedCustomer || (item.section && item.section.project.customer);
 
@@ -195,10 +191,8 @@ const focusTask = async (
 	let position = schedulePosition;
 
 	if (
-		!(
-			schedulePosition === item.schedulePosition
-			&& scheduledFor === item.scheduledFor
-		)
+		position !== item.schedulePosition
+		|| scheduledFor !== item.scheduledFor
 	) {
 		const dayTasks = await ctx.db.items({
 			where: {scheduledFor},
@@ -229,11 +223,11 @@ const focusTask = async (
 			initialPosition = dayTasks.length;
 		}
 
-		if (schedulePosition < 0) {
-			position = 0;
-		}
-		else if (schedulePosition > dayTasks.length) {
+		if (typeof position !== 'number' || position > dayTasks.length) {
 			position = dayTasks.length;
+		}
+		else if (position < 0) {
+			position = 0;
 		}
 
 		await reorderList(dayTasks, initialPosition, position, (task, pos) => ctx.db.updateItem({
@@ -245,10 +239,9 @@ const focusTask = async (
 	const focusedTask = await ctx.db.updateItem({
 		where: {id},
 		data: {
-			scheduledFor: isCustomerTask(item.type) ? undefined : scheduledFor,
-			schedulePosition: isCustomerTask(item.type)
-				? undefined
-				: schedulePosition,
+			scheduledFor:
+				isCustomerTask(item.type) || !scheduledFor ? undefined : scheduledFor,
+			schedulePosition: isCustomerTask(item.type) ? undefined : position,
 			focusedBy: {
 				connect: {id: userId},
 			},
