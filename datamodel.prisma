@@ -369,6 +369,7 @@ type User {
 	createdAt: DateTime!
 	updatedAt: DateTime!
 	tags: [Tag!]! @relation(name: "UserTags", onDelete: CASCADE)
+	lifetimePayment: Boolean @default(value: false)
 }
 
 type Reminder {
