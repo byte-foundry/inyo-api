@@ -7,6 +7,7 @@ const {prisma} = require('./generated/prisma-client');
 const {resolvers} = require('./resolvers');
 const {permissions} = require('./permissions');
 const {posthookReceiver} = require('./webhooks/posthookReceiver');
+const {paymentFromStripe} = require('./webhooks/paymentFromStripe.js');
 const {scheduleDailyMails} = require('./webhooks/scheduleDailyMails');
 const {updateIntercom} = require('./webhooks/updateIntercom');
 const {subscribeToUpdateIntercom} = require('./intercomTracking');
@@ -41,6 +42,11 @@ server.express.post('/schedule-daily-mails', scheduleDailyMails);
 server.express.post('/update-intercom', updateIntercom);
 
 server.express.post('/posthook-receiver', bodyParser.json(), posthookReceiver);
+server.express.post(
+	'/lifetime-payment',
+	bodyParser.raw({type: 'application/json'}),
+	paymentFromStripe,
+);
 
 if (process.env.APOLLO_ENGINE_KEY) {
 	const engine = new ApolloEngine({
