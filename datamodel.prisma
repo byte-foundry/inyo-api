@@ -426,7 +426,8 @@ type CustomerEvent {
 	createdAt: DateTime!
 	customer: Customer! @relation(name: "CustomerCustomerEvents")
 	metadata: Json @default(value: "{}")
-	notifications: [Notification!]! @relation(name: "CustomerEventNotifications")
+	notifications: [Notification!]!
+		@relation(name: "CustomerEventNotifications", onDelete: CASCADE)
 }
 
 type Notification {
