@@ -8,7 +8,7 @@ const teardownAndSetupTest = (req, res) => {
 		const email = String(rawEmail).toLowerCase();
 
 		try {
-			await prisma.db.deleteUser({
+			await prisma.deleteUser({
 				email,
 			});
 		}
@@ -21,7 +21,7 @@ const teardownAndSetupTest = (req, res) => {
 		email: rawEmail, password, firstName, lastName,
 	}) => {
 		const email = String(rawEmail).toLowerCase();
-		const isExisting = await prisma.db.$exists.user({email});
+		const isExisting = await prisma.$exists.user({email});
 
 		const hashedPassword = await hash(password, 10);
 
@@ -30,7 +30,7 @@ const teardownAndSetupTest = (req, res) => {
 		}
 
 		try {
-			await prisma.db.createUser({
+			await prisma.createUser({
 				email,
 				password: hashedPassword,
 				firstName,
