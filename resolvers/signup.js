@@ -45,7 +45,7 @@ const signup = async (
 			firstName,
 			hmacIntercomId,
 			lastName,
-			referrer: hasReferrer && {connect: {email: referrer}},
+			referrer: hasReferrer ? {connect: {email: referrer}} : undefined,
 			company: {
 				create: company,
 			},
