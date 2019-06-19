@@ -9,6 +9,7 @@ const {permissions} = require('./permissions');
 const {posthookReceiver} = require('./webhooks/posthookReceiver');
 const {paymentFromStripe} = require('./webhooks/paymentFromStripe.js');
 const {scheduleDailyMails} = require('./webhooks/scheduleDailyMails');
+const {teardownAndSetupTest} = require('./webhooks/teardownAndSetupTest');
 const {updateIntercom} = require('./webhooks/updateIntercom');
 const {subscribeToUpdateIntercom} = require('./intercomTracking');
 const {notifyViewedProject} = require('./notifyViewedProject');
@@ -47,6 +48,8 @@ server.express.post(
 	bodyParser.raw({type: 'application/json'}),
 	paymentFromStripe,
 );
+
+server.express.post('/prep-for-test', bodyParser.json(), teardownAndSetupTest);
 
 if (process.env.APOLLO_ENGINE_KEY) {
 	const engine = new ApolloEngine({
