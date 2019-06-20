@@ -24,9 +24,11 @@ const focusTask = async (
 	},
 	ctx,
 ) => {
-	const scheduledForDate = +new Date(scheduledFor)
-		? scheduledFor
-		: moment().format(moment.HTML5_FMT.DATE);
+	let scheduledForDate = moment(scheduledFor).isValid()
+		? moment(scheduledFor)
+		: moment();
+
+	scheduledForDate = scheduledForDate.format(moment.HTML5_FMT.DATE);
 
 	const userId = getUserId(ctx);
 	const [item] = await ctx.db.items({
