@@ -24,6 +24,10 @@ const focusTask = async (
 	},
 	ctx,
 ) => {
+	const scheduledForDate = +new Date(scheduledFor)
+		? scheduledFor
+		: moment().format(moment.HTML5_FMT.DATE);
+
 	const userId = getUserId(ctx);
 	const [item] = await ctx.db.items({
 		where: {
@@ -118,6 +122,10 @@ const focusTask = async (
 			projectName: item.section && item.section.project.name,
 			itemName: item.name,
 			url,
+			issueDate: new Date(
+				`${scheduledForDate}T${user.startWorkAt.split('T')[1]}`,
+			),
+			formattedIssueDate: moment(scheduledForDate).format('DD/MM/YYYY'),
 		};
 
 		if (item.type === 'CONTENT_ACQUISITION') {
@@ -132,7 +140,6 @@ const focusTask = async (
 			);
 			console.log('Content acquisition email sent to us');
 		}
-		// TODO: Are they quite identical?
 		else if (item.type === 'CUSTOMER') {
 			let userUrl = getAppUrl(`/tasks/${item.id}`);
 
@@ -148,7 +155,6 @@ const focusTask = async (
 						...basicInfos,
 						itemId: item.id,
 						description: filterDescription(item.description),
-						issueDate: new Date(),
 						userUrl,
 						reminders,
 						taskType: item.type,
@@ -175,8 +181,6 @@ const focusTask = async (
 						...basicInfos,
 						itemId: item.id,
 						description: filterDescription(item.description),
-						issueDate: new Date(),
-						formattedIssueDate: moment().format('DD/MM/YYYY'),
 						userUrl,
 						reminders,
 						fileUrls,
@@ -192,10 +196,10 @@ const focusTask = async (
 
 	if (
 		position !== item.schedulePosition
-		|| scheduledFor !== item.scheduledFor
+		|| (scheduledFor && scheduledFor !== item.scheduledFor)
 	) {
 		const dayTasks = await ctx.db.items({
-			where: {scheduledFor},
+			where: {scheduledFor: scheduledFor || item.scheduledFor},
 			orderBy: 'schedulePosition_ASC',
 		});
 
@@ -239,9 +243,8 @@ const focusTask = async (
 	const focusedTask = await ctx.db.updateItem({
 		where: {id},
 		data: {
-			scheduledFor:
-				isCustomerTask(item.type) || !scheduledFor ? undefined : scheduledFor,
-			schedulePosition: isCustomerTask(item.type) ? undefined : position,
+			scheduledFor: scheduledForDate,
+			schedulePosition: position,
 			focusedBy: {
 				connect: {id: userId},
 			},
