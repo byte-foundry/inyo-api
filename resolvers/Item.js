@@ -26,10 +26,13 @@ const Item = {
 
 		return owner || projectOwner;
 	},
+	scheduledFor: node => node.scheduledFor && new Date(node.scheduledFor),
+	schedulePosition: node => node.schedulePosition,
 	isFocused: async (node, args, ctx) => {
 		const focusedBy = await ctx.db.item({id: node.id}).focusedBy();
+		const scheduledFor = await ctx.db.item({id: node.id}).scheduledFor();
 
-		return !!focusedBy;
+		return !!focusedBy || !!scheduledFor;
 	},
 	type: node => node.type,
 	unitPrice: () => null,

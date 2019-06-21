@@ -1,4 +1,4 @@
-const {GraphQLTime} = require('graphql-iso-date');
+const {GraphQLTime, GraphQLDate} = require('graphql-iso-date');
 
 const {GraphQLTimeZone} = require('../types/timezone');
 const {Query} = require('./Query');
@@ -27,6 +27,7 @@ const {Tag} = require('./Tag');
 const resolvers = {
 	TimeZone: GraphQLTimeZone,
 	Time: GraphQLTime,
+	Date: GraphQLDate,
 	Query,
 	Mutation,
 	AuthPayload,

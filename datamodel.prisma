@@ -220,6 +220,8 @@ enum ItemType {
 type Item {
 	id: ID! @unique
 	owner: User @relation(name: "UserTasks")
+	scheduledFor: DateTime
+	schedulePosition: Int
 	focusedBy: User @relation(name: "UserFocusedTasks")
 	linkedCustomer: Customer @relation(name: "LinkedCustomerTasks")
 	name: String!
@@ -321,6 +323,7 @@ type Company {
 type Settings {
 	user: User! @relation(name: "UserSettings")
 	assistantName: String! @default(value: "Edwige")
+	hasFullWeekSchedule: Boolean @default(value: false)
 
 	# deprecated
 	askItemFinishConfirmation: Boolean! @default(value: true)
@@ -335,6 +338,8 @@ type User {
 	password: String!
 	firstName: String!
 	lastName: String!
+	referrer: User @relation(name: "UserReferrees")
+	referrees: [User!]! @relation(name: "UserReferrees")
 	company: Company! @relation(name: "CompanyOwner", onDelete: CASCADE)
 	startWorkAt: DateTime
 	endWorkAt: DateTime
@@ -421,7 +426,8 @@ type CustomerEvent {
 	createdAt: DateTime!
 	customer: Customer! @relation(name: "CustomerCustomerEvents")
 	metadata: Json @default(value: "{}")
-	notifications: [Notification!]! @relation(name: "CustomerEventNotifications")
+	notifications: [Notification!]!
+		@relation(name: "CustomerEventNotifications", onDelete: CASCADE)
 }
 
 type Notification {

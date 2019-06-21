@@ -7,6 +7,7 @@ const {
 	formatName,
 	formatFullName,
 	filterDescription,
+	reorderList,
 } = require('../utils');
 const {NotFoundError, InsufficientDataError} = require('../errors');
 const {
@@ -16,19 +17,33 @@ const {
 
 const gql = String.raw;
 
-const focusTask = async (parent, {id, reminders}, ctx) => {
+const focusTask = async (
+	parent,
+	{
+		id, reminders, for: scheduledFor, schedulePosition,
+	},
+	ctx,
+) => {
+	let scheduledForDate = moment(scheduledFor).isValid()
+		? moment(scheduledFor)
+		: moment();
+
+	scheduledForDate = scheduledForDate.format(moment.HTML5_FMT.DATE);
+
 	const userId = getUserId(ctx);
 	const [item] = await ctx.db.items({
 		where: {
 			AND: [{id}, createItemOwnerFilter(userId)],
 		},
 	}).$fragment(gql`
-		fragment ItemWithProject on Item {
+		fragment FocusingItemWithProject on Item {
 			id
 			type
 			status
 			name
 			description
+			scheduledFor
+			schedulePosition
 			attachments {
 				url
 				filename
@@ -67,11 +82,7 @@ const focusTask = async (parent, {id, reminders}, ctx) => {
 		throw new NotFoundError(`Item '${id}' has not been found.`);
 	}
 
-	if (item.status === 'FINISHED') {
-		throw new Error(`Item '${id}' is finished, it cannot be focused.`);
-	}
-
-	if (!item.focusedBy && isCustomerTask(item)) {
+	if (!item.scheduledFor && !item.focusedBy && isCustomerTask(item)) {
 		const customer
 			= item.linkedCustomer || (item.section && item.section.project.customer);
 
@@ -96,6 +107,14 @@ const focusTask = async (parent, {id, reminders}, ctx) => {
 			url = getAppUrl(`/${customer.token}/tasks/${item.id}`);
 		}
 
+		let issueDate = moment(
+			`${scheduledForDate}T${user.startWorkAt.split('T')[1]}`,
+		);
+
+		if (issueDate.isBefore(moment())) {
+			issueDate = moment();
+		}
+
 		const basicInfos = {
 			meta: {userId},
 			email: customer.email,
@@ -113,6 +132,8 @@ const focusTask = async (parent, {id, reminders}, ctx) => {
 			projectName: item.section && item.section.project.name,
 			itemName: item.name,
 			url,
+			issueDate: issueDate.toDate(),
+			formattedIssueDate: issueDate.format('DD/MM/YYYY'),
 		};
 
 		if (item.type === 'CONTENT_ACQUISITION') {
@@ -127,7 +148,6 @@ const focusTask = async (parent, {id, reminders}, ctx) => {
 			);
 			console.log('Content acquisition email sent to us');
 		}
-		// TODO: Are they quite identical?
 		else if (item.type === 'CUSTOMER') {
 			let userUrl = getAppUrl(`/tasks/${item.id}`);
 
@@ -143,7 +163,6 @@ const focusTask = async (parent, {id, reminders}, ctx) => {
 						...basicInfos,
 						itemId: item.id,
 						description: filterDescription(item.description),
-						issueDate: new Date(),
 						userUrl,
 						reminders,
 						taskType: item.type,
@@ -170,8 +189,6 @@ const focusTask = async (parent, {id, reminders}, ctx) => {
 						...basicInfos,
 						itemId: item.id,
 						description: filterDescription(item.description),
-						issueDate: new Date(),
-						formattedIssueDate: moment().format('DD/MM/YYYY'),
 						userUrl,
 						reminders,
 						fileUrls,
@@ -183,9 +200,59 @@ const focusTask = async (parent, {id, reminders}, ctx) => {
 		}
 	}
 
+	let position = schedulePosition;
+
+	if (
+		position !== item.schedulePosition
+		|| (scheduledFor && scheduledFor !== item.scheduledFor)
+	) {
+		const dayTasks = await ctx.db.items({
+			where: {scheduledFor: scheduledFor || item.scheduledFor},
+			orderBy: 'schedulePosition_ASC',
+		});
+
+		let initialPosition = dayTasks.findIndex(task => task.id === id);
+
+		// not the same list
+		if (initialPosition < 0 && item.scheduledFor) {
+			const previousList = await ctx.db.items({
+				where: {scheduledFor: item.scheduledFor, NOT: {id: item.id}},
+				orderBy: 'schedulePosition_ASC',
+			});
+
+			reorderList(
+				previousList,
+				item.schedulePosition,
+				previousList.length,
+				(task, pos) => ctx.db.updateItem({
+					where: {id: task.id},
+					data: {schedulePosition: pos},
+				}),
+			);
+		}
+
+		if (initialPosition < 0) {
+			initialPosition = dayTasks.length;
+		}
+
+		if (typeof position !== 'number' || position > dayTasks.length) {
+			position = dayTasks.length;
+		}
+		else if (position < 0) {
+			position = 0;
+		}
+
+		await reorderList(dayTasks, initialPosition, position, (task, pos) => ctx.db.updateItem({
+			where: {id: task.id},
+			data: {schedulePosition: pos},
+		}));
+	}
+
 	const focusedTask = await ctx.db.updateItem({
 		where: {id},
 		data: {
+			scheduledFor: scheduledForDate,
+			schedulePosition: position,
 			focusedBy: {
 				connect: {id: userId},
 			},
