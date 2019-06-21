@@ -107,6 +107,14 @@ const focusTask = async (
 			url = getAppUrl(`/${customer.token}/tasks/${item.id}`);
 		}
 
+		let issueDate = moment(
+			`${scheduledForDate}T${user.startWorkAt.split('T')[1]}`,
+		);
+
+		if (issueDate.isBefore(moment())) {
+			issueDate = moment();
+		}
+
 		const basicInfos = {
 			meta: {userId},
 			email: customer.email,
@@ -124,10 +132,8 @@ const focusTask = async (
 			projectName: item.section && item.section.project.name,
 			itemName: item.name,
 			url,
-			issueDate: new Date(
-				`${scheduledForDate}T${user.startWorkAt.split('T')[1]}`,
-			),
-			formattedIssueDate: moment(scheduledForDate).format('DD/MM/YYYY'),
+			issueDate: issueDate.toDate(),
+			formattedIssueDate: issueDate.format('DD/MM/YYYY'),
 		};
 
 		if (item.type === 'CONTENT_ACQUISITION') {
