@@ -30,6 +30,10 @@ const isAuthenticated = rule()(async (parent, args, ctx) => {
 });
 
 const isPayingOrInTrial = rule()(async (parent, args, ctx) => {
+	const exists = await ctx.db.$exists.user({id: getUserId(ctx)});
+
+	if (!exists) return new AuthError();
+
 	const user = await ctx.db.user({id: getUserId(ctx)});
 
 	if (
