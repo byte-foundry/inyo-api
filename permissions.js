@@ -21,7 +21,11 @@ const getUserId = (ctx) => {
 	return null;
 };
 
-const isAuthenticated = rule()(async (parent, args, ctx) => {
+const isAuthenticated = rule()(async (parent, args, ctx, info) => {
+	if (info.operation.name.value === 'login') {
+		return true;
+	}
+
 	const exists = await ctx.db.$exists.user({id: getUserId(ctx)});
 
 	if (exists) return true;
@@ -29,7 +33,11 @@ const isAuthenticated = rule()(async (parent, args, ctx) => {
 	return new AuthError();
 });
 
-const isPayingOrInTrial = rule()(async (parent, args, ctx) => {
+const isPayingOrInTrial = rule()(async (parent, args, ctx, info) => {
+	if (info.operation.name.value === 'login') {
+		return true;
+	}
+
 	const user = await ctx.db.user({id: getUserId(ctx)});
 
 	if (
