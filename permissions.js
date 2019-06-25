@@ -1,7 +1,7 @@
 const {verify} = require('jsonwebtoken');
 const moment = require('moment');
 const {
-	rule, shield, and, or, not, deny, allow,
+	rule, shield, and, or, chain,
 } = require('graphql-shield');
 
 const {AuthError, PaymentError} = require('./errors');
@@ -30,10 +30,6 @@ const isAuthenticated = rule()(async (parent, args, ctx) => {
 });
 
 const isPayingOrInTrial = rule()(async (parent, args, ctx) => {
-	const exists = await ctx.db.$exists.user({id: getUserId(ctx)});
-
-	if (!exists) return new AuthError();
-
 	const user = await ctx.db.user({id: getUserId(ctx)});
 
 	if (
@@ -123,29 +119,29 @@ const permissions = shield(
 		User: {
 			id: isAuthenticated,
 			email: isAuthenticated,
-			firstName: and(isAuthenticated, isPayingOrInTrial),
-			lastName: and(isAuthenticated, isPayingOrInTrial),
-			customers: and(isAuthenticated, isPayingOrInTrial),
-			projects: and(isAuthenticated, isPayingOrInTrial),
-			defaultVatRate: and(isAuthenticated, isPayingOrInTrial),
-			startWorkAt: and(isAuthenticated, isPayingOrInTrial),
-			endWorkAt: and(isAuthenticated, isPayingOrInTrial),
-			workingDays: and(isAuthenticated, isPayingOrInTrial),
-			timeZone: and(isAuthenticated, isPayingOrInTrial),
-			workingFields: and(isAuthenticated, isPayingOrInTrial),
-			jobType: and(isAuthenticated, isPayingOrInTrial),
-			interestedFeatures: and(isAuthenticated, isPayingOrInTrial),
-			hasUpcomingProject: and(isAuthenticated, isPayingOrInTrial),
-			settings: and(isAuthenticated, isPayingOrInTrial),
-			hmacIntercomId: and(isAuthenticated, isPayingOrInTrial),
-			tasks: and(isAuthenticated, isPayingOrInTrial),
-			focusedTasks: and(isAuthenticated, isPayingOrInTrial),
-			notifications: and(isAuthenticated, isPayingOrInTrial),
-			tags: and(isAuthenticated, isPayingOrInTrial),
-			signedUpAt: and(isAuthenticated, isPayingOrInTrial),
-			lifetimePayment: and(isAuthenticated, isPayingOrInTrial),
-			company: and(isAuthenticated, isPayingOrInTrial),
-			defaultDailyPrice: and(isAuthenticated, isPayingOrInTrial),
+			firstName: chain(isAuthenticated, isPayingOrInTrial),
+			lastName: chain(isAuthenticated, isPayingOrInTrial),
+			customers: chain(isAuthenticated, isPayingOrInTrial),
+			projects: chain(isAuthenticated, isPayingOrInTrial),
+			defaultVatRate: chain(isAuthenticated, isPayingOrInTrial),
+			startWorkAt: chain(isAuthenticated, isPayingOrInTrial),
+			endWorkAt: chain(isAuthenticated, isPayingOrInTrial),
+			workingDays: chain(isAuthenticated, isPayingOrInTrial),
+			timeZone: chain(isAuthenticated, isPayingOrInTrial),
+			workingFields: chain(isAuthenticated, isPayingOrInTrial),
+			jobType: chain(isAuthenticated, isPayingOrInTrial),
+			interestedFeatures: chain(isAuthenticated, isPayingOrInTrial),
+			hasUpcomingProject: chain(isAuthenticated, isPayingOrInTrial),
+			settings: chain(isAuthenticated, isPayingOrInTrial),
+			hmacIntercomId: chain(isAuthenticated, isPayingOrInTrial),
+			tasks: chain(isAuthenticated, isPayingOrInTrial),
+			focusedTasks: chain(isAuthenticated, isPayingOrInTrial),
+			notifications: chain(isAuthenticated, isPayingOrInTrial),
+			tags: chain(isAuthenticated, isPayingOrInTrial),
+			signedUpAt: chain(isAuthenticated, isPayingOrInTrial),
+			lifetimePayment: chain(isAuthenticated, isPayingOrInTrial),
+			company: chain(isAuthenticated, isPayingOrInTrial),
+			defaultDailyPrice: chain(isAuthenticated, isPayingOrInTrial),
 		},
 	},
 	{
