@@ -22,7 +22,10 @@ const getUserId = (ctx) => {
 };
 
 const isAuthenticated = rule()(async (parent, args, ctx, info) => {
-	if (info.operation.name.value === 'login') {
+	if (
+		info.operation.name !== undefined
+		&& info.operation.name.value === 'login'
+	) {
 		return true;
 	}
 
@@ -34,7 +37,10 @@ const isAuthenticated = rule()(async (parent, args, ctx, info) => {
 });
 
 const isPayingOrInTrial = rule()(async (parent, args, ctx, info) => {
-	if (info.operation.name.value === 'login') {
+	if (
+		info.operation.name !== undefined
+		&& info.operation.name.value === 'login'
+	) {
 		return true;
 	}
 
