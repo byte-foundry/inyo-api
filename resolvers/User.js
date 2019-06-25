@@ -119,6 +119,8 @@ const User = {
 		first: 20,
 		orderBy: 'createdAt_DESC',
 	}),
+	signedUpAt: node => node.signedUpAt,
+	lifetimePayment: node => node.lifetimePayment,
 };
 
 module.exports = {

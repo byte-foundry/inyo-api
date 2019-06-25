@@ -666,6 +666,8 @@ type User {
 	focusedTasks: [Item!]!
 	notifications(before: DateTime): [Notification!]!
 	tags: [Tag!]!
+	signedUpAt: DateTime!
+	lifetimePayment: Boolean!
 }
 
 union Owner = User | Customer
