@@ -1,9 +1,17 @@
+const gql = String.raw;
+
 const {getUserId, createItemOwnerFilter} = require('../utils');
 
 const {items} = require('./items');
 const {tasks} = require('./tasks');
 
 const Query = {
+	meNoPayment: async (root, args, ctx) => ctx.db.user({id: getUserId(ctx)}).$fragment(gql`
+			fragment UserNoPayment on User {
+				id
+				email
+			}
+		`),
 	me: async (root, args, ctx) => {
 		await ctx.db.createUserEvent({
 			type: 'ME_CALL',

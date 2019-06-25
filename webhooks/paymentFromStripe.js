@@ -36,6 +36,7 @@ const paymentFromStripe = async (req, res) => {
 	}
 	catch (err) {
 		console.log(`Payment with error ${JSON.stringify(requestBody)}`);
+		console.log(err);
 
 		res.status(400).send();
 	}

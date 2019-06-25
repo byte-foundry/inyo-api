@@ -111,6 +111,7 @@ const isProjectCustomer = and(
 const permissions = shield(
 	{
 		Query: {
+			meNoPayment: isAuthenticated,
 			me: and(isAuthenticated, isPayingOrInTrial),
 			customer: isAuthenticated,
 			project: or(isAdmin, or(isProjectOwner, isProjectCustomer)),
