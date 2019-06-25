@@ -11,7 +11,7 @@ directive @deprecated(
 
 type Query {
 	me: User
-	customer(id: ID!): Customer
+	customer(id: ID, token: String): Customer
 	quote(id: ID!, token: String): Quote
 		@deprecated(reason: "Quotes are not used anymore.")
 	project(id: ID!, token: String): Project
