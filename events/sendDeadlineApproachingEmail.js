@@ -2,7 +2,7 @@ const moment = require('moment-timezone');
 
 const {prisma} = require('../generated/prisma-client');
 const {formatName} = require('../utils');
-const {sendSlippingAwayEmail: sendEmail} = require('../emails/UserEmail');
+const {sendDeadlineApproachingMail: sendEmail} = require('../emails/UserEmail');
 
 const sendDeadlineApproachingEmail = async ({userId}) => {
 	const [user] = await prisma.users({
