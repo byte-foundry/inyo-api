@@ -8,6 +8,10 @@ const {AuthError, PaymentError} = require('./errors');
 const {ADMIN_TOKEN} = process.env;
 
 const isAuthenticated = rule()(async (parent, args, ctx, info) => {
+	if (ctx.token) {
+		return new AuthError();
+	}
+
 	if (
 		info.operation.name !== undefined
 		&& info.operation.name.value === 'login'
@@ -23,6 +27,10 @@ const isAuthenticated = rule()(async (parent, args, ctx, info) => {
 });
 
 const isPayingOrInTrial = rule()(async (parent, args, ctx, info) => {
+	if (ctx.token) {
+		return new AuthError();
+	}
+
 	if (
 		info.operation.name !== undefined
 		&& info.operation.name.value === 'login'
