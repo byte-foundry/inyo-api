@@ -132,10 +132,18 @@ const permissions = shield(
 		},
 		User: {
 			id: isAuthenticated,
-			email: isAuthenticated,
+			email: or(isAuthenticated, isItemCustomer, isProjectCustomer),
 			hmacIntercomId: chain(isAuthenticated, isPayingOrInTrial),
-			firstName: chain(isAuthenticated, isPayingOrInTrial),
-			lastName: chain(isAuthenticated, isPayingOrInTrial),
+			firstName: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
+			lastName: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
 			workingDays: chain(isAuthenticated, isPayingOrInTrial),
 			startWorkAt: chain(isAuthenticated, isPayingOrInTrial),
 			endWorkAt: chain(isAuthenticated, isPayingOrInTrial),
