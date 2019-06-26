@@ -14,9 +14,7 @@ const paymentFromStripe = async (req, res) => {
 				lifetimePayment: true,
 			},
 		});
-		const {email} = await prisma.user({
-			where: {id: userId},
-		});
+		const {email} = await prisma.user({id: userId});
 
 		intercom.users.update({
 			user_id: userId,
