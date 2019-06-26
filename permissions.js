@@ -129,7 +129,7 @@ const isProjectCustomer = rule()(async (parent, {id, token = null}, ctx) => ctx.
 }));
 
 const isUserCustomer = rule()(async (parent, args, ctx) => {
-	const hasProjects = ctx.db.$exists.project({
+	const hasProjects = await ctx.db.$exists.project({
 		owner: {
 			id: parent.id,
 		},
@@ -144,7 +144,7 @@ const isUserCustomer = rule()(async (parent, args, ctx) => {
 			},
 		],
 	});
-	const hasTasks = ctx.db.$exists.item({
+	const hasTasks = await ctx.db.$exists.item({
 		owner: {
 			id: parent.id,
 		},
