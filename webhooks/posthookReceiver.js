@@ -2,7 +2,6 @@ const crypto = require('crypto');
 
 const {prisma} = require('../generated/prisma-client');
 const {
-	sendSlippingAwayEmail,
 	sendDeadlineApproachingEmail,
 	sendCustomersRecapEmail,
 	endSnoozeItem,
@@ -66,9 +65,6 @@ const posthookReceiver = async (req, res) => {
 
 			res.status(200).send();
 			return;
-		case 'SLIPPING_AWAY':
-			callback = sendSlippingAwayEmail;
-			break;
 		case 'DEADLINE_APPROACHING':
 			callback = sendDeadlineApproachingEmail;
 			break;

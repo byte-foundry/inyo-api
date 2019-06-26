@@ -24,18 +24,6 @@ async function sendMorningEmail({email, meta, ...data}, ctx) {
 	);
 }
 
-async function sendSlippingAwayEmail({email, meta, ...data}, ctx) {
-	return sendEmail(
-		{
-			email,
-			meta,
-			data,
-			templateId: 'd-3e839ac33e8445d583bb5705d0dcf08f',
-		},
-		ctx,
-	);
-}
-
 async function sendDeadlineApproachingMail({email, meta, ...data}, ctx) {
 	return sendEmail(
 		{
@@ -51,6 +39,5 @@ async function sendDeadlineApproachingMail({email, meta, ...data}, ctx) {
 module.exports = {
 	sendResetPasswordEmail,
 	sendMorningEmail,
-	sendSlippingAwayEmail,
 	sendDeadlineApproachingMail,
 };

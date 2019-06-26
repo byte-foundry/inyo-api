@@ -1,80 +1,101 @@
-const {verify} = require('jsonwebtoken');
+const moment = require('moment');
 const {
-	rule, shield, and, or, not, deny, allow,
+	rule, shield, and, or, chain,
 } = require('graphql-shield');
 
-const {AuthError} = require('./errors');
+const {AuthError, PaymentError} = require('./errors');
 
-const {APP_SECRET, ADMIN_TOKEN} = process.env;
+const {ADMIN_TOKEN} = process.env;
 
-const getUserId = (ctx) => {
-	const Authorization = ctx.request.get('Authorization');
-
-	if (Authorization) {
-		const token = Authorization.replace('Bearer ', '');
-		const verifiedToken = verify(token, APP_SECRET);
-
-		return verifiedToken.userId;
+const isAuthenticated = rule()(async (parent, args, ctx, info) => {
+	if (ctx.token) {
+		return new AuthError();
 	}
 
-	return null;
-};
+	if (
+		info.operation.name !== undefined
+		&& info.operation.name.value === 'login'
+	) {
+		return true;
+	}
 
-const isAuthenticated = rule()(async (parent, args, ctx) => {
-	const exists = await ctx.db.$exists.user({id: getUserId(ctx)});
+	const exists = await ctx.db.$exists.user({id: ctx.userId});
 
 	if (exists) return true;
 
 	return new AuthError();
 });
 
-const isAdmin = rule()((parent, {token = null}, ctx) => ADMIN_TOKEN === token);
+const isPayingOrInTrial = rule()(async (parent, args, ctx, info) => {
+	if (ctx.token) {
+		return new AuthError();
+	}
+
+	if (
+		info.operation.name !== undefined
+		&& info.operation.name.value === 'login'
+	) {
+		return true;
+	}
+
+	const user = await ctx.db.user({id: ctx.userId});
+
+	if (
+		user.lifetimePayment
+		|| moment().diff(moment(user.createdAt), 'days') <= 21
+	) {
+		return true;
+	}
+
+	return new PaymentError();
+});
+
+const isAdmin = rule()((parent, {token = null}) => ADMIN_TOKEN === token);
 
 const isCustomer = rule()((parent, {token = null}, ctx) => ctx.db.$exists.customer({token}));
 
 const isItemOwner = and(
 	isAuthenticated,
-	rule()((parent, {id}, ctx) => ctx.db.$exists.item({id, owner: {id: getUserId(ctx)}})),
+	isPayingOrInTrial,
+	rule()((parent, {id}, ctx) => ctx.db.$exists.item({id, owner: {id: ctx.userId}})),
 );
 
-const isItemCustomer = and(
-	isCustomer,
-	rule()(async (parent, {id, token = null}, ctx) => ctx.db.$exists.item({
-		id,
-		OR: [
-			{
-				section: {
-					project: {
-						OR: [
-							{
-								token,
-							},
-							{
-								customer: {token},
-							},
-						],
-					},
+const isItemCustomer = rule()(async (parent, {id, token = null}, ctx) => ctx.db.$exists.item({
+	id,
+	OR: [
+		{
+			section: {
+				project: {
+					OR: [
+						{
+							token,
+						},
+						{
+							customer: {token},
+						},
+					],
 				},
 			},
-			{
-				linkedCustomer: {token},
-			},
-		],
-	})),
-);
+		},
+		{
+			linkedCustomer: {token},
+		},
+	],
+}));
 
 const isProjectOwner = and(
 	isAuthenticated,
+	isPayingOrInTrial,
 	rule()((parent, {id}, ctx) => ctx.db.$exists.project({
 		id,
 		OR: [
 			{
-				owner: {id: getUserId(ctx)},
+				owner: {id: ctx.userId},
 			},
 			{
 				customer: {
 					serviceCompany: {
-						owner: {id: getUserId(ctx)},
+						owner: {id: ctx.userId},
 					},
 				},
 			},
@@ -82,23 +103,77 @@ const isProjectOwner = and(
 	})),
 );
 
-const isProjectCustomer = and(
-	isCustomer,
-	rule()(async (parent, {id, token = null}, ctx) => ctx.db.$exists.project({
+const isCustomerOwner = and(
+	isAuthenticated,
+	rule()((parent, {id, token}, ctx) => ctx.db.$exists.customer({
 		id,
-		customer: {
-			token,
+		token,
+		serviceCompany: {
+			owner: {id: ctx.userId},
 		},
 	})),
 );
+
+const isProjectCustomer = rule()(async (parent, {id, token = null}, ctx) => ctx.db.$exists.project({
+	id,
+	OR: [
+		{
+			customer: {
+				token,
+			},
+		},
+		{
+			token,
+		},
+	],
+}));
+
+const isUserCustomer = rule()(async (parent, args, ctx) => {
+	const hasProjects = await ctx.db.$exists.project({
+		owner: {
+			id: parent.id,
+		},
+		OR: [
+			{
+				token: ctx.token,
+			},
+			{
+				customer: {
+					token: ctx.token,
+				},
+			},
+		],
+	});
+	const hasTasks = await ctx.db.$exists.item({
+		owner: {
+			id: parent.id,
+		},
+		OR: [
+			{
+				linkedCustomer: {
+					token: ctx.token,
+				},
+			},
+		],
+	});
+
+	return hasTasks || hasProjects;
+});
 
 const permissions = shield(
 	{
 		Query: {
 			me: isAuthenticated,
-			customer: isAuthenticated,
-			project: or(isAdmin, or(isProjectOwner, isProjectCustomer)),
-			item: or(isAdmin, or(isItemOwner, isItemCustomer)),
+			customer: or(isAdmin, isCustomerOwner, isCustomer),
+			project: or(isAdmin, isProjectOwner, isProjectCustomer),
+			item: or(isAdmin, isItemOwner, isItemCustomer),
+		},
+		User: {
+			id: or(isAdmin, isAuthenticated, isUserCustomer),
+			email: or(isAdmin, isAuthenticated, isUserCustomer),
+			lastName: or(isAdmin, isAuthenticated, isUserCustomer),
+			firstName: or(isAdmin, isAuthenticated, isUserCustomer),
+			'*': or(isAdmin, chain(isAuthenticated, isPayingOrInTrial)),
 		},
 	},
 	{
