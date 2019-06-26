@@ -133,11 +133,22 @@ const isProjectCustomer = and(
 	})),
 );
 
+const isCustomerOwner = and(
+	isAuthenticated,
+	rule()((parent, {id, token}, ctx) => ctx.db.$exists.customer({
+		id,
+		token,
+		serviceCompany: {
+			owner: {id: getUserId(ctx)},
+		},
+	})),
+);
+
 const permissions = shield(
 	{
 		Query: {
 			me: isAuthenticated,
-			customer: isAuthenticated,
+			customer: or(isAdmin, or(isCustomerOwner, isCustomer)),
 			project: or(isAdmin, or(isProjectOwner, isProjectCustomer)),
 			item: or(isAdmin, or(isItemOwner, isItemCustomer)),
 		},

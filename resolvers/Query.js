@@ -13,10 +13,7 @@ const Query = {
 		});
 		return ctx.db.user({id: getUserId(ctx)});
 	},
-	customer: (root, {id}, ctx) => ctx.db
-		.user({id: getUserId(ctx)})
-		.company()
-		.customer({id}),
+	customer: (root, {id, token}, ctx) => ctx.db.customer({id, token}),
 	project: async (root, {id, token}, ctx) => {
 		const project = await ctx.db.project({id});
 
