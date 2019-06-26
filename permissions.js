@@ -115,10 +115,21 @@ const isProjectOwner = and(
 const isProjectCustomer = and(
 	isCustomer,
 	rule()(async (parent, {id, token = null}, ctx) => ctx.db.$exists.project({
-		id,
-		customer: {
-			token,
-		},
+		AND: [
+			{
+				id,
+				OR: [
+					{
+						customer: {
+							token,
+						},
+					},
+					{
+						token,
+					},
+				],
+			},
+		],
 	})),
 );
 
