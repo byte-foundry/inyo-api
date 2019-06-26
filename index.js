@@ -2,6 +2,7 @@ const {GraphQLServer} = require('graphql-yoga');
 const {ApolloEngine} = require('apollo-engine');
 const bodyParser = require('body-parser');
 const {DeprecatedDirective} = require('graphql-directive-deprecated');
+const {verify} = require('jsonwebtoken');
 
 const {prisma} = require('./generated/prisma-client');
 const {resolvers} = require('./resolvers');
@@ -14,7 +15,22 @@ const {updateIntercom} = require('./webhooks/updateIntercom');
 const {subscribeToUpdateIntercom} = require('./intercomTracking');
 const {notifyViewedProject} = require('./notifyViewedProject');
 
-const {PORT} = process.env;
+const {PORT, APP_SECRET} = process.env;
+
+const getUserId = (request) => {
+	const Authorization = request.get('Authorization');
+
+	if (Authorization) {
+		const token = Authorization.replace('Bearer ', '');
+		const verifiedToken = verify(token, APP_SECRET);
+
+		return verifiedToken.userId;
+	}
+
+	return null;
+};
+
+const getToken = request => request.get('tokenFromRequest') || null;
 
 const server = new GraphQLServer({
 	typeDefs: 'schema.graphql',
@@ -30,10 +46,14 @@ const server = new GraphQLServer({
 			'',
 		);
 		const ip = xForwardedFor || request.connection.remoteAddress;
+		const userId = getUserId(request);
+		const token = getToken(request);
 
 		return {
 			...req,
 			db: prisma,
+			userId,
+			token,
 			ip,
 		};
 	},
