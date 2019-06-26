@@ -66,31 +66,28 @@ const isItemOwner = and(
 	rule()((parent, {id}, ctx) => ctx.db.$exists.item({id, owner: {id: getUserId(ctx)}})),
 );
 
-const isItemCustomer = and(
-	isCustomer,
-	rule()(async (parent, {id, token = null}, ctx) => ctx.db.$exists.item({
-		id,
-		OR: [
-			{
-				section: {
-					project: {
-						OR: [
-							{
-								token,
-							},
-							{
-								customer: {token},
-							},
-						],
-					},
+const isItemCustomer = rule()(async (parent, {id, token = null}, ctx) => ctx.db.$exists.item({
+	id,
+	OR: [
+		{
+			section: {
+				project: {
+					OR: [
+						{
+							token,
+						},
+						{
+							customer: {token},
+						},
+					],
 				},
 			},
-			{
-				linkedCustomer: {token},
-			},
-		],
-	})),
-);
+		},
+		{
+			linkedCustomer: {token},
+		},
+	],
+}));
 
 const isProjectOwner = and(
 	isAuthenticated,
@@ -112,27 +109,6 @@ const isProjectOwner = and(
 	})),
 );
 
-const isProjectCustomer = and(
-	isCustomer,
-	rule()(async (parent, {id, token = null}, ctx) => ctx.db.$exists.project({
-		AND: [
-			{
-				id,
-				OR: [
-					{
-						customer: {
-							token,
-						},
-					},
-					{
-						token,
-					},
-				],
-			},
-		],
-	})),
-);
-
 const isCustomerOwner = and(
 	isAuthenticated,
 	rule()((parent, {id, token}, ctx) => ctx.db.$exists.customer({
@@ -144,6 +120,20 @@ const isCustomerOwner = and(
 	})),
 );
 
+const isProjectCustomer = rule()(async (parent, {id, token = null}, ctx) => ctx.db.$exists.project({
+	id,
+	OR: [
+		{
+			customer: {
+				token,
+			},
+		},
+		{
+			token,
+		},
+	],
+}));
+
 const permissions = shield(
 	{
 		Query: {
@@ -153,9 +143,13 @@ const permissions = shield(
 			item: or(isAdmin, or(isItemOwner, isItemCustomer)),
 		},
 		User: {
-			id: isAuthenticated,
+			id: or(isAuthenticated, isItemCustomer, isProjectCustomer),
 			email: or(isAuthenticated, isItemCustomer, isProjectCustomer),
-			hmacIntercomId: chain(isAuthenticated, isPayingOrInTrial),
+			hmacIntercomId: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
 			firstName: or(
 				chain(isAuthenticated, isPayingOrInTrial),
 				isItemCustomer,
@@ -166,26 +160,106 @@ const permissions = shield(
 				isItemCustomer,
 				isProjectCustomer,
 			),
-			workingDays: chain(isAuthenticated, isPayingOrInTrial),
-			startWorkAt: chain(isAuthenticated, isPayingOrInTrial),
-			endWorkAt: chain(isAuthenticated, isPayingOrInTrial),
-			timeZone: chain(isAuthenticated, isPayingOrInTrial),
-			customers: chain(isAuthenticated, isPayingOrInTrial),
-			company: chain(isAuthenticated, isPayingOrInTrial),
-			projects: chain(isAuthenticated, isPayingOrInTrial),
-			defaultVatRate: chain(isAuthenticated, isPayingOrInTrial),
-			workingFields: chain(isAuthenticated, isPayingOrInTrial),
-			jobType: chain(isAuthenticated, isPayingOrInTrial),
-			interestedFeatures: chain(isAuthenticated, isPayingOrInTrial),
-			hasUpcomingProject: chain(isAuthenticated, isPayingOrInTrial),
-			settings: chain(isAuthenticated, isPayingOrInTrial),
-			tasks: chain(isAuthenticated, isPayingOrInTrial),
-			focusedTasks: chain(isAuthenticated, isPayingOrInTrial),
-			notifications: chain(isAuthenticated, isPayingOrInTrial),
-			tags: chain(isAuthenticated, isPayingOrInTrial),
-			signedUpAt: chain(isAuthenticated, isPayingOrInTrial),
-			lifetimePayment: chain(isAuthenticated, isPayingOrInTrial),
-			defaultDailyPrice: chain(isAuthenticated, isPayingOrInTrial),
+			workingDays: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
+			startWorkAt: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
+			endWorkAt: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
+			timeZone: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
+			customers: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
+			company: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
+			projects: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
+			defaultVatRate: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
+			workingFields: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
+			jobType: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
+			interestedFeatures: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
+			hasUpcomingProject: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
+			settings: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
+			tasks: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
+			focusedTasks: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
+			notifications: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
+			tags: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
+			signedUpAt: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
+			lifetimePayment: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
+			defaultDailyPrice: or(
+				chain(isAuthenticated, isPayingOrInTrial),
+				isItemCustomer,
+				isProjectCustomer,
+			),
 		},
 	},
 	{
