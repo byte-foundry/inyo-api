@@ -31,7 +31,7 @@ async function notifyViewedProject(prisma) {
 					customers_some: {id: customer.id},
 				},
 				notifications_none: {
-					customerEvent: {type: 'VIEWED_PROJECT'},
+					customerEvent: {type: 'VIEWED_PROJECT', customer: {id: customer.id}},
 					createdAt_gt: moment()
 						.subtract(1, 'days')
 						.format(),
