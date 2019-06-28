@@ -53,6 +53,7 @@ const focusTask = async (
 				firstName
 				lastName
 				email
+				phone
 				token
 			}
 			section {
@@ -65,6 +66,7 @@ const focusTask = async (
 						firstName
 						lastName
 						email
+						phone
 						token
 					}
 				}
