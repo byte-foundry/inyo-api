@@ -22,9 +22,15 @@ const getUserId = (request) => {
 
 	if (Authorization) {
 		const token = Authorization.replace('Bearer ', '');
-		const verifiedToken = verify(token, APP_SECRET);
 
-		return verifiedToken.userId;
+		try {
+			const verifiedToken = verify(token, APP_SECRET);
+
+			return verifiedToken.userId;
+		}
+		catch (e) {
+			return null;
+		}
 	}
 
 	return null;
