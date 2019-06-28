@@ -16,13 +16,13 @@ const createPosthookCallback = async ({path, postAt, data}) => {
 		}),
 	});
 
-	switch (response.statusCode) {
+	switch (response.status) {
 	case 400:
 	case 401:
 	case 413:
 	case 429:
 	case 500:
-		return Promise.reject(response.statusCode);
+		return Promise.reject(`Posthook errored with ${response.status}`);
 	default:
 		return response.json();
 	}

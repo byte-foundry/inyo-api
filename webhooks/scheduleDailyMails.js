@@ -124,10 +124,23 @@ const scheduleDailyMails = async (req, res) => {
 	}).$fragment(gql`
 		fragment UserSessions on User {
 			email
+			timeZone
+			startWorkAt
 		}
 	`);
 
-	deadlineUsers.forEach(user => scheduleDeadlineApproachingMail(user));
+	deadlineUsers.forEach((user) => {
+		const now = new Date();
+		const startNextWorkDayAt = new Date(
+			`${now.toJSON().split('T')[0]}T${user.startWorkAt.split('T')[1]}`,
+		);
+
+		if (startNextWorkDayAt < now) {
+			startNextWorkDayAt.setDate(startNextWorkDayAt.getDate() + 1);
+		}
+
+		scheduleDeadlineApproachingMail(user, startNextWorkDayAt);
+	});
 
 	return res.status(200).send();
 };
