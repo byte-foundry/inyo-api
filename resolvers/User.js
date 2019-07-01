@@ -119,7 +119,7 @@ const User = {
 		first: 20,
 		orderBy: 'createdAt_DESC',
 	}),
-	signedUpAt: node => node.signedUpAt,
+	signedUpAt: node => node.createdAt,
 	lifetimePayment: node => node.lifetimePayment,
 };
 
