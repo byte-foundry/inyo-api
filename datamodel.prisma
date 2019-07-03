@@ -123,6 +123,9 @@ enum ReminderType {
 
 	# Slipping away users notification
 	SLIPPING_AWAY
+
+	# Deadline Approaching
+	DEADLINE_APPROACHING
 }
 
 enum ReminderStatus {

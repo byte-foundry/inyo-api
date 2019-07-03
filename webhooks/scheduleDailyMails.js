@@ -21,7 +21,7 @@ const scheduleDeadlineApproachingMail = async (user, startNextWorkDayAt) => {
 	return createPosthookReminder({
 		type: 'DEADLINE_APPROACHING',
 		postAt: startNextWorkDayAt,
-		deadlineApproachingUser: {
+		user: {
 			connect: {id: user.id},
 		},
 		data: {
