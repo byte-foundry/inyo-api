@@ -530,6 +530,7 @@ type Item {
 	dueDate: DateTime
 	attachments: [File!]!
 	tags: [Tag!]!
+	createdAt: DateTime!
 
 	isFocused: Boolean!
 		@deprecated(reason: "Focus has been replaced with scheduleFor.")
