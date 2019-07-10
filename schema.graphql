@@ -661,7 +661,7 @@ type User {
 	collaborators: [User!]!
 	collaboratorRequests: [CollabRequest!]!
 	collaborationRequests: [CollabRequest!]!
-	assignedTasks: [Task!]!
+	assignedTasks: [Item!]!
 	projects: [Project!]!
 	company: Company!
 		@deprecated(
