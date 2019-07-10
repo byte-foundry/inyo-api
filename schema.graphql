@@ -277,7 +277,7 @@ type Mutation {
 	updateTag(id: ID!, name: String, colorBg: String, colorText: String): Tag!
 	removeTag(id: ID!): Tag!
 
-	requestCollab(collabId: ID!, projectId: ID): CollabRequest!
+	requestCollab(userEmail: String!, projectId: ID): CollabRequest!
 	acceptCollab(collabId: ID!): CollabRequest!
 	rejectCollab(collabId: ID!): CollabRequest!
 

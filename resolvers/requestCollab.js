@@ -3,14 +3,14 @@ const gql = String.raw;
 const {getUserId} = require('../utils');
 const {NotFoundError, AlreadyExistingError} = require('../errors');
 
-const requestCollab = async (parent, {userId, projectId}, ctx) => {
+const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 	// Check requestee exists
 	const requestee = await ctx.db.user({
-		id: userId,
+		email: userEmail,
 	});
 
 	if (!requestee) {
-		throw new NotFoundError(`Requestee ${userId} does not exist`);
+		throw new NotFoundError(`Requestee ${userEmail} does not exist`);
 	}
 
 	// Check collaboration does not already exists
@@ -28,9 +28,9 @@ const requestCollab = async (parent, {userId, projectId}, ctx) => {
 		}
 	`);
 
-	if (user.collaborators.some(c => c.id === userId)) {
+	if (user.collaborators.some(c => c.email === userEmail)) {
 		throw new AlreadyExistingError(
-			`Collaboration with ${userId} already exists`,
+			`Collaboration with ${userEmail} already exists`,
 		);
 	}
 
@@ -38,21 +38,21 @@ const requestCollab = async (parent, {userId, projectId}, ctx) => {
 	const collabRequest = await ctx.db.collabRequests({
 		where: {
 			requester: {id: getUserId()},
-			requestee: {id: userId},
+			requestee: {email: userEmail},
 			status: 'REJECTED',
 		},
 	});
 
 	if (collabRequest) {
 		throw new AlreadyExistingError(
-			`Collaboration with ${userId} already rejected`,
+			`Collaboration with ${userEmail} already rejected`,
 		);
 	}
 
 	// Create collaboration
 	const newCollabRequest = await ctx.db.createCollabRequest({
 		requester: {connect: {id: getUserId()}},
-		requestee: {connect: {id: userId}},
+		requestee: {connect: {email: userEmail}},
 		status: 'PENDING',
 	});
 
@@ -61,14 +61,14 @@ const requestCollab = async (parent, {userId, projectId}, ctx) => {
 		type: 'COLLAB_REQUEST',
 		user: {connect: {id: getUserId()}},
 		metadata: {
-			requesteeId: userId,
+			requesteeEmail: userEmail,
 		},
 	});
 
 	// Create Requestee user event
 	const requesteeEvent = await ctx.db.createUserEvent({
 		type: 'COLLAB_ASKED',
-		user: {connect: {id: userId}},
+		user: {connect: {email: userEmail}},
 		metadata: {
 			requesterId: getUserId(),
 			requesterEmail: user.email,
@@ -79,8 +79,8 @@ const requestCollab = async (parent, {userId, projectId}, ctx) => {
 
 	// Create Request notification
 	const requesteeNotification = await ctx.db.createNotification({
-		userEvent: {connect: {id: requesterEvent.id}},
-		user: {connect: {id: userId}},
+		userEvent: {connect: {id: requesteeEvent.id}},
+		user: {connect: {email: userEmail}},
 	});
 
 	// Send email
