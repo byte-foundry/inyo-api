@@ -391,7 +391,7 @@ type User {
 	collaborators: [User!]! @relation(name: "Collaborators")
 	collaboratorRequests: [CollabRequest!]! @relation(name: "CollabRequester")
 	collaborationRequests: [CollabRequest!]! @relation(name: "CollabRequestee")
-	assignedTasks: [Item!]! @relation(name: "AssigneeItems")
+	assignedTasks: [Item!]! @relation(name: "UserAssignedTasks")
 }
 
 type CollabRequest {
