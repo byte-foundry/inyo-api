@@ -82,6 +82,7 @@ const User = {
 				type
 				unit
 				description
+				createdAt
 				section {
 					project {
 						deadline

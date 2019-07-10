@@ -1,4 +1,3 @@
-const moment = require('moment');
 const {remindersSequences} = require('../emails/TaskEmail');
 
 const Item = {
@@ -65,6 +64,7 @@ const Item = {
 		},
 	}),
 	remindersPreviews: node => remindersSequences[node.type] || [],
+	createdAt: node => node.createdAt,
 };
 
 module.exports = {
