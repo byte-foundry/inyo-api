@@ -15,7 +15,7 @@ const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 
 	// Check collaboration does not already exists
 	const user = await ctx.db.user({
-		id: getUserId(),
+		id: getUserId(ctx),
 	}).$fragment(gql`
 		fragment CollaboratorUser on User {
 			id
@@ -37,7 +37,7 @@ const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 	// Check collaboration is not already REJECTED
 	const [collabRequest] = await ctx.db.collabRequests({
 		where: {
-			requester: {id: getUserId()},
+			requester: {id: getUserId(ctx)},
 			requestee: {email: userEmail},
 			status: 'REJECTED',
 		},
@@ -51,7 +51,7 @@ const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 
 	// Create collaboration
 	const newCollabRequest = await ctx.db.createCollabRequest({
-		requester: {connect: {id: getUserId()}},
+		requester: {connect: {id: getUserId(ctx)}},
 		requestee: {connect: {email: userEmail}},
 		status: 'PENDING',
 	});
@@ -59,7 +59,7 @@ const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 	// Create Requester user event
 	const requesterEvent = await ctx.db.createUserEvent({
 		type: 'COLLAB_REQUEST',
-		user: {connect: {id: getUserId()}},
+		user: {connect: {id: getUserId(ctx)}},
 		metadata: {
 			requesteeEmail: userEmail,
 		},
@@ -70,7 +70,7 @@ const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 		type: 'COLLAB_ASKED',
 		user: {connect: {email: userEmail}},
 		metadata: {
-			requesterId: getUserId(),
+			requesterId: getUserId(ctx),
 			requesterEmail: user.email,
 			requesterFirstName: user.firstName,
 			requesterLastName: user.lastName,
