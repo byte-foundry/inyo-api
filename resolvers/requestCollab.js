@@ -84,6 +84,8 @@ const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 	});
 
 	// Send email
+
+	return newCollabRequest;
 };
 
 module.exports = {
