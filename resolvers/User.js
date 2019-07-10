@@ -13,6 +13,8 @@ const User = {
 		.company()
 		.customers(),
 	collaborators: (node, args, ctx) => ctx.db.user({id: node.id}).collaborators(),
+	collaboratorRequests: (node, args, ctx) => ctx.db.user({id: node.id}).collaboratorRequests(),
+	collaborationRequests: (node, args, ctx) => ctx.db.user({id: node.id}).collaborationRequests(),
 	assignedTasks: (node, args, ctx) => ctx.db.user({id: node.id}).assignedTasks(),
 	projects: async (node, args, ctx) => ctx.db.projects({
 		where: {
