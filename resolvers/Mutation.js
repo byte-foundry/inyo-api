@@ -35,6 +35,7 @@ const {cancelReminder} = require('./cancelReminder');
 const {createTag} = require('./createTag');
 const {updateTag} = require('./updateTag');
 const {removeTag} = require('./removeTag');
+const {requestCollab} = require('./requestCollab');
 const {sendReminderTestEmail} = require('./sendReminderTestEmail');
 const {
 	sendReminderPreviewTestEmail,
@@ -124,6 +125,7 @@ const Mutation = {
 	sendReminderTestEmail,
 	sendReminderPreviewTestEmail,
 	markNotificationsAsRead,
+	requestCollab,
 };
 
 module.exports = {

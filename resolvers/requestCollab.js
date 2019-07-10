@@ -35,7 +35,7 @@ const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 	}
 
 	// Check collaboration is not already REJECTED
-	const collabRequest = await ctx.db.collabRequests({
+	const [collabRequest] = await ctx.db.collabRequests({
 		where: {
 			requester: {id: getUserId()},
 			requestee: {email: userEmail},
