@@ -519,7 +519,7 @@ enum ItemType {
 type Item {
 	id: ID!
 	owner: User!
-	assignee: User @relation(name: "AssigneeItems")
+	assignee: User
 	scheduledFor: Date
 	schedulePosition: Int
 	linkedCustomer: Customer
