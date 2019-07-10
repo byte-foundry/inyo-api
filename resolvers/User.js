@@ -12,6 +12,8 @@ const User = {
 		.user({id: node.id})
 		.company()
 		.customers(),
+	collaborators: (node, args, ctx) => ctx.db.user({id: node.id}).collaborators(),
+	assignedTasks: (node, args, ctx) => ctx.db.user({id: node.id}).assignedTasks(),
 	projects: async (node, args, ctx) => ctx.db.projects({
 		where: {
 			OR: [

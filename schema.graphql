@@ -276,6 +276,12 @@ type Mutation {
 	createTag(name: String!, colorBg: String!, colorText: String!): Tag!
 	updateTag(id: ID!, name: String, colorBg: String, colorText: String): Tag!
 	removeTag(id: ID!): Tag!
+
+	requestCollab(collabId: ID!, projectId: ID): CollabRequest!
+	acceptCollab(collabId: ID!): CollabRequest!
+	rejectCollab(collabId: ID!): CollabRequest!
+
+	assignCollab(userId: ID!, taskId: ID!): Boolean!
 }
 
 input CommentInput {
@@ -513,6 +519,7 @@ enum ItemType {
 type Item {
 	id: ID!
 	owner: User!
+	assignee: User
 	scheduledFor: Date
 	schedulePosition: Int
 	linkedCustomer: Customer
@@ -639,12 +646,22 @@ type Settings {
 	askStartProjectConfirmation: Boolean!
 }
 
+enum CollabRequestStatus {
+	PENDING
+	REJECTED
+	ACCEPTED
+}
+
 type User {
 	id: ID!
 	email: String!
 	firstName: String
 	lastName: String
 	customers: [Customer!]!
+	collaborators: [User!]!
+	collaboratorRequests: [CollabRequest!]!
+	collaborationRequests: [CollabRequest!]!
+	assignedTasks: [Task!]!
 	projects: [Project!]!
 	company: Company!
 		@deprecated(
@@ -669,6 +686,17 @@ type User {
 	tags: [Tag!]!
 	signedUpAt: DateTime!
 	lifetimePayment: Boolean!
+}
+
+type CollabRequest {
+	id: ID!
+	requester: User!
+	requestee: User!
+	status: CollabRequestStatus!
+	acceptedAt: DateTime
+	rejectedAt: DateTime
+	createdAt: DateTime!
+	updatedAt: DateTime!
 }
 
 union Owner = User | Customer
