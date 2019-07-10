@@ -388,10 +388,10 @@ type User {
 	tags: [Tag!]! @relation(name: "UserTags", onDelete: CASCADE)
 	lifetimePayment: Boolean @default(value: false)
 
-	collaborators: [User!]!
+	collaborators: [User!]! @relation(name: "Collaborators")
 	collaboratorRequests: [CollabRequest!]! @relation(name: "CollabRequester")
 	collaborationRequests: [CollabRequest!]! @relation(name: "CollabRequestee")
-	assignedTasks: [Item!]!
+	assignedTasks: [Item!]! @relation(name: "AssigneeItems")
 }
 
 type CollabRequest {
