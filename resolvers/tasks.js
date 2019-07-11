@@ -81,6 +81,7 @@ const tasks = async (root, {
 			position
 			timeItTook
 			dueDate
+			createdAt
 		}
 	`);
 
