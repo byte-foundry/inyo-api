@@ -70,10 +70,7 @@ const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 		type: 'COLLAB_ASKED',
 		user: {connect: {email: userEmail}},
 		metadata: {
-			requesterId: getUserId(ctx),
-			requesterEmail: user.email,
-			requesterFirstName: user.firstName,
-			requesterLastName: user.lastName,
+			userId: getUserId(ctx),
 		},
 	});
 

@@ -45,7 +45,7 @@ const rejectCollabRequest = async (parent, {requestId}, ctx) => {
 		type: 'COLLAB_REJECTED',
 		user: {connect: {id: request.requestee.id}},
 		metadata: {
-			requesteeEmail: request.requestee.email,
+			userId: request.requestee.id,
 		},
 	});
 

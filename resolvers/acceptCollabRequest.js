@@ -58,7 +58,7 @@ const acceptCollabRequest = async (parent, {requestId}, ctx) => {
 		type: 'COLLAB_ACCEPTED',
 		user: {connect: {id: request.requestee.id}},
 		metadata: {
-			requesteeEmail: request.requestee.email,
+			userId: request.requestee.id,
 		},
 	});
 

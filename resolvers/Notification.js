@@ -41,7 +41,14 @@ const Notification = {
 		const userEvent = await ctx.db.notification({id: node.id}).userEvent();
 
 		if (userEvent) {
-			return userEvent.metadata;
+			const {userId, taskId} = customerEvent.metadata;
+
+			if (userId) {
+				return ctx.db.user({id: userId});
+			}
+			if (taskId) {
+				return ctx.db.item({id: taskId});
+			}
 		}
 
 		return null;
@@ -52,7 +59,7 @@ const Notification = {
 			.customerEvent();
 
 		if (customerEvent) {
-			return event.type;
+			return customerEvent.type;
 		}
 
 		const userEvent = await ctx.db.notification({id: node.id}).userEvent();

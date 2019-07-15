@@ -62,8 +62,7 @@ const assignToTask = async (parent, {taskId, collaboratorId}, ctx) => {
 		type: 'ASSIGNED_TO_TASKED',
 		user: {connect: {id: getUserId(ctx)}},
 		metadata: {
-			assignedId: collaboratorId,
-			task: taskId,
+			itemId: taskId,
 		},
 	});
 
