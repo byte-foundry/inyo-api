@@ -132,7 +132,7 @@ const Project = {
 			],
 		},
 	}),
-	collabLinkToProject_some: (node, args, ctx) => ctx.db.project({id: node.id}).collabLinkToProject(),
+	collabLinkToProject: (node, args, ctx) => ctx.db.project({id: node.id}).collabLinkToProject(),
 };
 
 module.exports = {
