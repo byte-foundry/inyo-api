@@ -1,22 +1,22 @@
 const Notification = {
 	id: node => node.id,
 	unread: node => node.unread,
-	from: (node, args, ctx) => {
-		const customer = ctx.db
+	from: async (node, args, ctx) => {
+		const customerEvent = await ctx.db
 			.notification({id: node.id})
-			.customerEvent()
-			.customer();
+			.customerEvent();
 
-		if (customer) {
+		if (customerEvent) {
+			const customer = ctx.db.customerEvent({id: customerEvent.id}).customer();
+
 			return customer;
 		}
 
-		const user = ctx.db
-			.notification({id: node.id})
-			.userEvent()
-			.user();
+		const userEvent = await ctx.db.notification({id: node.id}).userEvent();
 
-		if (user) {
+		if (userEvent) {
+			const user = ctx.db.userEvent({id: customerEvent.id}).user();
+
 			return user;
 		}
 

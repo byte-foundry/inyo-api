@@ -68,7 +68,7 @@ const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 	// Create Requestee user event
 	const requesteeEvent = await ctx.db.createUserEvent({
 		type: 'COLLAB_ASKED',
-		user: {connect: {email: userEmail}},
+		user: {connect: {id: getUserId(ctx)}},
 		metadata: {
 			userId: getUserId(ctx),
 		},
