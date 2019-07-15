@@ -22,7 +22,7 @@ function getRootUrl(uri) {
 		return `https://dev.inyo.me${uri}`;
 	}
 
-	return `https://beta.inyo.me${uri}`;
+	return `https://app.inyo.me${uri}`;
 }
 
 function getAppUrl(uri) {
