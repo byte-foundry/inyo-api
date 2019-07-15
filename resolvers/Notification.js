@@ -41,7 +41,7 @@ const Notification = {
 		const userEvent = await ctx.db.notification({id: node.id}).userEvent();
 
 		if (userEvent) {
-			const {userId, taskId} = customerEvent.metadata;
+			const {userId, taskId} = userEvent.metadata;
 
 			if (userId) {
 				return ctx.db.user({id: userId});
