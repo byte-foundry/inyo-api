@@ -53,7 +53,9 @@ const isPayingOrInTrial = rule()(async (parent, args, ctx, info) => {
 	return new PaymentError();
 });
 
-const isAdmin = rule()((parent, {token = null}) => ADMIN_TOKEN === token);
+const isAdmin = rule()(
+	(parent, {token = null}, ctx) => ADMIN_TOKEN === token || ADMIN_TOKEN === ctx.token,
+);
 
 const isCustomer = rule()((parent, {token = null}, ctx) => ctx.db.$exists.customer({token}));
 
