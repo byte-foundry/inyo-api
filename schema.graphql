@@ -599,7 +599,7 @@ type Project {
 	notifyActivityToCustomer: Boolean!
 	daysUntilDeadline: Int
 	attachments: [File!]!
-	collabLinkToProject: [User!]! @relation(name: "CollaboratorsProject")
+	collabLinkToProject: [User!]!
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }
