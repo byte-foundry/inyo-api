@@ -280,8 +280,8 @@ type Mutation {
 	requestCollab(userEmail: String!, projectId: ID): CollabRequest!
 	acceptCollabRequest(requestId: ID!): CollabRequest!
 	rejectCollabRequest(requestId: ID!): CollabRequest!
-	assignToTask(taskId: ID!, collaboratorId: ID!): CollabRequest!
-	removeAssignmentToTask(taskId: ID!, collaboratorId: ID!): Project!
+	assignToTask(taskId: ID!, collaboratorId: ID!): Item!
+	removeAssignmentToTask(taskId: ID!, collaboratorId: ID!): Item!
 	linkToProject(projectId: ID!, collaboratorId: ID!): Project!
 	removeLinkToProject(projectId: ID!, collaboratorId: ID!): Project!
 }

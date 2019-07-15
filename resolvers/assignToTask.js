@@ -72,7 +72,7 @@ const assignToTask = async (parent, {taskId, collaboratorId}, ctx) => {
 		user: {connect: {id: collaboratorId}},
 	});
 
-	return task;
+	return updatedTask;
 };
 
 module.exports = {
