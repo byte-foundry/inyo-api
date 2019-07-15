@@ -196,6 +196,10 @@ enum UserEventType {
 	UPLOADED_ATTACHMENT
 	COLLAB_ASKED
 	COLLAB_REQUEST
+	COLLAB_ACCEPTED
+	COLLAB_REJECTED
+	LINKED_TO_PROJECT
+	ASSIGNED_TO_TASKED
 }
 
 type CommentView {
@@ -311,6 +315,7 @@ type Project {
 	deadline: DateTime
 	notifyActivityToCustomer: Boolean! @default(value: true)
 	attachments: [File!]! @relation(name: "ProjectAttachments")
+	collabLinkToProject: [User!]! @relation(name: "CollaboratorsProject")
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }

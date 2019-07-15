@@ -599,6 +599,7 @@ type Project {
 	notifyActivityToCustomer: Boolean!
 	daysUntilDeadline: Int
 	attachments: [File!]!
+	collabLinkToProject: [User!]! @relation(name: "CollaboratorsProject")
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }
@@ -728,6 +729,11 @@ enum EventType {
 	POSTED_COMMENT
 	UPLOADED_ATTACHMENT
 	FINISHED_TASK
+	COLLAB_ASKED
+	COLLAB_ACCEPTED
+	COLLAB_REJECTED
+	LINKED_TO_PROJECT
+	ASSIGNED_TO_TASKED
 }
 
 union NotificationEmitter = User | Customer
