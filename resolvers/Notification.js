@@ -15,7 +15,7 @@ const Notification = {
 		const userEvent = await ctx.db.notification({id: node.id}).userEvent();
 
 		if (userEvent) {
-			const user = ctx.db.userEvent({id: customerEvent.id}).user();
+			const user = ctx.db.userEvent({id: userEvent.id}).user();
 
 			return user;
 		}
