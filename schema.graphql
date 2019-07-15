@@ -278,10 +278,12 @@ type Mutation {
 	removeTag(id: ID!): Tag!
 
 	requestCollab(userEmail: String!, projectId: ID): CollabRequest!
-	acceptCollab(collabId: ID!): CollabRequest!
-	rejectCollab(collabId: ID!): CollabRequest!
-
-	assignCollab(userId: ID!, taskId: ID!): Boolean!
+	acceptCollabRequest(requestId: ID!): CollabRequest!
+	rejectCollabRequest(requestId: ID!): CollabRequest!
+	assignToTask(taskId: ID!, collaboratorId: ID!): CollabRequest!
+	removeAssignmentToTask(taskId: ID!, collaboratorId: ID!): Project!
+	linkToProject(projectId: ID!, collaboratorId: ID!): Project!
+	removeLinkToProject(projectId: ID!, collaboratorId: ID!): Project!
 }
 
 input CommentInput {
