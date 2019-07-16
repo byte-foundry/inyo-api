@@ -42,7 +42,7 @@ const acceptCollabRequest = async (parent, {requestId}, ctx) => {
 		},
 	});
 
-	const updatedRequest = await ctx.db.updateRequest({
+	const updatedRequest = await ctx.db.updateCollabRequest({
 		where: {
 			id: requestId,
 		},
