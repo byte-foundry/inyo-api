@@ -70,12 +70,12 @@ const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 		type: 'COLLAB_ASKED',
 		user: {connect: {id: getUserId(ctx)}},
 		metadata: {
-			userId: getUserId(ctx),
+			collabRequestId: newCollabRequest.id,
 		},
 	});
 
 	// Create Request notification
-	const requesteeNotification = await ctx.db.createNotification({
+	await ctx.db.createNotification({
 		userEvent: {connect: {id: requesteeEvent.id}},
 		user: {connect: {email: userEmail}},
 	});

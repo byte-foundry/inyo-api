@@ -739,7 +739,7 @@ enum EventType {
 }
 
 union NotificationEmitter = User | Customer
-union NotificationObject = Project | Item | User
+union NotificationObject = Project | Item | User | CollabRequest
 
 type Notification {
 	id: ID!

@@ -6,6 +6,9 @@ const NotificationObject = {
 		if (obj.email) {
 			return 'User';
 		}
+		if (obj.requester) {
+			return 'CollabRequest';
+		}
 		return 'Item';
 	},
 };
