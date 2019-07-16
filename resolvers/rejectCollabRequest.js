@@ -21,7 +21,7 @@ const rejectCollabRequest = async (parent, {requestId}, ctx) => {
 		throw new NotFoundError(`Request with id ${requestId} does not exist`);
 	}
 
-	if (request.requestee.id === getUserId(ctx)) {
+	if (request.requestee.id !== getUserId(ctx)) {
 		throw new AuthError('User is not authorized to reject this request');
 	}
 
