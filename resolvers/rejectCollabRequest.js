@@ -29,7 +29,7 @@ const rejectCollabRequest = async (parent, {requestId}, ctx) => {
 		throw new AlreadyExistingError('Request is already rejected');
 	}
 
-	const updatedRequest = await ctx.db.updateRequest({
+	const updatedRequest = await ctx.db.updateCollabRequest({
 		where: {
 			id: requestId,
 		},
