@@ -1,7 +1,7 @@
 const gql = String.raw;
 
 const {getUserId} = require('../utils');
-const {NotFoundError, AlreadyExistingError} = require('../errors');
+const {NotFoundError} = require('../errors');
 
 const removeLinkToProject = async (
 	parent,
@@ -65,7 +65,7 @@ const removeLinkToProject = async (
 		});
 	});
 
-	const updatedProject = await ctx.db.updateProject({
+	return ctx.db.updateProject({
 		where: {
 			id: projectId,
 		},

@@ -38,7 +38,7 @@ const linkToProject = async (parent, {projectId, collaboratorId}, ctx) => {
 		);
 	}
 
-	const updatedProject = await ctx.db.updateProject({
+	return ctx.db.updateProject({
 		where: {
 			id: projectId,
 		},
