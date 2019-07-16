@@ -39,13 +39,12 @@ const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 		where: {
 			requester: {id: getUserId(ctx)},
 			requestee: {email: userEmail},
-			status: 'REJECTED',
 		},
 	});
 
 	if (collabRequest) {
 		throw new AlreadyExistingError(
-			`Collaboration with ${userEmail} already rejected`,
+			`Collaboration request with ${userEmail} already exists`,
 		);
 	}
 
