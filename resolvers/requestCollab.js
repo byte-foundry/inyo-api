@@ -70,7 +70,7 @@ const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 		type: 'COLLAB_ASKED',
 		user: {connect: {id: getUserId(ctx)}},
 		metadata: {
-			collabRequestId: newCollabRequest.id,
+			collabId: newCollabRequest.id,
 		},
 	});
 
