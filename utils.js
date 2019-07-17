@@ -116,6 +116,7 @@ module.exports = {
 	formatName,
 	formatFullName,
 	createItemOwnerFilter,
+	createItemCollaboratorFilter,
 	isCustomerTask,
 	filterDescription,
 	reorderList,
