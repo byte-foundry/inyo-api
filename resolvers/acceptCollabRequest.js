@@ -13,7 +13,6 @@ const acceptCollabRequest = async (parent, {requestId}, ctx) => {
 			status
 			requestee {
 				id
-				email
 			}
 			requester {
 				id
@@ -38,7 +37,16 @@ const acceptCollabRequest = async (parent, {requestId}, ctx) => {
 			id: getUserId(ctx),
 		},
 		data: {
-			collaborators: {connect: {id: request.requestee.id}},
+			collaborators: {connect: {id: request.requester.id}},
+		},
+	});
+
+	await ctx.db.updateUser({
+		where: {
+			id: request.requester.id,
+		},
+		data: {
+			collaborators: {connect: {id: getUserId(ctx)}},
 		},
 	});
 
