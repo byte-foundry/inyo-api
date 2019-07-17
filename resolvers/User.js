@@ -95,7 +95,12 @@ const User = {
 				unit
 				description
 				createdAt
-				assignee
+				assignee {
+					id
+					email
+					firstName
+					lastName
+				}
 				section {
 					project {
 						deadline
