@@ -43,7 +43,7 @@ const assignToTask = async (parent, {taskId, collaboratorId}, ctx) => {
 		);
 	}
 
-	if (task.assignee.id === collaboratorId) {
+	if (task.assignee && task.assignee.id === collaboratorId) {
 		throw new AlreadyExistingError(
 			`Collaborator ${collaboratorId} is already assigned to task ${taskId}`,
 		);
