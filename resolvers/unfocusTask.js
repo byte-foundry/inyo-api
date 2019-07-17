@@ -1,4 +1,8 @@
-const {getUserId, createItemOwnerFilter} = require('../utils');
+const {
+	getUserId,
+	createItemOwnerFilter,
+	createItemCollaboratorFilter,
+} = require('../utils');
 const {NotFoundError} = require('../errors');
 const cancelReminder = require('../reminders/cancelReminder');
 
@@ -29,9 +33,25 @@ const cancelPendingReminders = async (pendingReminders, itemId, ctx) => {
 
 const unfocusTask = async (parent, {id}, ctx) => {
 	const userId = getUserId(ctx);
+	// This is so that assignee can schedule their task and only them
 	const [item] = await ctx.db.items({
 		where: {
-			AND: [{id}, createItemOwnerFilter(userId)],
+			AND: [
+				{id},
+				{
+					OR: [
+						{
+							AND: [
+								createItemOwnerFilter(userId),
+								{
+									assignee: null,
+								},
+							],
+						},
+						createItemCollaboratorFilter(userId),
+					],
+				},
+			],
 		},
 	}).$fragment(gql`
 		fragment ItemWithProject on Item {
