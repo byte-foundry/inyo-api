@@ -1,4 +1,7 @@
-const {createItemOwnerFilter} = require('../utils');
+const {
+	createItemOwnerFilter,
+	createItemCollaboratorFilter,
+} = require('../utils');
 
 const gql = String.raw;
 
@@ -73,7 +76,12 @@ const User = {
 							},
 						],
 					},
-					createItemOwnerFilter(node.id),
+					{
+						OR: [
+							createItemOwnerFilter(node.id),
+							createItemCollaboratorFilter(node.id),
+						],
+					},
 				],
 				orderBy: sort,
 			},
@@ -87,6 +95,7 @@ const User = {
 				unit
 				description
 				createdAt
+				assignee
 				section {
 					project {
 						deadline

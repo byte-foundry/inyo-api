@@ -75,6 +75,10 @@ const createItemOwnerFilter = ownerId => ({
 	],
 });
 
+const createItemCollaboratorFilter = id => ({
+	assignee: {id},
+});
+
 const isCustomerTask = task => [
 	'CUSTOMER',
 	'CONTENT_ACQUISITION',
