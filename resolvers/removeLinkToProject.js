@@ -8,19 +8,6 @@ const removeLinkToProject = async (
 	{projectId, collaboratorId},
 	ctx,
 ) => {
-	const [collaborator] = await ctx.db.users({
-		where: {
-			id: collaboratorId,
-			collaborators_some: {
-				id: getUserId(ctx),
-			},
-		},
-	});
-
-	if (!collaborator) {
-		throw new NotFoundError(`Collaborator ${collaboratorId} does not exist`);
-	}
-
 	const project = await ctx.db.project({
 		id: projectId,
 	}).$fragment(gql`

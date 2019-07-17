@@ -6,19 +6,6 @@ const removeAssignmentToTask = async (
 	{taskId, collaboratorId},
 	ctx,
 ) => {
-	const [user] = await ctx.db.users({
-		where: {
-			id: collaboratorId,
-			collaborators_some: {
-				id: getUserId(ctx),
-			},
-		},
-	});
-
-	if (!user) {
-		throw new NotFoundError(`Collaborator ${collaboratorId} does not exist`);
-	}
-
 	const [task] = await ctx.db.items({
 		where: {
 			id: taskId,
