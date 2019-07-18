@@ -736,6 +736,7 @@ enum EventType {
 	COLLAB_REJECTED
 	LINKED_TO_PROJECT
 	ASSIGNED_TO_TASK
+	REMOVE_ASSIGNMENT_TO_TASK
 }
 
 union NotificationEmitter = User | Customer

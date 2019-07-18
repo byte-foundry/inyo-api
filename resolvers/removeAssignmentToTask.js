@@ -31,6 +31,19 @@ const removeAssignmentToTask = async (
 		},
 	});
 
+	const removeAssignmentToTaskEvent = await ctx.db.createUserEvent({
+		type: 'REMOVE_ASSIGNMENT_TO_TASK',
+		user: {connect: {id: getUserId(ctx)}},
+		metadata: {
+			itemId: taskId,
+		},
+	});
+
+	await ctx.db.createNotification({
+		userEvent: {connect: {id: removeAssignmentToTaskEvent.id}},
+		user: {connect: {id: collaboratorId}},
+	});
+
 	return updatedTask;
 };
 
