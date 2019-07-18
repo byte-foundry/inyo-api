@@ -33,7 +33,7 @@ const acceptCollabRequest = async (parent, {requestId}, ctx) => {
 		throw new AlreadyExistingError('Request is already accepted');
 	}
 
-	const requester = await ctx.db.updateUser({
+	const requestee = await ctx.db.updateUser({
 		where: {
 			id: getUserId(ctx),
 		},
@@ -42,7 +42,7 @@ const acceptCollabRequest = async (parent, {requestId}, ctx) => {
 		},
 	});
 
-	const requestee = await ctx.db.updateUser({
+	const requester = await ctx.db.updateUser({
 		where: {
 			id: request.requester.id,
 		},
