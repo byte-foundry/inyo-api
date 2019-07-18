@@ -1,7 +1,8 @@
 const gql = String.raw;
 
-const {getUserId} = require('../utils');
+const {getUserId, formatFullName} = require('../utils');
 const {NotFoundError, AuthError, AlreadyExistingError} = require('../errors');
+const {sendRejectCollabEmail} = require('../emails/CollabEmail');
 
 const rejectCollabRequest = async (parent, {requestId}, ctx) => {
 	// reject collab request
@@ -13,6 +14,15 @@ const rejectCollabRequest = async (parent, {requestId}, ctx) => {
 			status
 			requestee {
 				id
+				email
+				firstName
+				lastName
+			}
+			requester {
+				id
+				email
+				firstName
+				lastName
 			}
 		}
 	`);
@@ -53,6 +63,32 @@ const rejectCollabRequest = async (parent, {requestId}, ctx) => {
 		userEvent: {connect: {id: collabAcceptedEvent.id}},
 		user: {connect: {id: request.requester.id}},
 	});
+
+	// Send email
+	try {
+		sendRejectCollabEmail(
+			{
+				email: request.requester.email,
+				meta: {userId: request.requester.id},
+				requesterName: formatFullName(
+					undefined,
+					request.requester.firstName,
+					request.requester.lastName,
+				),
+				user: formatFullName(
+					undefined,
+					request.requestee.firstName,
+					request.requestee.lastName,
+				),
+			},
+			ctx,
+		);
+
+		console.log(`Reject Collab email sent to ${request.requestee.email}`);
+	}
+	catch (error) {
+		console.log('Reject Collab email not sent', error);
+	}
 
 	return updatedRequest;
 };

@@ -1,7 +1,8 @@
 const gql = String.raw;
 
-const {getUserId} = require('../utils');
+const {getUserId, formatFullName} = require('../utils');
 const {NotFoundError, AuthError, AlreadyExistingError} = require('../errors');
+const {sendAcceptCollabEmail} = require('../emails/CollabEmail');
 
 const acceptCollabRequest = async (parent, {requestId}, ctx) => {
 	// accept collab request
@@ -32,7 +33,7 @@ const acceptCollabRequest = async (parent, {requestId}, ctx) => {
 		throw new AlreadyExistingError('Request is already accepted');
 	}
 
-	await ctx.db.updateUser({
+	const requester = await ctx.db.updateUser({
 		where: {
 			id: getUserId(ctx),
 		},
@@ -41,7 +42,7 @@ const acceptCollabRequest = async (parent, {requestId}, ctx) => {
 		},
 	});
 
-	await ctx.db.updateUser({
+	const requestee = await ctx.db.updateUser({
 		where: {
 			id: request.requester.id,
 		},
@@ -74,6 +75,32 @@ const acceptCollabRequest = async (parent, {requestId}, ctx) => {
 		userEvent: {connect: {id: collabAcceptedEvent.id}},
 		user: {connect: {id: request.requester.id}},
 	});
+
+	// Send email
+	try {
+		sendAcceptCollabEmail(
+			{
+				email: requester.email,
+				meta: {userId: requester.id},
+				requesterName: formatFullName(
+					undefined,
+					requester.firstName,
+					requester.lastName,
+				),
+				user: formatFullName(
+					undefined,
+					requestee.firstName,
+					requestee.lastName,
+				),
+			},
+			ctx,
+		);
+
+		console.log(`Accept collab email sent to ${requester.email}`);
+	}
+	catch (error) {
+		console.log('Accept collab email not sent', error);
+	}
 
 	return updatedRequest;
 };

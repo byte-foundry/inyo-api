@@ -97,10 +97,10 @@ const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 			ctx,
 		);
 
-		console.log(`Task validation email sent to ${requestee.email}`);
+		console.log(`Request Collab email sent to ${requestee.email}`);
 	}
 	catch (error) {
-		console.log('Task validation email not sent', error);
+		console.log('Request Collab email not sent', error);
 	}
 
 	return newCollabRequest;
