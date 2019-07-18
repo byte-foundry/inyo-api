@@ -59,7 +59,7 @@ const assignToTask = async (parent, {taskId, collaboratorId}, ctx) => {
 	});
 
 	const assignedToTaskEvent = await ctx.db.createUserEvent({
-		type: 'ASSIGNED_TO_TASKED',
+		type: 'ASSIGNED_TO_TASK',
 		user: {connect: {id: getUserId(ctx)}},
 		metadata: {
 			itemId: taskId,
