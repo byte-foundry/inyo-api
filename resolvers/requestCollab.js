@@ -1,7 +1,8 @@
 const gql = String.raw;
 
-const {getUserId} = require('../utils');
+const {getUserId, getAppUrl, formatFullName} = require('../utils');
 const {NotFoundError, AlreadyExistingError} = require('../errors');
+const {sendRequestCollabEmail} = require('../emails/CollabEmail');
 
 const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 	// Check requestee exists
@@ -80,6 +81,27 @@ const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 	});
 
 	// Send email
+	try {
+		sendRequestCollabEmail(
+			{
+				email: requestee.email,
+				meta: {userId: requestee.id},
+				requesteeName: formatFullName(
+					undefined,
+					requestee.firstName,
+					requestee.lastName,
+				),
+				url: getAppUrl('/collaborators'),
+				user: formatFullName(undefined, user.firstName, user.lastName),
+			},
+			ctx,
+		);
+
+		console.log(`Task validation email sent to ${requestee.email}`);
+	}
+	catch (error) {
+		console.log('Task validation email not sent', error);
+	}
 
 	return newCollabRequest;
 };
