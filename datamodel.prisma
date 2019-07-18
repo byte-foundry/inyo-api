@@ -17,6 +17,7 @@ enum CollabRequestStatus {
 	PENDING
 	REJECTED
 	ACCEPTED
+	CANCELED
 }
 
 # Represents a company or an individual that is going to receive an invoice

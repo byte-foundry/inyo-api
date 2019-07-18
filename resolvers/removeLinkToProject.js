@@ -48,6 +48,7 @@ const removeLinkToProject = async (
 			where: {id: t.id},
 			data: {
 				assignee: {disconnect: true},
+				scheduledFor: null,
 			},
 		});
 	});
