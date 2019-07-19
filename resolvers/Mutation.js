@@ -39,7 +39,7 @@ const {requestCollab} = require('./requestCollab');
 const {removeCollab} = require('./removeCollab');
 const {acceptCollabRequest} = require('./acceptCollabRequest');
 const {rejectCollabRequest} = require('./rejectCollabRequest');
-const {cancelCollabRequest} = require('./cancelCollabRequest');
+const {cancelRequestCollab} = require('./cancelRequestCollab');
 const {assignToTask} = require('./assignToTask');
 const {linkToProject} = require('./linkToProject');
 const {removeAssignmentToTask} = require('./removeAssignmentToTask');
@@ -137,7 +137,7 @@ const Mutation = {
 	removeCollab,
 	acceptCollabRequest,
 	rejectCollabRequest,
-	cancelCollabRequest,
+	cancelRequestCollab,
 	assignToTask,
 	linkToProject,
 	removeAssignmentToTask,
