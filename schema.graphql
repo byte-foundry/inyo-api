@@ -284,6 +284,8 @@ type Mutation {
 	removeAssignmentToTask(taskId: ID!, collaboratorId: ID!): Item!
 	linkToProject(projectId: ID!, collaboratorId: ID!): Project!
 	removeLinkToProject(projectId: ID!, collaboratorId: ID!): Project!
+	removeCollab(collaboratorId: ID!): Collaborator!
+	cancelCollabRequest(collabRequestId: ID!): CollabRequest!
 }
 
 input CommentInput {
