@@ -2,7 +2,7 @@ const {getUserId} = require('../utils');
 const {NotFoundError} = require('../errors');
 
 const cancelRequestCollab = async (parent, {collabRequestId}, ctx) => {
-	const [collabRequest] = await ctx.db.collabRequest({
+	const [collabRequest] = await ctx.db.collabRequests({
 		where: {
 			id: collabRequestId,
 			requester: {
