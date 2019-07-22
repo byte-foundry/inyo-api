@@ -55,6 +55,7 @@ const assignToTask = async (parent, {taskId, collaboratorId}, ctx) => {
 		},
 		data: {
 			assignee: {connect: {id: collaboratorId}},
+			scheduledFor: null,
 		},
 	});
 
