@@ -62,6 +62,9 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 				type
 				status
 			}
+			assignee {
+				id
+			}
 			section {
 				project {
 					customer {
@@ -206,7 +209,7 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 		},
 	});
 
-	await ctx.db.createUserEvent({
+	const finishTaskEvent = await ctx.db.createUserEvent({
 		type: 'FINISHED_TASK',
 		user: {
 			connect: {id: userId},
@@ -215,6 +218,13 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 			id: updatedItem.id,
 		},
 	});
+
+	if (item.assignee && item.assignee.id === userId) {
+		await ctx.db.createNotification({
+			userEvent: {connect: {id: finishTaskEvent.id}},
+			user: {connect: {id: item.owner.id}},
+		});
+	}
 
 	return updatedItem;
 };
