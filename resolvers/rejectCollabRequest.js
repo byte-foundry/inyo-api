@@ -1,6 +1,6 @@
 const gql = String.raw;
 
-const {getUserId, formatFullName} = require('../utils');
+const {getUserId, formatName} = require('../utils');
 const {NotFoundError, AuthError, AlreadyExistingError} = require('../errors');
 const {sendRejectCollabEmail} = require('../emails/CollabEmail');
 
@@ -70,13 +70,11 @@ const rejectCollabRequest = async (parent, {requestId}, ctx) => {
 			{
 				email: request.requester.email,
 				meta: {userId: request.requester.id},
-				requesterName: formatFullName(
-					undefined,
+				requesterName: formatName(
 					request.requester.firstName,
 					request.requester.lastName,
 				),
-				user: formatFullName(
-					undefined,
+				user: formatName(
 					request.requestee.firstName,
 					request.requestee.lastName,
 				),

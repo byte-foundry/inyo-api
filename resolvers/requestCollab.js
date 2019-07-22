@@ -1,6 +1,6 @@
 const gql = String.raw;
 
-const {getUserId, getAppUrl, formatFullName} = require('../utils');
+const {getUserId, getAppUrl, formatName} = require('../utils');
 const {NotFoundError, AlreadyExistingError} = require('../errors');
 const {sendRequestCollabEmail} = require('../emails/CollabEmail');
 
@@ -85,13 +85,9 @@ const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 			{
 				email: requestee.email,
 				meta: {userId: requestee.id},
-				requesteeName: formatFullName(
-					undefined,
-					requestee.firstName,
-					requestee.lastName,
-				),
+				requesteeName: formatName(requestee.firstName, requestee.lastName),
 				url: getAppUrl('/collaborators'),
-				user: formatFullName(undefined, user.firstName, user.lastName),
+				user: formatName(undefined, user.firstName, user.lastName),
 			},
 			ctx,
 		);
