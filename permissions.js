@@ -16,7 +16,8 @@ const isAuthenticated = rule()(async (parent, args, ctx, info) => {
 		info.operation.name !== undefined
 		&& (info.operation.name.value === 'login'
 			|| info.operation.name.value === 'signup'
-			|| info.operation.name.value === 'resetPassword')
+			|| info.operation.name.value === 'resetPassword'
+			|| info.operation.name.value === 'updatePassword')
 	) {
 		return true;
 	}
@@ -36,7 +37,9 @@ const isPayingOrInTrial = rule()(async (parent, args, ctx, info) => {
 	if (
 		info.operation.name !== undefined
 		&& (info.operation.name.value === 'login'
-			|| info.operation.name.value === 'signup')
+			|| info.operation.name.value === 'signup'
+			|| info.operation.name.value === 'resetPassword'
+			|| info.operation.name.value === 'updatePassword')
 	) {
 		return true;
 	}
