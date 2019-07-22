@@ -209,7 +209,7 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 		},
 	});
 
-	const finishTaskEvent = await ctx.db.createUserEvent({
+	await ctx.db.createUserEvent({
 		type: 'FINISHED_TASK',
 		user: {
 			connect: {id: userId},
@@ -217,14 +217,13 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 		metadata: {
 			id: updatedItem.id,
 		},
+		notifications: item.assignee
+			&& item.assignee.id === userId && {
+			create: {
+				user: {connect: {id: item.owner.id}},
+			},
+		},
 	});
-
-	if (item.assignee && item.assignee.id === userId) {
-		await ctx.db.createNotification({
-			userEvent: {connect: {id: finishTaskEvent.id}},
-			user: {connect: {id: item.owner.id}},
-		});
-	}
 
 	return updatedItem;
 };

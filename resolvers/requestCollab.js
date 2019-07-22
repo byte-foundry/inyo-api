@@ -57,7 +57,7 @@ const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 	});
 
 	// Create Requester user event
-	const requesterEvent = await ctx.db.createUserEvent({
+	await ctx.db.createUserEvent({
 		type: 'COLLAB_REQUEST',
 		user: {connect: {id: getUserId(ctx)}},
 		metadata: {
@@ -66,18 +66,17 @@ const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 	});
 
 	// Create Requestee user event
-	const requesteeEvent = await ctx.db.createUserEvent({
+	await ctx.db.createUserEvent({
 		type: 'COLLAB_ASKED',
 		user: {connect: {id: getUserId(ctx)}},
 		metadata: {
 			collabId: newCollabRequest.id,
 		},
-	});
-
-	// Create Request notification
-	await ctx.db.createNotification({
-		userEvent: {connect: {id: requesteeEvent.id}},
-		user: {connect: {email: userEmail}},
+		notifications: {
+			create: {
+				user: {connect: {email: userEmail}},
+			},
+		},
 	});
 
 	// Send email

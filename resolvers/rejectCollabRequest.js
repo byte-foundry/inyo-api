@@ -51,17 +51,17 @@ const rejectCollabRequest = async (parent, {requestId}, ctx) => {
 
 	// send notification
 
-	const collabAcceptedEvent = await ctx.db.createUserEvent({
+	await ctx.db.createUserEvent({
 		type: 'COLLAB_REJECTED',
 		user: {connect: {id: request.requestee.id}},
 		metadata: {
 			userId: request.requestee.id,
 		},
-	});
-
-	await ctx.db.createNotification({
-		userEvent: {connect: {id: collabAcceptedEvent.id}},
-		user: {connect: {id: request.requester.id}},
+		notifications: {
+			create: {
+				user: {connect: {id: request.requester.id}},
+			},
+		},
 	});
 
 	// Send email
