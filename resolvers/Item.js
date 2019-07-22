@@ -64,6 +64,7 @@ const Item = {
 		},
 	}),
 	remindersPreviews: node => remindersSequences[node.type] || [],
+	finishedAt: node => node.finishedAt,
 	createdAt: node => node.createdAt,
 };
 

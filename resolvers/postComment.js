@@ -76,7 +76,13 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 		if (item.section) {
 			const {project} = item.section;
 
-			({customer} = project);
+			if (project.customer && project.customer.token === token) {
+				({customer} = project);
+			}
+		}
+
+		if (!customer) {
+			throw new NotFoundError('Your token is invalid');
 		}
 
 		const result = await ctx.db.updateItem({

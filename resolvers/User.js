@@ -82,6 +82,7 @@ const User = {
 				type
 				unit
 				description
+				finishedAt
 				createdAt
 				section {
 					project {
