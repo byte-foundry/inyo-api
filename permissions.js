@@ -62,7 +62,7 @@ const isItemOwner = and(
 	rule()((parent, {id}, ctx) => ctx.db.$exists.item({id, owner: {id: ctx.userId}})),
 );
 
-const isCollaborator = and(
+const isItemCollaborator = and(
 	isAuthenticated,
 	isPayingOrInTrial,
 	rule()((parent, {id}, ctx) => ctx.db.$exists.item({id, assignee: {id: ctx.userId}})),
@@ -188,7 +188,7 @@ const permissions = shield(
 				isProjectCustomer,
 				isProjectCollaborator,
 			),
-			item: or(isAdmin, isItemOwner, isItemCustomer, isCollaborator),
+			item: or(isAdmin, isItemOwner, isItemCustomer, isItemCollaborator),
 		},
 		User: {
 			id: or(isAdmin, isAuthenticated, isUserCustomer),
