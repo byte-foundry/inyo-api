@@ -87,7 +87,7 @@ const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 				meta: {userId: requestee.id},
 				requesteeName: formatName(requestee.firstName, requestee.lastName),
 				url: getAppUrl('/collaborators'),
-				user: formatName(undefined, user.firstName, user.lastName),
+				user: formatName(user.firstName, user.lastName),
 			},
 			ctx,
 		);

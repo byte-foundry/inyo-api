@@ -6,7 +6,7 @@ const NotificationObject = {
 		if (obj.email) {
 			return 'User';
 		}
-		if (obj.rejectedAt === null) {
+		if (obj.requestee) {
 			return 'CollabRequest';
 		}
 		return 'Item';
