@@ -17,7 +17,7 @@ const removeCollab = async (parent, {collaboratorId}, ctx) => {
 
 	const projects = await ctx.db.projects({
 		where: {
-			collabLinkToProject_some: {
+			linkedCollaborators_some: {
 				id: collaboratorId,
 			},
 		},
@@ -27,7 +27,7 @@ const removeCollab = async (parent, {collaboratorId}, ctx) => {
 		await ctx.db.updateProject({
 			where: {id: p.id},
 			data: {
-				collabLinkToProject: {disconnect: {id: collaboratorId}},
+				linkedCollaborators: {disconnect: {id: collaboratorId}},
 			},
 		});
 

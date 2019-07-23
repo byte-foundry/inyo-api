@@ -116,7 +116,7 @@ const isProjectCollaborator = and(
 	isPayingOrInTrial,
 	rule()((parent, {id}, ctx) => ctx.db.$exists.project({
 		id,
-		collabLinkToProject_some: {id: ctx.userId},
+		linkedCollaborators_some: {id: ctx.userId},
 	})),
 );
 

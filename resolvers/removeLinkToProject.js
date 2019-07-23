@@ -13,7 +13,7 @@ const removeLinkToProject = async (
 	}).$fragment(gql`
 		fragment CollabProject on Project {
 			id
-			collabLinkToProject {
+			linkedCollaborators {
 				id
 			}
 		}
@@ -23,7 +23,7 @@ const removeLinkToProject = async (
 		throw new NotFoundError(`Project ${projectId} does not exist`);
 	}
 
-	if (!project.collabLinkToProject.some(c => c.id === collaboratorId)) {
+	if (!project.linkedCollaborators.some(c => c.id === collaboratorId)) {
 		throw new NotFoundError(
 			`Collaborator ${collaboratorId} is not linked to project`,
 		);
@@ -58,7 +58,7 @@ const removeLinkToProject = async (
 			id: projectId,
 		},
 		data: {
-			collabLinkToProject: {disconnect: {id: collaboratorId}},
+			linkedCollaborators: {disconnect: {id: collaboratorId}},
 		},
 	});
 };

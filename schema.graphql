@@ -603,7 +603,7 @@ type Project {
 	notifyActivityToCustomer: Boolean!
 	daysUntilDeadline: Int
 	attachments: [File!]!
-	collabLinkToProject: [User!]!
+	linkedCollaborators: [User!]!
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }

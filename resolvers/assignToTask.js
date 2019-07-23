@@ -22,7 +22,7 @@ const assignToTask = async (parent, {taskId, collaboratorId}, ctx) => {
 			id: taskId,
 			section: {
 				project: {
-					collabLinkToProject_some: {
+					linkedCollaborators_some: {
 						id: collaboratorId,
 					},
 				},

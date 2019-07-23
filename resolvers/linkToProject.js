@@ -22,7 +22,7 @@ const linkToProject = async (parent, {projectId, collaboratorId}, ctx) => {
 	}).$fragment(gql`
 		fragment CollabProject on Project {
 			id
-			collabLinkToProject {
+			linkedCollaborators {
 				id
 			}
 		}
@@ -32,7 +32,7 @@ const linkToProject = async (parent, {projectId, collaboratorId}, ctx) => {
 		throw new NotFoundError(`Project ${projectId} does not exist`);
 	}
 
-	if (!project.collabLinkToProject.every(c => c.id !== collaboratorId)) {
+	if (!project.linkedCollaborators.every(c => c.id !== collaboratorId)) {
 		throw new AlreadyExistingError(
 			`Collaborator ${collaboratorId} is already linked to project`,
 		);
@@ -43,7 +43,7 @@ const linkToProject = async (parent, {projectId, collaboratorId}, ctx) => {
 			id: projectId,
 		},
 		data: {
-			collabLinkToProject: {connect: {id: collaboratorId}},
+			linkedCollaborators: {connect: {id: collaboratorId}},
 		},
 	});
 };

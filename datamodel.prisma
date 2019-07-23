@@ -317,7 +317,7 @@ type Project {
 	deadline: DateTime
 	notifyActivityToCustomer: Boolean! @default(value: true)
 	attachments: [File!]! @relation(name: "ProjectAttachments")
-	collabLinkToProject: [User!]! @relation(name: "CollaboratorsProject")
+	linkedCollaborators: [User!]! @relation(name: "CollaboratorsProject")
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }
