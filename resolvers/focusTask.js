@@ -3,6 +3,7 @@ const {
 	getUserId,
 	getAppUrl,
 	createItemOwnerFilter,
+	createItemCollaboratorFilter,
 	isCustomerTask,
 	formatName,
 	formatFullName,
@@ -31,9 +32,25 @@ const focusTask = async (
 	scheduledForDate = scheduledForDate.format(moment.HTML5_FMT.DATE);
 
 	const userId = getUserId(ctx);
+	// This is so that assignee can schedule their task and only them
 	const [item] = await ctx.db.items({
 		where: {
-			AND: [{id}, createItemOwnerFilter(userId)],
+			AND: [
+				{id},
+				{
+					OR: [
+						{
+							AND: [
+								createItemOwnerFilter(userId),
+								{
+									assignee: null,
+								},
+							],
+						},
+						createItemCollaboratorFilter(userId),
+					],
+				},
+			],
 		},
 	}).$fragment(gql`
 		fragment FocusingItemWithProject on Item {

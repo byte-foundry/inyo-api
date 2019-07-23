@@ -132,6 +132,7 @@ const Project = {
 			],
 		},
 	}),
+	linkedCollaborators: (node, args, ctx) => ctx.db.project({id: node.id}).linkedCollaborators(),
 };
 
 module.exports = {

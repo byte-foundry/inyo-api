@@ -3,6 +3,12 @@ const NotificationObject = {
 		if (obj.token) {
 			return 'Project';
 		}
+		if (obj.email) {
+			return 'User';
+		}
+		if (obj.requestee) {
+			return 'CollabRequest';
+		}
 		return 'Item';
 	},
 };

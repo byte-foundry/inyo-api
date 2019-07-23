@@ -25,6 +25,7 @@ const Item = {
 
 		return owner || projectOwner;
 	},
+	assignee: (node, args, ctx) => ctx.db.item({id: node.id}).assignee(),
 	scheduledFor: node => node.scheduledFor && new Date(node.scheduledFor),
 	schedulePosition: node => node.schedulePosition,
 	isFocused: async (node, args, ctx) => {

@@ -35,6 +35,15 @@ const {cancelReminder} = require('./cancelReminder');
 const {createTag} = require('./createTag');
 const {updateTag} = require('./updateTag');
 const {removeTag} = require('./removeTag');
+const {requestCollab} = require('./requestCollab');
+const {removeCollab} = require('./removeCollab');
+const {acceptCollabRequest} = require('./acceptCollabRequest');
+const {rejectCollabRequest} = require('./rejectCollabRequest');
+const {cancelRequestCollab} = require('./cancelRequestCollab');
+const {assignToTask} = require('./assignToTask');
+const {linkToProject} = require('./linkToProject');
+const {removeAssignmentToTask} = require('./removeAssignmentToTask');
+const {removeLinkToProject} = require('./removeLinkToProject');
 const {sendReminderTestEmail} = require('./sendReminderTestEmail');
 const {
 	sendReminderPreviewTestEmail,
@@ -124,6 +133,15 @@ const Mutation = {
 	sendReminderTestEmail,
 	sendReminderPreviewTestEmail,
 	markNotificationsAsRead,
+	requestCollab,
+	removeCollab,
+	acceptCollabRequest,
+	rejectCollabRequest,
+	cancelRequestCollab,
+	assignToTask,
+	linkToProject,
+	removeAssignmentToTask,
+	removeLinkToProject,
 };
 
 module.exports = {

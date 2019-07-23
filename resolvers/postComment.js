@@ -6,6 +6,7 @@ const {
 	formatFullName,
 	formatName,
 	createItemOwnerFilter,
+	createItemCollaboratorFilter,
 } = require('../utils');
 const {NotFoundError} = require('../errors');
 const {sendNewCommentEmail} = require('../emails/CommentEmail');
@@ -158,7 +159,15 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 	const userId = getUserId(ctx);
 	const [item] = await ctx.db.items({
 		where: {
-			AND: [{id: itemId}, createItemOwnerFilter(userId)],
+			AND: [
+				{id: itemId},
+				{
+					OR: [
+						createItemOwnerFilter(userId),
+						createItemCollaboratorFilter(userId),
+					],
+				},
+			],
 		},
 	}).$fragment(gql`
 		fragment ItemAndAuthorsForCustomer on Item {

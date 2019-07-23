@@ -13,6 +13,13 @@ enum Title {
 	MONDAMOISEAU
 }
 
+enum CollabRequestStatus {
+	PENDING
+	REJECTED
+	ACCEPTED
+	CANCELED
+}
+
 # Represents a company or an individual that is going to receive an invoice
 type Customer {
 	id: ID! @unique
@@ -188,6 +195,13 @@ enum UserEventType {
 	UPDATED_SECTION
 	REMOVED_SECTION
 	UPLOADED_ATTACHMENT
+	COLLAB_ASKED
+	COLLAB_REQUESTED
+	COLLAB_ACCEPTED
+	COLLAB_REJECTED
+	LINKED_TO_PROJECT
+	ASSIGNED_TO_TASK
+	REMOVE_ASSIGNMENT_TO_TASK
 }
 
 type CommentView {
@@ -227,6 +241,7 @@ type Item {
 	schedulePosition: Int
 	focusedBy: User @relation(name: "UserFocusedTasks")
 	linkedCustomer: Customer @relation(name: "LinkedCustomerTasks")
+	assignee: User @relation(name: "UserAssignedTasks")
 	name: String!
 	type: ItemType! @default(value: DEFAULT)
 	description: String @default(value: "")
@@ -302,6 +317,7 @@ type Project {
 	deadline: DateTime
 	notifyActivityToCustomer: Boolean! @default(value: true)
 	attachments: [File!]! @relation(name: "ProjectAttachments")
+	linkedCollaborators: [User!]! @relation(name: "CollaboratorsProject")
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }
@@ -378,6 +394,22 @@ type User {
 	updatedAt: DateTime!
 	tags: [Tag!]! @relation(name: "UserTags", onDelete: CASCADE)
 	lifetimePayment: Boolean @default(value: false)
+
+	collaborators: [User!]! @relation(name: "Collaborators")
+	collaboratorRequests: [CollabRequest!]! @relation(name: "CollabRequester")
+	collaborationRequests: [CollabRequest!]! @relation(name: "CollabRequestee")
+	assignedTasks: [Item!]! @relation(name: "UserAssignedTasks")
+}
+
+type CollabRequest {
+	id: ID! @unique
+	requester: User! @relation(name: "CollabRequester")
+	requestee: User! @relation(name: "CollabRequestee")
+	status: CollabRequestStatus!
+	acceptedAt: DateTime
+	rejectedAt: DateTime
+	createdAt: DateTime!
+	updatedAt: DateTime!
 }
 
 type Reminder {
@@ -436,7 +468,8 @@ type CustomerEvent {
 type Notification {
 	id: ID! @unique
 	unread: Boolean! @default(value: true)
-	customerEvent: CustomerEvent! @relation(name: "CustomerEventNotifications")
+	customerEvent: CustomerEvent @relation(name: "CustomerEventNotifications")
+	userEvent: UserEvent @relation(name: "UserEventNotifications")
 	user: User! @relation(name: "UserNotifications")
 	createdAt: DateTime!
 	updatedAt: DateTime!
