@@ -15,7 +15,7 @@ type Query {
 	quote(id: ID!, token: String): Quote
 		@deprecated(reason: "Quotes are not used anymore.")
 	project(id: ID!, token: String): Project
-	item(id: ID!, token: String): Item
+	item(id: ID!, token: String, updateCommentViews: Boolean): Item
 	itemComments(itemId: ID!, token: String): [Comment!]!
 		@deprecated(reason: "Prefer using item query directly.")
 	# Get user's reminders
