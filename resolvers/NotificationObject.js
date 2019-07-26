@@ -6,10 +6,10 @@ const NotificationObject = {
 		if (obj.email) {
 			return 'User';
 		}
-		if (obj.requestee) {
-			return 'CollabRequest';
+		if (obj.position !== undefined) {
+			return 'Item';
 		}
-		return 'Item';
+		return 'CollabRequest';
 	},
 };
 
