@@ -25,6 +25,7 @@ const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 			lastName
 			collaborators {
 				id
+				email
 			}
 		}
 	`);
