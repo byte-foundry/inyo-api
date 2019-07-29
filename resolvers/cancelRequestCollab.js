@@ -15,7 +15,12 @@ const cancelRequestCollab = async (parent, {collabRequestId}, ctx) => {
 		throw new NotFoundError(`Collab request ${collabRequestId} does not exist`);
 	}
 
-	return ctx.db.deleteCollabRequest({id: collabRequestId});
+	return ctx.db.updateCollabRequest({
+		where: {id: collabRequestId},
+		data: {
+			status: 'CANCELED',
+		},
+	});
 };
 
 module.exports = {
