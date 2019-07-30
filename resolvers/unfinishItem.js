@@ -1,6 +1,11 @@
 const gql = String.raw;
 
-const {getUserId, createItemOwnerFilter, isCustomerTask} = require('../utils');
+const {
+	getUserId,
+	createItemOwnerFilter,
+	createItemCollaboratorFilter,
+	isCustomerTask,
+} = require('../utils');
 const {NotFoundError} = require('../errors');
 
 // TODO: set back the canceled reminders
@@ -60,7 +65,15 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 	const [item] = await ctx.db
 		.items({
 			where: {
-				AND: [{id}, createItemOwnerFilter(userId)],
+				AND: [
+					{id},
+					{
+						OR: [
+							createItemOwnerFilter(userId),
+							createItemCollaboratorFilter(userId),
+						],
+					},
+				],
 			},
 		})
 		.$fragment(fragment);

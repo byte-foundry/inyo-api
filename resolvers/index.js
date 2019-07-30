@@ -6,6 +6,7 @@ const {Mutation} = require('./Mutation');
 const {AuthPayload} = require('./AuthPayload');
 const {User} = require('./User');
 const {Settings} = require('./Settings');
+const {CollabRequest} = require('./CollabRequest');
 const {Company} = require('./Company');
 const {Item} = require('./Item');
 const {Section} = require('./Section');
@@ -33,6 +34,7 @@ const resolvers = {
 	AuthPayload,
 	User,
 	Settings,
+	CollabRequest,
 	Company,
 	Item,
 	Section,

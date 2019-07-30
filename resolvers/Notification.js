@@ -1,27 +1,77 @@
 const Notification = {
 	id: node => node.id,
 	unread: node => node.unread,
-	from: (node, args, ctx) => ctx.db
-		.notification({id: node.id})
-		.customerEvent()
-		.customer(),
-	object: async (node, args, ctx) => {
-		const event = await ctx.db.notification({id: node.id}).customerEvent();
-		const {id, itemId, projectId} = event.metadata;
+	from: async (node, args, ctx) => {
+		const customerEvent = await ctx.db
+			.notification({id: node.id})
+			.customerEvent();
 
-		if (projectId) {
-			return ctx.db.project({id: projectId});
+		if (customerEvent) {
+			const customer = ctx.db.customerEvent({id: customerEvent.id}).customer();
+
+			return customer;
 		}
-		if (id || itemId) {
-			return ctx.db.item({id: itemId || id});
+
+		const userEvent = await ctx.db.notification({id: node.id}).userEvent();
+
+		if (userEvent) {
+			const user = ctx.db.userEvent({id: userEvent.id}).user();
+
+			return user;
+		}
+
+		return null;
+	},
+	object: async (node, args, ctx) => {
+		const customerEvent = await ctx.db
+			.notification({id: node.id})
+			.customerEvent();
+
+		if (customerEvent) {
+			const {id, itemId, projectId} = customerEvent.metadata;
+
+			if (projectId) {
+				return ctx.db.project({id: projectId});
+			}
+			if (id || itemId) {
+				return ctx.db.item({id: itemId || id});
+			}
+		}
+
+		const userEvent = await ctx.db.notification({id: node.id}).userEvent();
+
+		if (userEvent) {
+			const {userId, itemId, collabId} = userEvent.metadata;
+
+			if (userId) {
+				return ctx.db.user({id: userId});
+			}
+			if (itemId) {
+				return ctx.db.item({id: itemId});
+			}
+			if (collabId) {
+				return ctx.db.collabRequest({id: collabId});
+			}
 		}
 
 		return null;
 	},
 	eventType: async (node, args, ctx) => {
-		const event = await ctx.db.notification({id: node.id}).customerEvent();
+		const customerEvent = await ctx.db
+			.notification({id: node.id})
+			.customerEvent();
 
-		return event.type;
+		if (customerEvent) {
+			return customerEvent.type;
+		}
+
+		const userEvent = await ctx.db.notification({id: node.id}).userEvent();
+
+		if (userEvent) {
+			return userEvent.type;
+		}
+
+		return null;
 	},
 	createdAt: node => node.createdAt,
 	updatedAt: node => node.updatedAt,

@@ -276,6 +276,16 @@ type Mutation {
 	createTag(name: String!, colorBg: String!, colorText: String!): Tag!
 	updateTag(id: ID!, name: String, colorBg: String, colorText: String): Tag!
 	removeTag(id: ID!): Tag!
+
+	requestCollab(userEmail: String!, projectId: ID): CollabRequest!
+	acceptCollabRequest(requestId: ID!): CollabRequest!
+	rejectCollabRequest(requestId: ID!): CollabRequest!
+	assignToTask(taskId: ID!, collaboratorId: ID!): Item!
+	removeAssignmentToTask(taskId: ID!, collaboratorId: ID!): Item!
+	linkToProject(projectId: ID!, collaboratorId: ID!): Project!
+	removeLinkToProject(projectId: ID!, collaboratorId: ID!): Project!
+	removeCollab(collaboratorId: ID!): User!
+	cancelRequestCollab(collabRequestId: ID!): CollabRequest!
 }
 
 input CommentInput {
@@ -513,6 +523,7 @@ enum ItemType {
 type Item {
 	id: ID!
 	owner: User!
+	assignee: User
 	scheduledFor: Date
 	schedulePosition: Int
 	linkedCustomer: Customer
@@ -593,6 +604,7 @@ type Project {
 	notifyActivityToCustomer: Boolean!
 	daysUntilDeadline: Int
 	attachments: [File!]!
+	linkedCollaborators: [User!]!
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }
@@ -640,12 +652,23 @@ type Settings {
 	askStartProjectConfirmation: Boolean!
 }
 
+enum CollabRequestStatus {
+	PENDING
+	REJECTED
+	ACCEPTED
+	CANCELED
+}
+
 type User {
 	id: ID!
 	email: String!
 	firstName: String
 	lastName: String
 	customers: [Customer!]!
+	collaborators: [User!]!
+	collaboratorRequests: [CollabRequest!]!
+	collaborationRequests: [CollabRequest!]!
+	assignedTasks: [Item!]!
 	projects: [Project!]!
 	company: Company!
 		@deprecated(
@@ -670,6 +693,17 @@ type User {
 	tags: [Tag!]!
 	signedUpAt: DateTime!
 	lifetimePayment: Boolean!
+}
+
+type CollabRequest {
+	id: ID!
+	requester: User!
+	requestee: User!
+	status: CollabRequestStatus!
+	acceptedAt: DateTime
+	rejectedAt: DateTime
+	createdAt: DateTime!
+	updatedAt: DateTime!
 }
 
 union Owner = User | Customer
@@ -701,10 +735,16 @@ enum EventType {
 	POSTED_COMMENT
 	UPLOADED_ATTACHMENT
 	FINISHED_TASK
+	COLLAB_ASKED
+	COLLAB_ACCEPTED
+	COLLAB_REJECTED
+	LINKED_TO_PROJECT
+	ASSIGNED_TO_TASK
+	REMOVE_ASSIGNMENT_TO_TASK
 }
 
 union NotificationEmitter = User | Customer
-union NotificationObject = Project | Item
+union NotificationObject = Project | Item | User | CollabRequest
 
 type Notification {
 	id: ID!

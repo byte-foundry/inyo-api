@@ -6,6 +6,7 @@ const {
 	formatFullName,
 	formatName,
 	createItemOwnerFilter,
+	createItemCollaboratorFilter,
 	isCustomerTask,
 } = require('../utils');
 const {NotFoundError} = require('../errors');
@@ -60,6 +61,9 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 				postHookId
 				type
 				status
+			}
+			assignee {
+				id
 			}
 			section {
 				project {
@@ -169,7 +173,15 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 	const [item] = await ctx.db
 		.items({
 			where: {
-				AND: [{id}, createItemOwnerFilter(userId)],
+				AND: [
+					{id},
+					{
+						OR: [
+							createItemOwnerFilter(userId),
+							createItemCollaboratorFilter(userId),
+						],
+					},
+				],
 			},
 		})
 		.$fragment(fragment);
@@ -204,6 +216,12 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 		},
 		metadata: {
 			id: updatedItem.id,
+		},
+		notifications: item.assignee
+			&& item.assignee.id === userId && {
+			create: {
+				user: {connect: {id: item.owner.id}},
+			},
 		},
 	});
 

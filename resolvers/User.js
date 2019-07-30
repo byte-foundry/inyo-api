@@ -1,4 +1,7 @@
-const {createItemOwnerFilter} = require('../utils');
+const {
+	createItemOwnerFilter,
+	createItemCollaboratorFilter,
+} = require('../utils');
 
 const gql = String.raw;
 
@@ -12,6 +15,10 @@ const User = {
 		.user({id: node.id})
 		.company()
 		.customers(),
+	collaborators: (node, args, ctx) => ctx.db.user({id: node.id}).collaborators(),
+	collaboratorRequests: (node, args, ctx) => ctx.db.user({id: node.id}).collaboratorRequests(),
+	collaborationRequests: (node, args, ctx) => ctx.db.user({id: node.id}).collaborationRequests(),
+	assignedTasks: (node, args, ctx) => ctx.db.user({id: node.id}).assignedTasks(),
 	projects: async (node, args, ctx) => ctx.db.projects({
 		where: {
 			OR: [
@@ -69,7 +76,12 @@ const User = {
 							},
 						],
 					},
-					createItemOwnerFilter(node.id),
+					{
+						OR: [
+							createItemOwnerFilter(node.id),
+							createItemCollaboratorFilter(node.id),
+						],
+					},
 				],
 				orderBy: sort,
 			},
@@ -84,6 +96,12 @@ const User = {
 				description
 				finishedAt
 				createdAt
+				assignee {
+					id
+					email
+					firstName
+					lastName
+				}
 				section {
 					project {
 						deadline
