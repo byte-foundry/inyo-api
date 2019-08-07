@@ -41,12 +41,14 @@ const Notification = {
 		const userEvent = await ctx.db.notification({id: node.id}).userEvent();
 
 		if (userEvent) {
-			const {userId, itemId, collabId} = userEvent.metadata;
+			const {
+				id, userId, itemId, collabId,
+			} = userEvent.metadata;
 
 			if (userId) {
 				return ctx.db.user({id: userId});
 			}
-			if (itemId) {
+			if (itemId || id) {
 				return ctx.db.item({id: itemId});
 			}
 			if (collabId) {
