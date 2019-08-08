@@ -49,7 +49,7 @@ const Notification = {
 				return ctx.db.user({id: userId});
 			}
 			if (itemId || id) {
-				return ctx.db.item({id: itemId});
+				return ctx.db.item({id: itemId || id});
 			}
 			if (collabId) {
 				return ctx.db.collabRequest({id: collabId});
