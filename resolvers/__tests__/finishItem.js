@@ -91,7 +91,6 @@ describe('finishItem', () => {
 		expect(item).toMatchObject({
 			id: args.id,
 			status: 'FINISHED',
-			timeItTook: 1,
 		});
 	});
 

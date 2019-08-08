@@ -194,10 +194,6 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 		throw new Error('This item cannot be finished by the user.');
 	}
 
-	if (item.status !== 'PENDING') {
-		throw new Error(`Item '${id}' cannot be finished.`);
-	}
-
 	await cancelPendingReminders(item.pendingReminders, id, ctx);
 
 	const updatedItem = await ctx.db.updateItem({
@@ -205,25 +201,28 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 		data: {
 			status: 'FINISHED',
 			finishedAt: new Date(),
-			timeItTook: timeItTook || item.unit,
+			timeItTook,
 		},
 	});
 
-	await ctx.db.createUserEvent({
-		type: 'FINISHED_TASK',
-		user: {
-			connect: {id: userId},
-		},
-		metadata: {
-			id: updatedItem.id,
-		},
-		notifications: item.assignee
-			&& item.assignee.id === userId && {
-			create: {
-				user: {connect: {id: item.owner.id}},
+	// wasn't already finished
+	if (item.status === 'PENDING') {
+		await ctx.db.createUserEvent({
+			type: 'FINISHED_TASK',
+			user: {
+				connect: {id: userId},
 			},
-		},
-	});
+			metadata: {
+				id: updatedItem.id,
+			},
+			notifications: item.assignee
+				&& item.assignee.id === userId && {
+				create: {
+					user: {connect: {id: item.owner.id}},
+				},
+			},
+		});
+	}
 
 	return updatedItem;
 };
