@@ -48,7 +48,7 @@ const isPayingOrInTrial = rule()(async (parent, args, ctx, info) => {
 
 	if (
 		user.lifetimePayment
-		|| moment().diff(moment(user.createdAt), 'days') <= 21
+		|| moment().diff(moment(user.createdAt), 'days') < 21
 	) {
 		return true;
 	}
