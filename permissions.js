@@ -153,29 +153,59 @@ const isProjectCustomer = rule()(async (parent, {id, token = null}, ctx) => ctx.
 
 const isUserCustomer = rule()(async (parent, args, ctx) => {
 	const hasProjects = await ctx.db.$exists.project({
-		owner: {
-			id: parent.id,
-		},
-		OR: [
+		AND: [
 			{
-				token: ctx.token,
+				OR: [
+					{
+						owner: {
+							id: parent.id,
+						},
+					},
+					{
+						linkedCollaborators_some: {
+							id: parent.id,
+						},
+					},
+				],
 			},
 			{
-				customer: {
-					token: ctx.token,
-				},
+				OR: [
+					{
+						token: ctx.token,
+					},
+					{
+						customer: {
+							token: ctx.token,
+						},
+					},
+				],
 			},
 		],
 	});
 	const hasTasks = await ctx.db.$exists.item({
-		owner: {
-			id: parent.id,
-		},
-		OR: [
+		AND: [
 			{
-				linkedCustomer: {
-					token: ctx.token,
-				},
+				OR: [
+					{
+						owner: {
+							id: parent.id,
+						},
+					},
+					{
+						assignee: {
+							id: parent.id,
+						},
+					},
+				],
+			},
+			{
+				OR: [
+					{
+						linkedCustomer: {
+							token: ctx.token,
+						},
+					},
+				],
 			},
 		],
 	});
