@@ -18,10 +18,12 @@ const addItem = async (
 		linkedCustomerId,
 		linkedCustomer,
 		dueDate,
+		tags,
 	},
 	ctx,
 ) => {
 	const userId = getUserId(ctx);
+
 	let position = 0;
 
 	if (projectId && !sectionId) {
@@ -149,6 +151,7 @@ const addItem = async (
 		unit,
 		position,
 		dueDate,
+		tags: tags && {connect: tags.map(tag => ({id: tag}))},
 	});
 
 	await ctx.db.createUserEvent({
