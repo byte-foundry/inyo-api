@@ -35,8 +35,10 @@ const updateUser = async (
 	}
 
 	if (
-		settings.language
-		&& (settings.language !== 'fr' || settings.language !== 'en')
+		settings
+		&& settings.language
+		&& settings.language !== 'fr'
+		&& settings.language !== 'en'
 	) {
 		throw new Error('Language is not supported. Must be either fr or en.');
 	}

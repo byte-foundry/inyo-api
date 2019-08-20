@@ -40,7 +40,7 @@ const signup = async (
 
 	if (
 		settings.language
-		&& (settings.language !== 'fr' || settings.language !== 'en')
+		&& (settings.language !== 'fr' && settings.language !== 'en')
 	) {
 		throw new Error('Language is not supported. Must be either fr or en.');
 	}
