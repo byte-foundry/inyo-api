@@ -316,6 +316,7 @@ input CompanyInput {
 
 input SettingsInput {
 	assistantName: String
+	language: String
 	hasFullWeekSchedule: Boolean
 	askItemFinishConfirmation: Boolean
 	askSendQuoteConfirmation: Boolean
@@ -645,6 +646,7 @@ enum JobType {
 
 type Settings {
 	assistantName: String!
+	language: String!
 	hasFullWeekSchedule: Boolean!
 	askItemFinishConfirmation: Boolean!
 		@deprecated(reason: "Not available anymore.")
