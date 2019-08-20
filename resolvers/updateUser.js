@@ -34,6 +34,13 @@ const updateUser = async (
 		logo = await processUpload(company.logo, ctx, userId);
 	}
 
+	if (
+		settings.language
+		&& (settings.language !== 'fr' || settings.language !== 'en')
+	) {
+		throw new Error('Language is not supported. Must be either fr or en.');
+	}
+
 	return ctx.db.updateUser({
 		where: {id: userId},
 		data: {
