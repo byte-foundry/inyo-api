@@ -342,6 +342,7 @@ type Company {
 type Settings {
 	user: User! @relation(name: "UserSettings")
 	assistantName: String! @default(value: "Edwige")
+	language: String @default(value: "fr")
 	hasFullWeekSchedule: Boolean! @default(value: false)
 
 	# deprecated
