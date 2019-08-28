@@ -11,7 +11,9 @@ const {
 const {NotFoundError} = require('../errors');
 const {sendNewCommentEmail} = require('../emails/CommentEmail');
 
-const postComment = async (parent, {itemId, token, comment}, ctx) => {
+const postComment = async (parent, {itemId, comment}, ctx) => {
+	const {token} = ctx;
+
 	if (token) {
 		const [item] = await ctx.db.items({
 			where: {
@@ -41,6 +43,12 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 				id
 				name
 				owner {
+					id
+					email
+					firstName
+					lastName
+				}
+				assignee {
 					id
 					email
 					firstName
@@ -108,26 +116,26 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 			},
 		});
 
-		try {
-			const params = {
-				meta: {
-					userId: user.id,
-				},
-				email: user.email,
-				recipientName: formatName(user.firstName, user.lastName),
-				authorName: formatFullName(
-					customer.title,
-					customer.firstName,
-					customer.lastName,
-				),
-				itemName: item.name,
-				comment,
-			};
+		const params = {
+			authorName: formatFullName(
+				customer.title,
+				customer.firstName,
+				customer.lastName,
+			),
+			itemName: item.name,
+			comment,
+			url: getAppUrl(`/tasks/${item.id}`),
+		};
 
+		try {
 			sendNewCommentEmail(
 				{
 					...params,
-					url: getAppUrl(`/tasks/${item.id}`),
+					meta: {
+						userId: user.id,
+					},
+					email: user.email,
+					recipientName: formatName(user.firstName, user.lastName),
 				},
 				ctx,
 			);
@@ -136,6 +144,31 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 		}
 		catch (error) {
 			console.log(`New comment email not because with error ${error}`);
+		}
+
+		// notify collaborator
+		if (item.assignee) {
+			try {
+				await sendNewCommentEmail(
+					{
+						...params,
+						meta: {
+							userId: item.assignee.id,
+						},
+						email: item.assignee.email,
+						recipientName: formatName(
+							item.assignee.firstName,
+							item.assignee.lastName,
+						),
+					},
+					ctx,
+				);
+
+				console.log(`New comment email sent to ${item.assignee.email}`);
+			}
+			catch (error) {
+				console.log(`New comment email not because with error ${error}`);
+			}
 		}
 
 		await ctx.db.createCustomerEvent({
@@ -175,6 +208,12 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 			id
 			name
 			owner {
+				firstName
+				lastName
+				email
+			}
+			assignee {
+				id
 				firstName
 				lastName
 				email
@@ -249,64 +288,102 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 		},
 	});
 
-	try {
-		const params = {
-			meta: {userId},
-			authorName: formatName(user.firstName, user.lastName),
-			itemName: item.name,
-			comment,
-		};
+	const params = {
+		meta: {userId},
+		authorName: formatName(user.firstName, user.lastName),
+		itemName: item.name,
+		comment,
+	};
 
-		if (item.section && item.section.project.notifyActivityToCustomer) {
-			const {linkedCustomer, section} = item;
+	if (item.section) {
+		const {assignee, linkedCustomer, section} = item;
+
+		// notify collaborator or owner
+		if (assignee) {
+			const userToNotify = assignee.id === userId ? user : assignee;
+
+			try {
+				await sendNewCommentEmail(
+					{
+						...params,
+						email: userToNotify.email,
+						recipientName: formatName(
+							userToNotify.firstName,
+							userToNotify.lastName,
+						),
+						url: getAppUrl(`/tasks/${item.id}`),
+					},
+					ctx,
+				);
+
+				console.log(`New comment email sent to ${userToNotify.email}`);
+			}
+			catch (error) {
+				console.log(`New comment email not because with error ${error}`);
+			}
+		}
+
+		if (section.project.notifyActivityToCustomer) {
 			const {customer} = section.project;
 
 			// send to project customer
 			if (customer) {
-				await sendNewCommentEmail(
-					{
-						...params,
-						email: customer.email,
-						recipientName: formatFullName(
-							customer.title,
-							customer.firstName,
-							customer.lastName,
-						),
-						url: getAppUrl(
-							`/${customer.token}/tasks/${item.id}?projectId=${
-								section.project.id
-							}`,
-						),
-					},
-					ctx,
-				);
+				try {
+					await sendNewCommentEmail(
+						{
+							...params,
+							email: customer.email,
+							recipientName: formatFullName(
+								customer.title,
+								customer.firstName,
+								customer.lastName,
+							),
+							url: getAppUrl(
+								`/${customer.token}/tasks/${item.id}?projectId=${
+									section.project.id
+								}`,
+							),
+						},
+						ctx,
+					);
+				}
+				catch (error) {
+					console.log(`New comment email not because with error ${error}`);
+				}
 
 				console.log(`New comment email sent to ${customer.email}`);
 			}
 
 			// send to linked
 			if (linkedCustomer) {
-				await sendNewCommentEmail(
-					{
-						...params,
-						email: linkedCustomer.email,
-						recipientName: formatFullName(
-							linkedCustomer.title,
-							linkedCustomer.firstName,
-							linkedCustomer.lastName,
-						),
-						url: getAppUrl(`/${linkedCustomer.token}/tasks/${item.id}`),
-					},
-					ctx,
-				);
+				try {
+					await sendNewCommentEmail(
+						{
+							...params,
+							email: linkedCustomer.email,
+							recipientName: formatFullName(
+								linkedCustomer.title,
+								linkedCustomer.firstName,
+								linkedCustomer.lastName,
+							),
+							url: getAppUrl(`/${linkedCustomer.token}/tasks/${item.id}`),
+						},
+						ctx,
+					);
 
-				console.log(`New comment email sent to ${linkedCustomer.email}`);
+					console.log(`New comment email sent to ${linkedCustomer.email}`);
+				}
+				catch (error) {
+					console.log(`New comment email not because with error ${error}`);
+				}
 			}
 		}
-		else if (!item.section && item.linkedCustomer) {
-			const {linkedCustomer} = item;
+	}
+	else if (!item.section && item.linkedCustomer) {
+		const {linkedCustomer} = item;
 
-			// send to linked
+		// send to linked
+		try {
 			await sendNewCommentEmail(
 				{
 					...params,
@@ -320,12 +397,12 @@ const postComment = async (parent, {itemId, token, comment}, ctx) => {
 				},
 				ctx,
 			);
-
-			console.log(`New comment email sent to ${linkedCustomer.email}`);
 		}
-	}
-	catch (error) {
-		console.log(`New comment email not because with error ${error}`);
+		catch (error) {
+			console.log(`New comment email not because with error ${error}`);
+		}
+
+		console.log(`New comment email sent to ${linkedCustomer.email}`);
 	}
 
 	await ctx.db.createUserEvent({

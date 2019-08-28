@@ -38,6 +38,13 @@ const signup = async (
 		hasReferrer = await ctx.db.$exists.user({email: referrer});
 	}
 
+	if (
+		settings.language
+		&& (settings.language !== 'fr' && settings.language !== 'en')
+	) {
+		throw new Error('Language is not supported. Must be either fr or en.');
+	}
+
 	try {
 		const user = await ctx.db.createUser({
 			email,
