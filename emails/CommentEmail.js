@@ -1,3 +1,4 @@
+const {getTemplateId} = require('./getTemplateId');
 const sendEmail = require('./SendEmail.js');
 
 async function sendNewCommentEmail({email, meta, ...data}, ctx) {
@@ -6,7 +7,7 @@ async function sendNewCommentEmail({email, meta, ...data}, ctx) {
 			email,
 			meta,
 			data,
-			templateId: 'd-9037dcd4a6d4435a93546a891cfc1037',
+			templateId: getTemplateId('d-9037dcd4a6d4435a93546a891cfc1037', ctx),
 		},
 		ctx,
 	);

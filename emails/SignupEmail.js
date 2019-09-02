@@ -1,3 +1,4 @@
+const {getTemplateId} = require('./getTemplateId');
 const sendEmail = require('./SendEmail.js');
 
 async function sendSignupEmail({email, meta, user}, ctx) {
@@ -8,7 +9,7 @@ async function sendSignupEmail({email, meta, user}, ctx) {
 			data: {
 				user,
 			},
-			templateId: 'd-d217b4a0727743cf84282d656382e01a',
+			templateId: getTemplateId('d-d217b4a0727743cf84282d656382e01a', ctx),
 		},
 		ctx,
 	);
