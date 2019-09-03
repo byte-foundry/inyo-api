@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const {sign} = require('jsonwebtoken');
 
 const {APP_SECRET} = require('../utils');
+const {defaultTags} = require('../translations/defaultTags');
 const {AlreadyExistingError} = require('../errors');
 const {sendSignupEmail} = require('../emails/SignupEmail');
 
@@ -58,6 +59,20 @@ const signup = async (
 			},
 			settings: {
 				create: settings,
+			},
+			tags: {
+				create: [
+					{
+						name: defaultTags.ADMIN[settings.language || 'en'],
+						colorBg: '#FF5722',
+						colorText: '#FFFFFF',
+					},
+					{
+						name: defaultTags.PERSONAL[settings.language || 'en'],
+						colorBg: '#607D8B',
+						colorText: '#FFFFFF',
+					},
+				],
 			},
 		});
 
