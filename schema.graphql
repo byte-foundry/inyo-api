@@ -60,6 +60,8 @@ type Mutation {
 		defaultDailyPrice: Int
 		defaultVatRate: Int
 		workingFields: [String!]
+		skills: [Skill!]
+		otherSkill: String
 		jobType: JobType
 		interestedFeatures: [String!]
 		hasUpcomingProject: Boolean
@@ -660,6 +662,20 @@ enum CollabRequestStatus {
 	REJECTED
 	ACCEPTED
 	CANCELED
+}
+
+enum Skill {
+	PRINT_DESIGN
+	WEB_DESIGN
+	UX_DESIGN
+	UI_DESIGN
+	COPYWRITING
+	VIDEO
+	ACCOUNTING
+	PHOTOGRAPHY
+	MARKETING
+	FRONT_END_DEVELOPMENT
+	BACK_END_DEVELOPMENT
 }
 
 type User {
