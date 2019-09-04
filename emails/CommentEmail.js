@@ -1,4 +1,4 @@
-const {getTemplateId} = require('./getTemplateId');
+const getTemplateId = require('./getTemplateId');
 const sendEmail = require('./SendEmail.js');
 
 async function sendNewCommentEmail({email, meta, ...data}, ctx) {

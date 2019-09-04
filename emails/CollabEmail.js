@@ -1,4 +1,4 @@
-const {getTemplateId} = require('./getTemplateId');
+const getTemplateId = require('./getTemplateId');
 const SendEmail = require('./SendEmail.js');
 const {createPosthookReminder} = require('../reminders/createPosthookReminder');
 

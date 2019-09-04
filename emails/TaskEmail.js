@@ -1,6 +1,6 @@
 const moment = require('moment');
 
-const {getTemplateId} = require('./getTemplateId');
+const getTemplateId = require('./getTemplateId');
 const sendEmail = require('./SendEmail.js');
 const {createPosthookReminder} = require('../reminders/createPosthookReminder');
 

@@ -1,4 +1,4 @@
-const {getTemplateId} = require('./getTemplateId');
+const getTemplateId = require('./getTemplateId');
 const sendEmail = require('./SendEmail.js');
 
 async function sendSignupEmail({email, meta, user}, ctx) {

@@ -14,4 +14,4 @@ function getTemplateId(id, ctx) {
 	return templateTable[id][settings.language];
 }
 
-module.exports = {getTemplateId};
+module.exports = getTemplateId;
