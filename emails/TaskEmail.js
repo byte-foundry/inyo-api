@@ -1,5 +1,6 @@
 const moment = require('moment');
 
+const getTemplateId = require('./getTemplateId');
 const sendEmail = require('./SendEmail.js');
 const {createPosthookReminder} = require('../reminders/createPosthookReminder');
 
@@ -9,7 +10,7 @@ async function sendTaskValidationEmail({email, meta, ...data}, ctx) {
 			email,
 			meta,
 			data,
-			templateId: 'd-fd9cee6d49d54e179210d5a080e58fb3',
+			templateId: getTemplateId('d-fd9cee6d49d54e179210d5a080e58fb3', ctx),
 		},
 		ctx,
 	);
@@ -21,7 +22,7 @@ async function sendItemContentAcquisitionEmail({email, meta, ...data}, ctx) {
 			email: 'edwige@inyo.me',
 			meta,
 			data,
-			templateId: 'd-1b94796059eb45d49fbafafa101f5ddd',
+			templateId: getTemplateId('d-1b94796059eb45d49fbafafa101f5ddd', ctx),
 		},
 		ctx,
 	);
@@ -91,17 +92,20 @@ const reminderTypesTemplateIds = {
 	INVOICE_LAST: 'd-45388ea561144c57831c6d69241d31f3',
 };
 
-async function setupItemReminderEmail({
-	email,
-	userEmail,
-	url,
-	userUrl,
-	itemId,
-	issueDate,
-	reminders,
-	taskType,
-	...rest
-}) {
+async function setupItemReminderEmail(
+	{
+		email,
+		userEmail,
+		url,
+		userUrl,
+		itemId,
+		issueDate,
+		reminders,
+		taskType,
+		...rest
+	},
+	ctx,
+) {
 	const dates = [...(reminders || remindersSequences[taskType])];
 
 	// adding user warning 1 day after last reminder
@@ -123,7 +127,7 @@ async function setupItemReminderEmail({
 						.format(),
 					data: {
 						...rest,
-						templateId: reminderTypesTemplateIds[type],
+						templateId: getTemplateId(reminderTypesTemplateIds[type], ctx),
 						email: type === 'USER_WARNING' ? userEmail : email,
 						itemId,
 						url: type === 'USER_WARNING' ? userUrl : url,

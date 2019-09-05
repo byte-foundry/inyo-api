@@ -1,3 +1,4 @@
+const getTemplateId = require('./getTemplateId');
 const sendEmail = require('./SendEmail.js');
 
 async function sendProjectStartedEmail({email, meta, ...data}, ctx) {
@@ -6,7 +7,7 @@ async function sendProjectStartedEmail({email, meta, ...data}, ctx) {
 			email,
 			meta,
 			data,
-			templateId: 'd-651e0ed5b1a84b69bfa6479217417fd7',
+			templateId: getTemplateId('d-651e0ed5b1a84b69bfa6479217417fd7', ctx),
 		},
 		ctx,
 	);
@@ -18,7 +19,7 @@ async function sendProjectCreatedEmail({email, meta, ...data}, ctx) {
 			email: 'edwige@inyo.me',
 			meta,
 			data,
-			templateId: 'd-96d142386e474b8992d56cceade9452f',
+			templateId: getTemplateId('d-96d142386e474b8992d56cceade9452f', ctx),
 		},
 		ctx,
 	);
