@@ -204,6 +204,20 @@ enum UserEventType {
 	REMOVE_ASSIGNMENT_TO_TASK
 }
 
+enum Skill {
+	PRINT_DESIGN
+	WEB_DESIGN
+	UX_DESIGN
+	UI_DESIGN
+	COPYWRITING
+	VIDEO
+	ACCOUNTING
+	PHOTOGRAPHY
+	MARKETING
+	FRONT_END_DEVELOPMENT
+	BACK_END_DEVELOPMENT
+}
+
 type CommentView {
 	id: ID! @unique
 	user: User @relation(name: "CommentViewUser")
@@ -378,6 +392,8 @@ type User {
 	commentViews: [CommentView!]!
 		@relation(name: "CommentViewUser", onDelete: CASCADE)
 	workingFields: [String!]!
+	otherSkill: String
+	skills: [Skill!]!
 	otherPain: String
 	painsExpressed: [String!]!
 	canBeContacted: Boolean
