@@ -694,8 +694,7 @@ type User {
 			reason: "Company is not used anymore. User customers and projects instead."
 		)
 	defaultDailyPrice: Int
-		@deprecated(reason: "Price was only needed for the deprecated Quote.")
-	defaultVatRate: Int
+	defaultVatRate: Int @deprecated(reason: "Vat rate is not used anymore.")
 	startWorkAt: Time
 	endWorkAt: Time
 	workingDays: [DAY!]!
