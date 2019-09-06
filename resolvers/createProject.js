@@ -1,6 +1,6 @@
 const uuid = require('uuid/v4');
 
-const {getUserId, getAppUrl} = require('../utils');
+const {getUserId, getAppUrl, TAG_COLOR_PALETTE} = require('../utils');
 const {sendProjectCreatedEmail} = require('../emails/ProjectEmail');
 
 const createProject = async (
@@ -41,6 +41,58 @@ const createProject = async (
 		};
 	}
 
+	const tagsMap = new Map();
+
+	if (sections) {
+		const templateTags = new Set(
+			sections.reduce(
+				(tags, section) => (section.items
+					? tags.concat(
+						...section.items.reduce(
+							(itemTags, item) => (item.tags ? itemTags.concat(item.tags) : itemTags),
+							[],
+						),
+						  )
+					: tags),
+				[],
+			),
+		);
+
+		if (templateTags.size > 0) {
+			const userTags = await ctx.db.tags({where: {owner: {id: userId}}});
+
+			let newTagsCount = 0;
+
+			await Promise.all(
+				[...templateTags].map(async (tag) => {
+					const tagExists = userTags.find(t => t.name === tag);
+
+					if (tagExists) {
+						tagsMap.set(tag, tagExists.id);
+					}
+					else {
+						const [colorBg, colorText] = TAG_COLOR_PALETTE[
+							(userTags.length + newTagsCount) % TAG_COLOR_PALETTE.length
+						].map(
+							color => `#${color.map(p => p.toString(16).padStart(2, '0')).join('')}`,
+						);
+
+						newTagsCount++;
+
+						const newTag = await ctx.db.createTag({
+							name: tag,
+							colorBg,
+							colorText,
+							owner: {connect: {id: userId}},
+						});
+
+						tagsMap.set(tag, newTag.id);
+					}
+				}),
+			);
+		}
+	}
+
 	const createdProject = await ctx.db.createProject({
 		...variables,
 		name: name || 'Nom du projet',
@@ -56,6 +108,11 @@ const createProject = async (
 					create: section.items.map((item, index) => ({
 						...item,
 						owner: {connect: {id: userId}},
+						tags: item.tags && {
+							connect: item.tags.map(tagName => ({
+								id: tagsMap.get(tagName),
+							})),
+						},
 						position: index,
 					})),
 				},
