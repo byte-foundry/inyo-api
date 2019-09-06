@@ -345,6 +345,7 @@ input ItemInput {
 	description: String
 	unit: Float
 	type: ItemType
+	tags: [String!]
 
 	# deprecated
 	reviewer: Reviewer
