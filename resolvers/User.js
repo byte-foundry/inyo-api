@@ -48,6 +48,22 @@ const User = {
 	hasUpcomingProject: node => node.hasUpcomingProject,
 	tags: (node, args, ctx) => ctx.db.user({id: node.id}).tags(),
 	settings: (node, args, ctx) => ctx.db.user({id: node.id}).settings(),
+	clientViews: (node, args, ctx) => {
+		const viewEvents = ctx.dbt.customerEvents({
+			where: {
+				customer: {
+					serviceCompany: {
+						owner: {
+							id: node.id,
+						},
+					},
+				},
+				type: 'VIEWED_PROJECT',
+			},
+		});
+
+		return viewEvents.length;
+	},
 	tasks: async (node, {filter, sort}, ctx) => {
 		const tasks = await ctx.db.items({
 			where: {

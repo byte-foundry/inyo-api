@@ -696,6 +696,7 @@ type User {
 		)
 	defaultDailyPrice: Int
 	defaultVatRate: Int @deprecated(reason: "Vat rate is not used anymore.")
+	clientViews: Int
 	startWorkAt: Time
 	endWorkAt: Time
 	workingDays: [DAY!]!
