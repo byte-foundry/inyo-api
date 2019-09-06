@@ -1,3 +1,4 @@
+const moment = require('moment');
 const {
 	createItemOwnerFilter,
 	createItemCollaboratorFilter,
@@ -48,8 +49,8 @@ const User = {
 	hasUpcomingProject: node => node.hasUpcomingProject,
 	tags: (node, args, ctx) => ctx.db.user({id: node.id}).tags(),
 	settings: (node, args, ctx) => ctx.db.user({id: node.id}).settings(),
-	clientViews: (node, args, ctx) => {
-		const viewEvents = ctx.dbt.customerEvents({
+	clientViews: async (node, args, ctx) => {
+		const viewEvents = await ctx.db.customerEvents({
 			where: {
 				customer: {
 					serviceCompany: {
@@ -62,7 +63,17 @@ const User = {
 			},
 		});
 
-		return viewEvents.length;
+		const daysVisited = {};
+
+		viewEvents.forEach((event) => {
+			const formatedDay = moment(event.createdAt).format('YYYY/MM/DD');
+
+			if (!daysVisited[formatedDay]) {
+				daysVisited[formatedDay] = 1;
+			}
+		});
+
+		return Object.keys(daysVisited).length;
 	},
 	tasks: async (node, {filter, sort}, ctx) => {
 		const tasks = await ctx.db.items({
