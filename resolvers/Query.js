@@ -47,91 +47,91 @@ const Query = {
 	quote: () => {
 		throw new Error('Quotes are not supported anymore');
 	},
-	item: (root, {id}, ctx) => ctx.db.item({id}),
-	itemComments: async (root, {itemId, token}, ctx) => {
-		if (token) {
-			const comments = await ctx.db.comments({
-				where: {
-					item: {
-						id: itemId,
+	item: async (root, {id, token, updateCommentViews}, ctx) => {
+		if (updateCommentViews) {
+			if (token) {
+				const comments = await ctx.db.comments({
+					where: {
+						item: {
+							id,
+							OR: [
+								{
+									section: {
+										project: {
+											OR: [
+												{
+													token,
+												},
+												{
+													customer: {token},
+												},
+											],
+										},
+									},
+								},
+								{
+									linkedCustomer: {token},
+								},
+							],
+						},
+					},
+				});
+
+				const [customer] = await ctx.db.customers({
+					where: {
 						OR: [
 							{
-								section: {
-									project: {
-										OR: [
-											{
-												token,
-											},
-											{
-												customer: {token},
-											},
-										],
-									},
+								projects_some: {
+									token,
 								},
 							},
 							{
-								linkedCustomer: {token},
+								token,
 							},
 						],
 					},
-				},
-			});
+				});
 
-			const [customer] = await ctx.db.customers({
-				where: {
-					OR: [
-						{
-							projects_some: {
-								token,
+				await Promise.all(
+					comments.map(comment => ctx.db.updateComment({
+						where: {id: comment.id},
+						data: {
+							views: {
+								create: {
+									customer: {connect: {id: customer.id}},
+								},
 							},
 						},
-						{
-							token,
-						},
-					],
-				},
-			});
+					})),
+				);
+			}
+			else {
+				const userId = getUserId(ctx);
 
-			await Promise.all(
-				comments.map(comment => ctx.db.updateComment({
-					where: {id: comment.id},
-					data: {
-						views: {
-							create: {
-								customer: {connect: {id: customer.id}},
-							},
+				const comments = await ctx.db.comments({
+					where: {
+						item: {
+							AND: [{id}, createItemOwnerFilter(userId)],
 						},
 					},
-				})),
-			);
+				});
 
-			return comments;
+				await Promise.all(
+					comments.map(comment => ctx.db.updateComment({
+						where: {id: comment.id},
+						data: {
+							views: {
+								create: {
+									user: {connect: {id: userId}},
+								},
+							},
+						},
+					})),
+				);
+			}
 		}
 
-		const userId = getUserId(ctx);
-
-		const comments = await ctx.db.comments({
-			where: {
-				item: {
-					AND: [{id: itemId}, createItemOwnerFilter(userId)],
-				},
-			},
-		});
-
-		await Promise.all(
-			comments.map(comment => ctx.db.updateComment({
-				where: {id: comment.id},
-				data: {
-					views: {
-						create: {
-							user: {connect: {id: userId}},
-						},
-					},
-				},
-			})),
-		);
-
-		return comments;
+		return ctx.db.item({id});
 	},
 	reminders: async (root, args, ctx) => ctx.db.reminders({
 		where: {

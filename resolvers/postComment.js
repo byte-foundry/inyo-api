@@ -208,6 +208,7 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 			id
 			name
 			owner {
+				id
 				firstName
 				lastName
 				email
@@ -412,6 +413,15 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 		},
 		metadata: {
 			itemId: result.id,
+		},
+		notifications: item.assignee && {
+			create: {
+				user: {
+					connect: {
+						id: userId === item.assignee.id ? item.owner.id : item.assignee.id,
+					},
+				},
+			},
 		},
 	});
 
