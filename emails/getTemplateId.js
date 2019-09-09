@@ -3,7 +3,7 @@ const {templateTable} = require('../translations/templateTable');
 
 function getTemplateId(id, ctx) {
 	const userId = getUserId(ctx);
-	const [settings] = ctx.db.settingss({
+	const [settings] = ctx.db.settingses({
 		where: {
 			user: {
 				id: userId,
