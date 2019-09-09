@@ -45,7 +45,7 @@ const server = new GraphQLServer({
 	},
 	resolvers,
 	middlewares: [permissions],
-	context: (req) => {
+	context: async (req) => {
 		const {request} = req;
 		const xForwardedFor = (request.headers['x-forwarded-for'] || '').replace(
 			/:\d+$/,
@@ -55,10 +55,17 @@ const server = new GraphQLServer({
 		const userId = getUserId(request);
 		const token = getToken(request);
 
+		let language = 'fr';
+
+		if (userId) {
+			({language} = await prisma.user({id: userId}).settings());
+		}
+
 		return {
 			...req,
 			db: prisma,
 			userId,
+			language,
 			token,
 			ip,
 		};
