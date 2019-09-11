@@ -123,6 +123,14 @@ const updateItem = async (
 		throw new Error('Cannot update timeItTook in this state.');
 	}
 
+	if (unit === null) {
+		throw new Error('Unit cannot be null, specify a number.');
+	}
+
+	if (timeItTook === null) {
+		throw new Error('timeItTook cannot be null, specify a number.');
+	}
+
 	let position;
 
 	let wantedSection = item.section || (sectionId && {id: sectionId});
