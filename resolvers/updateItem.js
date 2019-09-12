@@ -155,6 +155,11 @@ const updateItem = async (
 		// eslint-disable-next-line no-param-reassign
 		wantedPosition = wantedPosition || 0;
 	}
+	// the user wants to remove item from the project
+	else if (projectId === null) {
+		// eslint-disable-next-line no-param-reassign
+		wantedPosition = Infinity;
+	}
 
 	if (item.section) {
 		const {project} = item.section;
@@ -253,13 +258,17 @@ const updateItem = async (
 		where: {id},
 		data: {
 			...variables,
-			section: wantedSection && {connect: {id: wantedSection.id}},
+			section:
+				item.section && projectId === null
+					? {disconnect: true}
+					: wantedSection && {connect: {id: wantedSection.id}},
+			assignee: item.assignee && projectId === null && {disconnect: true},
 			name,
 			type,
 			description,
 			unit,
 			timeItTook,
-			position,
+			position: projectId === null ? 0 : position,
 			dueDate,
 			tags: tags
 				? {
