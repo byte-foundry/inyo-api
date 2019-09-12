@@ -70,7 +70,7 @@ const signup = async (
 					email,
 					user: String(`${firstName} ${lastName}`).trim(),
 				},
-				ctx,
+				{language: settings.language || 'en', ...ctx},
 			);
 		}
 
