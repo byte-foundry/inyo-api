@@ -123,6 +123,14 @@ const updateItem = async (
 		throw new Error('Cannot update timeItTook in this state.');
 	}
 
+	if (unit === null) {
+		throw new Error('Unit cannot be null, specify a number.');
+	}
+
+	if (timeItTook === null) {
+		throw new Error('timeItTook cannot be null, specify a number.');
+	}
+
 	let position;
 
 	let wantedSection = item.section || (sectionId && {id: sectionId});
@@ -146,6 +154,11 @@ const updateItem = async (
 		wantedSection = section;
 		// eslint-disable-next-line no-param-reassign
 		wantedPosition = wantedPosition || 0;
+	}
+	// the user wants to remove item from the project
+	else if (projectId === null) {
+		// eslint-disable-next-line no-param-reassign
+		wantedPosition = Infinity;
 	}
 
 	if (item.section) {
@@ -245,13 +258,17 @@ const updateItem = async (
 		where: {id},
 		data: {
 			...variables,
-			section: wantedSection && {connect: {id: wantedSection.id}},
+			section:
+				item.section && projectId === null
+					? {disconnect: true}
+					: wantedSection && {connect: {id: wantedSection.id}},
+			assignee: item.assignee && projectId === null && {disconnect: true},
 			name,
 			type,
 			description,
 			unit,
 			timeItTook,
-			position,
+			position: projectId === null ? 0 : position,
 			dueDate,
 			tags: tags
 				? {
