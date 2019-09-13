@@ -4,47 +4,51 @@ const {getUserId, getAppUrl, formatName} = require('../utils');
 const {NotFoundError, AlreadyExistingError} = require('../errors');
 const {sendRequestCollabEmail} = require('../emails/CollabEmail');
 
-const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
+const requestCollab = async (
+	parent,
+	{userEmail, projectId, inviteSignup},
+	ctx,
+) => {
 	// Check requestee exists
 	const requestee = await ctx.db.user({
 		email: userEmail,
 	});
 
-	if (!requestee) {
+	if (!requestee && !inviteSignup) {
 		throw new NotFoundError(`Requestee ${userEmail} does not exist`);
 	}
 
-	// Check collaboration does not already exists
-	const user = await ctx.db.user({
-		id: getUserId(ctx),
-	}).$fragment(gql`
-		fragment CollaboratorUser on User {
-			id
-			email
-			firstName
-			lastName
-			collaborators {
-				id
-				email
-			}
-		}
-	`);
+	const isAlreadyCollaborator = await ctx.db.$exists.user({
+		where: {
+			email: getUserId(ctx),
+			collaborators_some: {
+				email: userEmail,
+			},
+		},
+	});
 
-	if (user.collaborators.some(c => c.email === userEmail)) {
+	if (isAlreadyCollaborator) {
 		throw new AlreadyExistingError(
 			`Collaboration with ${userEmail} already exists`,
 		);
 	}
 
-	// Check collaboration is not already REJECTED
-	const [collabRequest] = await ctx.db.collabRequests({
+	// Check there is no collaboration request yet
+	const isAlreadyRequested = await ctx.db.$exists.collabRequest({
 		where: {
 			requester: {id: getUserId(ctx)},
-			requestee: {email: userEmail},
+			OR: [
+				{
+					requestee: {email: userEmail},
+				},
+				{
+					requesteeEmail: userEmail,
+				},
+			],
 		},
 	});
 
-	if (collabRequest) {
+	if (isAlreadyRequested) {
 		throw new AlreadyExistingError(
 			`Collaboration request with ${userEmail} already exists`,
 		);
@@ -53,7 +57,8 @@ const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 	// Create collaboration
 	const newCollabRequest = await ctx.db.createCollabRequest({
 		requester: {connect: {id: getUserId(ctx)}},
-		requestee: {connect: {email: userEmail}},
+		requestee: requestee && {connect: {email: userEmail}},
+		requesteeEmail: !requestee && userEmail,
 		status: 'PENDING',
 	});
 
@@ -67,26 +72,33 @@ const requestCollab = async (parent, {userEmail, projectId}, ctx) => {
 	});
 
 	// Create Requestee user event
-	await ctx.db.createUserEvent({
-		type: 'COLLAB_ASKED',
-		user: {connect: {id: getUserId(ctx)}},
-		metadata: {
-			collabId: newCollabRequest.id,
-		},
-		notifications: {
-			create: {
-				user: {connect: {email: userEmail}},
+	if (requestee) {
+		await ctx.db.createUserEvent({
+			type: 'COLLAB_ASKED',
+			user: {connect: {id: getUserId(ctx)}},
+			metadata: {
+				collabId: newCollabRequest.id,
 			},
-		},
-	});
+			notifications: {
+				create: {
+					user: {connect: {email: userEmail}},
+				},
+			},
+		});
+	}
 
 	// Send email
 	try {
+		const user = await ctx.db.user({
+			id: getUserId(ctx),
+		});
+
 		sendRequestCollabEmail(
 			{
-				email: requestee.email,
-				meta: {userId: requestee.id},
-				requesteeName: formatName(requestee.firstName, requestee.lastName),
+				email: userEmail,
+				meta: requestee && {userId: requestee.id},
+				requesteeName:
+					requestee && formatName(requestee.firstName, requestee.lastName),
 				url: getAppUrl('/collaborators'),
 				user: formatName(user.firstName, user.lastName),
 			},
