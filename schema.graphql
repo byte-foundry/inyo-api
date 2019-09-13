@@ -413,9 +413,9 @@ enum QuoteStatus {
 enum ProjectStatus {
 	ONGOING
 	ARCHIVED
-	REMOVED
 
 	# deprecated
+	REMOVED
 	FINISHED
 }
 

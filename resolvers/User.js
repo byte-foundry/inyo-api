@@ -22,6 +22,7 @@ const User = {
 	assignedTasks: (node, args, ctx) => ctx.db.user({id: node.id}).assignedTasks(),
 	projects: async (node, args, ctx) => ctx.db.projects({
 		where: {
+			NOT: {status: 'REMOVED'},
 			OR: [
 				{
 					owner: {id: node.id},
