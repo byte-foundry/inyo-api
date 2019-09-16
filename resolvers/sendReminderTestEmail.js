@@ -7,6 +7,7 @@ const {
 	getUserId,
 	getAppUrl,
 } = require('../utils');
+const getTemplateId = require('../emails/getTemplateId');
 
 const gql = String.raw;
 
@@ -89,7 +90,7 @@ const sendReminderTestEmail = async (parent, {id}, ctx) => {
 
 	const basicInfos = {
 		meta: {userId},
-		templateId: templatesId[type],
+		templateId: getTemplateId(templatesId[type], ctx),
 		email: user.email,
 
 		userEmail: user.email,
