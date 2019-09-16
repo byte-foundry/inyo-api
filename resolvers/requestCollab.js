@@ -6,9 +6,11 @@ const {sendRequestCollabEmail} = require('../emails/CollabEmail');
 
 const requestCollab = async (
 	parent,
-	{userEmail, projectId, inviteSignup},
+	{userEmail: email, projectId, inviteSignup},
 	ctx,
 ) => {
+	const userEmail = email.toLowerCase();
+
 	// Check requestee exists
 	const requestee = await ctx.db.user({
 		email: userEmail,
