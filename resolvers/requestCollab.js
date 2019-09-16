@@ -107,7 +107,7 @@ const requestCollab = async (
 			ctx,
 		);
 
-		console.log(`Request Collab email sent to ${requestee.email}`);
+		console.log(`Request Collab email sent to ${userEmail}`);
 	}
 	catch (error) {
 		console.log('Request Collab email not sent', error);

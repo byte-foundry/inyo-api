@@ -82,7 +82,7 @@ const signup = async (
 
 		await Promise.all(
 			collabRequestsToUpdate.map(async (request) => {
-				await ctx.db.updateRequestCollab({
+				await ctx.db.updateCollabRequest({
 					where: {
 						id: request.id,
 					},
