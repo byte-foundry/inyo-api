@@ -14,6 +14,11 @@ const templateTable = {
 		fr: 'd-fd9014a46c4f41848e87e6a55d84cee5',
 		en: 'd-12848e45ce884666b802ee8bea9df6b9',
 	},
+	// sendItemContentAcquisitionEmail
+	'd-1b94796059eb45d49fbafafa101f5ddd': {
+		fr: 'd-1b94796059eb45d49fbafafa101f5ddd',
+		en: 'd-1b94796059eb45d49fbafafa101f5ddd',
+	},
 	// sendAssignedTaskEmail
 	'd-d2ad5a36bac940e0ad25efd664682432': {
 		fr: 'd-d2ad5a36bac940e0ad25efd664682432',
