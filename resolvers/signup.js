@@ -74,6 +74,39 @@ const signup = async (
 			);
 		}
 
+		const collabRequestsToUpdate = await ctx.db.collabRequests({
+			where: {
+				requesteeEmail: email,
+			},
+		});
+
+		await Promise.all(
+			collabRequestsToUpdate.map(async (request) => {
+				await ctx.db.updateCollabRequest({
+					where: {
+						id: request.id,
+					},
+					data: {
+						requestee: {connect: {id: user.id}},
+						requesteeEmail: null,
+					},
+				});
+
+				await ctx.db.createUserEvent({
+					type: 'COLLAB_ASKED',
+					user: {connect: {id: user.id}},
+					metadata: {
+						collabId: request.id,
+					},
+					notifications: {
+						create: {
+							user: {connect: {id: user.id}},
+						},
+					},
+				});
+			}),
+		);
+
 		return {
 			token: sign({userId: user.id}, APP_SECRET),
 			user,

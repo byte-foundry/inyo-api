@@ -259,7 +259,7 @@ type Item {
 	name: String!
 	type: ItemType! @default(value: DEFAULT)
 	description: String @default(value: "")
-	unit: Float @default(value: 0)
+	unit: Float! @default(value: 0)
 	comments: [Comment!]! @relation(name: "ItemComments", onDelete: CASCADE)
 	status: ItemStatus! @default(value: PENDING)
 	section: Section @relation(name: "SectionItems")
@@ -421,7 +421,8 @@ type User {
 type CollabRequest {
 	id: ID! @unique
 	requester: User! @relation(name: "CollabRequester")
-	requestee: User! @relation(name: "CollabRequestee")
+	requestee: User @relation(name: "CollabRequestee")
+	requesteeEmail: String # if the user is not registered yet
 	status: CollabRequestStatus!
 	acceptedAt: DateTime
 	rejectedAt: DateTime

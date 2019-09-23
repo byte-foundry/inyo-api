@@ -58,7 +58,12 @@ const server = new GraphQLServer({
 		let language = 'fr';
 
 		if (userId) {
-			({language} = await prisma.user({id: userId}).settings());
+			const settings = await prisma.user({id: userId}).settings();
+
+			// if the userId doesn't exist
+			if (settings) {
+				({language} = settings);
+			}
 		}
 
 		return {

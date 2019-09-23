@@ -1,6 +1,7 @@
 const moment = require('moment');
 const {sendReminderEmail} = require('../events');
 const {reminderTypesTemplateIds} = require('../emails/TaskEmail');
+const getTemplateId = require('../emails/getTemplateId');
 const {
 	createItemOwnerFilter,
 	formatFullName,
@@ -86,7 +87,7 @@ const sendReminderPreviewTestEmail = async (parent, {taskId, type}, ctx) => {
 
 	const basicInfos = {
 		meta: {userId},
-		templateId: reminderTypesTemplateIds[type],
+		templateId: getTemplateId(reminderTypesTemplateIds[type], ctx),
 		email: user.email,
 
 		userEmail: user.email,

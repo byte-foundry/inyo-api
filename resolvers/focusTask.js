@@ -111,7 +111,18 @@ const focusTask = async (
 			);
 		}
 
-		const user = await ctx.db.user({id: userId});
+		const user = await ctx.db.user({id: userId}).$fragment(gql`
+			fragment userAndSettings on User {
+				id
+				email
+				startWorkAt
+				firstName
+				lastName
+				settings {
+					assistantName
+				}
+			}
+		`);
 
 		let url = 'Pas de projet ni client 🤷‍';
 
@@ -153,6 +164,7 @@ const focusTask = async (
 			url,
 			issueDate: issueDate.toDate(),
 			formattedIssueDate: issueDate.format('DD/MM/YYYY'),
+			assistantName: user.settings.assistantName,
 		};
 
 		if (item.type === 'CONTENT_ACQUISITION') {

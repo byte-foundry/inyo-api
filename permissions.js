@@ -196,16 +196,21 @@ const isUserCustomer = rule()(async (parent, args, ctx) => {
 							id: parent.id,
 						},
 					},
-				],
-			},
-			{
-				OR: [
 					{
-						linkedCustomer: {
-							token: ctx.token,
+						section: {
+							project: {
+								linkedCollaborators_some: {
+									id: parent.id,
+								},
+							},
 						},
 					},
 				],
+			},
+			{
+				linkedCustomer: {
+					token: ctx.token,
+				},
 			},
 		],
 	});

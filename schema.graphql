@@ -281,7 +281,11 @@ type Mutation {
 	updateTag(id: ID!, name: String, colorBg: String, colorText: String): Tag!
 	removeTag(id: ID!): Tag!
 
-	requestCollab(userEmail: String!, projectId: ID): CollabRequest!
+	requestCollab(
+		userEmail: String!
+		inviteSignup: Boolean
+		projectId: ID
+	): CollabRequest!
 	acceptCollabRequest(requestId: ID!): CollabRequest!
 	rejectCollabRequest(requestId: ID!): CollabRequest!
 	assignToTask(taskId: ID!, collaboratorId: ID!): Item!
@@ -413,9 +417,9 @@ enum QuoteStatus {
 enum ProjectStatus {
 	ONGOING
 	ARCHIVED
-	REMOVED
 
 	# deprecated
+	REMOVED
 	FINISHED
 }
 
@@ -719,7 +723,8 @@ type User {
 type CollabRequest {
 	id: ID!
 	requester: User!
-	requestee: User!
+	requestee: User
+	requesteeEmail: String
 	status: CollabRequestStatus!
 	acceptedAt: DateTime
 	rejectedAt: DateTime
