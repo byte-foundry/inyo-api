@@ -122,6 +122,7 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 				customer.firstName,
 				customer.lastName,
 			),
+			userName: formatName(user.firstName, user.lastName),
 			itemName: item.name,
 			comment,
 			url: getAppUrl(`/tasks/${item.id}`),
@@ -292,6 +293,7 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 	const params = {
 		meta: {userId},
 		authorName: formatName(user.firstName, user.lastName),
+		userName: formatName(user.firstName, user.lastName),
 		itemName: item.name,
 		comment,
 	};
