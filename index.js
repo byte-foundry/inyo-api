@@ -70,7 +70,7 @@ const server = new GraphQLServer({
 				where: {
 					user: {
 						company: {
-							customerssome: {
+							customers_some: {
 								token,
 							},
 						},
