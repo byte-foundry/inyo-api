@@ -122,6 +122,7 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 				customer.firstName,
 				customer.lastName,
 			),
+			userName: formatName(user.firstName, user.lastName),
 			itemName: item.name,
 			comment,
 			url: getAppUrl(`/tasks/${item.id}`),
@@ -292,6 +293,7 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 	const params = {
 		meta: {userId},
 		authorName: formatName(user.firstName, user.lastName),
+		userName: formatName(user.firstName, user.lastName),
 		itemName: item.name,
 		comment,
 	};
@@ -301,6 +303,7 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 
 		// notify collaborator or owner
 		if (assignee) {
+			const author = assignee.id === userId ? assignee : user;
 			const userToNotify = assignee.id === userId ? user : assignee;
 
 			try {
@@ -308,6 +311,7 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 					{
 						...params,
 						email: userToNotify.email,
+						authorName: formatName(author.firstName, author.lastName),
 						recipientName: formatName(
 							userToNotify.firstName,
 							userToNotify.lastName,
