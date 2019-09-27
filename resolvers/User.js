@@ -79,6 +79,11 @@ const User = {
 	tasks: async (node, {filter, sort}, ctx) => {
 		const tasks = await ctx.db.items({
 			where: {
+				section: {
+					project: {
+						status_not: 'REMOVED',
+					},
+				},
 				AND: [
 					{
 						OR: filter
