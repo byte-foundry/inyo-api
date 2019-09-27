@@ -1,4 +1,9 @@
 const templateTable = {
+	// sendTaskValidationEmail
+	'd-fd9cee6d49d54e179210d5a080e58fb3': {
+		fr: 'd-fd9cee6d49d54e179210d5a080e58fb3',
+		en: 'd-ba9e6eb053de44ca9b44033d2be8cdea',
+	},
 	// sendRequestCollabEmail
 	'd-bbe81269740640c5ae9149707608c7d1': {
 		fr: 'd-bbe81269740640c5ae9149707608c7d1',
