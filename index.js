@@ -66,17 +66,30 @@ const server = new GraphQLServer({
 			}
 		}
 		else if (token) {
-			[{language}] = await prisma.settings({
+			const [settings] = await prisma.settingses({
 				where: {
 					user: {
-						company: {
-							customers_some: {
-								token,
+						OR: [
+							{
+								company: {
+									customers_some: {
+										token,
+									},
+								},
 							},
-						},
+							{
+								projects_some: {
+									token,
+								},
+							},
+						],
 					},
 				},
 			});
+
+			if (settings) {
+				({language} = settings);
+			}
 		}
 
 		return {
