@@ -76,7 +76,43 @@ const User = {
 
 		return Object.keys(daysVisited).length;
 	},
-	tasks: async (node, {filter, sort}, ctx) => {
+	tasks: async (
+		node,
+		{
+			filter, schedule, sort, first = Infinity, after,
+		},
+		ctx,
+	) => {
+		let scheduleFilter = {};
+
+		switch (schedule) {
+		case 'UNSCHEDULED':
+			scheduleFilter = {
+				scheduledFor: null,
+			};
+			break;
+		case 'SCHEDULED':
+			scheduleFilter = {
+				scheduledFor_not: null,
+			};
+			break;
+		case 'TO_BE_RESCHEDULED':
+			scheduleFilter = {
+				scheduledFor_not: null,
+				scheduledFor_lt: moment.tz(ctx.timeZone).startOf('day'),
+				status_not: 'FINISHED',
+				OR: [
+					{
+						assignee: {id: null},
+					},
+					createItemCollaboratorFilter(ctx.userId),
+				],
+			};
+			break;
+		default:
+			break;
+		}
+
 		const tasks = await ctx.db.items({
 			where: {
 				OR: [
@@ -122,9 +158,10 @@ const User = {
 							createItemCollaboratorFilter(node.id),
 						],
 					},
+					scheduleFilter,
 				],
-				orderBy: sort,
 			},
+			orderBy: sort,
 		}).$fragment(gql`
 			fragment TaskWithProjet on Item {
 				id
@@ -169,7 +206,33 @@ const User = {
 			);
 		}
 
-		return tasks;
+		let index = 0;
+
+		if (after) {
+			index = tasks.findIndex(t => t.id === after);
+
+			if (index < 0) index = 0;
+		}
+
+		return tasks.slice(index, first);
+	},
+	schedule: (node, {start = '', first = 7}, ctx) => {
+		if (typeof first !== 'number' || first <= 0) {
+			first = 7; // eslint-disable-line no-param-reassign
+		}
+
+		let startDate = moment.tz(start, ctx.timeZone);
+
+		if (!startDate.isValid()) {
+			startDate = moment().tz(ctx.timeZone);
+		}
+
+		return new Array(first).fill({}).map((_, index) => ({
+			date: startDate
+				.clone()
+				.add(index, 'days')
+				.format(moment.HTML5_FMT.DATE),
+		}));
 	},
 	focusedTasks: async (node, args, ctx) => ctx.db.user({id: node.id}).focusedTasks(),
 	notifications: async (node, {from}, ctx) => ctx.db.user({id: node.id}).notifications({
