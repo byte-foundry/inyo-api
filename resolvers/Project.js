@@ -90,7 +90,7 @@ const Project = {
 
 		const user = project.owner || project.customer.serviceCompany.owner;
 
-		const start = moment().tz(user.timeZone || 'Europe/Paris');
+		const start = moment().tz(ctx.timeZone);
 		const deadline = moment(node.deadline.split('T')[0]).tz(
 			user.timeZone || 'Europe/Paris',
 		);
