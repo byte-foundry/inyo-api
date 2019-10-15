@@ -246,6 +246,7 @@ enum ItemType {
 	VALIDATION
 	USER_REMINDER
 	INVOICE
+	PERSONAL
 }
 
 type Item {

@@ -2,10 +2,9 @@ const {getUserId, createItemOwnerFilter} = require('../utils');
 
 const gql = String.raw;
 
-const tasks = async (root, {
-	token, filter, sort, projectId,
-}, ctx) => {
+const tasks = async (root, {filter, sort, projectId}, ctx) => {
 	let where;
+	const {token} = ctx;
 
 	if (token === process.env.ADMIN_TOKEN && projectId) {
 		where = {
@@ -18,6 +17,16 @@ const tasks = async (root, {
 	}
 	else if (token) {
 		where = {
+			// types we want to show to the customer
+			type_in: [
+				'DEFAULT',
+				'CUSTOMER',
+				'CONTENT_ACQUISITION',
+				'CUSTOMER_REMINDER',
+				'VALIDATION',
+				'USER_REMINDER',
+				'INVOICE',
+			],
 			OR: [
 				{linkedCustomer: {token}},
 				{
