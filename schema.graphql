@@ -110,6 +110,7 @@ type Mutation {
 		template: ProjectTemplate
 		sections: [SectionInput!]
 		deadline: DateTime
+		budget: Float
 		notifyActivityToCustomer: Boolean
 	): Project!
 	# Update project
