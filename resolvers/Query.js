@@ -1,6 +1,5 @@
 const {getUserId, createItemOwnerFilter} = require('../utils');
 
-const {items} = require('./items');
 const {tasks} = require('./tasks');
 
 const Query = {
@@ -151,7 +150,11 @@ const Query = {
 			sendingDate_gt: new Date(),
 		},
 	}),
-	items,
+	items() {
+		throw new Error(
+			'items is not supported anymore, use tasks or me.tasks instead.',
+		);
+	},
 	tasks,
 };
 

@@ -21,7 +21,7 @@ type Query {
 	# Get user's reminders
 	reminders: [Reminder!]!
 	# Get active items sorted by priority
-	items: [Item!]!
+	items: [Item!]! @deprecated(reason: "Use tasks or me.tasks instead")
 	# Get tasks, projectId can only be used with an admin token
 	tasks(
 		filter: TasksFilterInput
