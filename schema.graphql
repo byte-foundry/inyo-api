@@ -121,6 +121,7 @@ type Mutation {
 		customerId: ID
 		customer: CustomerInput
 		deadline: DateTime
+		budget: Float
 		notifyActivityToCustomer: Boolean
 	): Project
 	# Finish project
@@ -169,6 +170,7 @@ type Mutation {
 		unit: Float
 		position: Int
 		dueDate: DateTime
+		dailyRate: Float
 		linkedCustomer: CustomerInput
 		linkedCustomerId: ID
 		tags: [ID!]
@@ -196,6 +198,7 @@ type Mutation {
 		linkedCustomer: CustomerInput
 		linkedCustomerId: ID
 		tags: [ID!]
+		dailyRate: Float
 
 		# deprecated
 		reviewer: Reviewer
@@ -548,6 +551,7 @@ type Item {
 	remindersPreviews: [ReminderPreview!]!
 	position: Int
 	timeItTook: Float
+	dailyRate: Float
 	dueDate: DateTime
 	attachments: [File!]!
 	tags: [Tag!]!
@@ -611,6 +615,7 @@ type Project {
 	viewedByCustomer: Boolean!
 	issuedAt: DateTime
 	deadline: DateTime
+	budget: Float
 	notifyActivityToCustomer: Boolean!
 	daysUntilDeadline: Int
 	attachments: [File!]!

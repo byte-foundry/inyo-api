@@ -14,6 +14,7 @@ const createProject = async (
 		template,
 		sections,
 		deadline,
+		budget,
 		notifyActivityToCustomer,
 	},
 	ctx,
@@ -120,6 +121,7 @@ const createProject = async (
 			})),
 		},
 		status: 'ONGOING',
+		budget,
 		notifyActivityToCustomer,
 		deadline,
 	});
