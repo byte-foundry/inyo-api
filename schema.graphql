@@ -222,8 +222,10 @@ type Mutation {
 	removeItem(id: ID!): Item
 	# Snooze an item
 	snoozeItem(id: ID!, until: DateTime, during: Int): Item
+		@deprecated(reason: "Tasks cannot be snoozed anymore.")
 	# Unsnooze an item
 	unsnoozeItem(id: ID!): Item
+		@deprecated(reason: "Tasks cannot be unsnoozed anymore.")
 	# Finish an item
 	finishItem(id: ID!, token: String, timeItTook: Float): Item
 	# Reset an item (going back to pending)
@@ -440,10 +442,10 @@ enum QuoteTemplate {
 
 enum ItemStatus {
 	PENDING
-	SNOOZED
 	FINISHED
 
 	# deprecated statuses
+	SNOOZED
 	UPDATED
 	UPDATED_SENT
 	ADDED

@@ -20,8 +20,6 @@ const {updateItem} = require('./updateItem');
 const {focusTask} = require('./focusTask');
 const {unfocusTask} = require('./unfocusTask');
 const {removeItem} = require('./removeItem');
-const {snoozeItem} = require('./snoozeItem');
-const {unsnoozeItem} = require('./unsnoozeItem');
 const {finishItem} = require('./finishItem');
 const {unfinishItem} = require('./unfinishItem');
 const {postComment} = require('./postComment');
@@ -97,8 +95,12 @@ const Mutation = {
 	sendQuote: () => {
 		throw Error("It's not possible to send quote anymore.");
 	},
-	snoozeItem,
-	unsnoozeItem,
+	snoozeItem() {
+		throw Error('Tasks cannot be snoozed anymore.');
+	},
+	unsnoozeItem() {
+		throw Error('Tasks cannot be unsnoozed anymore.');
+	},
 	finishItem,
 	unfinishItem,
 	sendAmendment: async () => {
