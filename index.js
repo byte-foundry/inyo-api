@@ -16,6 +16,7 @@ const {subscribeToUpdateIntercom} = require('./intercomTracking');
 const {notifyViewedProject} = require('./notifyViewedProject');
 
 const {PORT, APP_SECRET} = process.env;
+const gql = String.raw;
 
 const getUserId = (request) => {
 	const Authorization = request.get('Authorization');
@@ -57,38 +58,42 @@ const server = new GraphQLServer({
 
 		let language = 'fr';
 
-		if (userId) {
-			const settings = await prisma.user({id: userId}).settings();
+		let timeZone = 'Europe/Paris';
 
-			// if the userId doesn't exist
-			if (settings) {
-				({language} = settings);
-			}
-		}
-		else if (token) {
-			const [settings] = await prisma.settingses({
+		if (userId || token) {
+			const [user] = await prisma.users({
 				where: {
-					user: {
-						OR: [
-							{
-								company: {
-									customers_some: {
-										token,
-									},
-								},
-							},
-							{
-								projects_some: {
+					OR: [
+						{
+							id: userId,
+						},
+						{
+							company: {
+								customers_some: {
 									token,
 								},
 							},
-						],
-					},
+						},
+						{
+							projects_some: {
+								token,
+							},
+						},
+					],
 				},
-			});
+			}).$fragment(gql`
+				fragment UserSettings on User {
+					timeZone
+					settings {
+						language
+					}
+				}
+			`);
 
-			if (settings) {
-				({language} = settings);
+			// if the userId or token doesn't exist, user is not defined
+			if (user) {
+				timeZone = user.timeZone || 'Europe/Paris';
+				language = user.settings.language || 'fr';
 			}
 		}
 
@@ -97,6 +102,7 @@ const server = new GraphQLServer({
 			db: prisma,
 			userId,
 			language,
+			timeZone,
 			token,
 			ip,
 		};

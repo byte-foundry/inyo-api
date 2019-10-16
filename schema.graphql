@@ -712,7 +712,14 @@ type User {
 	hasUpcomingProject: Boolean
 	settings: Settings!
 	hmacIntercomId: String!
-	tasks(filter: TasksFilterInput, sort: TasksSortInput): [Item!]!
+	tasks(
+		filter: TasksFilterInput
+		schedule: ScheduleFilterInput
+		sort: TasksSortInput
+		first: Int
+		after: ID
+	): [Item!]!
+	schedule(start: Date, first: Int): [ScheduleDay!]!
 	focusedTasks: [Item!]!
 	notifications(before: DateTime): [Notification!]!
 	tags: [Tag!]!
@@ -745,6 +752,12 @@ type File {
 
 input TasksFilterInput {
 	linkedCustomerId: ID
+}
+
+enum ScheduleFilterInput {
+	UNSCHEDULED
+	SCHEDULED
+	TO_BE_RESCHEDULED
 }
 
 enum TasksSortInput {
@@ -788,4 +801,13 @@ type Tag {
 	colorBg: String!
 	colorText: String!
 	items: [Item!]!
+}
+
+union DeadlineObject = Project | Item
+
+type ScheduleDay {
+	date: Date
+	tasks: [Item!]!
+	reminders: [Reminder!]!
+	deadlines: [DeadlineObject!]!
 }
