@@ -65,8 +65,19 @@ const updateProject = async (
 	}
 
 	if (!project.notifyActivityToCustomer || notifyActivityToCustomer === false) {
+		// TODO: Might need to reset some data (linkedCustomer, files list, ...)
 		await ctx.db.updateManyItems({
-			where: {section: {project: {id}}, type: 'CUSTOMER'},
+			where: {
+				section: {project: {id}},
+				type_in: [
+					'CUSTOMER',
+					'CONTENT_ACQUISITION',
+					'CUSTOMER_REMINDER',
+					'VALIDATION',
+					'USER_REMINDER',
+					'INVOICE',
+				],
+			},
 			data: {type: 'DEFAULT'},
 		});
 	}

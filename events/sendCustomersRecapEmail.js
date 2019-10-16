@@ -50,6 +50,7 @@ const sendCustomersRecapEmail = async ({userId}) => {
 	}
 
 	const itemFilter = `
+		type_in: [DEFAULT]
 		status: FINISHED
 		finishedAt_gte: "${startedWorkAt.toJSON()}"
 	`;
