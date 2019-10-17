@@ -405,7 +405,7 @@ type Customer {
 	rcs: String
 	rm: String
 	vat: String
-	language: String
+	language: String!
 }
 
 enum QuoteStatus {
