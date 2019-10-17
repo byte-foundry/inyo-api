@@ -60,8 +60,8 @@ const ScheduleDay = {
 						],
 					},
 				],
-				sendingDate: node.date,
 			},
+			sendingDate: node.date,
 		},
 	}),
 	deadlines: async (node, args, ctx) => {
