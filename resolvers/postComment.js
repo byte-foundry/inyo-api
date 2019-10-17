@@ -18,6 +18,7 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 		const [item] = await ctx.db.items({
 			where: {
 				id: itemId,
+				type_not: 'PERSONAL',
 				OR: [
 					{
 						section: {
@@ -208,6 +209,7 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 		fragment ItemAndAuthorsForCustomer on Item {
 			id
 			name
+			type
 			owner {
 				id
 				firstName
@@ -258,6 +260,10 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 
 	if (!item) {
 		throw new NotFoundError(`Item '${itemId}' has not been found.`);
+	}
+
+	if (item.type === 'PERSONAL') {
+		throw new Error('Commenting on personal tasks is not allowed.');
 	}
 
 	let user = item.owner;
