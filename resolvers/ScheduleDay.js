@@ -38,24 +38,36 @@ const ScheduleDay = {
 	reminders: (node, args, ctx) => ctx.db.reminders({
 		where: {
 			item: {
-				OR: [
+				AND: [
 					{
-						section: null,
+						OR: [
+							{
+								section: null,
+							},
+							{
+								section: {
+									project: {
+										status: 'ONGOING',
+									},
+								},
+							},
+						],
 					},
 					{
-						section: {
-							project: {
-								status: 'ONGOING',
-							},
-						},
+						OR: [
+							createItemOwnerFilter(ctx.userId),
+							createItemCollaboratorFilter(ctx.userId),
+						],
 					},
 				],
+				sendingDate: node.date,
 			},
 		},
 	}),
 	deadlines: async (node, args, ctx) => {
 		const projects = await ctx.db.projects({
 			where: {
+				owner: {id: ctx.userId},
 				status: 'ONGOING',
 				deadline_gt: moment(node.date)
 					.tz(ctx.timeZone)
@@ -70,16 +82,19 @@ const ScheduleDay = {
 		});
 		const items = await ctx.db.items({
 			where: {
-				OR: [
+				AND: [
 					{
-						section: null,
+						OR: [
+							{
+								section: null,
+							},
+						],
 					},
 					{
-						section: {
-							project: {
-								status: 'ONGOING',
-							},
-						},
+						OR: [
+							createItemOwnerFilter(ctx.userId),
+							createItemCollaboratorFilter(ctx.userId),
+						],
 					},
 				],
 				dueDate_gt: moment(node.date)
