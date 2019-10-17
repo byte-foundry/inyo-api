@@ -13,7 +13,7 @@ const Customer = {
 	vat: node => node.vat,
 	title: node => node.title,
 	language: async (node, args, ctx) => {
-		const settings = ctx.db.customer({id: node.id}).serviceCompany().owner().settings();
+		const settings = await ctx.db.customer({id: node.id}).serviceCompany().owner().settings();
 		return settings.language;
 	},
 };
