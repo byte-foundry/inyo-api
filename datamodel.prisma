@@ -251,7 +251,7 @@ enum ItemType {
 
 type Item {
 	id: ID! @unique
-	owner: User @relation(name: "UserTasks")
+	owner: User! @relation(name: "UserTasks")
 	scheduledFor: DateTime
 	schedulePosition: Int
 	focusedBy: User @relation(name: "UserFocusedTasks")
