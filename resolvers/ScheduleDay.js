@@ -31,6 +31,7 @@ const ScheduleDay = {
 					],
 				},
 			],
+			type_in: ['DEFAULT', 'PERSONAL'],
 			scheduledFor: node.date,
 		},
 		orderBy: 'schedulePosition_ASC',
@@ -56,12 +57,18 @@ const ScheduleDay = {
 					{
 						OR: [
 							createItemOwnerFilter(ctx.userId),
-							createItemCollaboratorFilter(ctx.userId),
 						],
 					},
 				],
 			},
-			sendingDate: node.date,
+			sendingDate_gt: moment(node.date)
+				.tz(ctx.timeZone)
+				.startOf('day')
+				.toISOString(),
+			sendingDate_lt: moment(node.date)
+				.tz(ctx.timeZone)
+				.endOf('day')
+				.toISOString(),
 		},
 	}),
 	deadlines: async (node, args, ctx) => {
