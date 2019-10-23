@@ -80,10 +80,10 @@ enum ProjectTemplate {
 
 enum ItemStatus {
 	PENDING
-	SNOOZED
 	FINISHED
 
 	# deprecated statuses
+	SNOOZED
 	UPDATED
 	UPDATED_SENT
 	ADDED
@@ -246,11 +246,12 @@ enum ItemType {
 	VALIDATION
 	USER_REMINDER
 	INVOICE
+	PERSONAL
 }
 
 type Item {
 	id: ID! @unique
-	owner: User @relation(name: "UserTasks")
+	owner: User! @relation(name: "UserTasks")
 	scheduledFor: DateTime
 	schedulePosition: Int
 	focusedBy: User @relation(name: "UserFocusedTasks")
@@ -265,7 +266,6 @@ type Item {
 	section: Section @relation(name: "SectionItems")
 	reviewer: Reviewer! @default(value: USER)
 	reminders: [Reminder!]! @relation(name: "ItemReminders", onDelete: CASCADE)
-	snoozedUntil: Reminder @relation(name: "SnoozeReminders", onDelete: CASCADE)
 	attachments: [File!]! @relation(name: "TaskAttachments", onDelete: CASCADE)
 	finishedAt: DateTime
 	position: Int!
@@ -274,6 +274,9 @@ type Item {
 	updatedAt: DateTime!
 	timeItTook: Float
 	tags: [Tag!]! @relation(name: "ItemTags")
+
+	# deprecated
+	snoozedUntil: Reminder @relation(name: "SnoozeReminders", onDelete: CASCADE)
 }
 
 type Section {
@@ -438,11 +441,13 @@ type Reminder {
 	morningRemindersUser: User @relation(name: "UserMorningReminders")
 	eveningRemindersUser: User @relation(name: "UserEveningReminders")
 	resetFocusRemindersUser: User @relation(name: "UserResetFocusReminders")
-	snoozedItem: Item @relation(name: "SnoozeReminders")
 	postHookId: String!
 	type: ReminderType!
 	sendingDate: DateTime!
 	status: ReminderStatus @default(value: PENDING)
+
+	# deprecated
+	snoozedItem: Item @relation(name: "SnoozeReminders")
 }
 
 type Log {

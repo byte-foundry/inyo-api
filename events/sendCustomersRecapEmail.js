@@ -50,6 +50,7 @@ const sendCustomersRecapEmail = async ({userId}) => {
 	}
 
 	const itemFilter = `
+		type_in: [DEFAULT]
 		status: FINISHED
 		finishedAt_gte: "${startedWorkAt.toJSON()}"
 	`;
@@ -97,6 +98,10 @@ const sendCustomersRecapEmail = async ({userId}) => {
 						sections(orderBy: position_ASC, where: { items_some: { ${itemFilter} } }) {
 							items(orderBy: position_ASC, where: { ${itemFilter} }) {
 								name
+								assignee {
+									firstName
+									lastName
+								}
 							}
 						}
 					}
@@ -128,6 +133,15 @@ const sendCustomersRecapEmail = async ({userId}) => {
 					).trimRight(),
 					projects: customer.projects.map(project => ({
 						...project,
+						sections: project.sections.map(section => ({
+							...section,
+							items: section.items.map(item => ({
+								...item,
+								assignee: item.assignee
+									? formatName(item.assignee.firstName, item.assignee.lastName)
+									: undefined,
+							})),
+						})),
 						url: getAppUrl(`/${customer.token}/tasks?projectId=${project.id}`),
 					})),
 					tasks: customer.linkedTasks.map(task => ({

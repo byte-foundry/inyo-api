@@ -21,7 +21,7 @@ type Query {
 	# Get user's reminders
 	reminders: [Reminder!]!
 	# Get active items sorted by priority
-	items: [Item!]!
+	items: [Item!]! @deprecated(reason: "Use tasks or me.tasks instead")
 	# Get tasks, projectId can only be used with an admin token
 	tasks(
 		filter: TasksFilterInput
@@ -222,8 +222,10 @@ type Mutation {
 	removeItem(id: ID!): Item
 	# Snooze an item
 	snoozeItem(id: ID!, until: DateTime, during: Int): Item
+		@deprecated(reason: "Tasks cannot be snoozed anymore.")
 	# Unsnooze an item
 	unsnoozeItem(id: ID!): Item
+		@deprecated(reason: "Tasks cannot be unsnoozed anymore.")
 	# Finish an item
 	finishItem(id: ID!, token: String, timeItTook: Float): Item
 	# Reset an item (going back to pending)
@@ -403,6 +405,7 @@ type Customer {
 	rcs: String
 	rm: String
 	vat: String
+	language: String!
 }
 
 enum QuoteStatus {
@@ -440,10 +443,10 @@ enum QuoteTemplate {
 
 enum ItemStatus {
 	PENDING
-	SNOOZED
 	FINISHED
 
 	# deprecated statuses
+	SNOOZED
 	UPDATED
 	UPDATED_SENT
 	ADDED
@@ -528,6 +531,7 @@ enum ItemType {
 	VALIDATION
 	USER_REMINDER
 	INVOICE
+	PERSONAL
 }
 
 type Item {
@@ -712,7 +716,14 @@ type User {
 	hasUpcomingProject: Boolean
 	settings: Settings!
 	hmacIntercomId: String!
-	tasks(filter: TasksFilterInput, sort: TasksSortInput): [Item!]!
+	tasks(
+		filter: TasksFilterInput
+		schedule: ScheduleFilterInput
+		sort: TasksSortInput
+		first: Int
+		after: ID
+	): [Item!]!
+	schedule(start: Date, first: Int): [ScheduleDay!]!
 	focusedTasks: [Item!]!
 	notifications(before: DateTime): [Notification!]!
 	tags: [Tag!]!
@@ -745,6 +756,12 @@ type File {
 
 input TasksFilterInput {
 	linkedCustomerId: ID
+}
+
+enum ScheduleFilterInput {
+	UNSCHEDULED
+	SCHEDULED
+	TO_BE_RESCHEDULED
 }
 
 enum TasksSortInput {
@@ -788,4 +805,13 @@ type Tag {
 	colorBg: String!
 	colorText: String!
 	items: [Item!]!
+}
+
+union DeadlineObject = Project | Item
+
+type ScheduleDay {
+	date: Date
+	tasks: [Item!]!
+	reminders: [Reminder!]!
+	deadlines: [DeadlineObject!]!
 }

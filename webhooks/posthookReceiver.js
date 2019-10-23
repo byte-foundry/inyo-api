@@ -4,7 +4,6 @@ const {prisma} = require('../generated/prisma-client');
 const {
 	sendDeadlineApproachingEmail,
 	sendCustomersRecapEmail,
-	endSnoozeItem,
 	sendReminderEmail,
 	resetFocusedTasks,
 } = require('../events');
@@ -70,9 +69,6 @@ const posthookReceiver = async (req, res) => {
 			break;
 		case 'EVENING_RECAP':
 			callback = sendCustomersRecapEmail;
-			break;
-		case 'SNOOZE_END':
-			callback = endSnoozeItem;
 			break;
 		case 'DELAY':
 		case 'FIRST':
