@@ -61,6 +61,7 @@ const ScheduleDay = {
 					},
 				],
 			},
+			status_not: 'CANCELED',
 			sendingDate_gt: moment(node.date)
 				.tz(ctx.timeZone)
 				.startOf('day')
