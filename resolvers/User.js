@@ -100,6 +100,19 @@ const User = {
 				]
 			};
 			break;
+		case 'FINISHED_TIME_IT_TOOK_NULL':
+			scheduleFilter = {
+				status: 'FINISHED',
+				timeItTook: null,
+				type_in: ['DEFAULT', 'PERSONAL'],
+				OR: [
+					{
+						assignee: null,
+					},
+					createItemCollaboratorFilter(ctx.userId),
+				],
+			};
+			break;
 		case 'SCHEDULED':
 			scheduleFilter = {
 				scheduledFor_not: null,
