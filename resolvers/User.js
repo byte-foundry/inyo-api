@@ -107,12 +107,12 @@ const User = {
 			break;
 		case 'TO_BE_RESCHEDULED':
 			scheduleFilter = {
-				scheduledFor_not: null,
 				scheduledFor_lt: moment().tz(ctx.timeZone).startOf('day'),
 				status_not: 'FINISHED',
+				type_in: ['DEFAULT', 'PERSONAL'],
 				OR: [
 					{
-						assignee: {id: null},
+						assignee: null,
 					},
 					createItemCollaboratorFilter(ctx.userId),
 				],
