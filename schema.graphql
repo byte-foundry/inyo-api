@@ -762,6 +762,7 @@ enum ScheduleFilterInput {
 	UNSCHEDULED
 	SCHEDULED
 	TO_BE_RESCHEDULED
+	FINISHED_TIME_IT_TOOK_NULL
 }
 
 enum TasksSortInput {

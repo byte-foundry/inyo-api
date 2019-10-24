@@ -32,7 +32,14 @@ const ScheduleDay = {
 				},
 			],
 			type_in: ['DEFAULT', 'PERSONAL'],
-			scheduledFor: node.date,
+			OR: [
+				{scheduledFor: node.date},
+				{
+					status: 'FINISHED',
+					finishedAt_gt: moment(node.date).tz(ctx.timeZone).startOf('day'),
+					finishedAt_lt: moment(node.date).tz(ctx.timeZone).endOf('day'),
+				}
+			],
 		},
 		orderBy: 'schedulePosition_ASC',
 	}),
