@@ -89,6 +89,15 @@ const User = {
 		case 'UNSCHEDULED':
 			scheduleFilter = {
 				scheduledFor: null,
+				OR: [
+					{
+						status_not: 'FINISHED',
+					},
+					{
+						status: 'FINISHED'
+						finishedAt_gt: moment().tz(ctx.timeZone).startOf('day'),
+					},
+				]
 			};
 			break;
 		case 'SCHEDULED':
@@ -99,7 +108,7 @@ const User = {
 		case 'TO_BE_RESCHEDULED':
 			scheduleFilter = {
 				scheduledFor_not: null,
-				scheduledFor_lt: moment.tz(ctx.timeZone).startOf('day'),
+				scheduledFor_lt: moment().tz(ctx.timeZone).startOf('day'),
 				status_not: 'FINISHED',
 				OR: [
 					{
