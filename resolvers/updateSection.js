@@ -47,6 +47,7 @@ const updateSection = async (
 	}
 
 	const {project} = section;
+
 	let position;
 	const initialPosition = project.sections.findIndex(
 		projectSection => projectSection.id === section.id,
@@ -112,6 +113,9 @@ const updateSection = async (
 		},
 		metadata: {
 			id: updatedSection.id,
+		},
+		section: {
+			connect: {id: updatedSection.id},
 		},
 	});
 

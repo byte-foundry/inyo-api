@@ -1,6 +1,7 @@
 const {getUserId, createItemOwnerFilter} = require('../utils');
 
 const {tasks} = require('./tasks');
+const {activity} = require('./activity');
 
 const Query = {
 	me: async (root, args, ctx) => {
@@ -156,6 +157,7 @@ const Query = {
 		);
 	},
 	tasks,
+	activity,
 };
 
 module.exports = {

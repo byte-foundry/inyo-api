@@ -164,6 +164,9 @@ const createProject = async (
 		metadata: {
 			id: createdProject.id,
 		},
+		project: {
+			connect: {id: createdProject.id},
+		},
 	});
 
 	return createdProject;

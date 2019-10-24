@@ -165,6 +165,9 @@ const addItem = async (
 		metadata: {
 			id: createdItem.id,
 		},
+		task: {
+			connect: {id: createdItem.id},
+		},
 	});
 
 	return createdItem;

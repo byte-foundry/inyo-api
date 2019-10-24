@@ -107,6 +107,9 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 		metadata: {
 			id: updatedItem.id,
 		},
+		task: {
+			connect: {id: updatedItem.id},
+		},
 	});
 
 	return updatedItem;

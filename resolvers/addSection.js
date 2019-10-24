@@ -86,6 +86,9 @@ const addSection = async (
 		metadata: {
 			id: addedSection.id,
 		},
+		section: {
+			connect: {id: addedSection.id},
+		},
 	});
 
 	return addedSection;
