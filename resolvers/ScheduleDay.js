@@ -36,6 +36,7 @@ const ScheduleDay = {
 				{scheduledFor: node.date},
 				{
 					status: 'FINISHED',
+					scheduledFor: null,
 					finishedAt_gt: moment(node.date).tz(ctx.timeZone).startOf('day'),
 					finishedAt_lt: moment(node.date).tz(ctx.timeZone).endOf('day'),
 				}
