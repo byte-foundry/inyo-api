@@ -94,7 +94,7 @@ const User = {
 						status_not: 'FINISHED',
 					},
 					{
-						status: 'FINISHED'
+						status: 'FINISHED',
 						finishedAt_gt: moment().tz(ctx.timeZone).startOf('day'),
 					},
 				]
