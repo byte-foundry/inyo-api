@@ -105,6 +105,9 @@ const uploadAttachments = async (
 							user: {connect: {id: userId}},
 						},
 					},
+					file: {
+						connect: {id: a.id},
+					},
 				});
 			}
 			else {
@@ -114,6 +117,9 @@ const uploadAttachments = async (
 						connect: {id: ownerId},
 					},
 					metadata: {itemId: taskId},
+					file: {
+						connect: {id: a.id},
+					},
 				});
 			}
 		}),

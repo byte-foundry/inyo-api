@@ -175,6 +175,7 @@ enum UserEventType {
 	ME_CALL
 	FOCUSED_TASK
 	UNFOCUSED_TASK
+	SENT_REMINDER
 	CANCELED_REMINDER
 	ADDED_TASK
 	UPDATED_TASK
@@ -194,6 +195,7 @@ enum UserEventType {
 	UPDATED_SECTION
 	REMOVED_SECTION
 	UPLOADED_ATTACHMENT
+	REMOVED_ATTACHMENT
 	COLLAB_ASKED
 	COLLAB_REQUESTED
 	COLLAB_ACCEPTED
@@ -490,6 +492,7 @@ type UserEvent {
 	section: Section @relation(name: "UserEventOnSection")
 	task: Item @relation(name: "UserEventOnTask")
 	comment: Comment @relation(name: "UserEventOnComment")
+	file: File @relation(name: "UserEventOnFile")
 	reminder: Reminder @relation(name: "UserEventOnReminder")
 	collaborator: User @relation(name: "UserEventOnCollaborator")
 	customer: Customer @relation(name: "UserEventOnCustomer")
@@ -507,6 +510,7 @@ type CustomerEvent {
 	project: Project @relation(name: "CustomerEventOnProject")
 	task: Item @relation(name: "CustomerEventOnTask")
 	comment: Comment @relation(name: "CustomerEventOnComment")
+	file: File @relation(name: "CustomerEventOnFile")
 }
 
 type Notification {

@@ -1,9 +1,22 @@
 const {prisma} = require('../generated/prisma-client');
 const sendEmail = require('../emails/SendEmail');
 
+const gql = String.raw;
+
 const sendReminderEmail = async ({templateId, email, ...data}) => {
 	const {itemId} = data;
-	const item = await prisma.items({where: {id: itemId}});
+	const item = await prisma.items({where: {id: itemId}}).$fragment(gql`
+		fragment ItemWithProject on Item {
+			id
+			name
+			status
+			section {
+				project {
+					id
+				}
+			}
+		}
+	`);
 
 	if (!item) {
 		throw new Error(`Item '${item.id}' has not been found.`);
@@ -29,6 +42,23 @@ const sendReminderEmail = async ({templateId, email, ...data}) => {
 		},
 		{db: prisma},
 	);
+
+	await prisma.createUserEvent({
+		type: 'SENT_REMINDER',
+		// user: {
+		// 	connect: {id: userId},
+		// },
+		metadata: {
+			id: item.id,
+			name: item.name,
+		},
+		task: {
+			connect: {id: itemId},
+		},
+		project: item.section && {
+			connect: {id: item.section.project.id},
+		},
+	});
 
 	console.log(`Reminder for Item '${itemId}' sent.`);
 
