@@ -6,13 +6,10 @@ const TYPE_TO_OBJECT = {
 	UPDATED_TASK: 'task',
 	FINISHED_TASK: 'task',
 	UNFINISHED_TASK: 'task',
-	// REMOVED_TASK: 'task',
 	CREATED_PROJECT: 'project',
 	UPDATED_PROJECT: 'project',
 	ARCHIVED_PROJECT: 'project',
 	UNARCHIVED_PROJECT: 'project',
-	// REMOVED_PROJECT: 'project',
-	UNREMOVED_PROJECT: 'project',
 	VIEWED_PROJECT: 'project',
 	// CREATED_CUSTOMER: 'customer',
 	// UPDATED_CUSTOMER: 'customer',
@@ -20,7 +17,6 @@ const TYPE_TO_OBJECT = {
 	POSTED_COMMENT: 'comment',
 	ADDED_SECTION: 'section',
 	UPDATED_SECTION: 'section',
-	// REMOVED_SECTION: 'section',
 	// UPLOADED_ATTACHMENT: 'file',
 	// COLLAB_ASKED: '',
 	// COLLAB_REQUESTED: '',
@@ -50,6 +46,8 @@ const Event = {
 		return ctx.db.userEvent({id: node.id}).collaborator();
 	},
 	object: async (node, args, ctx) => {
+		if (node.type.includes('REMOVED')) return null;
+
 		const customerEvent = await ctx.db.customerEvent({id: node.id});
 
 		if (customerEvent) {
@@ -80,6 +78,7 @@ const Event = {
 
 		return null;
 	},
+	metadata: node => node.metadata,
 	type: async (node, args, ctx) => {
 		const customerEvent = await ctx.db.customerEvent({id: node.id});
 		const userEvent = await ctx.db.userEvent({id: node.id});

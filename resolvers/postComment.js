@@ -430,6 +430,7 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 		comment: {
 			connect: {id: result.id},
 		},
+		project: item.section && {connect: {id: item.section.project.id}},
 	});
 
 	// TODO: should return the comment instead

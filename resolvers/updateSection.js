@@ -35,6 +35,7 @@ const updateSection = async (
 		fragment sectionWithProject on Section {
 			id
 			project {
+				id
 				sections(orderBy: position_ASC) {
 					id
 				}
@@ -117,6 +118,7 @@ const updateSection = async (
 		section: {
 			connect: {id: updatedSection.id},
 		},
+		project: {connect: {id: section.project.id}},
 	});
 
 	return updatedSection;

@@ -67,6 +67,7 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 			}
 			section {
 				project {
+					id
 					customer {
 						id
 						title
@@ -226,6 +227,9 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 			},
 			task: {
 				connect: {id: updatedItem.id},
+			},
+			project: item.section && {
+				connect: {id: item.section.project.id},
 			},
 		});
 	}

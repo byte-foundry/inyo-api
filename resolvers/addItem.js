@@ -75,6 +75,7 @@ const addItem = async (
 					position
 				}
 				project {
+					id
 					status
 					notifyActivityToCustomer
 				}
@@ -164,10 +165,12 @@ const addItem = async (
 		},
 		metadata: {
 			id: createdItem.id,
+			name: createdItem.name,
 		},
 		task: {
 			connect: {id: createdItem.id},
 		},
+		project: projectId && {connect: {id: projectId}},
 	});
 
 	return createdItem;

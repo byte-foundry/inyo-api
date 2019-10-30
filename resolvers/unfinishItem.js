@@ -14,6 +14,11 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 		fragment ItemWithProject on Item {
 			type
 			status
+			section {
+				project {
+					id
+				}
+			}
 			canceledReminders: reminders(where: {status: CANCELED}) {
 				id
 				postHookId
@@ -110,6 +115,7 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 		task: {
 			connect: {id: updatedItem.id},
 		},
+		project: item.section && {connect: {id: item.section.project.id}},
 	});
 
 	return updatedItem;

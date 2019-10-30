@@ -71,6 +71,7 @@ const unfocusTask = async (parent, {id}, ctx) => {
 			}
 			section {
 				project {
+					id
 					token
 					customer {
 						title
@@ -139,6 +140,7 @@ const unfocusTask = async (parent, {id}, ctx) => {
 		metadata: {
 			id: unfocusedTask.id,
 		},
+		project: item.section && {connect: {id: item.section.project.id}},
 	});
 
 	return unfocusedTask;

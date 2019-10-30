@@ -89,6 +89,7 @@ const addSection = async (
 		section: {
 			connect: {id: addedSection.id},
 		},
+		project: projectId && {connect: {id: projectId}},
 	});
 
 	return addedSection;

@@ -63,7 +63,9 @@ const removeSection = async (parent, {id}, ctx) => {
 		},
 		metadata: {
 			id: removedSection.id,
+			name: removedSection.name,
 		},
+		project: section.project && {connect: {id: section.project.id}},
 	});
 
 	return removedSection;

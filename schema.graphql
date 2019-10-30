@@ -132,7 +132,6 @@ type Mutation {
 	unarchiveProject(id: ID!): Project!
 	# Remove project
 	removeProject(id: ID!): Project!
-	unremoveProject(id: ID!): Project!
 	# Create a new quote for a customer of the user's company
 	createQuote(
 		customerId: ID
@@ -794,19 +793,19 @@ enum EventType {
 	UPDATED_TASK
 	FINISHED_TASK
 	UNFINISHED_TASK
-	# REMOVED_TASK
+	REMOVED_TASK
 	CREATED_PROJECT
 	UPDATED_PROJECT
 	ARCHIVED_PROJECT
 	UNARCHIVED_PROJECT
-	# REMOVED_PROJECT
+	REMOVED_PROJECT
 	# CREATED_CUSTOMER
 	# UPDATED_CUSTOMER
 	# REMOVED_CUSTOMER
 	POSTED_COMMENT
 	ADDED_SECTION
 	UPDATED_SECTION
-	# REMOVED_SECTION
+	REMOVED_SECTION
 	COLLAB_ASKED
 	COLLAB_REQUESTED
 	COLLAB_ACCEPTED

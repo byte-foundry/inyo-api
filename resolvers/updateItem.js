@@ -324,6 +324,7 @@ const updateItem = async (
 			},
 			task: {connect: {id}},
 			customer: {connect: {id: taskCustomer.id}},
+			project: item.section && {connect: {id: item.section.project.id}},
 		});
 	}
 	else if (
@@ -339,6 +340,7 @@ const updateItem = async (
 			},
 			task: {connect: {id}},
 			customer: {connect: {id: item.linkedCustomer.id}},
+			project: item.section && {connect: {id: item.section.project.id}},
 		});
 	}
 
