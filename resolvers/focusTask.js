@@ -298,6 +298,7 @@ const focusTask = async (
 		metadata: {
 			id: focusedTask.id,
 		},
+		task: {connect: {id: focusedTask.id}},
 		project: item.section && {connect: {id: item.section.project.id}},
 	});
 
