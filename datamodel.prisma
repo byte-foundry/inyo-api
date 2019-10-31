@@ -269,6 +269,7 @@ type Item {
 	attachments: [File!]! @relation(name: "TaskAttachments", onDelete: CASCADE)
 	finishedAt: DateTime
 	position: Int!
+	dailyRate: Float
 	dueDate: DateTime
 	createdAt: DateTime!
 	updatedAt: DateTime!
@@ -332,6 +333,7 @@ type Project {
 	viewedByCustomer: Boolean! @default(value: false)
 	issuedAt: DateTime
 	deadline: DateTime
+	budget: Float
 	notifyActivityToCustomer: Boolean! @default(value: true)
 	attachments: [File!]! @relation(name: "ProjectAttachments")
 	linkedCollaborators: [User!]! @relation(name: "CollaboratorsProject")

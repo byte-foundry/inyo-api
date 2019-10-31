@@ -65,6 +65,7 @@ const Project = {
 	viewedByCustomer: node => node.viewedByCustomer,
 	issuedAt: node => node.issuedAt,
 	deadline: node => node.deadline,
+	budget: node => node.budget,
 	notifyActivityToCustomer: node => node.notifyActivityToCustomer,
 	daysUntilDeadline: async (node, args, ctx) => {
 		if (!node.deadline) {

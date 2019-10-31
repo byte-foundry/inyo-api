@@ -44,6 +44,7 @@ const updateItem = async (
 		linkedCustomerId,
 		linkedCustomer,
 		dueDate,
+		dailyRate,
 		tags,
 	},
 	ctx,
@@ -270,6 +271,7 @@ const updateItem = async (
 			timeItTook,
 			position: projectId === null ? 0 : position,
 			dueDate,
+			dailyRate,
 			tags: tags
 				? {
 					set: tags.map(tag => ({id: tag})),
