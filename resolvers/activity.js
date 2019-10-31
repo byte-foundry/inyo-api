@@ -57,9 +57,16 @@ const activity = async (root, {projectId}, ctx) => {
 
 	const userEvents = await ctx.db.userEvents({
 		where: {
-			user: {
-				id: ctx.userId,
-			},
+			OR: [
+				{
+					user: {
+						id: ctx.userId,
+					},
+				},
+				{
+					user: null,
+				},
+			],
 			type_in: [
 				'FOCUSED_TASK',
 				'UNFOCUSED_TASK',

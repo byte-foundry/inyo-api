@@ -7,6 +7,8 @@ const {
 	sendReminderEmail,
 } = require('../events');
 
+const gql = String.raw;
+
 const posthookReceiver = async (req, res) => {
 	const hmac = crypto.createHmac('sha256', process.env.POSTHOOK_SIGNATURE);
 
@@ -85,10 +87,50 @@ const posthookReceiver = async (req, res) => {
 
 		const {status = 'SENT'} = (await callback(req.body.data, reminder)) || {};
 
-		await prisma.updateReminder({
+		const updatedReminder = await prisma.updateReminder({
 			where: {id: reminder.id},
 			data: {status},
-		});
+		}).$fragment(gql`
+			fragment ReminderItem on Reminder {
+				item {
+					id
+					name
+					status
+					section {
+						project {
+							id
+						}
+					}
+				}
+			}
+		`);
+
+		if (
+			[
+				'DELAY',
+				'FIRST',
+				'SECOND',
+				'LAST',
+				'INVOICE_DELAY',
+				'INVOICE_FIRST',
+				'INVOICE_SECOND',
+				'INVOICE_THIRD',
+				'INVOICE_FOURTH',
+			].includes(reminder.type)
+		) {
+			await prisma.createUserEvent({
+				type: 'SENT_REMINDER',
+				metadata: {
+					id: updatedReminder.item.id,
+					name: updatedReminder.item.name,
+				},
+				task: {connect: {id: updatedReminder.item.id}},
+				project: updatedReminder.item.section && {
+					connect: {id: updatedReminder.item.section.project.id},
+				},
+				reminder: {connect: {id: reminder.id}},
+			});
+		}
 
 		res.status(200).send();
 
