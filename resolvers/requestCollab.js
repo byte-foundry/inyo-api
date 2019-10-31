@@ -60,7 +60,7 @@ const requestCollab = async (
 	const newCollabRequest = await ctx.db.createCollabRequest({
 		requester: {connect: {id: getUserId(ctx)}},
 		requestee: requestee && {connect: {email: userEmail}},
-		requesteeEmail: !requestee && userEmail,
+		requesteeEmail: !requestee ? userEmail : undefined,
 		status: 'PENDING',
 	});
 
