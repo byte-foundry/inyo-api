@@ -6,6 +6,8 @@ const {APP_SECRET} = require('../utils');
 const {AlreadyExistingError} = require('../errors');
 const {sendSignupEmail} = require('../emails/SignupEmail');
 
+const gql = String.raw;
+
 const signup = async (
 	parent,
 	{
@@ -78,7 +80,14 @@ const signup = async (
 			where: {
 				requesteeEmail: email,
 			},
-		});
+		}).$fragment(gql`
+			fragment CollabRequestAndUser on Item {
+				id
+				requester {
+					id
+				}
+			}
+		`);
 
 		await Promise.all(
 			collabRequestsToUpdate.map(async (request) => {
@@ -94,7 +103,7 @@ const signup = async (
 
 				await ctx.db.createUserEvent({
 					type: 'COLLAB_ASKED',
-					user: {connect: {id: user.id}},
+					user: {connect: {id: request.requester.id}},
 					metadata: {
 						collabId: request.id,
 					},
