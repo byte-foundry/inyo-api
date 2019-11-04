@@ -522,6 +522,7 @@ union Author = User | Customer
 
 type Comment {
 	id: ID!
+	task: Item!
 	text: String!
 	author: Author
 	views: [CommentView!]!
