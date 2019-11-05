@@ -38,7 +38,7 @@ const linkToProject = async (parent, {projectId, collaboratorId}, ctx) => {
 		);
 	}
 
-	return ctx.db.updateProject({
+	const updatedProject = ctx.db.updateProject({
 		where: {
 			id: projectId,
 		},
@@ -46,6 +46,18 @@ const linkToProject = async (parent, {projectId, collaboratorId}, ctx) => {
 			linkedCollaborators: {connect: {id: collaboratorId}},
 		},
 	});
+
+	await ctx.db.createUserEvent({
+		type: 'LINKED_COLLABORATOR_TO_PROJECT',
+		user: {connect: {id: ctx.userId}},
+		metadata: {
+			id: projectId,
+		},
+		project: {connect: {id: projectId}},
+		collaborator: {connect: {id: collaboratorId}},
+	});
+
+	return updatedProject;
 };
 
 module.exports = {

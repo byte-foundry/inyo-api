@@ -51,6 +51,9 @@ const archiveProject = async (parent, {id}, ctx) => {
 		metadata: {
 			id: project.id,
 		},
+		project: {
+			connect: {id: project.id},
+		},
 	});
 
 	return ctx.db.updateProject({

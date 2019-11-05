@@ -53,6 +53,9 @@ const cancelReminder = async (parent, {id}, ctx) => {
 		metadata: {
 			id,
 		},
+		reminder: {
+			connect: {id},
+		},
 	});
 
 	return canceledReminder;

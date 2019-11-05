@@ -1,6 +1,5 @@
 const gql = String.raw;
 
-const {getUserId} = require('../utils');
 const {NotFoundError} = require('../errors');
 
 const removeLinkToProject = async (
@@ -53,7 +52,7 @@ const removeLinkToProject = async (
 		});
 	});
 
-	return ctx.db.updateProject({
+	const updatedProject = ctx.db.updateProject({
 		where: {
 			id: projectId,
 		},
@@ -61,6 +60,18 @@ const removeLinkToProject = async (
 			linkedCollaborators: {disconnect: {id: collaboratorId}},
 		},
 	});
+
+	await ctx.db.createUserEvent({
+		type: 'UNLINKED_COLLABORATOR_TO_PROJECT',
+		user: {connect: {id: ctx.userId}},
+		metadata: {
+			id: projectId,
+		},
+		project: {connect: {id: projectId}},
+		collaborator: {connect: {id: collaboratorId}},
+	});
+
+	return updatedProject;
 };
 
 module.exports = {

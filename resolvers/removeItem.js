@@ -18,6 +18,7 @@ const removeItem = async (parent, {id}, ctx) => {
 			schedulePosition
 			section {
 				project {
+					id
 					status
 				}
 				items(orderBy: position_ASC) {
@@ -78,7 +79,9 @@ const removeItem = async (parent, {id}, ctx) => {
 		},
 		metadata: {
 			id: removedItem.id,
+			name: removedItem.name,
 		},
+		project: item.section && {connect: {id: item.section.project.id}},
 	});
 
 	return removedItem;

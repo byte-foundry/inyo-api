@@ -40,7 +40,6 @@ const updateItem = async (
 		timeItTook,
 		comment,
 		position: wantedPosition,
-		token,
 		linkedCustomerId,
 		linkedCustomer,
 		dueDate,
@@ -49,6 +48,8 @@ const updateItem = async (
 	},
 	ctx,
 ) => {
+	const {token} = ctx;
+
 	if (token) {
 		const [item] = await ctx.db.items({
 			where: {
@@ -96,6 +97,9 @@ const updateItem = async (
 			id
 			status
 			position
+			linkedCustomer {
+				id
+			}
 			section {
 				id
 				items(orderBy: position_ASC) {
@@ -303,7 +307,42 @@ const updateItem = async (
 		metadata: {
 			id: updatedItem.id,
 		},
+		task: {
+			connect: {id: updatedItem.id},
+		},
 	});
+
+	if (linkedCustomerId || linkedCustomer) {
+		const taskCustomer = await ctx.db.item({id}).linkedCustomer();
+
+		await ctx.db.createUserEvent({
+			type: 'LINKED_CUSTOMER_TO_TASK',
+			user: {connect: {id: ctx.userId}},
+			metadata: {
+				taskId: id,
+				customerId: taskCustomer.id,
+			},
+			task: {connect: {id}},
+			customer: {connect: {id: taskCustomer.id}},
+			project: item.section && {connect: {id: item.section.project.id}},
+		});
+	}
+	else if (
+		item.linkedCustomer
+		&& (linkedCustomerId === null || linkedCustomer === null)
+	) {
+		await ctx.db.createUserEvent({
+			type: 'UNLINKED_CUSTOMER_TO_TASK',
+			user: {connect: {id: ctx.userId}},
+			metadata: {
+				projectId: id,
+				customerId: item.linkedCustomer.id,
+			},
+			task: {connect: {id}},
+			customer: {connect: {id: item.linkedCustomer.id}},
+			project: item.section && {connect: {id: item.section.project.id}},
+		});
+	}
 
 	return updatedItem;
 };

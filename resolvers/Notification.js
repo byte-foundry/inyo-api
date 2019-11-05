@@ -7,17 +7,13 @@ const Notification = {
 			.customerEvent();
 
 		if (customerEvent) {
-			const customer = ctx.db.customerEvent({id: customerEvent.id}).customer();
-
-			return customer;
+			return ctx.db.customerEvent({id: customerEvent.id}).customer();
 		}
 
 		const userEvent = await ctx.db.notification({id: node.id}).userEvent();
 
 		if (userEvent) {
-			const user = ctx.db.userEvent({id: userEvent.id}).user();
-
-			return user;
+			return ctx.db.userEvent({id: userEvent.id}).user();
 		}
 
 		return null;

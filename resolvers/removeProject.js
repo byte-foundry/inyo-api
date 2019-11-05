@@ -46,6 +46,10 @@ const removeProject = async (parent, {id}, ctx) => {
 		},
 		metadata: {
 			id: project.id,
+			name: project.name,
+		},
+		project: {
+			connect: {id: project.id},
 		},
 	});
 

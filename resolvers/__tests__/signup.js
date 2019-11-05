@@ -33,7 +33,9 @@ describe('signup', () => {
 					lastName: 'Michel',
 					email: 'jeanmichel@test.test',
 				}),
-				collabRequests: jest.fn().mockReturnValue([]),
+				collabRequests: () => ({
+					$fragment: jest.fn(() => []),
+				}),
 			},
 		};
 
@@ -61,7 +63,9 @@ describe('signup', () => {
 					user: () => true,
 				},
 				createUser: jest.fn(),
-				collabRequests: jest.fn().mockReturnValue([]),
+				collabRequests: () => ({
+					$fragment: jest.fn(() => []),
+				}),
 			},
 		};
 

@@ -63,6 +63,7 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 				}
 				section {
 					project {
+						id
 						token
 						customer {
 							id
@@ -96,22 +97,16 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 			throw new NotFoundError('Your token is invalid');
 		}
 
-		const result = await ctx.db.updateItem({
-			where: {id: itemId},
-			data: {
-				comments: {
-					create: {
-						text: comment.text,
-						authorCustomer: {
-							connect: {id: customer.id},
-						},
-						views: {
-							create: {
-								customer: {
-									connect: {id: customer.id},
-								},
-							},
-						},
+		const result = await ctx.db.createComment({
+			item: {connect: {id: itemId}},
+			text: comment.text,
+			authorCustomer: {
+				connect: {id: customer.id},
+			},
+			views: {
+				create: {
+					customer: {
+						connect: {id: customer.id},
 					},
 				},
 			},
@@ -187,9 +182,14 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 					user: {connect: {id: user.id}},
 				},
 			},
+			comment: {
+				connect: {id: result.id},
+			},
+			project: item.section && {connect: {id: item.section.project.id}},
 		});
 
-		return result;
+		// TODO: should return the comment instead
+		return ctx.db.item({id: itemId});
 	}
 
 	const userId = getUserId(ctx);
@@ -275,22 +275,16 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 		user = user || project.owner || customer.serviceCompany.owner;
 	}
 
-	const result = await ctx.db.updateItem({
-		where: {id: itemId},
-		data: {
-			comments: {
-				create: {
-					text: comment.text,
-					authorUser: {
-						connect: {id: userId},
-					},
-					views: {
-						create: {
-							user: {
-								connect: {id: userId},
-							},
-						},
-					},
+	const result = await ctx.db.createComment({
+		item: {connect: {id: itemId}},
+		text: comment.text,
+		authorUser: {
+			connect: {id: userId},
+		},
+		views: {
+			create: {
+				user: {
+					connect: {id: userId},
 				},
 			},
 		},
@@ -422,7 +416,7 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 			connect: {id: userId},
 		},
 		metadata: {
-			itemId: result.id,
+			itemId,
 		},
 		notifications: item.assignee && {
 			create: {
@@ -433,9 +427,14 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 				},
 			},
 		},
+		comment: {
+			connect: {id: result.id},
+		},
+		project: item.section && {connect: {id: item.section.project.id}},
 	});
 
-	return result;
+	// TODO: should return the comment instead
+	return ctx.db.item({id: itemId});
 };
 
 module.exports = {

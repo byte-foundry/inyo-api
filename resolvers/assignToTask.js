@@ -70,6 +70,12 @@ const assignToTask = async (parent, {taskId, collaboratorId}, ctx) => {
 				user: {connect: {id: collaboratorId}},
 			},
 		},
+		collaborator: {
+			connect: {id: collaboratorId},
+		},
+		task: {
+			connect: {id: taskId},
+		},
 	});
 
 	return updatedTask;

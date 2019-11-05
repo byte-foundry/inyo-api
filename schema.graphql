@@ -29,6 +29,8 @@ type Query {
 		projectId: ID
 		token: String
 	): [Item!]!
+	# Get user account activity
+	activity(projectId: ID!): [Event!]!
 }
 
 type Mutation {
@@ -130,7 +132,6 @@ type Mutation {
 	unarchiveProject(id: ID!): Project!
 	# Remove project
 	removeProject(id: ID!): Project!
-	unremoveProject(id: ID!): Project!
 	# Create a new quote for a customer of the user's company
 	createQuote(
 		customerId: ID
@@ -521,6 +522,7 @@ union Author = User | Customer
 
 type Comment {
 	id: ID!
+	task: Item!
 	text: String!
 	author: Author
 	views: [CommentView!]!
@@ -782,15 +784,52 @@ enum TasksSortInput {
 
 enum EventType {
 	VIEWED_PROJECT
-	POSTED_COMMENT
 	UPLOADED_ATTACHMENT
+	REMOVED_ATTACHMENT
+	FOCUSED_TASK
+	UNFOCUSED_TASK
+	SENT_REMINDER
+	CANCELED_REMINDER
+	ADDED_TASK
+	UPDATED_TASK
 	FINISHED_TASK
+	UNFINISHED_TASK
+	REMOVED_TASK
+	CREATED_PROJECT
+	UPDATED_PROJECT
+	ARCHIVED_PROJECT
+	UNARCHIVED_PROJECT
+	REMOVED_PROJECT
+	POSTED_COMMENT
+	ADDED_SECTION
+	UPDATED_SECTION
+	REMOVED_SECTION
 	COLLAB_ASKED
+	COLLAB_REQUESTED
 	COLLAB_ACCEPTED
 	COLLAB_REJECTED
-	LINKED_TO_PROJECT
+	LINKED_CUSTOMER_TO_TASK
+	UNLINKED_CUSTOMER_TO_TASK
+	LINKED_CUSTOMER_TO_PROJECT
+	UNLINKED_CUSTOMER_TO_PROJECT
+	LINKED_COLLABORATOR_TO_PROJECT
+	UNLINKED_COLLABORATOR_TO_PROJECT
 	ASSIGNED_TO_TASK
 	REMOVE_ASSIGNMENT_TO_TASK
+}
+
+union EventEmitter = User | Customer
+union EventObject = Project | Section | Item | Comment | Reminder
+union EventSubject = User | Customer
+
+type Event {
+	id: ID!
+	type: EventType!
+	from: EventEmitter
+	subject: EventSubject
+	object: EventObject
+	metadata: Json
+	createdAt: DateTime!
 }
 
 union NotificationEmitter = User | Customer

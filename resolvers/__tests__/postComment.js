@@ -6,8 +6,10 @@ jest.mock('../../utils');
 jest.mock('../../emails/CommentEmail');
 
 const db = {
-	createUserEvent() {},
-	createCustomerEvent() {},
+	createUserEvent: jest.fn(),
+	createCustomerEvent: jest.fn(),
+	createComment: jest.fn(comment => comment),
+	item: () => {},
 };
 
 describe('postComment', () => {
@@ -60,15 +62,10 @@ describe('postComment', () => {
 						},
 					],
 				}),
-				updateItem: ({data}) => ({
-					id: 'item-id',
-					comments: [data.comments.create],
-				}),
-				createUserEvent: () => {},
 			},
 		};
 
-		const result = await postComment({}, args, ctx);
+		await postComment({}, args, ctx);
 
 		// project customer
 		expect(sendNewCommentEmail).toHaveBeenCalledWith(
@@ -88,7 +85,14 @@ describe('postComment', () => {
 			ctx,
 		);
 
-		expect(result.comments[0]).toMatchObject(args.comment);
+		expect(ctx.db.createComment).toHaveBeenCalledWith(
+			expect.objectContaining({
+				item: {connect: {id: args.itemId}},
+				text: args.comment.text,
+			}),
+		);
+
+		expect(ctx.db.createUserEvent).toHaveBeenCalled();
 	});
 
 	it('should post a comment with a project customer token', async () => {
@@ -135,15 +139,10 @@ describe('postComment', () => {
 						},
 					],
 				}),
-				updateItem: jest.fn(({data}) => ({
-					id: 'item-id',
-					comments: [data.comments.create],
-				})),
-				createUserEvent: () => {},
 			},
 		};
 
-		const result = await postComment({}, args, ctx);
+		await postComment({}, args, ctx);
 
 		// project owner
 		expect(sendNewCommentEmail).toHaveBeenCalledWith(
@@ -154,21 +153,17 @@ describe('postComment', () => {
 			ctx,
 		);
 
-		expect(ctx.db.updateItem).toHaveBeenCalledWith(
+		expect(ctx.db.createComment).toHaveBeenCalledWith(
 			expect.objectContaining({
-				data: {
-					comments: {
-						create: expect.objectContaining({
-							authorCustomer: {
-								connect: {id: 'customer-project'},
-							},
-						}),
-					},
+				item: {connect: {id: args.itemId}},
+				text: args.comment.text,
+				authorCustomer: {
+					connect: {id: 'customer-project'},
 				},
 			}),
 		);
 
-		expect(result.comments[0]).toMatchObject(args.comment);
+		expect(ctx.db.createCustomerEvent).toHaveBeenCalled();
 	});
 
 	it('should post a comment with a linked customer token', async () => {
@@ -215,15 +210,10 @@ describe('postComment', () => {
 						},
 					],
 				}),
-				updateItem: jest.fn(({data}) => ({
-					id: 'item-id',
-					comments: [data.comments.create],
-				})),
-				createUserEvent: () => {},
 			},
 		};
 
-		const result = await postComment({}, args, ctx);
+		await postComment({}, args, ctx);
 
 		// project owner
 		expect(sendNewCommentEmail).toHaveBeenCalledWith(
@@ -234,21 +224,17 @@ describe('postComment', () => {
 			ctx,
 		);
 
-		expect(ctx.db.updateItem).toHaveBeenCalledWith(
+		expect(ctx.db.createComment).toHaveBeenCalledWith(
 			expect.objectContaining({
-				data: {
-					comments: {
-						create: expect.objectContaining({
-							authorCustomer: {
-								connect: {id: 'customer-task'},
-							},
-						}),
-					},
+				item: {connect: {id: args.itemId}},
+				text: args.comment.text,
+				authorCustomer: {
+					connect: {id: 'customer-task'},
 				},
 			}),
 		);
 
-		expect(result.comments[0]).toMatchObject(args.comment);
+		expect(ctx.db.createCustomerEvent).toHaveBeenCalled();
 	});
 
 	it("should post a collaborator's comment and notify the user", async () => {
@@ -294,15 +280,10 @@ describe('postComment', () => {
 						},
 					],
 				}),
-				updateItem: jest.fn(({data}) => ({
-					id: 'item-id',
-					comments: [data.comments.create],
-				})),
-				createUserEvent: () => {},
 			},
 		};
 
-		const result = await postComment({}, args, ctx);
+		await postComment({}, args, ctx);
 
 		// project owner
 		expect(sendNewCommentEmail).toHaveBeenCalledWith(
@@ -313,20 +294,16 @@ describe('postComment', () => {
 			ctx,
 		);
 
-		expect(ctx.db.updateItem).toHaveBeenCalledWith(
+		expect(ctx.db.createComment).toHaveBeenCalledWith(
 			expect.objectContaining({
-				data: {
-					comments: {
-						create: expect.objectContaining({
-							authorUser: {
-								connect: {id: 'collaborator-id'},
-							},
-						}),
-					},
+				item: {connect: {id: args.itemId}},
+				text: args.comment.text,
+				authorUser: {
+					connect: {id: 'collaborator-id'},
 				},
 			}),
 		);
 
-		expect(result.comments[0]).toMatchObject(args.comment);
+		expect(ctx.db.createUserEvent).toHaveBeenCalled();
 	});
 });
