@@ -1,6 +1,7 @@
 const TYPE_TO_OBJECT = {
 	FOCUSED_TASK: 'task',
 	UNFOCUSED_TASK: 'task',
+	SENT_REMINDER: 'reminder',
 	CANCELED_REMINDER: 'reminder',
 	ADDED_TASK: 'task',
 	UPDATED_TASK: 'task',
@@ -50,7 +51,10 @@ const Event = {
 				return ctx.db.customerEvent({id: node.id})[objectKey]();
 			}
 			catch (err) {
-				console.log('The customer event object has not been found', objectKey);
+				console.log(
+					'The customer event object has not been found',
+					customerEvent.type,
+				);
 			}
 			return null;
 		}
@@ -64,7 +68,7 @@ const Event = {
 				return ctx.db.userEvent({id: node.id})[objectKey]();
 			}
 			catch (err) {
-				console.log('The user event object has not been found', objectKey);
+				console.log('The user event object has not been found', userEvent.type);
 			}
 			return null;
 		}

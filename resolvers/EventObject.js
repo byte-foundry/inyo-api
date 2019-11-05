@@ -3,10 +3,7 @@ const EventObject = {
 		if (obj.token) {
 			return 'Project';
 		}
-		if (obj.items !== undefined) {
-			return 'Section';
-		}
-		if (obj.position !== undefined) {
+		if (obj.status !== undefined && obj.position !== undefined) {
 			return 'Item';
 		}
 		if (obj.text !== undefined) {
@@ -14,6 +11,9 @@ const EventObject = {
 		}
 		if (obj.sendingDate !== undefined) {
 			return 'Reminder';
+		}
+		if (obj.name !== undefined) {
+			return 'Section';
 		}
 	},
 };
