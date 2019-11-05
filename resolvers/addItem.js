@@ -18,6 +18,7 @@ const addItem = async (
 		linkedCustomerId,
 		linkedCustomer,
 		dueDate,
+		dailyRate,
 		tags,
 	},
 	ctx,
@@ -118,6 +119,7 @@ const addItem = async (
 		}
 	}
 
+	const {defaultDailyPrice} = await ctx.db.user({id: userId});
 	const userCompany = await ctx.db.user({id: userId}).company();
 	const variables = {};
 
@@ -151,6 +153,7 @@ const addItem = async (
 		unit,
 		position,
 		dueDate,
+		dailyRate: dailyRate || defaultDailyPrice,
 		tags: tags && {connect: tags.map(tag => ({id: tag}))},
 	});
 

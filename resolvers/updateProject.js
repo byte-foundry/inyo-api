@@ -13,6 +13,7 @@ const updateProject = async (
 		customerId,
 		customer,
 		deadline,
+		budget,
 		notifyActivityToCustomer,
 	},
 	ctx,
@@ -118,6 +119,7 @@ const updateProject = async (
 			sharedNotes,
 			personalNotes,
 			deadline,
+			budget,
 			notifyActivityToCustomer,
 		},
 	});
