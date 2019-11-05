@@ -168,6 +168,9 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 			task: {
 				connect: {id: finishedItem.id},
 			},
+			project: item.section && {
+				connect: {id: item.section.project.id},
+			},
 		});
 
 		return finishedItem;

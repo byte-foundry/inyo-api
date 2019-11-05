@@ -38,6 +38,7 @@ const Query = {
 					metadata: {
 						projectId: project.id,
 					},
+					project: {connect: {id: project.id}},
 				});
 			}
 		}
