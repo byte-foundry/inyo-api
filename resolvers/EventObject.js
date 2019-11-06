@@ -1,5 +1,8 @@
 const EventObject = {
 	__resolveType(obj, context, info) {
+		if (obj.filename) {
+			return 'File';
+		}
 		if (obj.token) {
 			return 'Project';
 		}

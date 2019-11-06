@@ -10,6 +10,7 @@ const File = {
 	mimetype: node => node.mimetype,
 	encoding: node => node.encoding,
 	url: node => node.url,
+	linkedTask: async (node, args, ctx) => ctx.db.file({id: node.id}).linkedTask(),
 };
 
 module.exports = {

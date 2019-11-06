@@ -760,6 +760,7 @@ type File {
 	mimetype: String!
 	encoding: String!
 	url: String!
+	linkedTask: Item
 }
 
 input TasksFilterInput {
@@ -819,7 +820,7 @@ enum EventType {
 }
 
 union EventEmitter = User | Customer
-union EventObject = Project | Section | Item | Comment | Reminder
+union EventObject = Project | Section | Item | Comment | Reminder | File
 union EventSubject = User | Customer
 
 type Event {
