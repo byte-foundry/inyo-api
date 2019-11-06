@@ -1,7 +1,7 @@
 const gql = String.raw;
 
 const removeFile = async (parent, {id}, ctx) => {
-	const removedFile = await ctx.db.deleteFile({id}).$fragment(gql`
+	const removedFile = await ctx.db.file({id}).$fragment(gql`
 		fragment RemovedFileTaskAndProject on File {
 			filename
 			linkedTask {
@@ -17,6 +17,10 @@ const removeFile = async (parent, {id}, ctx) => {
 			}
 		}
 	`);
+
+	if (!removedFile) {
+		return null;
+	}
 
 	const project
 		= removedFile.linkedTask && removedFile.linkedTask.section
@@ -35,7 +39,7 @@ const removeFile = async (parent, {id}, ctx) => {
 		project: project && {connect: {id: project.id}},
 	});
 
-	return removedFile;
+	return ctx.db.deleteFile({id});
 };
 
 module.exports = {
