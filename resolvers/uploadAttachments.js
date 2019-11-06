@@ -116,7 +116,7 @@ const uploadAttachments = async (parent, {files, taskId, projectId}, ctx) => {
 						},
 					},
 					file: {connect: {id}},
-					item: taskId && {connect: {id: projectId}},
+					task: taskId && {connect: {id: projectId}},
 					project: (projectId || taskProjectId) && {
 						connect: {id: projectId || taskProjectId},
 					},
@@ -133,7 +133,7 @@ const uploadAttachments = async (parent, {files, taskId, projectId}, ctx) => {
 						name: filename,
 					},
 					file: {connect: {id}},
-					item: taskId && {connect: {id: projectId}},
+					task: taskId && {connect: {id: projectId}},
 					project: (projectId || taskProjectId) && {
 						connect: {id: projectId || taskProjectId},
 					},

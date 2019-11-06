@@ -31,7 +31,7 @@ const removeFile = async (parent, {id}, ctx) => {
 		metadata: {
 			name: removedFile.filename,
 		},
-		item: removedFile.linkedTask && {connect: {id: removedFile.linkedTask.id}},
+		task: removedFile.linkedTask && {connect: {id: removedFile.linkedTask.id}},
 		project: project && {connect: {id: project.id}},
 	});
 
