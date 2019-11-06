@@ -332,7 +332,7 @@ type Project {
 	personalNotes: Json! @default(value: "{}")
 	template: ProjectTemplate @default(value: BLANK)
 	customer: Customer @relation(name: "CustomerProjects")
-	owner: User @relation(name: "UserProjects")
+	owner: User! @relation(name: "UserProjects")
 	# this token is a way to restrict access to anyone else than the customer
 	token: String! @unique
 	status: ProjectStatus! @default(value: ONGOING)
