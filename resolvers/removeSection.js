@@ -34,12 +34,30 @@ const removeSection = async (parent, {id}, ctx) => {
 			project {
 				id
 			}
+			items {
+				id
+				name
+			}
 		}
 	`);
 
 	if (!section) {
 		throw new NotFoundError(`Section '${id}' has not been found.`);
 	}
+
+	section.items.forEach((removedItem) => {
+		ctx.db.createUserEvent({
+			type: 'REMOVED_TASK',
+			user: {
+				connect: {id: userId},
+			},
+			metadata: {
+				id: removedItem.id,
+				name: removedItem.name,
+			},
+			project: {connect: {id: section.project.id}},
+		});
+	});
 
 	const removedSection = await ctx.db.deleteSection({id});
 
