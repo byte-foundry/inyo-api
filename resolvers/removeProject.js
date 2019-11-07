@@ -1,5 +1,6 @@
 const {getUserId} = require('../utils');
 const {NotFoundError} = require('../errors');
+const {cancelPendingReminders} = require('../reminders/cancelPendingReminders');
 
 const gql = String.raw;
 
@@ -52,6 +53,24 @@ const removeProject = async (parent, {id}, ctx) => {
 			connect: {id: project.id},
 		},
 	});
+
+	try {
+		const remindersToCancel = await ctx.db.reminders({
+			where: {
+				status: 'PENDING',
+				item: {
+					section: {
+						project: {id: project.id},
+					},
+				},
+			},
+		});
+
+		await cancelPendingReminders(remindersToCancel, id, ctx);
+	}
+	catch (err) {
+		console.log('Error canceling reminders when deleting project.');
+	}
 
 	return ctx.db.updateProject({
 		where: {id},
