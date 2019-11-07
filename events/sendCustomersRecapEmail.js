@@ -69,7 +69,7 @@ const sendCustomersRecapEmail = async ({userId}) => {
 							}
 						}, {
 							projects_some: {
-								status: ONGOING
+								status_in: [ONGOING, ARCHIVED]
 								notifyActivityToCustomer: true
 								sections_some: { items_some: { ${itemFilter} } }
 							}
@@ -90,7 +90,7 @@ const sendCustomersRecapEmail = async ({userId}) => {
 					}
 					projects(
 						where: {
-							status: ONGOING
+								status_in: [ONGOING, ARCHIVED]
 							notifyActivityToCustomer: true
 							sections_some: { items_some: { ${itemFilter} } }
 						}
