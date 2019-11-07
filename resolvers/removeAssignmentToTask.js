@@ -42,6 +42,12 @@ const removeAssignmentToTask = async (
 				user: {connect: {id: collaboratorId}},
 			},
 		},
+		collaborator: {
+			connect: {id: collaboratorId},
+		},
+		task: {
+			connect: {id: taskId},
+		},
 	});
 
 	return updatedTask;

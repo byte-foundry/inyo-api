@@ -4,13 +4,9 @@ const {NotFoundError} = require('../errors');
 
 const gql = String.raw;
 
-const uploadAttachments = async (
-	parent,
-	{
-		token, files, taskId, projectId,
-	},
-	ctx,
-) => {
+const uploadAttachments = async (parent, {files, taskId, projectId}, ctx) => {
+	const {token} = ctx;
+
 	if (taskId && projectId) {
 		throw new Error('Specify either a taskId or a projectId.');
 	}
@@ -77,14 +73,25 @@ const uploadAttachments = async (
 		userId = user.id;
 	}
 
+	let taskProjectId;
+
+	if (taskId) {
+		const project = await ctx.db
+			.item({id: taskId})
+			.section()
+			.project();
+
+		taskProjectId = project.id;
+	}
+
 	const attachments = await Promise.all(
 		files.map(file => processUpload(file, ctx, taskId || projectId)),
 	);
 
 	await Promise.all(
-		attachments.map(async (a) => {
+		attachments.map(async ({id, filename}) => {
 			await ctx.db.updateFile({
-				where: {id: a.id},
+				where: {id},
 				data: {
 					linkedTask: taskId && {connect: {id: taskId}},
 					linkedProject: projectId && {connect: {id: projectId}},
@@ -99,11 +106,19 @@ const uploadAttachments = async (
 					customer: {
 						connect: {id: ownerId},
 					},
-					metadata: {itemId: taskId},
+					metadata: {
+						itemId: taskId,
+						name: filename,
+					},
 					notifications: {
 						create: {
 							user: {connect: {id: userId}},
 						},
+					},
+					file: {connect: {id}},
+					task: taskId && {connect: {id: taskId}},
+					project: (projectId || taskProjectId) && {
+						connect: {id: projectId || taskProjectId},
 					},
 				});
 			}
@@ -113,7 +128,15 @@ const uploadAttachments = async (
 					user: {
 						connect: {id: ownerId},
 					},
-					metadata: {itemId: taskId},
+					metadata: {
+						itemId: taskId,
+						name: filename,
+					},
+					file: {connect: {id}},
+					task: taskId && {connect: {id: taskId}},
+					project: (projectId || taskProjectId) && {
+						connect: {id: projectId || taskProjectId},
+					},
 				});
 			}
 		}),

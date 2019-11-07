@@ -1,4 +1,5 @@
 const Comment = {
+	task: (node, args, ctx) => ctx.db.comment({id: node.id}).item(),
 	text: node => node.text,
 	author: async (node, args, ctx) => {
 		const user = await ctx.db.comment({id: node.id}).authorUser();

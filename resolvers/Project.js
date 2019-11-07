@@ -18,17 +18,7 @@ const Project = {
 	template: node => node.template,
 	customer: (node, args, ctx) => ctx.db.project({id: node.id}).customer(),
 	token: node => node.token,
-	owner: async (node, args, ctx) => {
-		const owner = await ctx.db.project({id: node.id}).owner();
-
-		if (owner) return owner;
-
-		return ctx.db
-			.project({id: node.id})
-			.customer()
-			.serviceCompany()
-			.owner();
-	},
+	owner: (node, args, ctx) => ctx.db.project({id: node.id}).owner(),
 	sharedNotes: node => node.sharedNotes,
 	personalNotes: node => node.personalNotes,
 	issuer: async (node, args, ctx) => {

@@ -2,6 +2,8 @@ const uuid = require('uuid/v4');
 const {getUserId} = require('../utils');
 const {NotFoundError} = require('../errors');
 
+const gql = String.raw;
+
 const updateProject = async (
 	parent,
 	{
@@ -55,7 +57,15 @@ const updateProject = async (
 				},
 			],
 		},
-	});
+	}).$fragment(gql`
+		fragment ProjectToBeUpdated on Project {
+			id
+			notifyActivityToCustomer
+			customer {
+				id
+			}
+		}
+	`);
 
 	if (!project) {
 		throw new NotFoundError(`Project ${id} has not been found.`);
@@ -132,7 +142,37 @@ const updateProject = async (
 		metadata: {
 			id: updatedProject.id,
 		},
+		project: {
+			connect: {id: updatedProject.id},
+		},
 	});
+
+	if (customerId || customer) {
+		const projectCustomer = await ctx.db.project({id}).customer();
+
+		await ctx.db.createUserEvent({
+			type: 'LINKED_CUSTOMER_TO_PROJECT',
+			user: {connect: {id: ctx.userId}},
+			metadata: {
+				projectId: id,
+				customerId: projectCustomer.id,
+			},
+			project: {connect: {id}},
+			customer: {connect: {id: projectCustomer.id}},
+		});
+	}
+	else if (project.customer && (customerId === null || customer === null)) {
+		await ctx.db.createUserEvent({
+			type: 'UNLINKED_CUSTOMER_TO_PROJECT',
+			user: {connect: {id: ctx.userId}},
+			metadata: {
+				projectId: id,
+				customerId: project.customer.id,
+			},
+			project: {connect: {id}},
+			customer: {connect: {id: project.customer.id}},
+		});
+	}
 
 	return updatedProject;
 };

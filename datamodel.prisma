@@ -175,6 +175,7 @@ enum UserEventType {
 	ME_CALL
 	FOCUSED_TASK
 	UNFOCUSED_TASK
+	SENT_REMINDER
 	CANCELED_REMINDER
 	ADDED_TASK
 	UPDATED_TASK
@@ -186,7 +187,6 @@ enum UserEventType {
 	ARCHIVED_PROJECT
 	UNARCHIVED_PROJECT
 	REMOVED_PROJECT
-	UNREMOVED_PROJECT
 	CREATED_CUSTOMER
 	UPDATED_CUSTOMER
 	REMOVED_CUSTOMER
@@ -195,10 +195,17 @@ enum UserEventType {
 	UPDATED_SECTION
 	REMOVED_SECTION
 	UPLOADED_ATTACHMENT
+	REMOVED_ATTACHMENT
 	COLLAB_ASKED
 	COLLAB_REQUESTED
 	COLLAB_ACCEPTED
 	COLLAB_REJECTED
+	LINKED_CUSTOMER_TO_TASK
+	UNLINKED_CUSTOMER_TO_TASK
+	LINKED_CUSTOMER_TO_PROJECT
+	UNLINKED_CUSTOMER_TO_PROJECT
+	LINKED_COLLABORATOR_TO_PROJECT
+	UNLINKED_COLLABORATOR_TO_PROJECT
 	LINKED_TO_PROJECT
 	ASSIGNED_TO_TASK
 	REMOVE_ASSIGNMENT_TO_TASK
@@ -325,7 +332,7 @@ type Project {
 	personalNotes: Json! @default(value: "{}")
 	template: ProjectTemplate @default(value: BLANK)
 	customer: Customer @relation(name: "CustomerProjects")
-	owner: User @relation(name: "UserProjects")
+	owner: User! @relation(name: "UserProjects")
 	# this token is a way to restrict access to anyone else than the customer
 	token: String! @unique
 	status: ProjectStatus! @default(value: ONGOING)
@@ -437,18 +444,18 @@ type CollabRequest {
 
 type Reminder {
 	id: ID! @unique
-	quote: Quote @relation(name: "QuoteReminders")
 	item: Item @relation(name: "ItemReminders")
 	user: User @relation(name: "UserReminder")
 	morningRemindersUser: User @relation(name: "UserMorningReminders")
 	eveningRemindersUser: User @relation(name: "UserEveningReminders")
-	resetFocusRemindersUser: User @relation(name: "UserResetFocusReminders")
 	postHookId: String!
 	type: ReminderType!
 	sendingDate: DateTime!
 	status: ReminderStatus @default(value: PENDING)
 
 	# deprecated
+	quote: Quote @relation(name: "QuoteReminders")
+	resetFocusRemindersUser: User @relation(name: "UserResetFocusReminders")
 	snoozedItem: Item @relation(name: "SnoozeReminders")
 }
 
@@ -480,6 +487,15 @@ type UserEvent {
 	metadata: Json @default(value: "{}")
 	notifications: [Notification!]!
 		@relation(name: "UserEventNotifications", onDelete: CASCADE)
+
+	project: Project @relation(name: "UserEventOnProject")
+	section: Section @relation(name: "UserEventOnSection")
+	task: Item @relation(name: "UserEventOnTask")
+	comment: Comment @relation(name: "UserEventOnComment")
+	file: File @relation(name: "UserEventOnFile")
+	reminder: Reminder @relation(name: "UserEventOnReminder")
+	collaborator: User @relation(name: "UserEventOnCollaborator")
+	customer: Customer @relation(name: "UserEventOnCustomer")
 }
 
 type CustomerEvent {
@@ -490,6 +506,11 @@ type CustomerEvent {
 	metadata: Json @default(value: "{}")
 	notifications: [Notification!]!
 		@relation(name: "CustomerEventNotifications", onDelete: CASCADE)
+
+	project: Project @relation(name: "CustomerEventOnProject")
+	task: Item @relation(name: "CustomerEventOnTask")
+	comment: Comment @relation(name: "CustomerEventOnComment")
+	file: File @relation(name: "CustomerEventOnFile")
 }
 
 type Notification {

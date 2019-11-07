@@ -3,7 +3,7 @@ const sendEmail = require('../emails/SendEmail');
 
 const sendReminderEmail = async ({templateId, email, ...data}) => {
 	const {itemId} = data;
-	const item = await prisma.items({where: {id: itemId}});
+	const [item] = await prisma.items({where: {id: itemId}});
 
 	if (!item) {
 		throw new Error(`Item '${item.id}' has not been found.`);

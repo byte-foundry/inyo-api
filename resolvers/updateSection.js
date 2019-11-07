@@ -35,6 +35,7 @@ const updateSection = async (
 		fragment sectionWithProject on Section {
 			id
 			project {
+				id
 				sections(orderBy: position_ASC) {
 					id
 				}
@@ -47,6 +48,7 @@ const updateSection = async (
 	}
 
 	const {project} = section;
+
 	let position;
 	const initialPosition = project.sections.findIndex(
 		projectSection => projectSection.id === section.id,
@@ -113,6 +115,10 @@ const updateSection = async (
 		metadata: {
 			id: updatedSection.id,
 		},
+		section: {
+			connect: {id: updatedSection.id},
+		},
+		project: {connect: {id: section.project.id}},
 	});
 
 	return updatedSection;

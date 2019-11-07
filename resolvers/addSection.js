@@ -86,6 +86,10 @@ const addSection = async (
 		metadata: {
 			id: addedSection.id,
 		},
+		section: {
+			connect: {id: addedSection.id},
+		},
+		project: projectId && {connect: {id: projectId}},
 	});
 
 	return addedSection;
