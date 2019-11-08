@@ -76,6 +76,10 @@ enum ProjectTemplate {
 	PROSPECTION
 	MOTION
 	LANDING
+	CARD
+	FLYER_A5
+	FACEBOOK_AD
+	TRANSLATION
 }
 
 enum ItemStatus {
