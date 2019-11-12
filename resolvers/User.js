@@ -95,9 +95,11 @@ const User = {
 					},
 					{
 						status: 'FINISHED',
-						finishedAt_gt: moment().tz(ctx.timeZone).startOf('day'),
+						finishedAt_gt: moment()
+							.tz(ctx.timeZone)
+							.startOf('day'),
 					},
-				]
+				],
 			};
 			break;
 		case 'FINISHED_TIME_IT_TOOK_NULL':
@@ -120,7 +122,9 @@ const User = {
 			break;
 		case 'TO_BE_RESCHEDULED':
 			scheduleFilter = {
-				scheduledFor_lt: moment().tz(ctx.timeZone).startOf('day'),
+				scheduledFor_lt: moment()
+					.tz(ctx.timeZone)
+					.startOf('day'),
 				status_not: 'FINISHED',
 				type_in: ['DEFAULT', 'PERSONAL'],
 				OR: [
