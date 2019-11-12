@@ -174,10 +174,6 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 		throw new NotFoundError(`Item '${id}' has not been found.`);
 	}
 
-	if (isCustomerTask(item)) {
-		throw new Error('This item cannot be finished by the user.');
-	}
-
 	await cancelPendingReminders(item.pendingReminders, id, ctx);
 
 	const updatedItem = await ctx.db.updateItem({
