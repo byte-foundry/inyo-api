@@ -64,7 +64,22 @@ const activity = async (root, {projectId}, ctx) => {
 					},
 				},
 				{
-					user: null,
+					OR: [
+						{
+							project: {
+								owner: {
+									id: ctx.userId,
+								},
+							},
+						},
+						{
+							task: {
+								owner: {
+									id: ctx.userId,
+								},
+							},
+						},
+					],
 				},
 			],
 			type_in: [

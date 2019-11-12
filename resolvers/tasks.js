@@ -41,6 +41,11 @@ const tasks = async (root, {filter, sort, projectId}, ctx) => {
 	}
 	else {
 		where = {
+			section: projectId && {
+				project: {
+					id: projectId,
+				},
+			},
 			AND: [
 				{
 					OR: filter

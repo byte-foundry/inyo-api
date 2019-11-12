@@ -65,6 +65,20 @@ const updateIntercom = async (req, res) => {
 					UPDATED_SECTION
 					REMOVED_SECTION
 					UPLOADED_ATTACHMENT
+					REMOVED_ATTACHMENT
+					COLLAB_ASKED
+					COLLAB_REQUESTED
+					COLLAB_ACCEPTED
+					COLLAB_REJECTED
+					LINKED_CUSTOMER_TO_TASK
+					UNLINKED_CUSTOMER_TO_TASK
+					LINKED_CUSTOMER_TO_PROJECT
+					UNLINKED_CUSTOMER_TO_PROJECT
+					LINKED_COLLABORATOR_TO_PROJECT
+					UNLINKED_COLLABORATOR_TO_PROJECT
+					LINKED_TO_PROJECT
+					ASSIGNED_TO_TASK
+					REMOVE_ASSIGNMENT_TO_TASK
 				]
 				createdAt_gt: "${moment()
 		.subtract(index + 1, 'days')
@@ -87,6 +101,15 @@ const updateIntercom = async (req, res) => {
 
 			createdProjectsEvents: userEvents(where: {
 				type_in: CREATED_PROJECT
+				createdAt_gt: "${moment()
+		.subtract(30, 'days')
+		.format()}"
+			}) {
+				createdAt
+			}
+
+			createdTasksEvents: userEvents(where: {
+				type_in: ADDED_TASK
 				createdAt_gt: "${moment()
 		.subtract(30, 'days')
 		.format()}"
@@ -165,6 +188,7 @@ const updateIntercom = async (req, res) => {
 			const activeSessionsCount = activeSessions.length;
 			const finishedTasksEventsCount = user.finishedTasksEvents.length;
 			const createdProjectsEventsCount = user.createdProjectsEvents.length;
+			const createdTasksEventsCount = user.createdTasksEvents.length;
 			const customerProjectViewsCount = user.projects.reduce(
 				(sum, project) => sum + project.customer.customerEvents.length,
 				0,
@@ -178,6 +202,7 @@ const updateIntercom = async (req, res) => {
 					'active-days-last-7-days': activeSessionsCount,
 					'tasks-finished-last-7-days': finishedTasksEventsCount,
 					'projects-created-last-30-days': createdProjectsEventsCount,
+					'tasks-created-last-30-days': createdTasksEventsCount,
 					'customer-project-views-last-15-days': customerProjectViewsCount,
 				},
 			});

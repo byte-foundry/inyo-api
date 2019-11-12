@@ -19,12 +19,25 @@ const sendDeadlineApproachingEmail = async ({userId}) => {
 					tasks_some: {
 						dueDate_lt: moment().add(1, 'days'),
 						dueDate_gt: moment(),
+						OR: [
+							{
+								section: null,
+							},
+							{
+								section: {
+									project: {
+										status: 'ONGOING',
+									},
+								},
+							},
+						],
 					},
 				},
 				{
 					projects: {
 						deadline_lt: moment().add(1, 'days'),
 						deadline_gt: moment(),
+						status: 'ONGOING',
 					},
 				},
 			],

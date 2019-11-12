@@ -148,7 +148,25 @@ const Query = {
 				'INVOICE_FOURTH',
 				'INVOICE_LAST',
 			],
-			item: createItemOwnerFilter(getUserId(ctx)),
+			item: {
+				AND: [
+					createItemOwnerFilter(getUserId(ctx)),
+					{
+						OR: [
+							{
+								section: null,
+							},
+							{
+								section: {
+									project: {
+										status: 'ONGOING',
+									},
+								},
+							},
+						],
+					},
+				],
+			},
 			sendingDate_gt: new Date(),
 		},
 	}),
