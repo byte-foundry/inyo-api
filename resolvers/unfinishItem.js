@@ -87,10 +87,6 @@ const unfinishItem = async (parent, {id, token}, ctx) => {
 		throw new NotFoundError(`Item '${id}' has not been found.`);
 	}
 
-	if (isCustomerTask(item)) {
-		throw new Error('This item cannot be resetted by the user.');
-	}
-
 	if (item.status !== 'FINISHED') {
 		throw new Error(`Item '${id}' cannot be resetted.`);
 	}
