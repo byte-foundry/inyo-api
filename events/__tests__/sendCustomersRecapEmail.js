@@ -110,6 +110,7 @@ describe('sendCustomersRecapEmail', () => {
 					},
 				],
 			},
+			settings: {language: 'fr'},
 		};
 
 		prisma.user.mockImplementation(() => ({
@@ -130,13 +131,13 @@ describe('sendCustomersRecapEmail', () => {
 				email: 'jeanbon@meatandgreet.test',
 				customerName: ' M. Jean Bon',
 				user: 'Jean Michel',
-				projects: user.company.customers[0].projects.map(project => ({
+				projects: user.company.customers[0].projects.map((project) => ({
 					...project,
 					url: `/${user.company.customers[0].token}/tasks?projectId=${
 						project.id
 					}`,
 				})),
-				tasks: user.company.customers[0].linkedTasks.map(task => ({
+				tasks: user.company.customers[0].linkedTasks.map((task) => ({
 					...task,
 					url: `/${user.company.customers[0].token}/tasks/${task.id}`,
 				})),
@@ -151,13 +152,13 @@ describe('sendCustomersRecapEmail', () => {
 				email: 'camionette@nissanjidosha.jp',
 				customerName: ' Mme Camille Honnête',
 				user: 'Jean Michel',
-				projects: user.company.customers[1].projects.map(project => ({
+				projects: user.company.customers[1].projects.map((project) => ({
 					...project,
 					url: `/${user.company.customers[1].token}/tasks?projectId=${
 						project.id
 					}`,
 				})),
-				tasks: user.company.customers[1].linkedTasks.map(task => ({
+				tasks: user.company.customers[1].linkedTasks.map((task) => ({
 					...task,
 					url: `/${user.company.customers[1].token}/tasks/${task.id}`,
 				})),
