@@ -60,6 +60,9 @@ const sendCustomersRecapEmail = async ({userId}) => {
 			email
 			firstName
 			lastName
+			settings {
+				language
+			}
 			company {
 				customers(
 					where: {
@@ -133,11 +136,11 @@ const sendCustomersRecapEmail = async ({userId}) => {
 							customer.lastName,
 						)}`,
 					).trimRight(),
-					projects: customer.projects.map(project => ({
+					projects: customer.projects.map((project) => ({
 						...project,
-						sections: project.sections.map(section => ({
+						sections: project.sections.map((section) => ({
 							...section,
-							items: section.items.map(item => ({
+							items: section.items.map((item) => ({
 								...item,
 								assignee: item.assignee
 									? formatName(item.assignee.firstName, item.assignee.lastName)
@@ -146,12 +149,12 @@ const sendCustomersRecapEmail = async ({userId}) => {
 						})),
 						url: getAppUrl(`/${customer.token}/tasks?projectId=${project.id}`),
 					})),
-					tasks: customer.linkedTasks.map(task => ({
+					tasks: customer.linkedTasks.map((task) => ({
 						...task,
 						url: getAppUrl(`/${customer.token}/tasks/${task.id}`),
 					})),
 				},
-				{db: prisma},
+				{db: prisma, language: user.settings.language},
 			);
 
 			console.log(
