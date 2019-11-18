@@ -482,6 +482,8 @@ enum ReminderType {
 	INVOICE_THIRD
 	INVOICE_FOURTH
 	INVOICE_LAST
+
+	CUSTOMER_REPORT
 }
 
 enum ReminderStatus {
@@ -503,7 +505,8 @@ enum DAY {
 
 type Reminder {
 	id: ID!
-	item: Item!
+	item: Item
+	customer: Customer
 	type: ReminderType!
 	sendingDate: DateTime!
 	status: ReminderStatus

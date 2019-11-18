@@ -1,14 +1,8 @@
-const gql = String.raw;
-
 const {getUserId, getAppUrl, formatName} = require('../utils');
 const {NotFoundError, AlreadyExistingError} = require('../errors');
 const {sendRequestCollabEmail} = require('../emails/CollabEmail');
 
-const requestCollab = async (
-	parent,
-	{userEmail: email, projectId, inviteSignup},
-	ctx,
-) => {
+const requestCollab = async (parent, {userEmail: email, inviteSignup}, ctx) => {
 	const userEmail = email.toLowerCase();
 
 	// Check requestee exists
