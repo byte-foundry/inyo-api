@@ -22,9 +22,9 @@ const isAuthenticated = rule()(async (parent, args, ctx, info) => {
 		return true;
 	}
 
-	const exists = await ctx.db.$exists.user({id: ctx.userId});
+	const user = await ctx.loaders.userLoader.load(ctx.userId);
 
-	if (exists) return true;
+	if (user) return true;
 
 	return new AuthError();
 });
@@ -44,7 +44,7 @@ const isPayingOrInTrial = rule()(async (parent, args, ctx, info) => {
 		return true;
 	}
 
-	const user = await ctx.db.user({id: ctx.userId});
+	const user = await ctx.loaders.userLoader.load(ctx.userId);
 
 	if (
 		user.lifetimePayment
@@ -60,7 +60,13 @@ const isAdmin = rule()(
 	(parent, {token = null}, ctx) => ADMIN_TOKEN === token || ADMIN_TOKEN === ctx.token,
 );
 
-const isCustomer = rule()((parent, {token = null}, ctx) => ctx.db.$exists.customer({token}));
+const hasToken = rule()((parent, {token = null}) => !!token);
+
+const isCustomer = rule()(async (parent, {token = null}, ctx) => {
+	const customer = await ctx.loaders.customers.load(token);
+
+	return !!customer;
+});
 
 const isItemOwner = and(
 	isAuthenticated,
@@ -151,71 +157,13 @@ const isProjectCustomer = rule()(async (parent, {id, token = null}, ctx) => ctx.
 	],
 }));
 
-const isUserCustomer = rule()(async (parent, args, ctx) => {
-	const hasProjects = await ctx.db.$exists.project({
-		AND: [
-			{
-				OR: [
-					{
-						owner: {
-							id: parent.id,
-						},
-					},
-					{
-						linkedCollaborators_some: {
-							id: parent.id,
-						},
-					},
-				],
-			},
-			{
-				OR: [
-					{
-						token: ctx.token,
-					},
-					{
-						customer: {
-							token: ctx.token,
-						},
-					},
-				],
-			},
-		],
-	});
-	const hasTasks = await ctx.db.$exists.item({
-		AND: [
-			{
-				OR: [
-					{
-						owner: {
-							id: parent.id,
-						},
-					},
-					{
-						assignee: {
-							id: parent.id,
-						},
-					},
-					{
-						section: {
-							project: {
-								linkedCollaborators_some: {
-									id: parent.id,
-								},
-							},
-						},
-					},
-				],
-			},
-			{
-				linkedCustomer: {
-					token: ctx.token,
-				},
-			},
-		],
-	});
+const customerCanSeeContractors = rule()(async (parent, args, ctx) => {
+	const project = await ctx.loaders.projectTokenLoader.load(ctx.token);
 
-	return hasTasks || hasProjects;
+	return (
+		project.owner.id === parent.id
+		|| project.linkedCollaborators.some(c => c.id === parent.id)
+	);
 });
 
 const permissions = shield(
@@ -232,10 +180,26 @@ const permissions = shield(
 			item: or(isAdmin, isItemOwner, isItemCustomer, isItemCollaborator),
 		},
 		User: {
-			id: or(isAdmin, isAuthenticated, isUserCustomer),
-			email: or(isAdmin, isAuthenticated, isUserCustomer),
-			lastName: or(isAdmin, isAuthenticated, isUserCustomer),
-			firstName: or(isAdmin, isAuthenticated, isUserCustomer),
+			id: or(
+				isAdmin,
+				isAuthenticated,
+				chain(hasToken, customerCanSeeContractors),
+			),
+			email: or(
+				isAdmin,
+				isAuthenticated,
+				chain(hasToken, customerCanSeeContractors),
+			),
+			lastName: or(
+				isAdmin,
+				isAuthenticated,
+				chain(hasToken, customerCanSeeContractors),
+			),
+			firstName: or(
+				isAdmin,
+				isAuthenticated,
+				chain(hasToken, customerCanSeeContractors),
+			),
 			'*': or(isAdmin, chain(isAuthenticated, isPayingOrInTrial)),
 		},
 	},

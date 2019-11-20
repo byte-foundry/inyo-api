@@ -1,8 +1,18 @@
 const Reminder = {
 	id: node => node.id,
-	item: (node, args, ctx) => (node.type === 'CUSTOMER_REPORT'
-		? null
-		: ctx.db.reminder({id: node.id}).item()),
+	item: (node, args, ctx) => {
+		if (node.type === 'CUSTOMER_REPORT') {
+			return null;
+		}
+		if (node.item) {
+			return ctx.loaders.reminderLoader.load(node.item.id);
+		}
+		if (node.item === null) {
+			return null;
+		}
+
+		return ctx.loaders.items.byReminderId.load(node.item.id);
+	},
 	customer: node => (node.type === 'CUSTOMER_REPORT' ? node.customer : null),
 	type: node => node.type,
 	sendingDate: node => node.sendingDate,
