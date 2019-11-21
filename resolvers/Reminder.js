@@ -5,13 +5,13 @@ const Reminder = {
 			return null;
 		}
 		if (node.item) {
-			return ctx.loaders.reminderLoader.load(node.item.id);
+			return ctx.loaders.itemLoader.load(node.item.id);
 		}
 		if (node.item === null) {
 			return null;
 		}
 
-		return ctx.loaders.items.byReminderId.load(node.item.id);
+		return ctx.loaders.items.byReminderId.load(node.id);
 	},
 	customer: node => (node.type === 'CUSTOMER_REPORT' ? node.customer : null),
 	type: node => node.type,
