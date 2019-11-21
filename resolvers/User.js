@@ -199,6 +199,40 @@ const User = {
 				description
 				finishedAt
 				createdAt
+				status
+				position
+				timeItTook
+				dueDate
+				tags {
+					id
+				}
+				owner {
+					id
+				}
+				attachments {
+					id
+				}
+				comments {
+					id
+				}
+				reminders(
+					where: {
+						type_in: [
+							DELAY
+							FIRST
+							SECOND
+							LAST
+							INVOICE_DELAY
+							INVOICE_FIRST
+							INVOICE_SECOND
+							INVOICE_THIRD
+							INVOICE_FOURTH
+							INVOICE_LAST
+						]
+					}
+				) {
+					id
+				}
 				assignee {
 					id
 					email
@@ -206,14 +240,11 @@ const User = {
 					lastName
 				}
 				section {
+					id
 					project {
 						deadline
 					}
 				}
-				status
-				position
-				timeItTook
-				dueDate
 			}
 		`);
 

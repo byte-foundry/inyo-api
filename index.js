@@ -5,6 +5,7 @@ const {DeprecatedDirective} = require('graphql-directive-deprecated');
 const {verify} = require('jsonwebtoken');
 
 const {prisma} = require('./generated/prisma-client');
+const {createLoaders} = require('./loaders');
 const {resolvers} = require('./resolvers');
 const {permissions} = require('./permissions');
 const {posthookReceiver} = require('./webhooks/posthookReceiver');
@@ -100,6 +101,7 @@ const server = new GraphQLServer({
 		return {
 			...req,
 			db: prisma,
+			loaders: createLoaders(),
 			userId,
 			language,
 			timeZone,
@@ -143,9 +145,7 @@ if (process.env.APOLLO_ENGINE_KEY) {
 	);
 }
 else {
-	server.start({port: PORT, tracing: 'enabled'}, () => console.log(
-		`Server with Apollo Engine is running on http://localhost:${PORT}`,
-	));
+	server.start({port: PORT, tracing: 'enabled'}, () => console.log(`Server is running on http://localhost:${PORT}`));
 }
 
 subscribeToUpdateIntercom(prisma);

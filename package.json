@@ -20,6 +20,7 @@
 		"aws-sdk": "^2.351.0",
 		"bcrypt": "^3.0.2",
 		"body-parser": "^1.18.3",
+		"dataloader": "^1.4.0",
 		"fast-levenshtein": "^2.0.6",
 		"glouton": "^1.0.0",
 		"graphql": "^14.0.2",

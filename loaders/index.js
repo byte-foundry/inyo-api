@@ -1,0 +1,62 @@
+const Dataloader = require('dataloader');
+
+const {prisma} = require('../generated/prisma-client');
+const {
+	batchGetItemById,
+	batchGetItemByReminderId,
+	batchGetItemByTagId,
+} = require('./items');
+const {
+	batchGetUserById,
+	batchGetUserByTaskId,
+	batchGetCollaboratorsByProjectId,
+} = require('./users');
+const {batchGetCustomerById, batchGetCustomerByTaskId} = require('./customers');
+const {batchGetSectionById, batchGetSectionByItemId} = require('./sections');
+const {
+	batchGetProjectById,
+	batchGetProjectByToken,
+	batchGetProjectBySectionId,
+} = require('./projects');
+const {batchGetTagById} = require('./tags');
+const {batchGetFileById} = require('./files');
+const {batchGetCommentById} = require('./comments');
+const {batchGetReminderById} = require('./reminders');
+
+const createLoaders = () => {
+	const db = prisma;
+
+	return {
+		itemLoader: new Dataloader(ids => batchGetItemById(ids, db)),
+		userLoader: new Dataloader(ids => batchGetUserById(ids, db)),
+		projectLoader: new Dataloader(tokens => batchGetProjectById(tokens, db)),
+		projectTokenLoader: new Dataloader(tokens => batchGetProjectByToken(tokens, db)),
+		customerLoader: new Dataloader(ids => batchGetCustomerById(ids, db)),
+		sectionLoader: new Dataloader(ids => batchGetSectionById(ids, db)),
+		tagLoader: new Dataloader(ids => batchGetTagById(ids, db)),
+		fileLoader: new Dataloader(ids => batchGetFileById(ids, db)),
+		commentLoader: new Dataloader(ids => batchGetCommentById(ids, db)),
+		reminderLoader: new Dataloader(ids => batchGetReminderById(ids, db)),
+		sections: {
+			byItemId: new Dataloader(ids => batchGetSectionByItemId(ids, db)),
+		},
+		projects: {
+			bySectionId: new Dataloader(ids => batchGetProjectBySectionId(ids, db)),
+		},
+		items: {
+			byReminderId: new Dataloader(ids => batchGetItemByReminderId(ids, db)),
+			byTagId: new Dataloader(ids => batchGetItemByTagId(ids, db)),
+		},
+		users: {
+			byTaskId: new Dataloader(ids => batchGetUserByTaskId(ids, db)),
+			collaboratorsByProjectId: new Dataloader(ids => batchGetCollaboratorsByProjectId(ids, db)),
+		},
+		customers: {
+			byTaskId: new Dataloader(ids => batchGetCustomerByTaskId(ids, db)),
+		},
+	};
+};
+
+module.exports = {
+	createLoaders,
+};

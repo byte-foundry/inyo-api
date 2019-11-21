@@ -573,7 +573,7 @@ type Item {
 	createdAt: DateTime!
 
 	isFocused: Boolean!
-		@deprecated(reason: "Focus has been replaced with scheduleFor.")
+		@deprecated(reason: "Focus has been replaced with scheduledFor.")
 	reviewer: Reviewer @deprecated(reason: "Use `type: CUSTOMER` instead.")
 	unitPrice: Int @deprecated(reason: "Unit price is not used anymore.")
 	pendingUnit: Float

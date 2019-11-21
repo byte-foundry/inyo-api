@@ -420,6 +420,7 @@ type User {
 	tasks: [Item!]! @relation(name: "UserTasks", onDelete: CASCADE)
 	focusedTasks: [Item!]! @relation(name: "UserFocusedTasks", onDelete: CASCADE)
 	projects: [Project!]! @relation(name: "UserProjects", onDelete: CASCADE)
+	collaborationProjects: [Project!]! @relation(name: "CollaboratorsProject")
 	files: [File!]! @relation(name: "UserFiles", onDelete: CASCADE)
 	comments: [Comment!]! @relation(name: "CommentAuthorUser")
 	notifications: [Notification!]! @relation(name: "UserNotifications")

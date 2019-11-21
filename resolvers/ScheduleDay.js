@@ -1,5 +1,7 @@
 const moment = require('moment-timezone');
 
+const gql = String.raw;
+
 const {
 	createItemOwnerFilter,
 	createItemCollaboratorFilter,
@@ -56,7 +58,62 @@ const ScheduleDay = {
 			],
 		},
 		orderBy: 'schedulePosition_ASC',
-	}),
+	}).$fragment(gql`
+			fragment TaskWithProjet on Item {
+				id
+				scheduledFor
+				schedulePosition
+				name
+				type
+				description
+				unit
+				status
+				reviewer
+				finishedAt
+				position
+				dailyRate
+				dueDate
+				createdAt
+				updatedAt
+				timeItTook
+				tags {
+					id
+				}
+				owner {
+					id
+				}
+				attachments {
+					id
+				}
+				comments {
+					id
+				}
+				reminders(
+					where: {
+						type_in: [
+							DELAY
+							FIRST
+							SECOND
+							LAST
+							INVOICE_DELAY
+							INVOICE_FIRST
+							INVOICE_SECOND
+							INVOICE_THIRD
+							INVOICE_FOURTH
+							INVOICE_LAST
+						]
+					}
+				) {
+					id
+				}
+				assignee {
+					id
+				}
+				section {
+					id
+				}
+			}
+		`),
 	reminders: (node, args, ctx) => ctx.db.reminders({
 		where: {
 			item: {
@@ -90,7 +147,17 @@ const ScheduleDay = {
 				.endOf('day')
 				.toISOString(),
 		},
-	}),
+	}).$fragment(gql`
+			fragment TaskWithProjet on Reminder {
+				id
+				type
+				sendingDate
+				status
+				item {
+					id
+				}
+			}
+		`),
 	deadlines: async (node, args, ctx) => {
 		const projects = await ctx.db.projects({
 			where: {

@@ -16,24 +16,30 @@ const Project = {
 	id: node => node.id,
 	name: node => node.name,
 	template: node => node.template,
-	customer: (node, args, ctx) => ctx.db.project({id: node.id}).customer(),
+	customer: (node, args, ctx) => {
+		if (node.customer) {
+			return ctx.loaders.customerLoader.load(node.customer.id);
+		}
+		if (node.customer === null) {
+			return null;
+		}
+
+		return ctx.db.project({id: node.id}).customer();
+	},
 	token: node => node.token,
-	owner: (node, args, ctx) => ctx.db.project({id: node.id}).owner(),
+	owner: (node, args, ctx) => {
+		if (node.owner) {
+			return ctx.loaders.userLoader.load(node.owner.id);
+		}
+
+		return ctx.db.project({id: node.id}).owner();
+	},
 	sharedNotes: node => node.sharedNotes,
 	personalNotes: node => node.personalNotes,
-	issuer: async (node, args, ctx) => {
-		const owner = await ctx.db
-			.project({id: node.id})
-			.customer()
-			.serviceCompany();
-
-		if (owner) return owner;
-
-		return ctx.db
-			.project({id: node.id})
-			.owner()
-			.company();
-	},
+	issuer: async (node, args, ctx) => ctx.db
+		.project({id: node.id})
+		.owner()
+		.company(),
 	total: async (node, args, ctx) => {
 		const {sections} = await ctx.db.project({id: node.id}).$fragment(gql`
 			fragment ProjectUnits on Project {
@@ -51,7 +57,16 @@ const Project = {
 		);
 	},
 	status: node => node.status,
-	sections: (node, args, ctx) => ctx.db.project({id: node.id}).sections({orderBy: 'position_ASC'}),
+	sections: (node, args, ctx) => {
+		if (node.sections) {
+			return ctx.loaders.sectionLoader.loadMany(node.sections);
+		}
+
+		return ctx.db.sections({
+			where: {project: {id: node.id}},
+			orderBy: 'position_ASC',
+		});
+	},
 	viewedByCustomer: node => node.viewedByCustomer,
 	issuedAt: node => node.issuedAt,
 	deadline: node => node.deadline,
@@ -123,7 +138,15 @@ const Project = {
 			],
 		},
 	}),
-	linkedCollaborators: (node, args, ctx) => ctx.db.project({id: node.id}).linkedCollaborators(),
+	linkedCollaborators: (node, args, ctx) => {
+		if (node.linkedCollaborators) {
+			return ctx.loaders.userLoader.loadMany(
+				node.linkedCollaborators.map(c => c.id),
+			);
+		}
+
+		return ctx.loaders.users.collaboratorsByProjectId.load(node.id);
+	},
 };
 
 module.exports = {
