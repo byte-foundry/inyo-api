@@ -26,7 +26,7 @@ const isAuthenticated = rule()((parent, args, ctx, info) => {
 	return new AuthError();
 });
 
-const isPayingOrInTrial = rule()(async (parent, args, ctx, info) => {
+const isPayingOrInTrial = rule()((parent, args, ctx, info) => {
 	if (ctx.token) {
 		return new AuthError();
 	}
