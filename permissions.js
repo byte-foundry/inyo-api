@@ -1,4 +1,3 @@
-const moment = require('moment');
 const {
 	rule, shield, and, or, chain,
 } = require('graphql-shield');
@@ -7,7 +6,7 @@ const {AuthError, PaymentError} = require('./errors');
 
 const {ADMIN_TOKEN} = process.env;
 
-const isAuthenticated = rule()(async (parent, args, ctx, info) => {
+const isAuthenticated = rule()((parent, args, ctx, info) => {
 	if (ctx.token) {
 		return new AuthError();
 	}
@@ -22,9 +21,7 @@ const isAuthenticated = rule()(async (parent, args, ctx, info) => {
 		return true;
 	}
 
-	const user = await ctx.loaders.userLoader.load(ctx.userId);
-
-	if (user) return true;
+	if (ctx.isAuthenticated) return true;
 
 	return new AuthError();
 });
@@ -44,12 +41,7 @@ const isPayingOrInTrial = rule()(async (parent, args, ctx, info) => {
 		return true;
 	}
 
-	const user = await ctx.loaders.userLoader.load(ctx.userId);
-
-	if (
-		user.lifetimePayment
-		|| moment().diff(moment(user.createdAt), 'days') < 21
-	) {
+	if (ctx.isPayingOrInTrial) {
 		return true;
 	}
 

@@ -1,4 +1,5 @@
 const gql = String.raw;
+const {ensureKeyOrder} = require('../utils');
 
 const customersScalars = `
 	id
@@ -28,7 +29,13 @@ const CustomersWithRelationsFragment = gql`
 	}
 `;
 
-const batchGetCustomerById = (ids, db) => db.customers({where: {id_in: ids}}).$fragment(CustomersWithRelationsFragment);
+const batchGetCustomerById = async (ids, db) => {
+	const customers = await db
+		.customers({where: {id_in: ids}})
+		.$fragment(CustomersWithRelationsFragment);
+
+	return ensureKeyOrder(ids, customers);
+};
 
 const batchGetCustomerByTaskId = async (ids, db) => {
 	const idsFilter = JSON.stringify(ids);

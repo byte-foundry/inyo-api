@@ -3,6 +3,7 @@ const {ApolloEngine} = require('apollo-engine');
 const bodyParser = require('body-parser');
 const {DeprecatedDirective} = require('graphql-directive-deprecated');
 const {verify} = require('jsonwebtoken');
+const moment = require('moment');
 
 const {prisma} = require('./generated/prisma-client');
 const {createLoaders} = require('./loaders');
@@ -57,6 +58,25 @@ const server = new GraphQLServer({
 		const userId = getUserId(request);
 		const token = getToken(request);
 
+		let user = null;
+
+		let isAuthenticated = false;
+
+		let isPayingOrInTrial = false;
+
+		if (userId) {
+			user = await prisma.user({id: userId});
+			isAuthenticated = !!user;
+
+			if (
+				user
+				&& (user.lifetimePayment
+					|| moment().diff(moment(user.createdAt), 'days') < 21)
+			) {
+				isPayingOrInTrial = true;
+			}
+		}
+
 		let language = 'fr';
 
 		let timeZone = 'Europe/Paris';
@@ -103,6 +123,8 @@ const server = new GraphQLServer({
 			db: prisma,
 			loaders: createLoaders(),
 			userId,
+			isAuthenticated,
+			isPayingOrInTrial,
 			language,
 			timeZone,
 			token,
