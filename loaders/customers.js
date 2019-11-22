@@ -37,6 +37,14 @@ const batchGetCustomerById = async (ids, db) => {
 	return ensureKeyOrder(ids, customers);
 };
 
+const batchGetCustomerByToken = async (tokens, db) => {
+	const customers = await db
+		.customers({where: {token_in: tokens}})
+		.$fragment(CustomersWithRelationsFragment);
+
+	return ensureKeyOrder(tokens, customers, undefined, 'token');
+};
+
 const batchGetCustomerByTaskId = async (ids, db) => {
 	const idsFilter = JSON.stringify(ids);
 	const customers = await db.customers({
@@ -84,5 +92,6 @@ const batchGetCustomerByTaskId = async (ids, db) => {
 
 module.exports = {
 	batchGetCustomerById,
+	batchGetCustomerByToken,
 	batchGetCustomerByTaskId,
 };

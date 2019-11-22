@@ -52,10 +52,10 @@ const isAdmin = rule()(
 	(parent, {token = null}, ctx) => ADMIN_TOKEN === token || ADMIN_TOKEN === ctx.token,
 );
 
-const hasToken = rule()((parent, {token = null}) => !!token);
+const hasToken = rule()((parent, args, {token = null}) => !!token);
 
 const isCustomer = rule()(async (parent, {token = null}, ctx) => {
-	const customer = await ctx.loaders.customers.load(token);
+	const customer = await ctx.loaders.customerTokenLoader.load(token);
 
 	return !!customer;
 });
@@ -150,11 +150,11 @@ const isProjectCustomer = rule()(async (parent, {id, token = null}, ctx) => ctx.
 }));
 
 const customerCanSeeContractors = rule()(async (parent, args, ctx) => {
-	const project = await ctx.loaders.projectTokenLoader.load(ctx.token);
+	const projects = await ctx.loaders.projectTokenLoader.load(ctx.token);
 
-	return (
-		project.owner.id === parent.id
-		|| project.linkedCollaborators.some(c => c.id === parent.id)
+	return projects.some(
+		project => project.owner.id === parent.id
+			|| project.linkedCollaborators.some(c => c.id === parent.id),
 	);
 });
 

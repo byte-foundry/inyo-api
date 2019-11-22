@@ -22,6 +22,7 @@ const ProjectWithRelationsFragment = gql`
 		}
 		customer {
 			id
+			token
 		}
 		linkedCollaborators {
 			id
@@ -40,22 +41,44 @@ const batchGetProjectById = async (ids, db) => {
 	return ensureKeyOrder(ids, projects);
 };
 
-const batchGetProjectByToken = (tokens, db) => db
-	.projects({
-		where: {
-			OR: [
-				{
-					token_in: tokens,
-				},
-				{
-					customer: {
+const batchGetProjectByToken = async (tokens, db) => {
+	const projects = await db
+		.projects({
+			where: {
+				OR: [
+					{
 						token_in: tokens,
 					},
-				},
-			],
-		},
-	})
-	.$fragment(ProjectWithRelationsFragment);
+					{
+						customer: {
+							token_in: tokens,
+						},
+					},
+				],
+			},
+		})
+		.$fragment(ProjectWithRelationsFragment);
+
+	const map = new Map();
+
+	projects.forEach((project) => {
+		map.set(project.token, [project]);
+		if (project.customer) {
+			const existingValue = map.get(project.customer.token);
+
+			if (existingValue) {
+				existingValue.push(project);
+			}
+			else {
+				map.set(project.customer.token, [project]);
+			}
+		}
+	});
+
+	return tokens.map(
+		key => map.get(key) || new Error(`Document does not exist for ${key}`),
+	);
+};
 
 const batchGetProjectBySectionId = async (ids, db) => {
 	const projects = await db
