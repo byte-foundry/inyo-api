@@ -1,4 +1,5 @@
 const gql = String.raw;
+const {ensureKeyOrder} = require('../utils');
 
 const FileWithRelationsFragment = gql`
 	fragment FileWithRelationsId on File {
@@ -23,7 +24,13 @@ const FileWithRelationsFragment = gql`
 	}
 `;
 
-const batchGetFileById = (ids, db) => db.files({where: {id_in: ids}}).$fragment(FileWithRelationsFragment);
+const batchGetFileById = async (ids, db) => {
+	const files = await db
+		.files({where: {id_in: ids}})
+		.$fragment(FileWithRelationsFragment);
+
+	return ensureKeyOrder(ids, files);
+};
 
 module.exports = {
 	batchGetFileById,

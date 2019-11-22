@@ -1,4 +1,5 @@
 const gql = String.raw;
+const {ensureKeyOrder} = require('../utils');
 
 const ItemWithRelationsFragment = gql`
 	fragment ItemWithRelationsId on Item {
@@ -27,7 +28,13 @@ const ItemWithRelationsFragment = gql`
 	}
 `;
 
-const batchGetItemById = (ids, db) => db.items({where: {id_in: ids}}).$fragment(ItemWithRelationsFragment);
+const batchGetItemById = async (ids, db) => {
+	const items = await db
+		.items({where: {id_in: ids}})
+		.$fragment(ItemWithRelationsFragment);
+
+	return ensureKeyOrder(ids, items);
+};
 
 const batchGetItemByReminderId = async (ids, db) => {
 	const items = await db

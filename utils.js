@@ -107,6 +107,18 @@ const reorderList = async (list, position, nextPosition, updateItem) => {
 	);
 };
 
+const ensureKeyOrder = (
+	keys,
+	docs,
+	error = key => `Document does not exist for ${key}`,
+) => {
+	const docsMap = new Map();
+
+	docs.forEach(doc => docsMap.set(doc.id, doc));
+
+	return keys.map(key => docsMap.get(key) || new Error(error(key)));
+};
+
 const TAG_COLOR_PALETTE = [
 	[[244, 67, 54], [255, 255, 255]],
 	[[233, 30, 99], [255, 255, 255]],
@@ -142,5 +154,6 @@ module.exports = {
 	isCustomerTask,
 	filterDescription,
 	reorderList,
+	ensureKeyOrder,
 	TAG_COLOR_PALETTE,
 };
