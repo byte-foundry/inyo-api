@@ -111,10 +111,11 @@ const ensureKeyOrder = (
 	keys,
 	docs,
 	error = key => `Document does not exist for ${key}`,
+	keyName = 'id',
 ) => {
 	const docsMap = new Map();
 
-	docs.forEach(doc => docsMap.set(doc.id, doc));
+	docs.forEach(doc => docsMap.set(doc[keyName], doc));
 
 	return keys.map(key => docsMap.get(key) || new Error(error(key)));
 };

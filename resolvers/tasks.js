@@ -87,6 +87,7 @@ const tasks = async (root, {filter, sort, projectId}, ctx) => {
 			unit
 			description
 			section {
+				id
 				project {
 					deadline
 				}

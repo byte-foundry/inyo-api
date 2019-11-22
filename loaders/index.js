@@ -11,7 +11,11 @@ const {
 	batchGetUserByTaskId,
 	batchGetCollaboratorsByProjectId,
 } = require('./users');
-const {batchGetCustomerById, batchGetCustomerByTaskId} = require('./customers');
+const {
+	batchGetCustomerById,
+	batchGetCustomerByToken,
+	batchGetCustomerByTaskId,
+} = require('./customers');
 const {batchGetSectionById, batchGetSectionByItemId} = require('./sections');
 const {
 	batchGetProjectById,
@@ -32,6 +36,7 @@ const createLoaders = () => {
 		projectLoader: new Dataloader(tokens => batchGetProjectById(tokens, db)),
 		projectTokenLoader: new Dataloader(tokens => batchGetProjectByToken(tokens, db)),
 		customerLoader: new Dataloader(ids => batchGetCustomerById(ids, db)),
+		customerTokenLoader: new Dataloader(ids => batchGetCustomerByToken(ids, db)),
 		sectionLoader: new Dataloader(ids => batchGetSectionById(ids, db)),
 		tagLoader: new Dataloader(ids => batchGetTagById(ids, db)),
 		fileLoader: new Dataloader(ids => batchGetFileById(ids, db)),
