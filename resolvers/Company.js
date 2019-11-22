@@ -12,6 +12,7 @@ const Company = {
 	rm: node => node.rm,
 	vat: node => node.vat,
 	logo: (node, args, ctx) => ctx.db.company({id: node.id}).logo(),
+	banner: (node, args, ctx) => ctx.db.company({id: node.id}).banner(),
 	customers: (node, args, ctx) => ctx.db.company({id: node.id}).customers(),
 	quotes: () => {
 		throw new Error('Quotes are not supported anymore');

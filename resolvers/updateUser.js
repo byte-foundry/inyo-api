@@ -33,7 +33,13 @@ const updateUser = async (
 	let logo;
 
 	if (company && company.logo) {
-		logo = await processUpload(company.logo, ctx, userId);
+		logo = await processUpload(company.logo, ctx, userId, 500000);
+	}
+
+	let banner;
+
+	if (company && company.banner) {
+		banner = await processUpload(company.banner, ctx, userId, 500000);
 	}
 
 	if (
@@ -76,6 +82,7 @@ const updateUser = async (
 						},
 					},
 					logo: logo && {connect: {id: logo.id}},
+					banner: banner && {connect: {id: banner.id}},
 				},
 			},
 			settings: settings && {
