@@ -23,6 +23,8 @@ const {
 	batchGetProjectBySectionId,
 } = require('./projects');
 const {batchGetTagById} = require('./tags');
+const {batchGetEmailParamById} = require('./emailParams');
+const {batchGetEmailTypeById} = require('./emailTypes');
 const {batchGetFileById} = require('./files');
 const {batchGetCommentById} = require('./comments');
 const {batchGetReminderById} = require('./reminders');
@@ -39,6 +41,8 @@ const createLoaders = () => {
 		customerTokenLoader: new Dataloader(ids => batchGetCustomerByToken(ids, db)),
 		sectionLoader: new Dataloader(ids => batchGetSectionById(ids, db)),
 		tagLoader: new Dataloader(ids => batchGetTagById(ids, db)),
+		emailParamLoader: new Dataloader(ids => batchGetEmailParamById(ids, db)),
+		emailTypeLoader: new Dataloader(ids => batchGetEmailTypeById(ids, db)),
 		fileLoader: new Dataloader(ids => batchGetFileById(ids, db)),
 		commentLoader: new Dataloader(ids => batchGetCommentById(ids, db)),
 		reminderLoader: new Dataloader(ids => batchGetReminderById(ids, db)),

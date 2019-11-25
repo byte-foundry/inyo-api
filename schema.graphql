@@ -301,6 +301,14 @@ type Mutation {
 	removeLinkToProject(projectId: ID!, collaboratorId: ID!): Project!
 	removeCollab(collaboratorId: ID!): User!
 	cancelRequestCollab(collabRequestId: ID!): CollabRequest!
+
+	updateEmailTemplate(
+		id: ID!
+		timing: String
+		subject: Json
+		content: Json
+		usedParameters: [ID!]!
+	): EmailTemplate!
 }
 
 input CommentInput {
@@ -501,6 +509,13 @@ enum DAY {
 	FRIDAY
 	SATURDAY
 	SUNDAY
+}
+
+enum EmailCategory {
+	CUSTOMER
+	DAILY_REPORT
+	CONTENT_ACQUISITION
+	INVOICE
 }
 
 type Reminder {
@@ -868,4 +883,31 @@ type ScheduleDay {
 	tasks: [Item!]!
 	reminders: [Reminder!]!
 	deadlines: [DeadlineObject!]!
+}
+
+type EmailType {
+	id: ID!
+	category: EmailCategory!
+	defaultTemplate: EmailTemplate
+	availableParams: [EmailParamForType!]!
+}
+
+type EmailParamForType {
+	param: EmailParam!
+	required: Boolean!
+}
+
+type EmailParam {
+	id: ID!
+	label: String!
+	name: String!
+}
+
+type EmailTemplate {
+	id: ID!
+	type: EmailType!
+	timing: String!
+	subject: Json!
+	content: Json!
+	owner: User!
 }
