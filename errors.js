@@ -1,3 +1,5 @@
+/* eslint-disable max-classes-per-file */
+
 const {ApolloError} = require('apollo-server');
 
 class AuthError extends ApolloError {
@@ -30,10 +32,17 @@ class AlreadyExistingError extends ApolloError {
 	}
 }
 
+class FileTooBigError extends ApolloError {
+	constructor(message = 'File size is too big.') {
+		super(message, 'FileTooBig');
+	}
+}
+
 module.exports = {
 	AuthError,
 	InsufficientDataError,
 	NotFoundError,
 	AlreadyExistingError,
 	PaymentError,
+	FileTooBigError,
 };
