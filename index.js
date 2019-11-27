@@ -1,7 +1,9 @@
-const {GraphQLServer} = require('graphql-yoga');
-const {ApolloEngine} = require('apollo-engine');
+const express = require('express');
+const {ApolloServer, makeExecutableSchema} = require('apollo-server-express');
+const {applyMiddleware} = require('graphql-middleware');
 const bodyParser = require('body-parser');
 const {DeprecatedDirective} = require('graphql-directive-deprecated');
+const {importSchema} = require('graphql-import');
 const {verify} = require('jsonwebtoken');
 const moment = require('moment');
 
@@ -41,15 +43,16 @@ const getUserId = (request) => {
 
 const getToken = request => request.get('tokenFromRequest') || null;
 
-const server = new GraphQLServer({
-	typeDefs: 'schema.graphql',
+const typeDefs = importSchema('schema.graphql');
+const schema = makeExecutableSchema({typeDefs, resolvers});
+const schemaWithMiddlewares = applyMiddleware(schema, permissions);
+
+const server = new ApolloServer({
+	schema: schemaWithMiddlewares,
 	schemaDirectives: {
 		deprecated: DeprecatedDirective,
 	},
-	resolvers,
-	middlewares: [permissions],
-	context: async (req) => {
-		const {request} = req;
+	context: async ({req: request}) => {
 		const xForwardedFor = (request.headers['x-forwarded-for'] || '').replace(
 			/:\d+$/,
 			'',
@@ -119,7 +122,7 @@ const server = new GraphQLServer({
 		}
 
 		return {
-			...req,
+			request,
 			db: prisma,
 			loaders: createLoaders(),
 			userId,
@@ -131,44 +134,36 @@ const server = new GraphQLServer({
 			ip,
 		};
 	},
+	playground: true,
+	debug: process.env.NODE_ENV === 'development',
+	introspection: true,
+	tracing: true,
+	cacheControl: true,
+	engine: {
+		apiKey: process.env.APOLLO_ENGINE_KEY,
+	},
 });
 
-server.express.post('/schedule-daily-mails', scheduleDailyMails);
-server.express.post('/update-intercom', updateIntercom);
+const app = express();
 
-server.express.post('/posthook-receiver', bodyParser.json(), posthookReceiver);
-server.express.post(
+server.applyMiddleware({
+	app,
+	path: '/',
+});
+
+app.post('/schedule-daily-mails', scheduleDailyMails);
+app.post('/update-intercom', updateIntercom);
+
+app.post('/posthook-receiver', bodyParser.json(), posthookReceiver);
+app.post(
 	'/lifetime-payment',
 	bodyParser.raw({type: 'application/json'}),
 	paymentFromStripe,
 );
 
-server.express.post('/prep-for-test', bodyParser.json(), teardownAndSetupTest);
+app.post('/prep-for-test', bodyParser.json(), teardownAndSetupTest);
 
-if (process.env.APOLLO_ENGINE_KEY) {
-	const engine = new ApolloEngine({
-		apiKey: process.env.APOLLO_ENGINE_KEY,
-	});
-
-	const httpServer = server.createHttpServer({
-		tracing: true,
-		cacheControl: true,
-	});
-
-	engine.listen(
-		{
-			port: PORT,
-			httpServer,
-			graphqlPaths: ['/'],
-		},
-		() => console.log(
-			`Server with Apollo Engine is running on http://localhost:${PORT}`,
-		),
-	);
-}
-else {
-	server.start({port: PORT, tracing: 'enabled'}, () => console.log(`Server is running on http://localhost:${PORT}`));
-}
+app.listen({port: PORT}, () => console.log(`Server is running on http://localhost:${PORT}`));
 
 subscribeToUpdateIntercom(prisma);
 notifyViewedProject(prisma);
