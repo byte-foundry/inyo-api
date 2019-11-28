@@ -33,6 +33,7 @@
 		"graphql-shield": "7.0.2",
 		"intercom-client": "^2.10.4",
 		"jsonwebtoken": "^8.3.0",
+		"lodash.merge": "^4.6.2",
 		"moment": "^2.22.2",
 		"moment-timezone": "^0.5.23",
 		"node-fetch": "^2.2.1",

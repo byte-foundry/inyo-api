@@ -6,6 +6,7 @@ const {DeprecatedDirective} = require('graphql-directive-deprecated');
 const {importSchema} = require('graphql-import');
 const {verify} = require('jsonwebtoken');
 const moment = require('moment');
+const merge = require('lodash.merge');
 
 const {prisma} = require('./generated/prisma-client');
 const {createLoaders} = require('./loaders');
@@ -18,6 +19,7 @@ const {teardownAndSetupTest} = require('./cypress-setup/teardownAndSetupTest');
 const {updateIntercom} = require('./webhooks/updateIntercom');
 const {subscribeToUpdateIntercom} = require('./intercomTracking');
 const {notifyViewedProject} = require('./notifyViewedProject');
+const unsplash = require('./lib/unsplash');
 
 const {PORT, APP_SECRET} = process.env;
 const gql = String.raw;
@@ -44,11 +46,17 @@ const getUserId = (request) => {
 const getToken = request => request.get('tokenFromRequest') || null;
 
 const typeDefs = importSchema('schema.graphql');
-const schema = makeExecutableSchema({typeDefs, resolvers});
+const schema = makeExecutableSchema({
+	typeDefs,
+	resolvers: merge(resolvers, unsplash.resolvers),
+});
 const schemaWithMiddlewares = applyMiddleware(schema, permissions);
 
 const server = new ApolloServer({
 	schema: schemaWithMiddlewares,
+	dataSources: () => ({
+		photo: new unsplash.dataSources.PhotoAPI(),
+	}),
 	schemaDirectives: {
 		deprecated: DeprecatedDirective,
 	},

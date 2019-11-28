@@ -367,6 +367,7 @@ type Company {
 	vat: String
 	logo: File @relation(name: "CompanyLogo", onDelete: CASCADE)
 	banner: File @relation(name: "CompanyBanner", onDelete: CASCADE)
+	bannerUnsplashId: String
 	customers: [Customer!]! @relation(name: "CompanyCustomers", onDelete: CASCADE)
 }
 
