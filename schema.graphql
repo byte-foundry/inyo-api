@@ -31,6 +31,7 @@ type Query {
 	): [Item!]!
 	# Get user account activity
 	activity(projectId: ID!): [Event!]!
+	emailTypes: [EmailType!]!
 }
 
 type Mutation {
@@ -759,6 +760,7 @@ type User {
 	tags: [Tag!]!
 	signedUpAt: DateTime!
 	lifetimePayment: Boolean!
+	emailTemplates: [EmailTemplate!]!
 }
 
 type CollabRequest {
@@ -887,19 +889,21 @@ type ScheduleDay {
 
 type EmailType {
 	id: ID!
+	name: String!
 	category: EmailCategory!
+	position: Int
 	defaultTemplate: EmailTemplate
 	availableParams: [EmailParamForType!]!
 }
 
 type EmailParamForType {
+	id: ID!
 	param: EmailParam!
 	required: Boolean!
 }
 
 type EmailParam {
 	id: ID!
-	label: String!
 	name: String!
 }
 

@@ -548,6 +548,8 @@ type Tag {
 
 type EmailType {
 	id: ID! @unique
+	name: String
+	position: Int
 	category: EmailCategory!
 	defaultTemplate: EmailTemplate @relation(name: "EmailTypeDefaultTemplate")
 	availableParams: [EmailParamForType!]! @relation(name: "EmailTypeParams")
@@ -561,7 +563,7 @@ type EmailParamForType {
 
 type EmailParam {
 	id: ID! @unique
-	label: String!
+	paramId: String! @unique
 	name: String!
 }
 

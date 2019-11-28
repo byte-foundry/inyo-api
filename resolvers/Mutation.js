@@ -46,6 +46,7 @@ const {
 	sendReminderPreviewTestEmail,
 } = require('./sendReminderPreviewTestEmail');
 const {markNotificationsAsRead} = require('./markNotificationsAsRead');
+const {updateEmailTemplate} = require('./updateEmailTemplate');
 
 const Mutation = {
 	checkEmailAvailability,
@@ -142,6 +143,7 @@ const Mutation = {
 	linkToProject,
 	removeAssignmentToTask,
 	removeLinkToProject,
+	updateEmailTemplate,
 };
 
 module.exports = {

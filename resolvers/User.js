@@ -301,6 +301,20 @@ const User = {
 	}),
 	signedUpAt: node => node.createdAt,
 	lifetimePayment: node => node.lifetimePayment,
+	emailTemplates: (node, args, ctx) => ctx.db.user({id: node.id}).emailTemplates().$fragment(gql`
+			fragment TemplatesInUser on EmailTemplate {
+				id
+				timing
+				subject
+				content
+				type {
+					id
+				}
+				owner {
+					id
+				}
+			}
+		`),
 };
 
 module.exports = {

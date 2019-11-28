@@ -30,6 +30,10 @@ const {Event} = require('./Event');
 const {EventEmitter} = require('./EventEmitter');
 const {EventObject} = require('./EventObject');
 const {EventSubject} = require('./EventSubject');
+const {EmailType} = require('./EmailType');
+const {EmailParam} = require('./EmailParam');
+const {EmailParamForType} = require('./EmailParamForType');
+const {EmailTemplate} = require('./EmailTemplate');
 
 const resolvers = {
 	TimeZone: GraphQLTimeZone,
@@ -70,6 +74,10 @@ const resolvers = {
 	EventEmitter,
 	EventObject,
 	EventSubject,
+	EmailType,
+	EmailParam,
+	EmailParamForType,
+	EmailTemplate,
 };
 
 module.exports = {

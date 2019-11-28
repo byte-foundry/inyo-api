@@ -10,6 +10,13 @@ const EmailTemplate = {
 	timing: node => node.timing,
 	subject: node => node.subject,
 	content: node => node.content,
+	owner: (node, args, ctx) => {
+		if (node.owner) {
+			ctx.loaders.userLoader.load(node.owner.id);
+		}
+
+		return ctx.db.emailTemplate({id: node.id}).owner();
+	},
 };
 
 module.exports = {

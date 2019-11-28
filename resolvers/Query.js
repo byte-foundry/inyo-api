@@ -46,6 +46,7 @@ const Query = {
 
 		return project;
 	},
+	emailTypes: (root, args, ctx) => ctx.db.emailTypes(),
 	quote: () => {
 		throw new Error('Quotes are not supported anymore');
 	},
