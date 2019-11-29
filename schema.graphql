@@ -892,7 +892,6 @@ type EmailType {
 	name: String!
 	category: EmailCategory!
 	position: Int
-	defaultTemplate: EmailTemplate
 	availableParams: [EmailParamForType!]!
 }
 

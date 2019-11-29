@@ -551,7 +551,6 @@ type EmailType {
 	name: String
 	position: Int
 	category: EmailCategory!
-	defaultTemplate: EmailTemplate @relation(name: "EmailTypeDefaultTemplate")
 	availableParams: [EmailParamForType!]! @relation(name: "EmailTypeParams")
 }
 

@@ -45,6 +45,10 @@ const updateUser = async (
 		throw new Error('Language is not supported. Must be either fr or en.');
 	}
 
+	if (settings && settings.language) {
+		createTemplate(ctx, settings.language);
+	}
+
 	return ctx.db.updateUser({
 		where: {id: userId},
 		data: {
