@@ -32,6 +32,7 @@ type Query {
 	# Get user account activity
 	activity(projectId: ID!): [Event!]!
 	emailTypes: [EmailType!]!
+	emailTemplate(typeName: String!, category: String!): EmailTemplate!
 }
 
 type Mutation {
@@ -283,6 +284,7 @@ type Mutation {
 	sendReminderTestEmail(id: ID!): Boolean!
 	# sends a test preview email to the user
 	sendReminderPreviewTestEmail(taskId: ID!, type: ReminderType!): Boolean!
+	sendCustomEmailPreview(templateId: ID!): Boolean!
 
 	markNotificationsAsRead: Boolean!
 	createTag(name: String!, colorBg: String!, colorText: String!): Tag!
@@ -308,7 +310,6 @@ type Mutation {
 		timing: String
 		subject: Json
 		content: Json
-		usedParameters: [ID!]!
 	): EmailTemplate!
 }
 
@@ -903,6 +904,7 @@ type EmailParamForType {
 
 type EmailParam {
 	id: ID!
+	paramId: String!
 	name: String!
 }
 

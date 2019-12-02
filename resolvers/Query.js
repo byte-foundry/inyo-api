@@ -1,5 +1,6 @@
 const {getUserId, createItemOwnerFilter} = require('../utils');
 
+const {createTemplate} = require('../emails/templates');
 const {tasks} = require('./tasks');
 const {activity} = require('./activity');
 const {reminders} = require('./reminders');
@@ -47,6 +48,32 @@ const Query = {
 		return project;
 	},
 	emailTypes: (root, args, ctx) => ctx.db.emailTypes(),
+	emailTemplate: async (root, {typeName, category}, ctx) => {
+		const [template] = await ctx.db.emailTemplates({
+			where: {
+				type: {
+					category,
+					name: typeName,
+				},
+				owner: {
+					id: ctx.userId,
+				},
+			},
+		});
+
+		if (!template) {
+			const [type] = await ctx.db.emailTypes({
+				where: {
+					category,
+					name: typeName,
+				},
+			});
+
+			return createTemplate(ctx, ctx.userId, type, ctx.language);
+		}
+
+		return template;
+	},
 	quote: () => {
 		throw new Error('Quotes are not supported anymore');
 	},

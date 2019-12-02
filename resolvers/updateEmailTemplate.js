@@ -13,7 +13,7 @@ const updateEmailTemplate = async (
 	ctx,
 ) => {
 	const userId = getUserId(ctx);
-	const [template] = await ctx.db.items({
+	const [template] = await ctx.db.emailTemplates({
 		where: {
 			AND: [
 				{id},
@@ -24,15 +24,13 @@ const updateEmailTemplate = async (
 				},
 			],
 		},
-	}).$fragment(gql`
-		id
-	`);
+	});
 
 	if (!template) {
 		throw new NotFoundError(`Template '${id}' has not been found.`);
 	}
 
-	const updatedTemplate = await ctx.db.updateTemplate({
+	const updatedTemplate = await ctx.db.updateEmailTemplate({
 		where: {id},
 		data: {
 			subject,

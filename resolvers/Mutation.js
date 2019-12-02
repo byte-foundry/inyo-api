@@ -45,6 +45,7 @@ const {sendReminderTestEmail} = require('./sendReminderTestEmail');
 const {
 	sendReminderPreviewTestEmail,
 } = require('./sendReminderPreviewTestEmail');
+const {sendCustomEmailPreview} = require('./sendCustomEmailPreview');
 const {markNotificationsAsRead} = require('./markNotificationsAsRead');
 const {updateEmailTemplate} = require('./updateEmailTemplate');
 
@@ -133,6 +134,7 @@ const Mutation = {
 	removeTag,
 	sendReminderTestEmail,
 	sendReminderPreviewTestEmail,
+	sendCustomEmailPreview,
 	markNotificationsAsRead,
 	requestCollab,
 	removeCollab,

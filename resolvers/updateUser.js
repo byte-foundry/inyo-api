@@ -1,5 +1,6 @@
 const {getUserId} = require('../utils');
 const {processUpload} = require('../files');
+const {createAllTemplates} = require('../emails/templates');
 
 const updateUser = async (
 	parent,
@@ -46,7 +47,7 @@ const updateUser = async (
 	}
 
 	if (settings && settings.language) {
-		createTemplate(ctx, settings.language);
+		createAllTemplates(ctx, settings.language);
 	}
 
 	return ctx.db.updateUser({
