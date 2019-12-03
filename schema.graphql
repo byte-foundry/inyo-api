@@ -326,6 +326,7 @@ input CompanyInput {
 	rm: String
 	vat: String
 	logo: Upload
+	banner: Upload
 }
 
 input SettingsInput {
@@ -652,6 +653,7 @@ type Company {
 	rm: String
 	vat: String
 	logo: File
+	banner: File
 	projects: [Project!]!
 
 	customers: [Customer!]!

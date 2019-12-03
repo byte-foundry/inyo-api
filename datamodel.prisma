@@ -366,6 +366,7 @@ type Company {
 	rm: String
 	vat: String
 	logo: File @relation(name: "CompanyLogo", onDelete: CASCADE)
+	banner: File @relation(name: "CompanyBanner", onDelete: CASCADE)
 	customers: [Customer!]! @relation(name: "CompanyCustomers", onDelete: CASCADE)
 }
 
