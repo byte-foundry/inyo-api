@@ -1,3 +1,4 @@
+const gql = String.raw;
 const {getUserId, createItemOwnerFilter} = require('../utils');
 
 const {tasks} = require('./tasks');
@@ -77,7 +78,20 @@ const Query = {
 							],
 						},
 					},
-				});
+				}).$fragment(gql`
+					fragment CommentWithViews on Comment {
+						id
+						text
+						createdAt
+						views {
+							id
+							customer {
+								id
+								token
+							}
+						}
+					}
+				`);
 
 				const [customer] = await ctx.db.customers({
 					where: {
@@ -95,16 +109,23 @@ const Query = {
 				});
 
 				await Promise.all(
-					comments.map(comment => ctx.db.updateComment({
-						where: {id: comment.id},
-						data: {
-							views: {
-								create: {
-									customer: {connect: {id: customer.id}},
+					comments.map((comment) => {
+						if (
+							!comment.views.find(v => v.customer && v.customer.token === token)
+						) {
+							return ctx.db.updateComment({
+								where: {id: comment.id},
+								data: {
+									views: {
+										create: {
+											customer: {connect: {id: customer.id}},
+										},
+									},
 								},
-							},
-						},
-					})),
+							});
+						}
+						return undefined;
+					}),
 				);
 			}
 			else {
@@ -116,19 +137,36 @@ const Query = {
 							AND: [{id}, createItemOwnerFilter(userId)],
 						},
 					},
-				});
+				}).$fragment(gql`
+					fragment CommentWithViews on Comment {
+						id
+						text
+						createdAt
+						views {
+							id
+							user {
+								id
+							}
+						}
+					}
+				`);
 
 				await Promise.all(
-					comments.map(comment => ctx.db.updateComment({
-						where: {id: comment.id},
-						data: {
-							views: {
-								create: {
-									user: {connect: {id: userId}},
+					comments.map((comment) => {
+						if (!comment.views.find(v => v.user && v.user.id === userId)) {
+							return ctx.db.updateComment({
+								where: {id: comment.id},
+								data: {
+									views: {
+										create: {
+											user: {connect: {id: userId}},
+										},
+									},
 								},
-							},
-						},
-					})),
+							});
+						}
+						return undefined;
+					}),
 				);
 			}
 		}
