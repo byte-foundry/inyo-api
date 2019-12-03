@@ -71,7 +71,8 @@ const server = new GraphQLServer({
 			if (
 				user
 				&& (user.lifetimePayment
-					|| moment().diff(moment(user.createdAt), 'days') < 21)
+					|| moment().diff(moment(user.createdAt), 'days')
+						< (new Date(user.createdAt) > new Date('2019-12-05') ? 15 : 21))
 			) {
 				isPayingOrInTrial = true;
 			}
