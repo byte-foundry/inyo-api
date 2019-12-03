@@ -8,7 +8,6 @@ const updateProject = async (
 	parent,
 	{
 		id,
-		token,
 		name,
 		sharedNotes,
 		personalNotes,
@@ -20,11 +19,11 @@ const updateProject = async (
 	},
 	ctx,
 ) => {
-	if (token) {
+	if (ctx.token) {
 		const projectExists = await ctx.db.$exists.project({
 			where: {
 				id,
-				customer: {token},
+				customer: {token: ctx.token},
 			},
 		});
 
