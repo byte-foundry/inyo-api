@@ -60,6 +60,9 @@ const updateUser = async (
 			.company()
 			.banner();
 
+		// trigger download photo (required by Unsplash)
+		ctx.dataSources.downloadPhoto({id: company.bannerUnsplashId});
+
 		bannerProperties.banner = existingBanner ? {disconnect: true} : undefined;
 		bannerProperties.bannerUnsplashId = company.bannerUnsplashId;
 	}
