@@ -163,7 +163,7 @@ async function setupItemReminderEmail(
 			if (templateToUse) {
 				const emailArgs = await createCustomEmailArguments({
 					userId,
-					itemId,
+					taskId: itemId,
 					customerId,
 					projectId,
 					ctx,
@@ -238,6 +238,7 @@ async function setupItemReminderEmail(
 
 				const basicInfos = {
 					meta: {userId},
+					itemId: item.id,
 					email: customer.email,
 					user: formatName(user.firstName, user.lastName),
 					customerName: String(
