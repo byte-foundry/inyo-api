@@ -188,6 +188,7 @@ async function setupItemReminderEmail(
 							content: renderedContent,
 							templateId: reminderTypesTemplateIds.CUSTOM,
 							email: emailArgs.customer.email,
+							itemId,
 						},
 						item: {
 							connect: {id: itemId},

@@ -132,8 +132,6 @@ const createCustomEmailArguments = async ({
 	recipientId,
 	ctx,
 }) => {
-	const emailArgs = {itemId: taskId};
-
 	if (taskId) {
 		const task = await ctx.db.item({id: taskId});
 
