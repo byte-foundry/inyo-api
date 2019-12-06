@@ -1,31 +1,8 @@
-const Html = require('slate-html-serializer').default;
-const JSON = require('jsdom');
-const React = require('react');
+const hogan = require('hogan.js');
 
 const sendEmail = require('../emails/SendEmail');
 const {baseArguments} = require('../emails/templates');
-
-const serializer = new Html({
-	rules: [
-		{
-			serialize: (object, children) => {
-				if (object.type && object.type === 'param') {
-					return React.createElement(
-						'span',
-						null,
-						'{{'.concat(object.data.param.name, '}}'),
-					);
-				}
-				if (object.type && object.type === 'paragraph') {
-					return React.createElement('p', null, children);
-				}
-				return undefined;
-			},
-		},
-	],
-	defaultBlock: 'paragraph',
-	parseHtml: JSON.fragment,
-});
+const {contentSerializer, subjectSerializer} = require('../emails/serializers');
 
 const sendCustomEmailPreview = async (parent, {templateId}, ctx) => {
 	const [template] = await ctx.db.emailTemplates({
@@ -41,15 +18,21 @@ const sendCustomEmailPreview = async (parent, {templateId}, ctx) => {
 		throw new Error(`Template '${templateId}' has not been found`);
 	}
 
-	const htmlSubject = serializer.serialize(template.subject);
-	const htmlContent = serializer.serialize(template.content);
+	const htmlSubject = subjectSerializer.serialize(template.subject);
+	const htmlContent = contentSerializer.serialize(template.content);
+
+	const compiledSubject = hogan.compile(htmlSubject);
+	const compiledContent = hogan.compile(htmlContent);
+
+	const renderedSubject = compiledSubject.render(baseArguments[ctx.language]);
+	const renderedContent = compiledContent.render(baseArguments[ctx.language]);
 
 	sendEmail(
 		{
-			email: 'yannick@inyo.me',
+			email: 'francois@inyo.me',
 			data: {
-				subject: htmlSubject,
-				content: htmlContent,
+				subject: renderedSubject,
+				content: renderedContent,
 			},
 			templateId: 'd-9feaaa66a50a4dd0bcde2d98d41b3737',
 		},

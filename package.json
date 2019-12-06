@@ -28,6 +28,7 @@
 		"graphql-iso-date": "^3.6.1",
 		"graphql-shield": "7.0.2",
 		"graphql-yoga": "^1.16.7",
+		"hogan.js": "^3.0.2",
 		"immutable": "^4.0.0-rc.12",
 		"intercom-client": "^2.10.4",
 		"jsdom": "^15.2.1",
