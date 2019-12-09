@@ -59,7 +59,7 @@ const Project = {
 	status: node => node.status,
 	sections: (node, args, ctx) => {
 		if (node.sections) {
-			return ctx.loaders.sectionLoader.loadMany(node.sections);
+			return ctx.loaders.sectionLoader.loadMany(node.sections.map(s => s.id));
 		}
 
 		return ctx.db.sections({

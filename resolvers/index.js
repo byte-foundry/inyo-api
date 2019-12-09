@@ -30,6 +30,7 @@ const {Event} = require('./Event');
 const {EventEmitter} = require('./EventEmitter');
 const {EventObject} = require('./EventObject');
 const {EventSubject} = require('./EventSubject');
+const {ExternalImage} = require('./ExternalImage');
 
 const resolvers = {
 	TimeZone: GraphQLTimeZone,
@@ -70,6 +71,7 @@ const resolvers = {
 	EventEmitter,
 	EventObject,
 	EventSubject,
+	ExternalImage,
 };
 
 module.exports = {

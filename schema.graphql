@@ -31,6 +31,8 @@ type Query {
 	): [Item!]!
 	# Get user account activity
 	activity(projectId: ID!): [Event!]!
+	# List unsplash photos
+	unsplashPhotos(keyword: String, page: Int): UnsplashPhotoConnection!
 }
 
 type Mutation {
@@ -327,6 +329,7 @@ input CompanyInput {
 	vat: String
 	logo: Upload
 	banner: Upload
+	bannerUnsplashId: ID
 }
 
 input SettingsInput {
@@ -639,6 +642,8 @@ type Project {
 	updatedAt: DateTime!
 }
 
+union ExternalImage = File | UnsplashPhoto
+
 type Company {
 	id: ID!
 	name: String
@@ -653,7 +658,7 @@ type Company {
 	rm: String
 	vat: String
 	logo: File
-	banner: File
+	banner: ExternalImage
 	projects: [Project!]!
 
 	customers: [Customer!]!
@@ -870,4 +875,34 @@ type ScheduleDay {
 	tasks: [Item!]!
 	reminders: [Reminder!]!
 	deadlines: [DeadlineObject!]!
+}
+
+type UnsplashPhotoConnection {
+	nextPage: Int
+	results: [UnsplashPhoto!]!
+}
+
+type UnsplashPhoto {
+	id: ID!
+	width: Int!
+	height: Int!
+	color: String!
+	description: String
+	urls: UnsplashPhotoUrls!
+	user: UnsplashUser!
+}
+
+type UnsplashPhotoUrls {
+	raw: String!
+	full: String!
+	regular: String!
+	small: String!
+	thumb: String!
+	custom: String
+}
+
+type UnsplashUser {
+	id: ID!
+	username: String!
+	name: String!
 }

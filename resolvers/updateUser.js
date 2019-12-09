@@ -33,13 +33,50 @@ const updateUser = async (
 	let logo;
 
 	if (company && company.logo) {
-		logo = await processUpload(company.logo, ctx, userId, 500000);
+		const file = await processUpload(company.logo, ctx, userId, 500000);
+
+		logo = {connect: {id: file.id}};
+	}
+	else if (company && company.logo === null) {
+		const existingLogo = await ctx.db
+			.user({id: userId})
+			.company()
+			.logo();
+
+		logo = existingLogo ? {disconnect: true} : undefined;
 	}
 
-	let banner;
+	const bannerProperties = {};
 
 	if (company && company.banner) {
-		banner = await processUpload(company.banner, ctx, userId, 500000);
+		const banner = await processUpload(company.banner, ctx, userId, 1000000);
+
+		bannerProperties.banner = {connect: {id: banner.id}};
+		bannerProperties.bannerUnsplashId = null;
+	}
+	else if (company && company.bannerUnsplashId) {
+		const existingBanner = await ctx.db
+			.user({id: userId})
+			.company()
+			.banner();
+
+		// trigger download photo (required by Unsplash)
+		ctx.dataSources.photo.downloadPhoto({id: company.bannerUnsplashId});
+
+		bannerProperties.banner = existingBanner ? {disconnect: true} : undefined;
+		bannerProperties.bannerUnsplashId = company.bannerUnsplashId;
+	}
+	else if (
+		company
+		&& (company.bannerUnsplashId === null || company.banner === null)
+	) {
+		const existingBanner = await ctx.db
+			.user({id: userId})
+			.company()
+			.banner();
+
+		bannerProperties.banner = existingBanner ? {disconnect: true} : undefined;
+		bannerProperties.bannerUnsplashId = null;
 	}
 
 	if (
@@ -81,8 +118,8 @@ const updateUser = async (
 							update: company.address,
 						},
 					},
-					logo: logo && {connect: {id: logo.id}},
-					banner: banner && {connect: {id: banner.id}},
+					logo,
+					...bannerProperties,
 				},
 			},
 			settings: settings && {
