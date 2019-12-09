@@ -175,12 +175,12 @@ const focusTask = async (
 			if (!item.pendingReminders.length) {
 				await setupItemReminderEmail(
 					{
+						userId,
+						customerId: customer.id,
 						itemId: item.id,
-						description: filterDescription(item.description),
-						userUrl,
+						projectId: item.section && item.section.project.id,
 						reminders,
-						fileUrls,
-						taskType: item.type,
+						issueDate,
 					},
 					ctx,
 				);
