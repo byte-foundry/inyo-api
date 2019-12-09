@@ -114,6 +114,12 @@ async function setupItemReminderEmail(
 			id
 			type
 			name
+			description
+			attachements {
+				id
+				url
+				filename
+			}
 			section {
 				project {
 					id

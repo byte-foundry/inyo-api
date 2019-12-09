@@ -234,6 +234,7 @@ enum EmailCategory {
 	DAILY_REPORT
 	CONTENT_ACQUISITION
 	INVOICE
+	COMMENT_ADDED
 }
 
 type CommentView {
