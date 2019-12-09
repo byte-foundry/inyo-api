@@ -163,13 +163,15 @@ const permissions = shield(
 		Query: {
 			me: isAuthenticated,
 			customer: or(isAdmin, isCustomerOwner, isCustomer),
+			emailTypes: isAuthenticated,
+			emailTemplate: isAuthenticated,
+			item: or(isAdmin, isItemOwner, isItemCustomer, isItemCollaborator),
 			project: or(
 				isAdmin,
 				isProjectOwner,
 				isProjectCustomer,
 				isProjectCollaborator,
 			),
-			item: or(isAdmin, isItemOwner, isItemCustomer, isItemCollaborator),
 		},
 		User: {
 			id: or(

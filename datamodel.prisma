@@ -229,6 +229,13 @@ enum Skill {
 	BACK_END_DEVELOPMENT
 }
 
+enum EmailCategory {
+	CUSTOMER
+	DAILY_REPORT
+	CONTENT_ACQUISITION
+	INVOICE
+}
+
 type CommentView {
 	id: ID! @unique
 	user: User @relation(name: "CommentViewUser")
@@ -435,6 +442,8 @@ type User {
 	collaboratorRequests: [CollabRequest!]! @relation(name: "CollabRequester")
 	collaborationRequests: [CollabRequest!]! @relation(name: "CollabRequestee")
 	assignedTasks: [Item!]! @relation(name: "UserAssignedTasks")
+	emailTemplates: [EmailTemplate!]!
+		@relation(name: "UserEmailTemplates", onDelete: CASCADE)
 }
 
 type CollabRequest {
@@ -537,4 +546,33 @@ type Tag {
 	colorBg: String!
 	colorText: String!
 	owner: User @relation(name: "UserTags")
+}
+
+type EmailType {
+	id: ID! @unique
+	name: String
+	position: Int
+	category: EmailCategory!
+	availableParams: [EmailParamForType!]! @relation(name: "EmailTypeParams")
+}
+
+type EmailParamForType {
+	id: ID! @unique
+	param: EmailParam @relation(name: "EmailParamForTypeEmailParam")
+	required: Boolean!
+}
+
+type EmailParam {
+	id: ID! @unique
+	paramId: String! @unique
+	name: String!
+}
+
+type EmailTemplate {
+	id: ID! @unique
+	type: EmailType! @relation(name: "EmailTemplateEmailType")
+	timing: String!
+	subject: Json!
+	content: Json!
+	owner: User! @relation(name: "UserEmailTemplates")
 }

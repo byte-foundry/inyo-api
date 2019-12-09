@@ -1,8 +1,17 @@
+const gql = String.raw;
+const hogan = require('hogan.js');
 const moment = require('moment');
 
 const getTemplateId = require('./getTemplateId');
 const sendEmail = require('./SendEmail.js');
 const {createPosthookReminder} = require('../reminders/createPosthookReminder');
+const {
+	createCustomEmailArguments,
+	getAppUrl,
+	formatName,
+	formatFullName,
+} = require('../utils');
+const {contentSerializer, subjectSerializer} = require('../emails/serializers');
 
 async function sendTaskValidationEmail({email, meta, ...data}, ctx) {
 	return sendEmail(
@@ -90,23 +99,53 @@ const reminderTypesTemplateIds = {
 	INVOICE_THIRD: 'd-9711c3779d3043f8a477b3a7cc8940b3',
 	INVOICE_FOURTH: 'd-ccf43fb2df0e4822a22bc55fe02ced4a',
 	INVOICE_LAST: 'd-45388ea561144c57831c6d69241d31f3',
+	CUSTOM: 'd-9feaaa66a50a4dd0bcde2d98d41b3737',
 };
 
 async function setupItemReminderEmail(
 	{
-		email,
-		userEmail,
-		url,
-		userUrl,
-		itemId,
-		issueDate,
-		reminders,
-		taskType,
-		...rest
+		itemId, userId, customerId, projectId, reminders, issueDate,
 	},
 	ctx,
 ) {
-	const dates = [...(reminders || remindersSequences[taskType])];
+	const item = await ctx.db.item({id: itemId}).$fragment(gql`
+		fragment ItemForReminder on Item {
+			id
+			type
+			name
+			section {
+				project {
+					id
+					customer {
+						token
+					}
+				}
+			}
+		}
+	`);
+
+	const customTemplates = await ctx.db.emailTemplates({
+		where: {
+			type: {
+				category: item.type,
+			},
+			owner: {
+				id: userId,
+			},
+		},
+	}).$fragment(gql`
+		fragment TemplateWithType on EmailTemplate {
+			id
+			subject
+			content
+			type {
+				category
+				name
+			}
+		}
+	`);
+
+	const dates = [...(reminders || remindersSequences[item.type])];
 
 	// adding user warning 1 day after last reminder
 	if (dates.length > 0) {
@@ -119,29 +158,129 @@ async function setupItemReminderEmail(
 
 	return Promise.all(
 		dates.map(async ({delay, type}) => {
-			try {
-				await createPosthookReminder({
-					type,
-					postAt: moment(issueDate)
-						.add(delay, 'seconds')
-						.format(),
-					data: {
-						...rest,
-						templateId: getTemplateId(reminderTypesTemplateIds[type], ctx),
-						email: type === 'USER_WARNING' ? userEmail : email,
-						itemId,
-						url: type === 'USER_WARNING' ? userUrl : url,
-					},
-					item: {
-						connect: {id: itemId},
-					},
+			const templateToUse = customTemplates.find(t => t.type.name === type);
+
+			if (templateToUse) {
+				const emailArgs = await createCustomEmailArguments({
+					userId,
+					taskId: itemId,
+					customerId,
+					projectId,
+					ctx,
 				});
+				const htmlSubject = subjectSerializer.serialize(templateToUse.subject);
+				const htmlContent = contentSerializer.serialize(templateToUse.content);
+
+				const compiledSubject = hogan.compile(htmlSubject);
+				const compiledContent = hogan.compile(htmlContent);
+
+				const renderedSubject = compiledSubject.render(emailArgs);
+				const renderedContent = compiledContent.render(emailArgs);
+
+				try {
+					await createPosthookReminder({
+						type,
+						postAt: moment(issueDate)
+							.add(delay, 'seconds')
+							.format(),
+						data: {
+							subject: renderedSubject,
+							content: renderedContent,
+							templateId: reminderTypesTemplateIds.CUSTOM,
+							email: emailArgs.customer.email,
+							itemId,
+						},
+						item: {
+							connect: {id: itemId},
+						},
+					});
+				}
+				catch (error) {
+					console.error(
+						`Reminder of type '${type}' for item '${itemId}' NOT created in posthook.`,
+						error,
+					);
+				}
 			}
-			catch (error) {
-				console.error(
-					`Reminder of type '${type}' for item '${itemId}' NOT created in posthook.`,
-					error,
-				);
+			else {
+				const customer = await ctx.db.customer({id: customerId});
+				const user = await ctx.db.user({id: userId}).$fragment(gql`
+					fragment UserForEmail on User {
+						id
+						email
+						firstName
+						lastName
+						settings {
+							assistantName
+						}
+					}
+				`);
+
+				let url = 'Pas de projet ni client 🤷‍';
+
+				if (item.section && item.section.project.customer === customer) {
+					const {project} = item.section;
+
+					url = getAppUrl(
+						`/${customer.token}/tasks/${item.id}?projectId=${project.id}`,
+					);
+				}
+				else {
+					url = getAppUrl(`/${customer.token}/tasks/${item.id}`);
+				}
+
+				let userUrl = getAppUrl(`/tasks/${itemId}`);
+
+				const {project} = item.section || {};
+
+				if (item.section) {
+					userUrl = getAppUrl(`/tasks/${item.id}?projectId=${project.id}`);
+				}
+
+				const basicInfos = {
+					meta: {userId},
+					itemId: item.id,
+					email: customer.email,
+					user: formatName(user.firstName, user.lastName),
+					customerName: String(
+						` ${formatFullName(
+							customer.title,
+							customer.firstName,
+							customer.lastName,
+						)}`,
+					).trimRight(),
+					customerEmail: customer.email,
+					customerPhone: customer.phone,
+					projectName: item.section && item.section.project.name,
+					itemName: item.name,
+					formattedIssueDate: issueDate.format('DD/MM/YYYY'),
+					assistantName: user.settings.assistantName,
+				};
+
+				try {
+					await createPosthookReminder({
+						type,
+						postAt: moment(issueDate.toDate())
+							.add(delay, 'seconds')
+							.format(),
+						data: {
+							...basicInfos,
+							templateId: getTemplateId(reminderTypesTemplateIds[type], ctx),
+							email: type === 'USER_WARNING' ? user.email : customer.email,
+							itemId,
+							url: type === 'USER_WARNING' ? userUrl : url,
+						},
+						item: {
+							connect: {id: itemId},
+						},
+					});
+				}
+				catch (error) {
+					console.error(
+						`Reminder of type '${type}' for item '${itemId}' NOT created in posthook.`,
+						error,
+					);
+				}
 			}
 		}),
 	);

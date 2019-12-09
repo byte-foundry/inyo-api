@@ -1,4 +1,6 @@
+const gql = String.raw;
 const {verify} = require('jsonwebtoken');
+const moment = require('moment');
 
 const {AuthError} = require('./errors');
 
@@ -120,6 +122,110 @@ const ensureKeyOrder = (
 	return keys.map(key => docsMap.get(key) || new Error(error(key)));
 };
 
+const createCustomEmailArguments = async ({
+	taskId,
+	projectId,
+	userId,
+	customerId,
+	commentId,
+	authorId,
+	recipientId,
+	ctx,
+}) => {
+	const emailArgs = {};
+
+	if (taskId) {
+		const task = await ctx.db.item({id: taskId});
+
+		emailArgs.task = {
+			name: task.name,
+			description: task.description,
+			attachments: task.attachements,
+			listOfAttachmentNotUploaded:
+				'Placer ici la liste des fichiers à uploadés',
+			threadOfComments: task.comments,
+		};
+	}
+
+	if (projectId) {
+		const project = await ctx.db.project({id: projectId});
+
+		emailArgs.project = {
+			name: project.name,
+			deadline: project.deadline,
+			budget: project.budget,
+			link: 'projectlink',
+		};
+	}
+
+	if (userId) {
+		const user = await ctx.db.user({id: userId}).$fragment(gql`
+			fragment UserWithCompany on User {
+				id
+				firstName
+				lastName
+				email
+				company {
+					id
+					phone
+				}
+			}
+		`);
+
+		emailArgs.user = {
+			firstname: user.firstName,
+			lastname: user.lastName,
+			fullname: formatName(user.firstName, user.lastName),
+			phone: user.company.phone,
+			email: user.email,
+			listOfTasksCompletedOnDay: 'listoftasks',
+		};
+	}
+
+	if (customerId) {
+		const customer = await ctx.db.customer({id: customerId});
+
+		emailArgs.customer = {
+			firstname: customer.firstName,
+			lastname: customer.lastName,
+			fullname: formatFullName(
+				customer.title,
+				customer.firstName,
+				customer.lastName,
+			),
+			phone: customer.phone,
+			email: customer.email,
+		};
+
+		if (taskId) {
+			emailArgs.task.link = getAppUrl(`${customer.token}/tasks/${taskId}`);
+		}
+
+		if (taskId && projectId) {
+			emailArgs.task.link = getAppUrl(
+				`${customer.token}/tasks/${taskId}?projectId=${projectId}`,
+			);
+		}
+	}
+
+	if (commentId) {
+		const comment = await ctx.db.comment({id: commentId});
+
+		emailArgs.comment = {
+			text: comment.text,
+			createdAt: moment(comment.createdAt).format('DD/MM/YYYY'),
+		};
+	}
+
+	// if (authorId) {
+	// }
+
+	// if (recipientId) {
+	// }
+
+	return emailArgs;
+};
+
 const TAG_COLOR_PALETTE = [
 	[[244, 67, 54], [255, 255, 255]],
 	[[233, 30, 99], [255, 255, 255]],
@@ -156,5 +262,6 @@ module.exports = {
 	filterDescription,
 	reorderList,
 	ensureKeyOrder,
+	createCustomEmailArguments,
 	TAG_COLOR_PALETTE,
 };

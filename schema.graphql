@@ -33,6 +33,8 @@ type Query {
 	activity(projectId: ID!): [Event!]!
 	# List unsplash photos
 	unsplashPhotos(keyword: String, page: Int): UnsplashPhotoConnection!
+	emailTypes: [EmailType!]!
+	emailTemplate(typeName: String!, category: String!): EmailTemplate!
 }
 
 type Mutation {
@@ -284,6 +286,7 @@ type Mutation {
 	sendReminderTestEmail(id: ID!): Boolean!
 	# sends a test preview email to the user
 	sendReminderPreviewTestEmail(taskId: ID!, type: ReminderType!): Boolean!
+	sendCustomEmailPreview(templateId: ID!): Boolean!
 
 	markNotificationsAsRead: Boolean!
 	createTag(name: String!, colorBg: String!, colorText: String!): Tag!
@@ -303,6 +306,13 @@ type Mutation {
 	removeLinkToProject(projectId: ID!, collaboratorId: ID!): Project!
 	removeCollab(collaboratorId: ID!): User!
 	cancelRequestCollab(collabRequestId: ID!): CollabRequest!
+
+	updateEmailTemplate(
+		id: ID!
+		timing: String
+		subject: Json
+		content: Json
+	): EmailTemplate!
 }
 
 input CommentInput {
@@ -505,6 +515,13 @@ enum DAY {
 	FRIDAY
 	SATURDAY
 	SUNDAY
+}
+
+enum EmailCategory {
+	CUSTOMER
+	DAILY_REPORT
+	CONTENT_ACQUISITION
+	INVOICE
 }
 
 type Reminder {
@@ -751,6 +768,7 @@ type User {
 	tags: [Tag!]!
 	signedUpAt: DateTime!
 	lifetimePayment: Boolean!
+	emailTemplates: [EmailTemplate!]!
 }
 
 type CollabRequest {
@@ -905,4 +923,33 @@ type UnsplashUser {
 	id: ID!
 	username: String!
 	name: String!
+}
+
+type EmailType {
+	id: ID!
+	name: String!
+	category: EmailCategory!
+	position: Int
+	availableParams: [EmailParamForType!]!
+}
+
+type EmailParamForType {
+	id: ID!
+	param: EmailParam!
+	required: Boolean!
+}
+
+type EmailParam {
+	id: ID!
+	paramId: String!
+	name: String!
+}
+
+type EmailTemplate {
+	id: ID!
+	type: EmailType!
+	timing: String!
+	subject: Json!
+	content: Json!
+	owner: User!
 }
