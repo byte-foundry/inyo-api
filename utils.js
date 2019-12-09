@@ -221,7 +221,7 @@ const createCustomEmailArguments = async ({
 
 	if (authorId) {
 		if (authorIsUser) {
-			const user = await ctx.db.user({id: userId}).$fragment(gql`
+			const user = await ctx.db.user({id: authorId}).$fragment(gql`
 				fragment UserWithCompany on User {
 					id
 					firstName
@@ -243,7 +243,7 @@ const createCustomEmailArguments = async ({
 			};
 		}
 		else {
-			const customer = await ctx.db.customer({id: customerId});
+			const customer = await ctx.db.customer({id: authorId});
 
 			emailArgs.author = {
 				firstname: customer.firstName,
@@ -261,7 +261,7 @@ const createCustomEmailArguments = async ({
 
 	if (recipientId) {
 		if (recipientIsUser) {
-			const user = await ctx.db.user({id: userId}).$fragment(gql`
+			const user = await ctx.db.user({id: recipientId}).$fragment(gql`
 				fragment UserWithCompany on User {
 					id
 					firstName
@@ -293,7 +293,7 @@ const createCustomEmailArguments = async ({
 			}
 		}
 		else {
-			const customer = await ctx.db.customer({id: customerId});
+			const customer = await ctx.db.customer({id: recipientId});
 
 			emailArgs.recipient = {
 				firstname: customer.firstName,
