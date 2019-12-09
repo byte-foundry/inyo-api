@@ -155,22 +155,26 @@ const server = new ApolloServer({
 
 const app = express();
 
-server.applyMiddleware({
-	app,
-	path: '/',
-});
+const routes = express.Router();
 
-app.post('/schedule-daily-mails', scheduleDailyMails);
-app.post('/update-intercom', updateIntercom);
+routes.post('/schedule-daily-mails', scheduleDailyMails);
+routes.post('/update-intercom', updateIntercom);
 
-app.post('/posthook-receiver', bodyParser.json(), posthookReceiver);
-app.post(
+routes.post('/posthook-receiver', bodyParser.json(), posthookReceiver);
+routes.post(
 	'/lifetime-payment',
 	bodyParser.raw({type: 'application/json'}),
 	paymentFromStripe,
 );
 
-app.post('/prep-for-test', bodyParser.json(), teardownAndSetupTest);
+routes.post('/prep-for-test', bodyParser.json(), teardownAndSetupTest);
+
+app.use('/', routes);
+
+server.applyMiddleware({
+	app,
+	path: '/',
+});
 
 app.listen({port: PORT}, () => console.log(`Server is running on http://localhost:${PORT}`));
 
