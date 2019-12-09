@@ -26,7 +26,7 @@ async function sendNewCommentEmail(
 	},
 	ctx,
 ) {
-	const [template] = await ctx.db.templates({
+	const [template] = await ctx.db.emailTemplates({
 		where: {
 			type: 'COMMENT_ADDED',
 			name: 'COMMENT_ADDED',
