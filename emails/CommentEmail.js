@@ -28,8 +28,11 @@ async function sendNewCommentEmail(
 ) {
 	const [template] = await ctx.db.emailTemplates({
 		where: {
-			type: 'COMMENT_ADDED',
-			name: 'COMMENT_ADDED',
+			type: {
+				category: 'COMMENT_ADDED',
+				name: 'COMMENT_ADDED',
+			},
+			owner: {id: userId},
 		},
 	});
 
