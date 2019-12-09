@@ -5,7 +5,6 @@ const {
 	createItemOwnerFilter,
 	createItemCollaboratorFilter,
 	isCustomerTask,
-	filterDescription,
 	reorderList,
 } = require('../utils');
 const {NotFoundError, InsufficientDataError} = require('../errors');
@@ -162,16 +161,6 @@ const focusTask = async (
 			}
 		}
 		else if (item.type === 'INVOICE') {
-			const fileUrls = item.attachments;
-
-			let userUrl = getAppUrl(`/tasks/${item.id}`);
-
-			if (item.section) {
-				const {project} = item.section;
-
-				userUrl = getAppUrl(`/tasks/${item.id}?projectId=${project.id}`);
-			}
-
 			if (!item.pendingReminders.length) {
 				await setupItemReminderEmail(
 					{

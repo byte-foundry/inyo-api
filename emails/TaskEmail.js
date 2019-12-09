@@ -10,6 +10,7 @@ const {
 	getAppUrl,
 	formatName,
 	formatFullName,
+	filterDescription,
 } = require('../utils');
 const {contentSerializer, subjectSerializer} = require('../emails/serializers');
 
@@ -240,7 +241,6 @@ async function setupItemReminderEmail(
 				const basicInfos = {
 					meta: {userId},
 					itemId: item.id,
-					email: customer.email,
 					user: formatName(user.firstName, user.lastName),
 					customerName: String(
 						` ${formatFullName(
@@ -255,6 +255,12 @@ async function setupItemReminderEmail(
 					itemName: item.name,
 					formattedIssueDate: issueDate.format('DD/MM/YYYY'),
 					assistantName: user.settings.assistantName,
+					templateId: getTemplateId(reminderTypesTemplateIds[type], ctx),
+					email: type === 'USER_WARNING' ? user.email : customer.email,
+					userUrl,
+					url: type === 'USER_WARNING' ? userUrl : url,
+					description: filterDescription(item.description),
+					fileUrls: item.attachements,
 				};
 
 				try {
@@ -265,10 +271,6 @@ async function setupItemReminderEmail(
 							.format(),
 						data: {
 							...basicInfos,
-							templateId: getTemplateId(reminderTypesTemplateIds[type], ctx),
-							email: type === 'USER_WARNING' ? user.email : customer.email,
-							itemId,
-							url: type === 'USER_WARNING' ? userUrl : url,
 						},
 						item: {
 							connect: {id: itemId},
