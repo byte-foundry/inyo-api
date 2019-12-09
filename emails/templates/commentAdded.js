@@ -15,8 +15,53 @@ const templates = {
 							nodes: [
 								{
 									object: 'text',
-									text:
-										'{{{authorName}}} a ajouté un commentaire sur le projet {{{projectName}}}',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczo2a3in0737l7m0f81h',
+											name: 'author.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'author.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' a ajouté un commentaire sur le projet ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczq6a3kb0737h4yugmro',
+											name: 'project.name',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'project.name',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
 									marks: [],
 								},
 							],
@@ -37,7 +82,30 @@ const templates = {
 							nodes: [
 								{
 									object: 'text',
-									text: 'Bonjour,',
+									text: 'Bonjour ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczofa3iz0737h7xtq5mu',
+											name: 'recipient.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'recipient.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ',',
 									marks: [],
 								},
 							],
@@ -61,7 +129,30 @@ const templates = {
 							nodes: [
 								{
 									object: 'text',
-									text: 'Gilles Gabriel a commenté la tâche ',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczo2a3in0737l7m0f81h',
+											name: 'author.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'author.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' a commenté la tâche ',
 									marks: [],
 								},
 								{
@@ -140,15 +231,15 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3yjczn3a3hr0737qgsdg62p',
-											name: 'task.link',
+											id: 'ck3yjcznha3i70737unpr0yan',
+											name: 'comment.text',
 											__typename: 'EmailParam',
 										},
 									},
 									nodes: [
 										{
 											object: 'text',
-											text: 'task.link',
+											text: 'comment.text',
 											marks: [],
 										},
 									],
