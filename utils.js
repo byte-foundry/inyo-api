@@ -140,9 +140,9 @@ const createCustomEmailArguments = async ({
 		emailArgs.task = {
 			name: task.name,
 			description: task.description,
-			link: 'tasklink',
 			attachments: task.attachements,
-			listOfAttachmentNotUploaded: 'no',
+			listOfAttachmentNotUploaded:
+				'Placer ici la liste des fichiers à uploadés',
 			threadOfComments: task.comments,
 		};
 	}
@@ -196,6 +196,16 @@ const createCustomEmailArguments = async ({
 			phone: customer.phone,
 			email: customer.email,
 		};
+
+		if (taskId) {
+			emailArgs.task.link = getAppUrl(`${customer.token}/tasks/${taskId}`);
+		}
+
+		if (taskId && projectId) {
+			emailArgs.task.link = getAppUrl(
+				`${customer.token}/tasks/${taskId}?projectId=${projectId}`,
+			);
+		}
 	}
 
 	if (commentId) {

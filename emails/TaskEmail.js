@@ -99,7 +99,7 @@ const reminderTypesTemplateIds = {
 	INVOICE_THIRD: 'd-9711c3779d3043f8a477b3a7cc8940b3',
 	INVOICE_FOURTH: 'd-ccf43fb2df0e4822a22bc55fe02ced4a',
 	INVOICE_LAST: 'd-45388ea561144c57831c6d69241d31f3',
-	CUSTOME: 'd-9feaaa66a50a4dd0bcde2d98d41b3737',
+	CUSTOM: 'd-9feaaa66a50a4dd0bcde2d98d41b3737',
 };
 
 async function setupItemReminderEmail(
