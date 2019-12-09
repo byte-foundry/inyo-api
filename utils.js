@@ -130,6 +130,8 @@ const createCustomEmailArguments = async ({
 	commentId,
 	authorId,
 	recipientId,
+	recipientIsUser,
+	authorIsUser,
 	ctx,
 }) => {
 	const emailArgs = {};
@@ -198,12 +200,12 @@ const createCustomEmailArguments = async ({
 		};
 
 		if (taskId) {
-			emailArgs.task.link = getAppUrl(`${customer.token}/tasks/${taskId}`);
+			emailArgs.task.link = getAppUrl(`/${customer.token}/tasks/${taskId}`);
 		}
 
 		if (taskId && projectId) {
 			emailArgs.task.link = getAppUrl(
-				`${customer.token}/tasks/${taskId}?projectId=${projectId}`,
+				`/${customer.token}/tasks/${taskId}?projectId=${projectId}`,
 			);
 		}
 	}
@@ -217,11 +219,105 @@ const createCustomEmailArguments = async ({
 		};
 	}
 
-	// if (authorId) {
-	// }
+	if (authorId) {
+		if (authorIsUser) {
+			const user = await ctx.db.user({id: userId}).$fragment(gql`
+				fragment UserWithCompany on User {
+					id
+					firstName
+					lastName
+					email
+					company {
+						id
+						phone
+					}
+				}
+			`);
 
-	// if (recipientId) {
-	// }
+			emailArgs.author = {
+				firstname: user.firstName,
+				lastname: user.lastName,
+				fullname: formatName(user.firstName, user.lastName),
+				phone: user.company.phone,
+				email: user.email,
+			};
+		}
+		else {
+			const customer = await ctx.db.customer({id: customerId});
+
+			emailArgs.author = {
+				firstname: customer.firstName,
+				lastname: customer.lastName,
+				fullname: formatFullName(
+					customer.title,
+					customer.firstName,
+					customer.lastName,
+				),
+				phone: customer.phone,
+				email: customer.email,
+			};
+		}
+	}
+
+	if (recipientId) {
+		if (recipientIsUser) {
+			const user = await ctx.db.user({id: userId}).$fragment(gql`
+				fragment UserWithCompany on User {
+					id
+					firstName
+					lastName
+					email
+					company {
+						id
+						phone
+					}
+				}
+			`);
+
+			emailArgs.recipient = {
+				firstname: user.firstName,
+				lastname: user.lastName,
+				fullname: formatName(user.firstName, user.lastName),
+				phone: user.company.phone,
+				email: user.email,
+			};
+
+			if (taskId) {
+				emailArgs.task.link = getAppUrl(`/tasks/${taskId}`);
+			}
+
+			if (taskId && projectId) {
+				emailArgs.task.link = getAppUrl(
+					`/tasks/${taskId}?projectId=${projectId}`,
+				);
+			}
+		}
+		else {
+			const customer = await ctx.db.customer({id: customerId});
+
+			emailArgs.recipient = {
+				firstname: customer.firstName,
+				lastname: customer.lastName,
+				fullname: formatFullName(
+					customer.title,
+					customer.firstName,
+					customer.lastName,
+				),
+				phone: customer.phone,
+				email: customer.email,
+			};
+
+			if (taskId) {
+				emailArgs.task.link = getAppUrl(`/${customer.token}/tasks/${taskId}`);
+			}
+
+			if (taskId && projectId) {
+				emailArgs.task.link = getAppUrl(
+					`/${customer.token}/tasks/${taskId}?projectId=${projectId}`,
+				);
+			}
+		}
+	}
 
 	return emailArgs;
 };
