@@ -1,7 +1,11 @@
 const CUSTOMER = require('./customer');
+const INVOICE = require('./invoice');
+const CONTENT_ACQUISITION = require('./contentAcquisition');
 
 const templates = {
 	CUSTOMER,
+	INVOICE,
+	CONTENT_ACQUISITION,
 };
 
 const baseArguments = {
