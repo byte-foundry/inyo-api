@@ -1,11 +1,13 @@
+const COMMENT_ADDED = require('./commentAdded');
+const CONTENT_ACQUISITION = require('./contentAcquisition');
 const CUSTOMER = require('./customer');
 const INVOICE = require('./invoice');
-const CONTENT_ACQUISITION = require('./contentAcquisition');
 
 const templates = {
+	COMMENT_ADDED,
+	CONTENT_ACQUISITION,
 	CUSTOMER,
 	INVOICE,
-	CONTENT_ACQUISITION,
 };
 
 const baseArguments = {
