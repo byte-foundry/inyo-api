@@ -160,7 +160,12 @@ const routes = express.Router();
 routes.post('/schedule-daily-mails', scheduleDailyMails);
 routes.post('/update-intercom', updateIntercom);
 
-routes.post('/posthook-receiver', bodyParser.json(), posthookReceiver);
+routes.post('/posthook-receiver', bodyParser.json({
+	verify: (req, res, buf) => {
+		req.rawBody = buf;
+	},
+}), posthookReceiver);
+
 routes.post(
 	'/lifetime-payment',
 	bodyParser.raw({type: 'application/json'}),
