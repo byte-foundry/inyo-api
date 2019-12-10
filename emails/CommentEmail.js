@@ -7,7 +7,6 @@ const {
 	formatFullName,
 	formatName,
 	createCustomEmailArguments,
-	reminderTypesTemplateIds,
 } = require('../utils');
 const {contentSerializer, subjectSerializer} = require('../emails/serializers');
 
@@ -119,15 +118,18 @@ async function sendNewCommentEmail(
 	const renderedSubject = compiledSubject.render(emailArgs);
 	const renderedContent = compiledContent.render(emailArgs);
 
-	return sendEmail({
-		data: {
-			subject: renderedSubject,
-			content: renderedContent,
+	return sendEmail(
+		{
+			data: {
+				subject: renderedSubject,
+				content: renderedContent,
+			},
+			meta,
+			templateId: 'd-9feaaa66a50a4dd0bcde2d98d41b3737',
+			email,
 		},
-		meta,
-		templateId: reminderTypesTemplateIds.CUSTOM,
-		email: emailArgs.recipient.email,
-	});
+		ctx,
+	);
 }
 
 module.exports = {

@@ -2,6 +2,11 @@ const templates = {
 	INVOICE_DELAY: {
 		en: {},
 		fr: {
+			timing: {
+				value: 5,
+				unit: 'minutes',
+				isRelative: false,
+			},
 			subject: {
 				object: 'value',
 				document: {
@@ -267,6 +272,11 @@ const templates = {
 	INVOICE_FIRST: {
 		en: {},
 		fr: {
+			timing: {
+				value: 12,
+				unit: 'days',
+				isRelative: false,
+			},
 			subject: {},
 			content: {},
 		},
@@ -274,6 +284,11 @@ const templates = {
 	INVOICE_SECOND: {
 		en: {},
 		fr: {
+			timing: {
+				value: 20,
+				unit: 'days',
+				isRelative: false,
+			},
 			subject: {},
 			content: {},
 		},
@@ -281,6 +296,11 @@ const templates = {
 	INVOICE_THIRD: {
 		en: {},
 		fr: {
+			timing: {
+				value: 4,
+				unit: 'weeks',
+				isRelative: false,
+			},
 			subject: {},
 			content: {},
 		},
@@ -288,6 +308,11 @@ const templates = {
 	INVOICE_FOURTH: {
 		en: {},
 		fr: {
+			timing: {
+				value: 5,
+				unit: 'weeks',
+				isRelative: false,
+			},
 			subject: {},
 			content: {},
 		},

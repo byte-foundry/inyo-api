@@ -3,7 +3,6 @@ const EmailType = {
 	category: node => node.category,
 	position: node => node.position,
 	availableParams: (node, args, ctx) => {
-		console.log(node.availableParams);
 		if (node.availableParams) {
 			return ctx.loaders.emailParamForTypeLoader.loadMany(
 				node.availableParams.map(p => p.id),

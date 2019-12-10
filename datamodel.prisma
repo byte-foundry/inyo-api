@@ -572,7 +572,7 @@ type EmailParam {
 type EmailTemplate {
 	id: ID! @unique
 	type: EmailType! @relation(name: "EmailTemplateEmailType")
-	timing: String!
+	timing: Json
 	subject: Json!
 	content: Json!
 	owner: User! @relation(name: "UserEmailTemplates")

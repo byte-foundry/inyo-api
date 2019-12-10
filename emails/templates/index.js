@@ -17,7 +17,12 @@ const baseArguments = {
 			description:
 				"La création de la base de données MySQL sur le serveur ovh a l'adresse 192.168.0.1",
 			link: 'https://inyo.me',
-			attachments: 'attachments',
+			attachments: [
+				{
+					url: 'http://inyo.me',
+					filename: 'facture.txt',
+				},
+			],
 			listOfAttachmentNotUploaded: 'list of attachments',
 			threadOfComments: 'threadOfComments',
 		},
@@ -107,6 +112,8 @@ const baseArguments = {
 	},
 };
 
+const getDefaultTemplate = (category, type, language) => templates[category][type][language];
+
 const createTemplate = async (ctx, userId, type, language) => {
 	let templateContent;
 
@@ -116,7 +123,7 @@ const createTemplate = async (ctx, userId, type, language) => {
 		&& templates[type.category][type.name][language]
 	) {
 		try {
-			templateContent = templates[type.category][type.name][language];
+			templateContent = getDefaultTemplate(type.category, type.name, language);
 		}
 		catch (e) {
 			console.log(
@@ -129,7 +136,7 @@ const createTemplate = async (ctx, userId, type, language) => {
 				type: {
 					connect: {id: type.id},
 				},
-				timing: 'euh',
+				timing: templateContent.timing,
 				subject: templateContent.subject,
 				content: templateContent.content,
 				owner: {connect: {id: userId}},
@@ -167,4 +174,5 @@ module.exports = {
 	createTemplate,
 	createAllTemplates,
 	baseArguments,
+	getDefaultTemplate,
 };

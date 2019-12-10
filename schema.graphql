@@ -309,10 +309,11 @@ type Mutation {
 
 	updateEmailTemplate(
 		id: ID!
-		timing: String
+		timing: Json
 		subject: Json
 		content: Json
 	): EmailTemplate!
+	setTemplateToDefault(id: ID!): EmailTemplate!
 }
 
 input CommentInput {
@@ -949,7 +950,7 @@ type EmailParam {
 type EmailTemplate {
 	id: ID!
 	type: EmailType!
-	timing: String!
+	timing: Json
 	subject: Json!
 	content: Json!
 	owner: User!

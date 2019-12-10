@@ -137,15 +137,47 @@ const createCustomEmailArguments = async ({
 	const emailArgs = {};
 
 	if (taskId) {
-		const task = await ctx.db.item({id: taskId});
+		const task = await ctx.db.item({id: taskId}).$fragment(gql`
+			fragment TaskWithCommentAndAttachements on Item {
+				id
+				name
+				description
+				attachments {
+					filename
+					url
+				}
+				comments {
+					authorUser {
+						firstName
+						lastName
+					}
+					authorCustomer {
+						title
+						firstName
+						lastName
+					}
+					text
+					createdAt
+				}
+			}
+		`);
 
 		emailArgs.task = {
 			name: task.name,
 			description: task.description,
-			attachments: task.attachements,
+			attachments: task.attachments,
 			listOfAttachmentNotUploaded:
 				'Placer ici la liste des fichiers à uploadés',
-			threadOfComments: task.comments,
+			threadOfComments: task.comments.map(c => ({
+				text: c.text,
+				author: c.authorUser
+					? formatName(c.authorUser.firstName, c.authorUser.lastName)
+					: formatFullName(
+						c.authorCustomer.title,
+						c.authorCustomer.firstName,
+						c.authorCustomer.lastName,
+					  ),
+			})),
 		};
 	}
 

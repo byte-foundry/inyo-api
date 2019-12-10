@@ -115,7 +115,7 @@ async function setupItemReminderEmail(
 			type
 			name
 			description
-			attachements {
+			attachments {
 				id
 				url
 				filename
@@ -266,7 +266,7 @@ async function setupItemReminderEmail(
 					userUrl,
 					url: type === 'USER_WARNING' ? userUrl : url,
 					description: filterDescription(item.description),
-					fileUrls: item.attachements,
+					fileUrls: item.attachments,
 				};
 
 				try {
