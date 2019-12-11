@@ -62,6 +62,7 @@ const focusTask = async (
 				filename
 			}
 			linkedCustomer {
+				id
 				title
 				firstName
 				lastName

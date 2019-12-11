@@ -356,7 +356,7 @@ const createCustomEmailArguments = async ({
 	return emailArgs;
 };
 
-const renderTemplate = async (
+const renderTemplate = async ({
 	template,
 	taskId,
 	projectId,
@@ -368,7 +368,7 @@ const renderTemplate = async (
 	recipientIsUser,
 	authorIsUser,
 	ctx,
-) => {
+}) => {
 	const emailArgs = await createCustomEmailArguments({
 		taskId,
 		projectId,
