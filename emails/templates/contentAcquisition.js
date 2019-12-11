@@ -2,6 +2,11 @@ const templates = {
 	DELAY: {
 		en: {},
 		fr: {
+			timing: {
+				value: 5,
+				unit: 'minutes',
+				isRelative: false,
+			},
 			subject: {
 				object: 'value',
 				document: {
@@ -323,6 +328,11 @@ const templates = {
 	FIRST: {
 		en: {},
 		fr: {
+			timing: {
+				value: 3,
+				unit: 'days',
+				isRelative: false,
+			},
 			subject: {
 				object: 'value',
 				document: {
@@ -646,6 +656,11 @@ const templates = {
 	SECOND: {
 		en: {},
 		fr: {
+			timing: {
+				value: 7,
+				unit: 'days',
+				isRelative: false,
+			},
 			subject: {
 				object: 'value',
 				document: {

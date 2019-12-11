@@ -99,7 +99,8 @@ async function sendNewCommentEmail(
 		);
 	}
 
-	const emailArgs = await createCustomEmailArguments({
+	const [renderedSubject, renderedContent] = await renderTemplate({
+		template,
 		authorId,
 		recipientId,
 		taskId,
@@ -109,14 +110,6 @@ async function sendNewCommentEmail(
 		recipientIsUser,
 		ctx,
 	});
-	const htmlSubject = subjectSerializer.serialize(template.subject);
-	const htmlContent = contentSerializer.serialize(template.content);
-
-	const compiledSubject = hogan.compile(htmlSubject);
-	const compiledContent = hogan.compile(htmlContent);
-
-	const renderedSubject = compiledSubject.render(emailArgs);
-	const renderedContent = compiledContent.render(emailArgs);
 
 	return sendEmail(
 		{

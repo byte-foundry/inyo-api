@@ -1,8 +1,10 @@
 const gql = String.raw;
+const hogan = require('hogan.js');
 const {verify} = require('jsonwebtoken');
 const moment = require('moment');
 
 const {AuthError} = require('./errors');
+const {contentSerializer, subjectSerializer} = require('./emails/serializers');
 
 const {APP_SECRET} = process.env;
 
@@ -354,6 +356,44 @@ const createCustomEmailArguments = async ({
 	return emailArgs;
 };
 
+const renderTemplate = async (
+	template,
+	taskId,
+	projectId,
+	userId,
+	customerId,
+	commentId,
+	authorId,
+	recipientId,
+	recipientIsUser,
+	authorIsUser,
+	ctx,
+) => {
+	const emailArgs = await createCustomEmailArguments({
+		taskId,
+		projectId,
+		userId,
+		customerId,
+		commentId,
+		authorId,
+		recipientId,
+		recipientIsUser,
+		authorIsUser,
+		ctx,
+	});
+
+	const htmlSubject = subjectSerializer.serialize(template.subject);
+	const htmlContent = contentSerializer.serialize(template.content);
+
+	const compiledSubject = hogan.compile(htmlSubject);
+	const compiledContent = hogan.compile(htmlContent);
+
+	const renderedSubject = compiledSubject.render(emailArgs);
+	const renderedContent = compiledContent.render(emailArgs);
+
+	return [renderedSubject, renderedContent, emailArgs];
+};
+
 const TAG_COLOR_PALETTE = [
 	[[244, 67, 54], [255, 255, 255]],
 	[[233, 30, 99], [255, 255, 255]],
@@ -392,4 +432,5 @@ module.exports = {
 	ensureKeyOrder,
 	createCustomEmailArguments,
 	TAG_COLOR_PALETTE,
+	renderTemplate,
 };

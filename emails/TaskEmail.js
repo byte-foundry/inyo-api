@@ -11,6 +11,7 @@ const {
 	formatName,
 	formatFullName,
 	filterDescription,
+	renderTemplate,
 } = require('../utils');
 const {contentSerializer, subjectSerializer} = require('../emails/serializers');
 
@@ -26,12 +27,162 @@ async function sendTaskValidationEmail({email, meta, ...data}, ctx) {
 	);
 }
 
-async function sendItemContentAcquisitionEmail({email, meta, ...data}, ctx) {
+async function sendItemContentAcquisitionEmail(
+	{
+		userId, customerId, itemId, projectId,
+	},
+	ctx,
+) {
+	const meta = {userId};
+	const customTemplates = await ctx.db.emailTemplates({
+		where: {
+			type: {
+				category: 'CONTENT_ACQUISITION',
+			},
+			owner: {
+				id: userId,
+			},
+		},
+	}).$fragment(gql`
+		fragment TemplateWithType on EmailTemplate {
+			id
+			subject
+			content
+			type {
+				category
+				name
+			}
+		}
+	`);
+
+	if (customTemplates.length > 0) {
+		const renderedTemplates = await Promise.all(
+			customTemplates.map(async (templateToRender) => {
+				const [
+					renderedSubject,
+					renderedContent,
+					emailArgs,
+				] = await renderTemplate({
+					template: templateToRender,
+					userId,
+					taskId: itemId,
+					customerId,
+					projectId,
+					ctx,
+				});
+
+				return {
+					emailArgs,
+					subject: renderedSubject,
+					content: renderedContent,
+					timing: templateToRender.timing,
+				};
+			}),
+		);
+
+		return sendEmail(
+			{
+				email: 'edwige@inyo.me',
+				meta,
+				data: {
+					customerEmail: renderedTemplates[0].emailArgs.customer.email,
+					timingDelay: renderedTemplates[0].timing,
+					subjectDelay: renderedTemplates[0].subject,
+					contentDelay: renderedTemplates[0].content,
+					timingFirst: renderedTemplates[1].timing,
+					subjectFirst: renderedTemplates[1].subject,
+					contentFirst: renderedTemplates[1].content,
+					timingSecond: renderedTemplates[2].timing,
+					subjectSecond: renderedTemplates[2].subject,
+					contentSecond: renderedTemplates[2].content,
+				},
+				templateId: 'd-808373ed32284bada8c56ef4d087a95e',
+			},
+			ctx,
+		);
+	}
+	const item = await ctx.db.item({id: itemId}).$fragment(gql`
+		fragment ItemForReminder on Item {
+			id
+			type
+			name
+			description
+			attachments {
+				id
+				url
+				filename
+			}
+			section {
+				project {
+					id
+					customer {
+						token
+					}
+				}
+			}
+		}
+	`);
+
+	const customer = await ctx.db.customer({id: customerId});
+	const user = await ctx.db.user({id: userId}).$fragment(gql`
+		fragment UserForEmail on User {
+			id
+			email
+			firstName
+			lastName
+			settings {
+				assistantName
+			}
+		}
+	`);
+
+	let url = 'Pas de projet ni client 🤷‍';
+
+	if (item.section && item.section.project.customer === customer) {
+		const {project} = item.section;
+
+		url = getAppUrl(
+			`/${customer.token}/tasks/${item.id}?projectId=${project.id}`,
+		);
+	}
+	else {
+		url = getAppUrl(`/${customer.token}/tasks/${item.id}`);
+	}
+
+	let userUrl = getAppUrl(`/tasks/${itemId}`);
+
+	const {project} = item.section || {};
+
+	if (item.section) {
+		userUrl = getAppUrl(`/tasks/${item.id}?projectId=${project.id}`);
+	}
+
+	const basicInfos = {
+		meta: {userId},
+		itemId: item.id,
+		user: formatName(user.firstName, user.lastName),
+		customerName: String(
+			` ${formatFullName(
+				customer.title,
+				customer.firstName,
+				customer.lastName,
+			)}`,
+		).trimRight(),
+		customerEmail: customer.email,
+		customerPhone: customer.phone,
+		projectName: item.section && item.section.project.name,
+		itemName: item.name,
+		assistantName: user.settings.assistantName,
+		userUrl,
+		url,
+		description: filterDescription(item.description),
+		fileUrls: item.attachments,
+	};
+
 	return sendEmail(
 		{
 			email: 'edwige@inyo.me',
-			meta,
-			data,
+			data: basicInfos,
 			templateId: getTemplateId('d-1b94796059eb45d49fbafafa101f5ddd', ctx),
 		},
 		ctx,
@@ -168,21 +319,18 @@ async function setupItemReminderEmail(
 			const templateToUse = customTemplates.find(t => t.type.name === type);
 
 			if (templateToUse) {
-				const emailArgs = await createCustomEmailArguments({
+				const [
+					renderedSubject,
+					renderedContent,
+					emailArgs,
+				] = await renderTemplate({
+					template: templateToUse,
 					userId,
 					taskId: itemId,
 					customerId,
 					projectId,
 					ctx,
 				});
-				const htmlSubject = subjectSerializer.serialize(templateToUse.subject);
-				const htmlContent = contentSerializer.serialize(templateToUse.content);
-
-				const compiledSubject = hogan.compile(htmlSubject);
-				const compiledContent = hogan.compile(htmlContent);
-
-				const renderedSubject = compiledSubject.render(emailArgs);
-				const renderedContent = compiledContent.render(emailArgs);
 
 				try {
 					await createPosthookReminder({

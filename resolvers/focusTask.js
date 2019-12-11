@@ -1,7 +1,6 @@
 const moment = require('moment');
 const {
 	getUserId,
-	getAppUrl,
 	createItemOwnerFilter,
 	createItemCollaboratorFilter,
 	isCustomerTask,
@@ -137,7 +136,6 @@ const focusTask = async (
 					customerId: customer.id,
 					itemId: item.id,
 					projectId: item.section && item.section.project.id,
-					reminders,
 					issueDate: issueDate.toDate(),
 				},
 				ctx,

@@ -416,7 +416,7 @@ const templates = {
 								},
 								{
 									object: 'text',
-									text: ' à besoin de vous',
+									text: ' attend votre validation',
 									marks: [],
 								},
 							],
@@ -445,7 +445,7 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3hb10gk006k0735dc4z04mg',
+											id: 'ck3yjczoua3jb0737dte08a6u',
 											name: 'customer.fullname',
 											__typename: 'EmailParam',
 										},
@@ -492,7 +492,7 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3hb0a0e00550735pn7s7nw6',
+											id: 'ck3yjczpia3jv0737mhu8d5su',
 											name: 'user.fullname',
 											__typename: 'EmailParam',
 										},
@@ -507,8 +507,7 @@ const templates = {
 								},
 								{
 									object: 'text',
-									text:
-										' me demande de vous contacter car nous avons besoin de vous pour réaliser la tâche ',
+									text: ' a activé la tâche ',
 									marks: [],
 								},
 								{
@@ -516,7 +515,7 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3haz72a00270735wffmxcxe',
+											id: 'ck3yjczmva3hj0737xv4dp273',
 											name: 'task.name',
 											__typename: 'EmailParam',
 										},
@@ -531,7 +530,7 @@ const templates = {
 								},
 								{
 									object: 'text',
-									text: '.',
+									text: ' il y a 2 jours et nous avons besoin de vous.',
 									marks: [],
 								},
 							],
@@ -570,12 +569,24 @@ const templates = {
 									text: '',
 									marks: [],
 								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
 								{
 									object: 'inline',
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3haz73a002b07350fpzwobn',
+											id: 'ck3yjczmza3hn073741dp6an4',
 											name: 'task.description',
 											__typename: 'EmailParam',
 										},
@@ -614,8 +625,30 @@ const templates = {
 							nodes: [
 								{
 									object: 'text',
-									text:
-										'Vous devez valider la tâche pour que  puisse avancer sur le reste du projet.',
+									text: 'Vous devez valider la tâche pour que ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczpia3jv0737mhu8d5su',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' puisse avancer sur le reste du projet.',
 									marks: [],
 								},
 							],
@@ -627,7 +660,7 @@ const templates = {
 							nodes: [
 								{
 									object: 'text',
-									text: '',
+									text: ' ',
 									marks: [],
 								},
 							],
@@ -647,7 +680,7 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3haz73w002f0735c7v76u76',
+											id: 'ck3yjczn3a3hr0737qgsdg62p',
 											name: 'task.link',
 											__typename: 'EmailParam',
 										},
@@ -720,7 +753,7 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3hb0a0e00550735pn7s7nw6',
+											id: 'ck3yjczpia3jv0737mhu8d5su',
 											name: 'user.fullname',
 											__typename: 'EmailParam',
 										},
@@ -736,6 +769,30 @@ const templates = {
 								{
 									object: 'text',
 									text: ' en sera informé immédiatement.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Cordialement,',
 									marks: [],
 								},
 							],
@@ -789,7 +846,7 @@ const templates = {
 								},
 								{
 									object: 'text',
-									text: ' à besoin de vous',
+									text: ' attend votre validation',
 									marks: [],
 								},
 							],
@@ -818,7 +875,7 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3hb10gk006k0735dc4z04mg',
+											id: 'ck3yjczoua3jb0737dte08a6u',
 											name: 'customer.fullname',
 											__typename: 'EmailParam',
 										},
@@ -865,7 +922,7 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3hb0a0e00550735pn7s7nw6',
+											id: 'ck3yjczpia3jv0737mhu8d5su',
 											name: 'user.fullname',
 											__typename: 'EmailParam',
 										},
@@ -880,8 +937,7 @@ const templates = {
 								},
 								{
 									object: 'text',
-									text:
-										' me demande de vous contacter car nous avons besoin de vous pour réaliser la tâche ',
+									text: ' a activé la tâche ',
 									marks: [],
 								},
 								{
@@ -889,7 +945,7 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3haz72a00270735wffmxcxe',
+											id: 'ck3yjczmva3hj0737xv4dp273',
 											name: 'task.name',
 											__typename: 'EmailParam',
 										},
@@ -904,7 +960,7 @@ const templates = {
 								},
 								{
 									object: 'text',
-									text: '.',
+									text: ' il y a 5 jours et nous avons besoin de vous.',
 									marks: [],
 								},
 							],
@@ -943,12 +999,24 @@ const templates = {
 									text: '',
 									marks: [],
 								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
 								{
 									object: 'inline',
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3haz73a002b07350fpzwobn',
+											id: 'ck3yjczmza3hn073741dp6an4',
 											name: 'task.description',
 											__typename: 'EmailParam',
 										},
@@ -987,8 +1055,30 @@ const templates = {
 							nodes: [
 								{
 									object: 'text',
-									text:
-										'Vous devez valider la tâche pour que  puisse avancer sur le reste du projet.',
+									text: 'Vous devez valider la tâche pour que ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczpia3jv0737mhu8d5su',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' puisse avancer sur le reste du projet.',
 									marks: [],
 								},
 							],
@@ -1020,7 +1110,7 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3haz73w002f0735c7v76u76',
+											id: 'ck3yjczn3a3hr0737qgsdg62p',
 											name: 'task.link',
 											__typename: 'EmailParam',
 										},
@@ -1093,7 +1183,7 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3hb0a0e00550735pn7s7nw6',
+											id: 'ck3yjczpia3jv0737mhu8d5su',
 											name: 'user.fullname',
 											__typename: 'EmailParam',
 										},
@@ -1109,6 +1199,30 @@ const templates = {
 								{
 									object: 'text',
 									text: ' en sera informé immédiatement.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Cordialement,',
 									marks: [],
 								},
 							],
@@ -1162,7 +1276,7 @@ const templates = {
 								},
 								{
 									object: 'text',
-									text: ' à besoin de vous',
+									text: ' n’a toujours pas reçu votre validation',
 									marks: [],
 								},
 							],
@@ -1191,7 +1305,7 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3hb10gk006k0735dc4z04mg',
+											id: 'ck3yjczoua3jb0737dte08a6u',
 											name: 'customer.fullname',
 											__typename: 'EmailParam',
 										},
@@ -1230,7 +1344,7 @@ const templates = {
 							nodes: [
 								{
 									object: 'text',
-									text: '',
+									text: 'IMPORTANT - ',
 									marks: [],
 								},
 								{
@@ -1238,7 +1352,7 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3hb0a0e00550735pn7s7nw6',
+											id: 'ck3yjczpia3jv0737mhu8d5su',
 											name: 'user.fullname',
 											__typename: 'EmailParam',
 										},
@@ -1253,8 +1367,7 @@ const templates = {
 								},
 								{
 									object: 'text',
-									text:
-										' me demande de vous contacter car nous avons besoin de vous pour réaliser la tâche ',
+									text: ' a besoin de vous concernant la tâche ',
 									marks: [],
 								},
 								{
@@ -1262,7 +1375,7 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3haz72a00270735wffmxcxe',
+											id: 'ck3yjczmva3hj0737xv4dp273',
 											name: 'task.name',
 											__typename: 'EmailParam',
 										},
@@ -1316,12 +1429,24 @@ const templates = {
 									text: '',
 									marks: [],
 								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
 								{
 									object: 'inline',
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3haz73a002b07350fpzwobn',
+											id: 'ck3yjczmza3hn073741dp6an4',
 											name: 'task.description',
 											__typename: 'EmailParam',
 										},
@@ -1360,8 +1485,30 @@ const templates = {
 							nodes: [
 								{
 									object: 'text',
-									text:
-										'Vous devez valider la tâche pour que  puisse avancer sur le reste du projet.',
+									text: 'Vous devez valider la tâche pour que ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczpia3jv0737mhu8d5su',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' puisse avancer sur le reste du projet.',
 									marks: [],
 								},
 							],
@@ -1393,7 +1540,7 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3haz73w002f0735c7v76u76',
+											id: 'ck3yjczn3a3hr0737qgsdg62p',
 											name: 'task.link',
 											__typename: 'EmailParam',
 										},
@@ -1466,7 +1613,7 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3hb0a0e00550735pn7s7nw6',
+											id: 'ck3yjczpia3jv0737mhu8d5su',
 											name: 'user.fullname',
 											__typename: 'EmailParam',
 										},
@@ -1482,6 +1629,30 @@ const templates = {
 								{
 									object: 'text',
 									text: ' en sera informé immédiatement.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Cordialement,',
 									marks: [],
 								},
 							],
