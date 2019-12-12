@@ -286,7 +286,7 @@ type Mutation {
 	sendReminderTestEmail(id: ID!): Boolean!
 	# sends a test preview email to the user
 	sendReminderPreviewTestEmail(taskId: ID!, type: ReminderType!): Boolean!
-	sendCustomEmailPreview(templateId: ID!): Boolean!
+	sendCustomEmailPreview(subject: Json!, content: Json!): Boolean!
 
 	markNotificationsAsRead: Boolean!
 	createTag(name: String!, colorBg: String!, colorText: String!): Tag!

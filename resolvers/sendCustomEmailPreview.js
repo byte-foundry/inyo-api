@@ -4,22 +4,9 @@ const sendEmail = require('../emails/SendEmail');
 const {baseArguments} = require('../emails/templates');
 const {contentSerializer, subjectSerializer} = require('../emails/serializers');
 
-const sendCustomEmailPreview = async (parent, {templateId}, ctx) => {
-	const [template] = await ctx.db.emailTemplates({
-		where: {
-			id: templateId,
-			owner: {
-				id: ctx.userId,
-			},
-		},
-	});
-
-	if (!template) {
-		throw new Error(`Template '${templateId}' has not been found`);
-	}
-
-	const htmlSubject = subjectSerializer.serialize(template.subject);
-	const htmlContent = contentSerializer.serialize(template.content);
+const sendCustomEmailPreview = async (parent, {subject, content}, ctx) => {
+	const htmlSubject = subjectSerializer.serialize(subject);
+	const htmlContent = contentSerializer.serialize(content);
 
 	const compiledSubject = hogan.compile(htmlSubject);
 	const compiledContent = hogan.compile(htmlContent);
