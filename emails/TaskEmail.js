@@ -1,19 +1,16 @@
 const gql = String.raw;
-const hogan = require('hogan.js');
 const moment = require('moment');
 
 const getTemplateId = require('./getTemplateId');
 const sendEmail = require('./SendEmail.js');
 const {createPosthookReminder} = require('../reminders/createPosthookReminder');
 const {
-	createCustomEmailArguments,
 	getAppUrl,
 	formatName,
 	formatFullName,
 	filterDescription,
 	renderTemplate,
 } = require('../utils');
-const {contentSerializer, subjectSerializer} = require('../emails/serializers');
 
 async function sendTaskValidationEmail({email, meta, ...data}, ctx) {
 	return sendEmail(
