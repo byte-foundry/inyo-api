@@ -16,7 +16,7 @@ const weekDays = {
 	0: 'SUNDAY',
 };
 
-const sendCustomersRecapEmail = async ({userId}) => {
+const sendCustomersRecapEmail = async ({userId}, {metadata}) => {
 	let user = await prisma.user({id: userId});
 
 	if (!user.startWorkAt) {
@@ -77,6 +77,9 @@ const sendCustomersRecapEmail = async ({userId}) => {
 								sections_some: { items_some: { ${itemFilter} } }
 							}
 						}]
+						NOT: {
+							id_in: [${metadata.canceledReports && metadata.canceledReports.join(',')}]
+						}
 					}
 				) {
 					title
@@ -136,11 +139,11 @@ const sendCustomersRecapEmail = async ({userId}) => {
 							customer.lastName,
 						)}`,
 					).trimRight(),
-					projects: customer.projects.map((project) => ({
+					projects: customer.projects.map(project => ({
 						...project,
-						sections: project.sections.map((section) => ({
+						sections: project.sections.map(section => ({
 							...section,
-							items: section.items.map((item) => ({
+							items: section.items.map(item => ({
 								...item,
 								assignee: item.assignee
 									? formatName(item.assignee.firstName, item.assignee.lastName)
@@ -149,7 +152,7 @@ const sendCustomersRecapEmail = async ({userId}) => {
 						})),
 						url: getAppUrl(`/${customer.token}/tasks?projectId=${project.id}`),
 					})),
-					tasks: customer.linkedTasks.map((task) => ({
+					tasks: customer.linkedTasks.map(task => ({
 						...task,
 						url: getAppUrl(`/${customer.token}/tasks/${task.id}`),
 					})),
