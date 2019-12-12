@@ -539,6 +539,7 @@ type ReminderPreview {
 	type: ReminderType!
 	sendingDate: DateTime!
 	delay: Int!
+	isRelative: Boolean
 }
 
 union Viewer = User | Customer
