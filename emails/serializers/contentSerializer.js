@@ -40,21 +40,48 @@ const contentSerializer = new Html({
 					if (object.data.param.name === 'task.threadOfComments') {
 						return React.createElement(
 							'ul',
-							null,
+							{
+								style: {
+									listStyleType: 'none',
+									margin: 0,
+									padding: 0,
+								},
+							},
 							'{{#task.threadOfComments}}',
 							React.createElement(
 								'li',
-								null,
+								{
+									style: {
+										border: 'solid 1px #5020ee',
+										padding: '5px 0',
+										borderRadius: '3px',
+										maxWidth: '700px',
+										marginBottom: '10px',
+									},
+								},
 								React.createElement(
 									'div',
-									null,
+									{
+										style: {
+											borderBottom: 'solid 1px #5020ee',
+											padding: '0 5px 5px',
+										},
+									},
 									React.createElement(
 										'em',
 										null,
 										'{{author}} le {{createdAt}}',
 									),
 								),
-								React.createElement('div', null, '{{text}}'),
+								React.createElement(
+									'div',
+									{
+										style: {
+											padding: '0 5px',
+										},
+									},
+									'{{text}}',
+								),
 							),
 							'{{/task.threadOfComments}}',
 						);
