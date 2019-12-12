@@ -1,4 +1,3 @@
-const gql = String.raw;
 const moment = require('moment');
 
 const {remindersSequences} = require('../emails/TaskEmail');
@@ -8,8 +7,7 @@ const gql = String.raw;
 const Item = {
 	id: node => node.id,
 	name: node => node.name,
-	linkedCustomer: (node, args, ctx) =>
-		ctx.loaders.customers.byTaskId.load(node.id),
+	linkedCustomer: (node, args, ctx) => ctx.loaders.customers.byTaskId.load(node.id),
 	owner: (node, args, ctx) => {
 		if (node.owner) {
 			return ctx.loaders.userLoader.load(node.owner.id);
@@ -128,6 +126,7 @@ const Item = {
 				delay: moment.duration(timing.value, timing.unit).asSeconds(),
 				sendingDate: moment.duration(timing.value, timing.unit),
 				type: name,
+				isRelative: timing.isRelative,
 			}),
 		);
 		const defaultSequence = remindersSequences[node.type];
@@ -135,9 +134,8 @@ const Item = {
 		let realSequence = [...mappedEmailTemplates, ...defaultSequence];
 
 		realSequence = realSequence.filter(
-			(item, index) =>
-				realSequence.findIndex(searchItem => item.type === searchItem.type) ===
-				index,
+			(item, index) => realSequence.findIndex(searchItem => item.type === searchItem.type)
+				=== index,
 		);
 
 		return realSequence || [];
