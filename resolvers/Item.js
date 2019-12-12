@@ -129,6 +129,13 @@ const Item = {
 				isRelative: timing.isRelative,
 			}),
 		);
+
+		mappedEmailTemplates.forEach((template, index) => {
+			template.delay = template.isRelative
+				? template.delay + mappedEmailTemplates[index - 1].delay
+				: template.delay;
+		});
+
 		const defaultSequence = remindersSequences[node.type];
 
 		let realSequence = [...mappedEmailTemplates, ...defaultSequence];
