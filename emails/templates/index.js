@@ -24,7 +24,20 @@ const baseArguments = {
 				},
 			],
 			listOfAttachmentNotUploaded: 'list of attachments',
-			threadOfComments: 'threadOfComments',
+			threadOfComments: [
+				{
+					author: 'Richard Sammel',
+					text:
+						'Des scientifiques font des expériences sur les mouches drosophiles parce que la structure de leur cerveau est extrêmement proche de la nôtre.',
+					createdAt: '10/03/2019 à 13h37',
+				},
+				{
+					author: 'Constantin Alexandrov',
+					text:
+						'Le cheval nous voit plus grand que nous sommes avec son œil déformant. Ce n’est que grâce à cela que nous l’avons domestiqué.',
+					createdAt: '10/03/2019 à 16h20',
+				},
+			],
 		},
 		project: {
 			name: 'Projet très important',

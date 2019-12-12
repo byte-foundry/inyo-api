@@ -179,6 +179,7 @@ const createCustomEmailArguments = async ({
 						c.authorCustomer.firstName,
 						c.authorCustomer.lastName,
 					  ),
+				createdAt: moment(c.createdAt).format('DD/MM/YYYY à HHhMM'),
 			})),
 		};
 	}

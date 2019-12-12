@@ -48,7 +48,11 @@ const contentSerializer = new Html({
 								React.createElement(
 									'div',
 									null,
-									React.createElement('em', null, '{{author}}'),
+									React.createElement(
+										'em',
+										null,
+										'{{author}} le {{createdAt}}',
+									),
 								),
 								React.createElement('div', null, '{{text}}'),
 							),
