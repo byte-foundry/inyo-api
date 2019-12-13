@@ -174,6 +174,8 @@ async function sendItemContentAcquisitionEmail(
 		url,
 		description: filterDescription(item.description),
 		fileUrls: item.attachments,
+		userEmail: user.email,
+		name: item.name,
 	};
 
 	return sendEmail(
