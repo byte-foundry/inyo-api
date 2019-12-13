@@ -205,6 +205,7 @@ const remindersSequences = {
 		},
 		/* 1 day */ {
 			delay: moment.duration(2 + 3 + 1, 'days').asSeconds(),
+			sendingDate: moment().add(2 + 3 + 1, 'days'),
 			type: 'LAST',
 		},
 	],

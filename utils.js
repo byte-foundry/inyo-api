@@ -189,9 +189,10 @@ const createCustomEmailArguments = async ({
 
 		emailArgs.project = {
 			name: project.name,
-			deadline: project.deadline,
-			budget: project.budget,
-			link: 'projectlink',
+			deadline: project.deadline
+				? moment(project.deadline).format('DD/MM/YYYY')
+				: '',
+			budget: `${project.budget}€`,
 		};
 	}
 
@@ -241,6 +242,12 @@ const createCustomEmailArguments = async ({
 		if (taskId && projectId) {
 			emailArgs.task.link = getAppUrl(
 				`/${customer.token}/tasks/${taskId}?projectId=${projectId}`,
+			);
+		}
+
+		if (projectId) {
+			emailArgs.task.link = getAppUrl(
+				`/${customer.token}/tasks?projectId=${projectId}`,
 			);
 		}
 	}
