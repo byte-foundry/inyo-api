@@ -142,7 +142,7 @@ const Item = {
 					: template.delay;
 			});
 
-			const defaultSequence = remindersSequences[node.type];
+			const defaultSequence = remindersSequences[node.type] || [];
 
 			let realSequence = [...mappedEmailTemplates, ...defaultSequence];
 
@@ -152,7 +152,7 @@ const Item = {
 				) === index,
 			);
 
-			return realSequence || [];
+			return realSequence;
 		}
 		return [];
 	},
