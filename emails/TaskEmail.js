@@ -212,26 +212,32 @@ const remindersSequences = {
 	INVOICE: [
 		/* 5 min before actually sending it */ {
 			delay: moment.duration(5, 'minutes').asSeconds(),
+			sendingDate: moment().add(5, 'minutes'),
 			type: 'INVOICE_DELAY',
 		},
 		/* 2 days */ {
 			delay: moment.duration(12, 'days').asSeconds(),
+			sendingDate: moment().add(12, 'days'),
 			type: 'INVOICE_FIRST',
 		},
 		/* 3 days */ {
 			delay: moment.duration(20, 'days').asSeconds(),
+			sendingDate: moment().add(20, 'days'),
 			type: 'INVOICE_SECOND',
 		},
 		/* 1 day */ {
 			delay: moment.duration(25, 'days').asSeconds(),
+			sendingDate: moment().add(25, 'days'),
 			type: 'INVOICE_THIRD',
 		},
 		/* 1 day */ {
 			delay: moment.duration(30, 'days').asSeconds(),
+			sendingDate: moment().add(30, 'days'),
 			type: 'INVOICE_FOURTH',
 		},
 		/* 1 day */ {
 			delay: moment.duration(40, 'days').asSeconds(),
+			sendingDate: moment().add(40, 'days'),
 			type: 'INVOICE_LAST',
 		},
 	],
