@@ -1,9 +1,67 @@
 const {getUserId, createItemOwnerFilter} = require('../utils');
 const {NotFoundError} = require('../errors');
 const cancelPosthookReminder = require('../reminders/cancelReminder');
+const {scheduleEveningEmail} = require('../reminders/scheduleEveningEmail');
 
 const cancelReminder = async (parent, {id}, ctx) => {
 	const userId = getUserId(ctx);
+
+	if (id.includes('_report')) {
+		const customerReportId = id.replace('_report', '');
+
+		let [eveningReminder] = await ctx.db.reminders({
+			where: {
+				id,
+				type: 'EVENING_RECAP',
+				eveningRemindersUser: {id: userId},
+			},
+		});
+		const customer = await ctx.db.customer({id: customerReportId});
+		const user = await ctx.db.user({id: userId});
+
+		if (
+			eveningReminder
+			&& !eveningReminder.metadata.canceledReports[customerReportId]
+		) {
+			eveningReminder.metadata.canceledReports[customerReportId] = true;
+
+			ctx.db.updateReminder({
+				where: {
+					id: eveningReminder.id,
+				},
+				data: {
+					metadata: eveningReminder.metadata,
+				},
+			});
+		}
+		else {
+			const now = new Date();
+			const willEndWorkAt = new Date(
+				`${now.toJSON().split('T')[0]}T${user.endWorkAt.split('T')[1]}`,
+			);
+
+			if (now - willEndWorkAt > 0) {
+				willEndWorkAt.setDate(willEndWorkAt.getDate() + 1);
+			}
+
+			const metadata = {canceledReports: {[customerReportId]: true}};
+
+			eveningReminder = await scheduleEveningEmail(
+				user,
+				willEndWorkAt,
+				metadata,
+			);
+		}
+
+		return {
+			id,
+			type: 'CUSTOMER_REPORT',
+			customer,
+			status: 'CANCELED',
+			sendingDate: eveningReminder.sendingDate,
+		};
+	}
+
 	const [reminder] = await ctx.db.reminders({
 		where: {
 			id,

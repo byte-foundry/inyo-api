@@ -469,6 +469,7 @@ type Reminder {
 	type: ReminderType!
 	sendingDate: DateTime!
 	status: ReminderStatus @default(value: PENDING)
+	metadata: Json @default(value: "{}")
 
 	# deprecated
 	quote: Quote @relation(name: "QuoteReminders")

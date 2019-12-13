@@ -2,6 +2,7 @@ const moment = require('moment-timezone');
 
 const {prisma} = require('../generated/prisma-client');
 const {createPosthookReminder} = require('../reminders/createPosthookReminder');
+const {scheduleEveningEmail} = require('../reminders/scheduleEveningEmail');
 
 const gql = String.raw;
 
@@ -21,24 +22,6 @@ const scheduleDeadlineApproachingMail = async (user, startNextWorkDayAt) => {
 	return createPosthookReminder({
 		type: 'DEADLINE_APPROACHING',
 		postAt: startNextWorkDayAt,
-		user: {
-			connect: {id: user.id},
-		},
-		data: {
-			userId: user.id,
-		},
-	});
-};
-
-const scheduleEveningEmail = async (user, endNextWorkDayAt) => {
-	console.log('Scheduling evening emails for', user.email);
-
-	return createPosthookReminder({
-		type: 'EVENING_RECAP',
-		postAt: endNextWorkDayAt,
-		eveningRemindersUser: {
-			connect: {id: user.id},
-		},
 		user: {
 			connect: {id: user.id},
 		},
