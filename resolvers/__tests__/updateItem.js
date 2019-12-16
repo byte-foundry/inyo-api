@@ -318,4 +318,86 @@ describe('updateItem', () => {
 
 		expect(item).toMatchObject(args);
 	});
+
+	it('should work linking a task to a project without specifying section nor position', async () => {
+		const args = {
+			id: 'new-item',
+			projectId: 'project-1',
+		};
+		const ctx = {
+			request: {
+				get: () => 'user-token',
+			},
+			db: {
+				...db,
+				sections: () => ({
+					$fragment: () => [
+						{
+							id: 'section-1',
+							position: 1,
+							items: [
+								{
+									id: 'item-1-1',
+									position: 0,
+								},
+							],
+							project: {
+								id: 'project-1',
+								status: 'ONGOING',
+								sections: [
+									{
+										id: 'section-0',
+										position: 0,
+										items: [],
+									},
+									{
+										id: 'section-1',
+										position: 1,
+										items: [
+											{
+												id: 'item-1-1',
+												position: 0,
+											},
+										],
+									},
+								],
+							},
+						},
+					],
+				}),
+				items: () => ({
+					$fragment: () => [
+						{
+							id: 'new-item',
+							name: 'name',
+							status: 'PENDING',
+							description: 'description',
+							unit: 2,
+							section: null,
+						},
+					],
+				}),
+				updateItem: jest.fn(({where, data}) => ({
+					id: where.id,
+					...data,
+				})),
+			},
+		};
+
+		const item = await updateItem({}, args, ctx);
+
+		expect(ctx.db.updateItem).toHaveBeenCalledWith({
+			where: {id: 'new-item'},
+			data: expect.objectContaining({
+				position: 1,
+				section: {connect: {id: 'section-1'}},
+			}),
+		});
+
+		delete args.projectId;
+		expect(item).toMatchObject({
+			...args,
+			position: 1,
+		});
+	});
 });
