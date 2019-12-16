@@ -71,7 +71,8 @@ describe('postComment', () => {
 		expect(sendNewCommentEmail).toHaveBeenCalledWith(
 			expect.objectContaining({
 				email: 'bernarddavid@customer-project.test',
-				url: '/token-customer-project/tasks/item-id?projectId=project-id',
+				taskId: 'item-id',
+				projectId: 'project-id',
 			}),
 			ctx,
 		);
@@ -80,7 +81,7 @@ describe('postComment', () => {
 		expect(sendNewCommentEmail).toHaveBeenCalledWith(
 			expect.objectContaining({
 				email: 'jeanmichel@customer-task.test',
-				url: '/token-customer-task/tasks/item-id',
+				taskId: 'item-id',
 			}),
 			ctx,
 		);
@@ -148,7 +149,7 @@ describe('postComment', () => {
 		expect(sendNewCommentEmail).toHaveBeenCalledWith(
 			expect.objectContaining({
 				email: 'lance.free@test.com',
-				url: '/tasks/item-id',
+				taskId: 'item-id',
 			}),
 			ctx,
 		);
@@ -219,7 +220,7 @@ describe('postComment', () => {
 		expect(sendNewCommentEmail).toHaveBeenCalledWith(
 			expect.objectContaining({
 				email: 'lance.free@test.com',
-				url: '/tasks/item-id',
+				taskId: 'item-id',
 			}),
 			ctx,
 		);
@@ -289,7 +290,7 @@ describe('postComment', () => {
 		expect(sendNewCommentEmail).toHaveBeenCalledWith(
 			expect.objectContaining({
 				email: 'lance.free@test.com',
-				url: '/tasks/item-id',
+				taskId: 'item-id',
 			}),
 			ctx,
 		);
