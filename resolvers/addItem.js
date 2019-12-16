@@ -30,7 +30,7 @@ const addItem = async (
 	if (projectId && !sectionId) {
 		let [section] = await ctx.db.sections({
 			where: {project: {id: projectId}},
-			orderBy: 'position_ASC',
+			orderBy: 'position_DESC', // last section in project
 			first: 1,
 		});
 
