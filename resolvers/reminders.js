@@ -135,7 +135,9 @@ const reminders = async (root, args, ctx) => {
 		type: 'CUSTOMER_REPORT',
 		customer,
 		status:
-			eveningReminder && eveningReminder.metadata.canceledReports[customer.id]
+			eveningReminder
+			&& eveningReminder.metadata.canceledReports
+			&& eveningReminder.metadata.canceledReports[customer.id]
 				? 'CANCELED'
 				: 'PENDING',
 		sendingDate: eveningReminder
