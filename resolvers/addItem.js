@@ -45,7 +45,7 @@ const addItem = async (
 		// eslint-disable-next-line no-param-reassign
 		sectionId = section.id;
 		// eslint-disable-next-line no-param-reassign
-		wantedPosition = wantedPosition || 0;
+		wantedPosition = wantedPosition || Infinity;
 	}
 
 	if (sectionId) {
