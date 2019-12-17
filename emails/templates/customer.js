@@ -1,6 +1,339 @@
 const templates = {
 	DELAY: {
-		en: {},
+		en: {
+			timing: {
+				value: 5,
+				unit: 'minutes',
+				isRelative: false,
+			},
+			subject: {
+				object: 'value',
+				document: {
+					object: 'document',
+					data: {},
+					nodes: [
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3hb0a0e00550735pn7s7nw6',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' needs your help',
+									marks: [],
+								},
+							],
+						},
+					],
+				},
+			},
+			content: {
+				object: 'value',
+				document: {
+					object: 'document',
+					data: {},
+					nodes: [
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Hello ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczoua3jb0737dte08a6u',
+											name: 'customer.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'customer.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ',',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczpia3jv0737mhu8d5su',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text:
+										'asked me to contact you because we need you to complete the task .',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'You must validate the task so that ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczpia3jv0737mhu8d5su',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' can move forward with the next steps.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczn3a3hr0737qgsdg62p',
+											name: 'task.link',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'task.link',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'Please do it as quickly as possible. Otherwise, the project may fall behind!',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'Need more info to validate the task? In this case, just add your feedback in the comment section. ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczpia3jv0737mhu8d5su',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: 'will be notified immediately.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Regards,',
+									marks: [],
+								},
+							],
+						},
+					],
+				},
+			},
+		},
 		fr: {
 			timing: {
 				value: 5,
@@ -373,7 +706,362 @@ const templates = {
 		},
 	},
 	FIRST: {
-		en: {},
+		en: {
+			timing: {
+				value: 2,
+				unit: 'days',
+				isRelative: false,
+			},
+			subject: {
+				object: 'value',
+				document: {
+					object: 'document',
+					data: {},
+					nodes: [
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3hb0a0e00550735pn7s7nw6',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' needs your help',
+									marks: [],
+								},
+							],
+						},
+					],
+				},
+			},
+			content: {
+				object: 'value',
+				document: {
+					object: 'document',
+					data: {},
+					nodes: [
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Hello ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczoua3jb0737dte08a6u',
+											name: 'customer.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'customer.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ',',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczpia3jv0737mhu8d5su',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' activated the task ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczmva3hj0737xv4dp273',
+											name: 'task.name',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'task.name',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' 2 days ago and we need you.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'You must validate the task so that ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczpia3jv0737mhu8d5su',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' can go ahead with the next steps.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: ' ',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczn3a3hr0737qgsdg62p',
+											name: 'task.link',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'task.link',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'Please do it as quickly as possible. Otherwise, the project may fall behind!',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'Need more info to give to validate the task? In this case, just add your feedback in the comment section. ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczpia3jv0737mhu8d5su',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' will be notified immediately.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Regards,',
+									marks: [],
+								},
+							],
+						},
+					],
+				},
+			},
+		},
 		fr: {
 			timing: {
 				value: 2,
@@ -803,7 +1491,362 @@ const templates = {
 		},
 	},
 	SECOND: {
-		en: {},
+		en: {
+			timing: {
+				value: 5,
+				unit: 'days',
+				isRelative: false,
+			},
+			subject: {
+				object: 'value',
+				document: {
+					object: 'document',
+					data: {},
+					nodes: [
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3hb0a0e00550735pn7s7nw6',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' needs your help',
+									marks: [],
+								},
+							],
+						},
+					],
+				},
+			},
+			content: {
+				object: 'value',
+				document: {
+					object: 'document',
+					data: {},
+					nodes: [
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Hello ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczoua3jb0737dte08a6u',
+											name: 'customer.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'customer.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ',',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczpia3jv0737mhu8d5su',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: 'activated the task ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczmva3hj0737xv4dp273',
+											name: 'task.name',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'task.name',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' 5 days ago and we need you.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'You must validate the task so that ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczpia3jv0737mhu8d5su',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' can go ahead with the next steps.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: ' ',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczn3a3hr0737qgsdg62p',
+											name: 'task.link',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'task.link',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'Please do it as quickly as possible. Otherwise, the project may fall behind!',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'Need more info to give to validate the task? In this case, just add your feedback in the comment section. ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczpia3jv0737mhu8d5su',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' will be notified immediately.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Regards,',
+									marks: [],
+								},
+							],
+						},
+					],
+				},
+			},
+		},
 		fr: {
 			timing: {
 				value: 5,
@@ -1233,7 +2276,385 @@ const templates = {
 		},
 	},
 	LAST: {
-		en: {},
+		en: {
+			timing: {
+				value: 6,
+				unit: 'days',
+				isRelative: false,
+			},
+			subject: {
+				object: 'value',
+				document: {
+					object: 'document',
+					data: {},
+					nodes: [
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'IMPORTANT - ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3hb0a0e00550735pn7s7nw6',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' needs your help with ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczmva3hj0737xv4dp273',
+											name: 'task.name',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'task.name',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+					],
+				},
+			},
+			content: {
+				object: 'value',
+				document: {
+					object: 'document',
+					data: {},
+					nodes: [
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Hello ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczoua3jb0737dte08a6u',
+											name: 'customer.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'customer.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ',',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'IMPORTANT - ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczpia3jv0737mhu8d5su',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' needs your confirmation of task ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczmva3hj0737xv4dp273',
+											name: 'task.name',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'task.name',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'You must validate the task so that ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczpia3jv0737mhu8d5su',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' can go ahead with the next steps.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: ' ',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczn3a3hr0737qgsdg62p',
+											name: 'task.link',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'task.link',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'Please do it as quickly as possible. Otherwise, the project may fall behind!',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'Need more info to give to validate the task? In this case, just add your feedback in the comment section. ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczpia3jv0737mhu8d5su',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' will be notified immediately.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Regards,',
+									marks: [],
+								},
+							],
+						},
+					],
+				},
+			},
+		},
 		fr: {
 			timing: {
 				value: 6,
