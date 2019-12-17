@@ -1,14 +1,11 @@
-const hogan = require('hogan.js');
-
 const getTemplateId = require('./getTemplateId');
 const sendEmail = require('./SendEmail.js');
 const {
 	getAppUrl,
 	formatFullName,
 	formatName,
-	createCustomEmailArguments,
+	renderTemplate,
 } = require('../utils');
-const {contentSerializer, subjectSerializer} = require('../emails/serializers');
 
 async function sendNewCommentEmail(
 	{

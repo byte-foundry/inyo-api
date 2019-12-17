@@ -16,7 +16,7 @@ const sendCustomEmailPreview = async (parent, {subject, content}, ctx) => {
 
 	sendEmail(
 		{
-			email: 'francois@inyo.me',
+			email: ctx.email,
 			data: {
 				subject: renderedSubject,
 				content: renderedContent,

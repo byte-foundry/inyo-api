@@ -1,6 +1,375 @@
 const templates = {
 	INVOICE_DELAY: {
-		en: {},
+		en: {
+			timing: {
+				value: 5,
+				unit: 'minutes',
+				isRelative: false,
+			},
+			subject: {
+				object: 'value',
+				document: {
+					object: 'document',
+					data: {},
+					nodes: [
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Invoice for the project ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczq6a3kb0737h4yugmro',
+											name: 'project.name',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'project.name',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+					],
+				},
+			},
+			content: {
+				object: 'value',
+				document: {
+					object: 'document',
+					data: {},
+					nodes: [
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Hello ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczoua3jb0737dte08a6u',
+											name: 'customer.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'customer.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ',',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczpia3jv0737mhu8d5su',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' asked me to send you their invoice for the project ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczq6a3kb0737h4yugmro',
+											name: 'project.name',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'project.name',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' which can be viewed right here:',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczqga3kn0737py2arve3',
+											name: 'project.link',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'project.link',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'The invoice can be downloaded directly from this address:',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczn6a3hv0737kkw976gu',
+											name: 'task.attachments',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'task.attachments',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'I’d appreciate it if you could meet the legal 30-day deadline for this payment.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'Simply hit reply to this email if you have any questions.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'In the meantime, we wish you a pleasant day.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Yours sincerely,',
+									marks: [],
+								},
+							],
+						},
+					],
+				},
+			},
+		},
 		fr: {
 			timing: {
 				value: 5,
@@ -270,7 +639,341 @@ const templates = {
 		},
 	},
 	INVOICE_FIRST: {
-		en: {},
+		en: {
+			timing: {
+				value: 12,
+				unit: 'days',
+				isRelative: false,
+			},
+			subject: {
+				object: 'value',
+				document: {
+					object: 'document',
+					data: {},
+					nodes: [
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Invoice payment for project ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczq6a3kb0737h4yugmro',
+											name: 'project.name',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'project.name',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+					],
+				},
+			},
+			content: {
+				object: 'value',
+				document: {
+					object: 'document',
+					data: {},
+					nodes: [
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Hello ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczoua3jb0737dte08a6u',
+											name: 'customer.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'customer.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ',',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'I’m checking in with you on behalf of ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczpia3jv0737mhu8d5su',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' if you’ve received our invoice for the project ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczq6a3kb0737h4yugmro',
+											name: 'project.name',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'project.name',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'The invoice can be downloaded directly from this address:',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczn6a3hv0737kkw976gu',
+											name: 'task.attachments',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'task.attachments',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'I would be grateful to you to respect the legal deadline of 30 days for this payment.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'Simply hit reply to this email if you have any questions.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'In the meantime, we wish you a pleasant day.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Yours sincerely,',
+									marks: [],
+								},
+							],
+						},
+					],
+				},
+			},
+		},
 		fr: {
 			timing: {
 				value: 12,
@@ -587,7 +1290,330 @@ const templates = {
 		},
 	},
 	INVOICE_SECOND: {
-		en: {},
+		en: {
+			timing: {
+				value: 20,
+				unit: 'days',
+				isRelative: false,
+			},
+			subject: {
+				object: 'value',
+				document: {
+					object: 'document',
+					data: {},
+					nodes: [
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Invoice payment for project ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczq6a3kb0737h4yugmro',
+											name: 'project.name',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'project.name',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+					],
+				},
+			},
+			content: {
+				object: 'value',
+				document: {
+					object: 'document',
+					data: {},
+					nodes: [
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Hello ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczoua3jb0737dte08a6u',
+											name: 'customer.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'customer.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ',',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'I’m checking in with you on behalf of ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczpia3jv0737mhu8d5su',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text:
+										' I see that we have not yet received your payment for the project ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczq6a3kb0737h4yugmro',
+											name: 'project.name',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'project.name',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'Not to worry, you can download the invoice directly at:',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczn6a3hv0737kkw976gu',
+											name: 'task.attachments',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'task.attachments',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'I would be grateful to you to respect the legal deadline of 30 days for this payment.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'Simply hit reply to this email if you have any questions.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'In the meantime, we wish you a pleasant day.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Yours sincerely,',
+									marks: [],
+								},
+							],
+						},
+					],
+				},
+			},
+		},
 		fr: {
 			timing: {
 				value: 20,
@@ -904,7 +1930,306 @@ const templates = {
 		},
 	},
 	INVOICE_THIRD: {
-		en: {},
+		en: {
+			timing: {
+				value: 25,
+				unit: 'days',
+				isRelative: false,
+			},
+			subject: {
+				object: 'value',
+				document: {
+					object: 'document',
+					data: {},
+					nodes: [
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Invoice payment for project ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczq6a3kb0737h4yugmro',
+											name: 'project.name',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'project.name',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+					],
+				},
+			},
+			content: {
+				object: 'value',
+				document: {
+					object: 'document',
+					data: {},
+					nodes: [
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Hello ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczoua3jb0737dte08a6u',
+											name: 'customer.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'customer.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ',',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'This is just a quick reminder that we have not yet received your payment for the project ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczq6a3kb0737h4yugmro',
+											name: 'project.name',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'project.name',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'The legal 30-day deadline for the regulation ends soon, and we’d appreciate if you could take care of this invoice as quickly as possible.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'The invoice can be downloaded directly from:',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczn6a3hv0737kkw976gu',
+											name: 'task.attachments',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'task.attachments',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'Simply hit reply to this email if you have any questions.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'In the meantime, we wish you a pleasant day.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Yours sincerely,',
+									marks: [],
+								},
+							],
+						},
+					],
+				},
+			},
+		},
 		fr: {
 			timing: {
 				value: 25,
@@ -1221,7 +2546,328 @@ const templates = {
 		},
 	},
 	INVOICE_FOURTH: {
-		en: {},
+		en: {
+			timing: {
+				value: 30,
+				unit: 'days',
+				isRelative: false,
+			},
+			subject: {
+				object: 'value',
+				document: {
+					object: 'document',
+					data: {},
+					nodes: [
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Invoice payment for project ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczq6a3kb0737h4yugmro',
+											name: 'project.name',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'project.name',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+					],
+				},
+			},
+			content: {
+				object: 'value',
+				document: {
+					object: 'document',
+					data: {},
+					nodes: [
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Hello ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczoua3jb0737dte08a6u',
+											name: 'customer.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'customer.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ',',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'We are contacting you again concerning the invoice settlement for the project ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczq6a3kb0737h4yugmro',
+											name: 'project.name',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'project.name',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ' with ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczpia3jv0737mhu8d5su',
+											name: 'user.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'user.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'The 30-day legal deadline for settlement ends today.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'The invoice can be downloaded directly from:',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczn6a3hv0737kkw976gu',
+											name: 'task.attachments',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'task.attachments',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'In case you have any questions about this payment, please get in touch with us.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'In the meantime, we wish you a pleasant day.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Yours sincerely,',
+									marks: [],
+								},
+							],
+						},
+					],
+				},
+			},
+		},
 		fr: {
 			timing: {
 				value: 30,
@@ -1562,7 +3208,294 @@ const templates = {
 		},
 	},
 	INVOICE_LAST: {
-		en: {},
+		en: {
+			timing: {
+				value: 40,
+				unit: 'days',
+				isRelative: false,
+			},
+			subject: {
+				object: 'value',
+				document: {
+					object: 'document',
+					data: {},
+					nodes: [
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'URGENT - Invoice payment for project ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczq6a3kb0737h4yugmro',
+											name: 'project.name',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'project.name',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+					],
+				},
+			},
+			content: {
+				object: 'value',
+				document: {
+					object: 'document',
+					data: {},
+					nodes: [
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Hello ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczoua3jb0737dte08a6u',
+											name: 'customer.fullname',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'customer.fullname',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: ',',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'Our records show that we haven’t yet received payment for the invoice related to the project ',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczq6a3kb0737h4yugmro',
+											name: 'project.name',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'project.name',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'The payment is overdue by 10 days, and we would appreciate if you could promptly send us your payment. However, if you are experiencing problems, please contact us so that we can find a solution together.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'The invoice can be downloaded directly from:',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczn6a3hv0737kkw976gu',
+											name: 'task.attachments',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'task.attachments',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text:
+										'If it is an oversight on your part, we thank you for sending us your payment upon receiving this and getting in touch with us.',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: 'Yours sincerely,',
+									marks: [],
+								},
+							],
+						},
+					],
+				},
+			},
+		},
 		fr: {
 			timing: {
 				value: 40,

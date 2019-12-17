@@ -117,6 +117,7 @@ const server = new ApolloServer({
 			}).$fragment(gql`
 				fragment UserSettings on User {
 					timeZone
+					email
 					settings {
 						language
 					}
@@ -127,6 +128,7 @@ const server = new ApolloServer({
 			if (user) {
 				timeZone = user.timeZone || 'Europe/Paris';
 				language = user.settings.language || 'fr';
+				email = user.email;
 			}
 		}
 
@@ -139,6 +141,7 @@ const server = new ApolloServer({
 			isPayingOrInTrial,
 			language,
 			timeZone,
+			email,
 			token,
 			ip,
 		};
@@ -160,11 +163,15 @@ const routes = express.Router();
 routes.post('/schedule-daily-mails', scheduleDailyMails);
 routes.post('/update-intercom', updateIntercom);
 
-routes.post('/posthook-receiver', bodyParser.json({
-	verify: (req, res, buf) => {
-		req.rawBody = buf;
-	},
-}), posthookReceiver);
+routes.post(
+	'/posthook-receiver',
+	bodyParser.json({
+		verify: (req, res, buf) => {
+			req.rawBody = buf;
+		},
+	}),
+	posthookReceiver,
+);
 
 routes.post(
 	'/lifetime-payment',
