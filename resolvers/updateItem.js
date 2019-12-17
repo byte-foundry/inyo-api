@@ -137,35 +137,10 @@ const updateItem = async (
 	}
 
 	let position;
+	let wantedSection;
+	let initialPosition = Infinity;
 
-	let wantedSection = item.section || (sectionId && {id: sectionId});
-
-	if (projectId && !sectionId) {
-		let [section] = await ctx.db.sections({
-			where: {project: {id: projectId}},
-			orderBy: 'position_ASC',
-			first: 1,
-		});
-
-		if (!section) {
-			section = await ctx.db.createSection({
-				project: projectId && {connect: {id: projectId}},
-				name: 'Renommer cette section',
-				position: 0,
-			});
-		}
-
-		// eslint-disable-next-line no-param-reassign
-		wantedSection = section;
-		// eslint-disable-next-line no-param-reassign
-		wantedPosition = wantedPosition || 0;
-	}
-	// the user wants to remove item from the project
-	else if (projectId === null) {
-		// eslint-disable-next-line no-param-reassign
-		wantedPosition = Infinity;
-	}
-
+	// the item has a section but can we update the project in the first place?
 	if (item.section) {
 		const {project} = item.section;
 
@@ -175,60 +150,129 @@ const updateItem = async (
 			);
 		}
 
-		position = wantedPosition;
-		let initialPosition = item.section.items.findIndex(
+		// no we're good, let's get the initial position
+		initialPosition = item.section.items.findIndex(
 			sectionItem => sectionItem.id === item.id,
 		);
+	}
 
-		if (initialPosition === -1) {
+	// we want to link the item to a project but without specifying where
+	// let's put it at the end then!
+	if (projectId && !sectionId) {
+		// last section in project
+		let [section] = await ctx.db.sections({
+			where: {project: {id: projectId}},
+			orderBy: 'position_DESC',
+			first: 1,
+		}).$fragment(gql`
+			fragment SectionWithProject on Section {
+				id
+				items(orderBy: position_ASC) {
+					id
+					position
+				}
+				project {
+					id
+					status
+					sections(orderBy: position_ASC, where: {id: "${sectionId}"}) {
+						id
+						items(orderBy: position_ASC) {
+							id
+						}
+					}
+				}
+			}
+		`);
+
+		if (!section) {
+			section = await ctx.db.createSection({
+				project: projectId && {connect: {id: projectId}},
+				name: 'Renommer cette section',
+				position: 0,
+			}).$fragment(gql`
+				fragment SectionWithProject on Section {
+					id
+					items(orderBy: position_ASC) {
+						id
+						position
+					}
+					project {
+						id
+						status
+						sections(orderBy: position_ASC, where: {id: "${sectionId}"}) {
+							id
+							items(orderBy: position_ASC) {
+								id
+							}
+						}
+					}
+				}
+			`);
+		}
+
+		if (section.project.status === 'FINISHED') {
+			throw new Error(`Item '${id}' cannot be moved to a finished project.`);
+		}
+
+		// eslint-disable-next-line no-param-reassign
+		wantedSection = section;
+		// eslint-disable-next-line no-param-reassign
+		position = wantedPosition || section.items.length;
+	}
+	// the user wants to remove item from the project
+	else if (projectId === null) {
+		// eslint-disable-next-line no-param-reassign
+		wantedPosition = Infinity;
+	}
+	// we are moving to a different section in the same project
+	else if (item.section && sectionId && sectionId !== item.section.id) {
+		[wantedSection] = item.section.project.sections;
+
+		if (!wantedSection) {
 			throw new Error(
-				`Item '${item.id}' has not been found in Section '${
-					item.section.id
-				}' items.`,
+				`Item '${id}' cannot be moved into Section '${sectionId}', it has not been found in the project.`,
 			);
 		}
 
-		if (sectionId && sectionId !== item.section.id) {
-			[wantedSection] = project.sections;
+		if (item.section.project.status === 'FINISHED') {
+			throw new Error(`Item '${id}' cannot be moved to a finished project.`);
+		}
+	}
+	// or else we don't move from the section and project where we are
+	else {
+		wantedSection = item.section;
+	}
 
-			if (!wantedSection) {
-				throw new Error(
-					`Item '${id}' cannot be moved into Section '${sectionId}', it has not been found in the project.`,
-				);
-			}
+	// if we change section, we need to re-order the previous one if it exists
+	// putting it virtually at the end of the wanted section (for reordering)
+	if (item.section && wantedSection && wantedSection.id !== item.section.id) {
+		await reorderSection(
+			item.section,
+			initialPosition,
+			item.section.items.length,
+			ctx,
+		);
+
+		initialPosition = wantedSection.items && wantedSection.items.length;
+	}
+
+	// finally, we reorder the section to move the item to the right place
+	if (
+		wantedSection
+		&& typeof wantedPosition === 'number'
+		&& wantedPosition !== initialPosition
+	) {
+		if (wantedPosition < 0) {
+			position = 0;
+		}
+		else if (wantedPosition > wantedSection.items.length) {
+			position = wantedSection.items.length;
+		}
+		else {
+			position = wantedPosition;
 		}
 
-		if (wantedSection && wantedSection.id !== item.section.id) {
-			// if we change section, we need to re-order the previous one
-			// putting it at the end of the section first
-			await reorderSection(
-				item.section,
-				initialPosition,
-				item.section.items.length,
-				ctx,
-			);
-
-			initialPosition = wantedSection.items && wantedSection.items.length;
-		}
-
-		if (
-			(wantedSection.items
-				&& (typeof wantedPosition === 'number'
-					&& wantedPosition !== initialPosition))
-			|| (sectionId && sectionId !== item.section.id)
-		) {
-			if (wantedPosition < 0) {
-				position = 0;
-			}
-			else if (wantedPosition > wantedSection.items.length) {
-				position = wantedSection.items.length;
-			}
-			else {
-				position = wantedPosition;
-			}
-
-			reorderSection(wantedSection, initialPosition, wantedPosition, ctx);
-		}
+		reorderSection(wantedSection, initialPosition, wantedPosition, ctx);
 	}
 
 	const userId = getUserId(ctx);
