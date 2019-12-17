@@ -16,8 +16,9 @@ const Query = {
 		});
 		return ctx.db.user({id: getUserId(ctx)});
 	},
-	customer: (root, {id, token}, ctx) => ctx.db.customer({id, token}),
-	project: async (root, {id, token}, ctx) => {
+	customer: (root, {id}, ctx) => ctx.db.customer({id, token: ctx.token}),
+	project: async (root, {id}, ctx) => {
+		const {token} = ctx;
 		const project = await ctx.db.project({id});
 
 		if (token && token !== process.ADMIN_TOKEN) {
