@@ -168,6 +168,11 @@ const updateIntercom = async (req, res) => {
 		fragment UserSessions on User {
 			id
 			email
+			company {
+				customers {
+					id
+				}
+			}
 			${sessionsDayFragments}
 		}
 	`);
@@ -204,6 +209,7 @@ const updateIntercom = async (req, res) => {
 					'projects-created-last-30-days': createdProjectsEventsCount,
 					'tasks-created-last-30-days': createdTasksEventsCount,
 					'customer-project-views-last-15-days': customerProjectViewsCount,
+					'customers-count': user.company.customers.length,
 				},
 			});
 		}),
