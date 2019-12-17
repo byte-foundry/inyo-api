@@ -71,6 +71,8 @@ const server = new ApolloServer({
 
 		let user = null;
 
+		let email = '';
+
 		let isAuthenticated = false;
 
 		let isPayingOrInTrial = false;
@@ -94,7 +96,7 @@ const server = new ApolloServer({
 		let timeZone = 'Europe/Paris';
 
 		if (userId || token) {
-			const [user] = await prisma.users({
+			[user] = await prisma.users({
 				where: {
 					OR: [
 						{

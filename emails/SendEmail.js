@@ -1,5 +1,8 @@
+const gql = String.raw;
 const slugify = require('slugify');
 const sendGridClient = require('@sendgrid/client');
+
+const {formatName} = require('../utils');
 
 sendGridClient.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -8,10 +11,22 @@ async function sendEmail({
 }, ctx) {
 	let assistantName = 'Edwige';
 
-	if (meta && meta.userId) {
-		const settings = await ctx.db.user({id: meta.userId}).settings();
+	let userSignatureName = '';
 
-		({assistantName} = settings);
+	if (meta && meta.userId) {
+		const user = await ctx.db.user({id: meta.userId}).$fragment(gql`
+			fragment UserWithSettings on User {
+				lastName
+				firstName
+				settings {
+					assistantName
+				}
+			}
+		`);
+
+		userSignatureName = formatName(user.firstName, user.lastName);
+
+		({assistantName} = user.settings);
 	}
 
 	const assistantEmailName = slugify(assistantName.toLowerCase());
@@ -35,7 +50,7 @@ async function sendEmail({
 							email,
 						},
 					],
-					dynamic_template_data: {...data, assistantName},
+					dynamic_template_data: {...data, assistantName, userSignatureName},
 				},
 			],
 			template_id: templateId,
