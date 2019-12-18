@@ -376,7 +376,7 @@ const templates = {
 								},
 								{
 									object: 'text',
-									text: ' à besoin de vous',
+									text: ' a besoin de vous',
 									marks: [],
 								},
 							],
