@@ -78,7 +78,7 @@ const sendCustomersRecapEmail = async ({userId}, {metadata}) => {
 							}
 						}]
 						NOT: {
-							id_in: [${metadata.canceledReports && metadata.canceledReports.join(',')}]
+							id_in: [${metadata.canceledReports ? metadata.canceledReports.join(',') : ''}]
 						}
 					}
 				) {
