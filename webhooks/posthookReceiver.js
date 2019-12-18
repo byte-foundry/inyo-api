@@ -13,7 +13,7 @@ const posthookReceiver = async (req, res) => {
 	const hmac = crypto.createHmac('sha256', process.env.POSTHOOK_SIGNATURE);
 
 	// look for X-Ph-Signature in ctx
-	hmac.update(JSON.stringify(req.body));
+	hmac.update(req.rawBody.toString('utf8'));
 
 	const hmacSignature = hmac.digest('hex');
 

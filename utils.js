@@ -1,6 +1,10 @@
+const gql = String.raw;
+const hogan = require('hogan.js');
 const {verify} = require('jsonwebtoken');
+const moment = require('moment');
 
 const {AuthError} = require('./errors');
+const {contentSerializer, subjectSerializer} = require('./emails/serializers');
 
 const {APP_SECRET} = process.env;
 
@@ -120,6 +124,284 @@ const ensureKeyOrder = (
 	return keys.map(key => docsMap.get(key) || new Error(error(key)));
 };
 
+const createCustomEmailArguments = async ({
+	taskId,
+	projectId,
+	userId,
+	customerId,
+	commentId,
+	authorId,
+	recipientId,
+	recipientIsUser,
+	authorIsUser,
+	ctx,
+}) => {
+	const emailArgs = {};
+
+	if (taskId) {
+		const task = await ctx.db.item({id: taskId}).$fragment(gql`
+			fragment TaskWithCommentAndAttachements on Item {
+				id
+				name
+				description
+				attachments {
+					filename
+					url
+				}
+				comments {
+					authorUser {
+						firstName
+						lastName
+					}
+					authorCustomer {
+						title
+						firstName
+						lastName
+					}
+					text
+					createdAt
+				}
+			}
+		`);
+
+		emailArgs.task = {
+			name: task.name,
+			description: task.description,
+			attachments: task.attachments,
+			listOfAttachmentNotUploaded:
+				'Placer ici la liste des fichiers à uploadés',
+			threadOfComments: task.comments.map(c => ({
+				text: c.text,
+				author: c.authorUser
+					? formatName(c.authorUser.firstName, c.authorUser.lastName)
+					: formatFullName(
+						c.authorCustomer.title,
+						c.authorCustomer.firstName,
+						c.authorCustomer.lastName,
+					  ),
+				createdAt: moment(c.createdAt).format('DD/MM/YYYY à HHhMM'),
+			})),
+		};
+	}
+
+	if (projectId) {
+		const project = await ctx.db.project({id: projectId});
+
+		emailArgs.project = {
+			name: project.name,
+			deadline: project.deadline
+				? moment(project.deadline).format('DD/MM/YYYY')
+				: '',
+			budget: `${project.budget}€`,
+		};
+	}
+
+	if (userId) {
+		const user = await ctx.db.user({id: userId}).$fragment(gql`
+			fragment UserWithCompany on User {
+				id
+				firstName
+				lastName
+				email
+				company {
+					id
+					phone
+				}
+			}
+		`);
+
+		emailArgs.user = {
+			firstname: user.firstName,
+			lastname: user.lastName,
+			fullname: formatName(user.firstName, user.lastName),
+			phone: user.company.phone,
+			email: user.email,
+			listOfTasksCompletedOnDay: 'listoftasks',
+		};
+	}
+
+	if (customerId) {
+		const customer = await ctx.db.customer({id: customerId});
+
+		emailArgs.customer = {
+			firstname: customer.firstName,
+			lastname: customer.lastName,
+			fullname: formatFullName(
+				customer.title,
+				customer.firstName,
+				customer.lastName,
+			),
+			phone: customer.phone,
+			email: customer.email,
+		};
+
+		if (taskId) {
+			emailArgs.task.link = getAppUrl(`/${customer.token}/tasks/${taskId}`);
+		}
+
+		if (taskId && projectId) {
+			emailArgs.task.link = getAppUrl(
+				`/${customer.token}/tasks/${taskId}?projectId=${projectId}`,
+			);
+		}
+
+		if (projectId) {
+			emailArgs.task.link = getAppUrl(
+				`/${customer.token}/tasks?projectId=${projectId}`,
+			);
+		}
+	}
+
+	if (commentId) {
+		const comment = await ctx.db.comment({id: commentId});
+
+		emailArgs.comment = {
+			text: comment.text,
+			createdAt: moment(comment.createdAt).format('DD/MM/YYYY'),
+		};
+	}
+
+	if (authorId) {
+		if (authorIsUser) {
+			const user = await ctx.db.user({id: authorId}).$fragment(gql`
+				fragment UserWithCompany on User {
+					id
+					firstName
+					lastName
+					email
+					company {
+						id
+						phone
+					}
+				}
+			`);
+
+			emailArgs.author = {
+				firstname: user.firstName,
+				lastname: user.lastName,
+				fullname: formatName(user.firstName, user.lastName),
+				phone: user.company.phone,
+				email: user.email,
+			};
+		}
+		else {
+			const customer = await ctx.db.customer({id: authorId});
+
+			emailArgs.author = {
+				firstname: customer.firstName,
+				lastname: customer.lastName,
+				fullname: formatFullName(
+					customer.title,
+					customer.firstName,
+					customer.lastName,
+				),
+				phone: customer.phone,
+				email: customer.email,
+			};
+		}
+	}
+
+	if (recipientId) {
+		if (recipientIsUser) {
+			const user = await ctx.db.user({id: recipientId}).$fragment(gql`
+				fragment UserWithCompany on User {
+					id
+					firstName
+					lastName
+					email
+					company {
+						id
+						phone
+					}
+				}
+			`);
+
+			emailArgs.recipient = {
+				firstname: user.firstName,
+				lastname: user.lastName,
+				fullname: formatName(user.firstName, user.lastName),
+				phone: user.company.phone,
+				email: user.email,
+			};
+
+			if (taskId) {
+				emailArgs.task.link = getAppUrl(`/tasks/${taskId}`);
+			}
+
+			if (taskId && projectId) {
+				emailArgs.task.link = getAppUrl(
+					`/tasks/${taskId}?projectId=${projectId}`,
+				);
+			}
+		}
+		else {
+			const customer = await ctx.db.customer({id: recipientId});
+
+			emailArgs.recipient = {
+				firstname: customer.firstName,
+				lastname: customer.lastName,
+				fullname: formatFullName(
+					customer.title,
+					customer.firstName,
+					customer.lastName,
+				),
+				phone: customer.phone,
+				email: customer.email,
+			};
+
+			if (taskId) {
+				emailArgs.task.link = getAppUrl(`/${customer.token}/tasks/${taskId}`);
+			}
+
+			if (taskId && projectId) {
+				emailArgs.task.link = getAppUrl(
+					`/${customer.token}/tasks/${taskId}?projectId=${projectId}`,
+				);
+			}
+		}
+	}
+
+	return emailArgs;
+};
+
+const renderTemplate = async ({
+	template,
+	taskId,
+	projectId,
+	userId,
+	customerId,
+	commentId,
+	authorId,
+	recipientId,
+	recipientIsUser,
+	authorIsUser,
+	ctx,
+}) => {
+	const emailArgs = await createCustomEmailArguments({
+		taskId,
+		projectId,
+		userId,
+		customerId,
+		commentId,
+		authorId,
+		recipientId,
+		recipientIsUser,
+		authorIsUser,
+		ctx,
+	});
+
+	const htmlSubject = subjectSerializer.serialize(template.subject);
+	const htmlContent = contentSerializer.serialize(template.content);
+
+	const compiledSubject = hogan.compile(htmlSubject);
+	const compiledContent = hogan.compile(htmlContent);
+
+	const renderedSubject = compiledSubject.render(emailArgs);
+	const renderedContent = compiledContent.render(emailArgs);
+
+	return [renderedSubject, renderedContent, emailArgs];
+};
+
 const TAG_COLOR_PALETTE = [
 	[[244, 67, 54], [255, 255, 255]],
 	[[233, 30, 99], [255, 255, 255]],
@@ -156,5 +438,7 @@ module.exports = {
 	filterDescription,
 	reorderList,
 	ensureKeyOrder,
+	createCustomEmailArguments,
 	TAG_COLOR_PALETTE,
+	renderTemplate,
 };

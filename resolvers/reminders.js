@@ -53,7 +53,11 @@ const reminders = async (root, args, ctx) => {
 	});
 
 	const {
-		startWorkAt, endWorkAt, workingDays, timeZone,
+		startWorkAt,
+		endWorkAt,
+		workingDays,
+		timeZone,
+		eveningReminders: [eveningReminder],
 	} = await ctx.db.user({
 		id: ctx.userId,
 	}).$fragment(gql`
@@ -62,6 +66,15 @@ const reminders = async (root, args, ctx) => {
 			endWorkAt
 			workingDays
 			timeZone
+			eveningReminders(where: {sendingDate_gt: "${
+	new Date().toJSON().split('T')[0]
+}"}) {
+				id
+				type
+				metadata
+				sendingDate
+				status
+			}
 		}
 	`);
 
@@ -121,8 +134,15 @@ const reminders = async (root, args, ctx) => {
 		id: `${customer.id}_report`,
 		type: 'CUSTOMER_REPORT',
 		customer,
-		status: 'PENDING',
-		sendingDate: willEndWorkAt.toJSON(),
+		status:
+			eveningReminder
+			&& eveningReminder.metadata.canceledReports
+			&& eveningReminder.metadata.canceledReports[customer.id]
+				? 'CANCELED'
+				: 'PENDING',
+		sendingDate: eveningReminder
+			? eveningReminder.sendingDate
+			: willEndWorkAt.toJSON(),
 	}));
 
 	const remindersAndReports = [...taskReminders, ...customerReports];

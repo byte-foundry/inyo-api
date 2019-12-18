@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const {remindersSequences} = require('../emails/TaskEmail');
 
 const gql = String.raw;
@@ -104,7 +106,56 @@ const Item = {
 			},
 		});
 	},
-	remindersPreviews: node => remindersSequences[node.type] || [],
+	remindersPreviews: async (node, args, ctx) => {
+		if (
+			node.type !== 'DEFAULT'
+			&& node.type !== 'PERSONAL'
+			&& node.type !== 'USER_REMINDER'
+			&& node.type !== 'CUSTOMER_REMINDER'
+		) {
+			const emailTemplates = await ctx.db.emailTemplates({
+				where: {
+					type: {
+						category: node.type,
+					},
+				},
+			}).$fragment(gql`
+				fragment TemplateWithType on EmailTemplate {
+					timing
+					type {
+						name
+					}
+				}
+			`);
+			const mappedEmailTemplates = emailTemplates.map(
+				({timing, type: {name}}) => ({
+					delay: moment.duration(timing.value, timing.unit).asSeconds(),
+					sendingDate: moment.duration(timing.value, timing.unit),
+					type: name,
+					isRelative: timing.isRelative,
+				}),
+			);
+
+			mappedEmailTemplates.forEach((template, index) => {
+				template.delay = template.isRelative
+					? template.delay + mappedEmailTemplates[index - 1].delay
+					: template.delay;
+			});
+
+			const defaultSequence = remindersSequences[node.type] || [];
+
+			let realSequence = [...mappedEmailTemplates, ...defaultSequence];
+
+			realSequence = realSequence.filter(
+				(item, index) => realSequence.findIndex(
+					searchItem => item.type === searchItem.type,
+				) === index,
+			);
+
+			return realSequence;
+		}
+		return [];
+	},
 	finishedAt: node => node.finishedAt,
 	createdAt: node => node.createdAt,
 };

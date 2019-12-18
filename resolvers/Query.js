@@ -1,6 +1,7 @@
 const gql = String.raw;
 const {getUserId, createItemOwnerFilter} = require('../utils');
 
+const {createTemplate} = require('../emails/templates');
 const {tasks} = require('./tasks');
 const {activity} = require('./activity');
 const {reminders} = require('./reminders');
@@ -15,8 +16,9 @@ const Query = {
 		});
 		return ctx.db.user({id: getUserId(ctx)});
 	},
-	customer: (root, {id, token}, ctx) => ctx.db.customer({id, token}),
-	project: async (root, {id, token}, ctx) => {
+	customer: (root, {id}, ctx) => ctx.db.customer({id, token: ctx.token}),
+	project: async (root, {id}, ctx) => {
+		const {token} = ctx;
 		const project = await ctx.db.project({id});
 
 		if (token && token !== process.ADMIN_TOKEN) {
@@ -46,6 +48,33 @@ const Query = {
 		}
 
 		return project;
+	},
+	emailTypes: (root, args, ctx) => ctx.db.emailTypes(),
+	emailTemplate: async (root, {typeName, category}, ctx) => {
+		const [template] = await ctx.db.emailTemplates({
+			where: {
+				type: {
+					category,
+					name: typeName,
+				},
+				owner: {
+					id: ctx.userId,
+				},
+			},
+		});
+
+		if (!template) {
+			const [type] = await ctx.db.emailTypes({
+				where: {
+					category,
+					name: typeName,
+				},
+			});
+
+			return createTemplate(ctx, ctx.userId, type, ctx.language);
+		}
+
+		return template;
 	},
 	quote: () => {
 		throw new Error('Quotes are not supported anymore');

@@ -1,13 +1,9 @@
 const moment = require('moment');
 const {
 	getUserId,
-	getAppUrl,
 	createItemOwnerFilter,
 	createItemCollaboratorFilter,
 	isCustomerTask,
-	formatName,
-	formatFullName,
-	filterDescription,
 	reorderList,
 } = require('../utils');
 const {NotFoundError, InsufficientDataError} = require('../errors');
@@ -66,6 +62,7 @@ const focusTask = async (
 				filename
 			}
 			linkedCustomer {
+				id
 				title
 				firstName
 				lastName
@@ -79,6 +76,7 @@ const focusTask = async (
 					token
 					name
 					customer {
+						id
 						title
 						firstName
 						lastName
@@ -124,19 +122,6 @@ const focusTask = async (
 			}
 		`);
 
-		let url = 'Pas de projet ni client 🤷‍';
-
-		if (item.section && item.section.project.customer === customer) {
-			const {project} = item.section;
-
-			url = getAppUrl(
-				`/${customer.token}/tasks/${item.id}?projectId=${project.id}`,
-			);
-		}
-		else {
-			url = getAppUrl(`/${customer.token}/tasks/${item.id}`);
-		}
-
 		let issueDate = moment(
 			`${scheduledForDate}T${user.startWorkAt.split('T')[1]}`,
 		);
@@ -145,58 +130,29 @@ const focusTask = async (
 			issueDate = moment();
 		}
 
-		const basicInfos = {
-			meta: {userId},
-			email: customer.email,
-			userEmail: user.email,
-			user: formatName(user.firstName, user.lastName),
-			customerName: String(
-				` ${formatFullName(
-					customer.title,
-					customer.firstName,
-					customer.lastName,
-				)}`,
-			).trimRight(),
-			customerEmail: customer.email,
-			customerPhone: customer.phone,
-			projectName: item.section && item.section.project.name,
-			itemName: item.name,
-			url,
-			issueDate: issueDate.toDate(),
-			formattedIssueDate: issueDate.format('DD/MM/YYYY'),
-			assistantName: user.settings.assistantName,
-		};
-
 		if (item.type === 'CONTENT_ACQUISITION') {
 			await sendItemContentAcquisitionEmail(
 				{
-					...basicInfos,
-					name: item.name,
-					description: item.description,
-					id: item.id,
+					userId,
+					customerId: customer.id,
+					itemId: item.id,
+					projectId: item.section && item.section.project.id,
+					issueDate: issueDate.toDate(),
 				},
 				ctx,
 			);
 			console.log('Content acquisition email sent to us');
 		}
 		else if (item.type === 'CUSTOMER') {
-			let userUrl = getAppUrl(`/tasks/${item.id}`);
-
-			if (item.section) {
-				const {project} = item.section;
-
-				userUrl = getAppUrl(`/tasks/${item.id}?projectId=${project.id}`);
-			}
-
 			if (!item.pendingReminders.length) {
 				await setupItemReminderEmail(
 					{
-						...basicInfos,
+						userId,
+						customerId: customer.id,
 						itemId: item.id,
-						description: filterDescription(item.description),
-						userUrl,
+						projectId: item.section && item.section.project.id,
 						reminders,
-						taskType: item.type,
+						issueDate,
 					},
 					ctx,
 				);
@@ -204,26 +160,15 @@ const focusTask = async (
 			}
 		}
 		else if (item.type === 'INVOICE') {
-			const fileUrls = item.attachments;
-
-			let userUrl = getAppUrl(`/tasks/${item.id}`);
-
-			if (item.section) {
-				const {project} = item.section;
-
-				userUrl = getAppUrl(`/tasks/${item.id}?projectId=${project.id}`);
-			}
-
 			if (!item.pendingReminders.length) {
 				await setupItemReminderEmail(
 					{
-						...basicInfos,
+						userId,
+						customerId: customer.id,
 						itemId: item.id,
-						description: filterDescription(item.description),
-						userUrl,
+						projectId: item.section && item.section.project.id,
 						reminders,
-						fileUrls,
-						taskType: item.type,
+						issueDate,
 					},
 					ctx,
 				);

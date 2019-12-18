@@ -1,5 +1,6 @@
 const {getUserId} = require('../utils');
 const {processUpload} = require('../files');
+const {createAllTemplates} = require('../emails/templates');
 
 const updateUser = async (
 	parent,
@@ -86,6 +87,10 @@ const updateUser = async (
 		&& settings.language !== 'en'
 	) {
 		throw new Error('Language is not supported. Must be either fr or en.');
+	}
+
+	if (settings && settings.language) {
+		createAllTemplates(ctx, settings.language);
 	}
 
 	return ctx.db.updateUser({

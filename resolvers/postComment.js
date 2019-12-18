@@ -125,14 +125,20 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 		};
 
 		try {
-			sendNewCommentEmail(
+			await sendNewCommentEmail(
 				{
-					...params,
 					meta: {
 						userId: user.id,
 					},
 					email: user.email,
-					recipientName: formatName(user.firstName, user.lastName),
+					commentId: result.id,
+					authorId: customer.id,
+					recipientId: user.id,
+					authorIsUser: false,
+					recipientIsUser: true,
+					taskId: item.id,
+					userId: user.id,
+					projectId: item.section && item.section.project.id,
 				},
 				ctx,
 			);
@@ -148,15 +154,18 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 			try {
 				await sendNewCommentEmail(
 					{
-						...params,
 						meta: {
-							userId: item.assignee.id,
+							userId: user.id,
 						},
 						email: item.assignee.email,
-						recipientName: formatName(
-							item.assignee.firstName,
-							item.assignee.lastName,
-						),
+						commentId: result.id,
+						recipientId: item.assignee.id,
+						authorId: customer.id,
+						authorIsUser: false,
+						recipientIsUser: true,
+						taskId: item.id,
+						userId: user.id,
+						projectId: item.section && item.section.project.id,
 					},
 					ctx,
 				);
@@ -290,14 +299,6 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 		},
 	});
 
-	const params = {
-		meta: {userId},
-		authorName: formatName(user.firstName, user.lastName),
-		userName: formatName(user.firstName, user.lastName),
-		itemName: item.name,
-		comment,
-	};
-
 	if (item.section) {
 		const {assignee, linkedCustomer, section} = item;
 
@@ -309,14 +310,18 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 			try {
 				await sendNewCommentEmail(
 					{
-						...params,
+						meta: {
+							userId: user.id,
+						},
 						email: userToNotify.email,
-						authorName: formatName(author.firstName, author.lastName),
-						recipientName: formatName(
-							userToNotify.firstName,
-							userToNotify.lastName,
-						),
-						url: getAppUrl(`/tasks/${item.id}`),
+						commentId: result.id,
+						authorId: author.id,
+						recipientId: userToNotify.id,
+						taskId: item.id,
+						projectId: item.section && item.section.project.id,
+						userId: user.id,
+						authorIsUser: true,
+						recipientIsUser: true,
 					},
 					ctx,
 				);
@@ -336,18 +341,18 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 				try {
 					await sendNewCommentEmail(
 						{
-							...params,
+							meta: {
+								userId: user.id,
+							},
 							email: customer.email,
-							recipientName: formatFullName(
-								customer.title,
-								customer.firstName,
-								customer.lastName,
-							),
-							url: getAppUrl(
-								`/${customer.token}/tasks/${item.id}?projectId=${
-									section.project.id
-								}`,
-							),
+							commentId: result.id,
+							authorId: user.id,
+							recipientId: customer.id,
+							taskId: item.id,
+							projectId: item.section && item.section.project.id,
+							userId: user.id,
+							authorIsUser: true,
+							recipientIsUser: false,
 						},
 						ctx,
 					);
@@ -364,14 +369,18 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 				try {
 					await sendNewCommentEmail(
 						{
-							...params,
+							meta: {
+								userId: user.id,
+							},
 							email: linkedCustomer.email,
-							recipientName: formatFullName(
-								linkedCustomer.title,
-								linkedCustomer.firstName,
-								linkedCustomer.lastName,
-							),
-							url: getAppUrl(`/${linkedCustomer.token}/tasks/${item.id}`),
+							commentId: result.id,
+							authorId: user.id,
+							recipientId: linkedCustomer.id,
+							taskId: item.id,
+							projectId: item.section && item.section.project.id,
+							userId: user.id,
+							authorIsUser: true,
+							recipientIsUser: false,
 						},
 						ctx,
 					);
@@ -391,14 +400,18 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 		try {
 			await sendNewCommentEmail(
 				{
-					...params,
+					meta: {
+						userId: user.id,
+					},
 					email: linkedCustomer.email,
-					recipientName: formatFullName(
-						linkedCustomer.title,
-						linkedCustomer.firstName,
-						linkedCustomer.lastName,
-					),
-					url: getAppUrl(`/${linkedCustomer.token}/tasks/${item.id}`),
+					commentId: comment.id,
+					authorId: user.id,
+					recipientId: linkedCustomer.id,
+					taskId: item.id,
+					projectId: item.section && item.section.project.id,
+					userId: user.id,
+					authorIsUser: true,
+					recipientIsUser: false,
 				},
 				ctx,
 			);

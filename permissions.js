@@ -55,9 +55,14 @@ const isAdmin = rule()(
 const hasToken = rule()((parent, args, {token = null}) => !!token);
 
 const isCustomer = rule()(async (parent, {token = null}, ctx) => {
-	const customer = await ctx.loaders.customerTokenLoader.load(token);
+	try {
+		const customer = await ctx.loaders.customerTokenLoader.load(token);
 
-	return !!customer;
+		return !!customer;
+	}
+	catch (err) {
+		return false;
+	}
 });
 
 const isItemOwner = and(
@@ -150,12 +155,17 @@ const isProjectCustomer = rule()(async (parent, {id, token = null}, ctx) => ctx.
 }));
 
 const customerCanSeeContractors = rule()(async (parent, args, ctx) => {
-	const projects = await ctx.loaders.projectTokenLoader.load(ctx.token);
+	try {
+		const projects = await ctx.loaders.projectTokenLoader.load(ctx.token);
 
-	return projects.some(
-		project => project.owner.id === parent.id
-			|| project.linkedCollaborators.some(c => c.id === parent.id),
-	);
+		return projects.some(
+			project => project.owner.id === parent.id
+				|| project.linkedCollaborators.some(c => c.id === parent.id),
+		);
+	}
+	catch (err) {
+		return false;
+	}
 });
 
 const permissions = shield(
@@ -163,13 +173,15 @@ const permissions = shield(
 		Query: {
 			me: isAuthenticated,
 			customer: or(isAdmin, isCustomerOwner, isCustomer),
+			emailTypes: isAuthenticated,
+			emailTemplate: isAuthenticated,
+			item: or(isAdmin, isItemOwner, isItemCustomer, isItemCollaborator),
 			project: or(
 				isAdmin,
 				isProjectOwner,
 				isProjectCustomer,
 				isProjectCollaborator,
 			),
-			item: or(isAdmin, isItemOwner, isItemCustomer, isItemCollaborator),
 		},
 		User: {
 			id: or(

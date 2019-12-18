@@ -45,7 +45,10 @@ const {sendReminderTestEmail} = require('./sendReminderTestEmail');
 const {
 	sendReminderPreviewTestEmail,
 } = require('./sendReminderPreviewTestEmail');
+const {sendCustomEmailPreview} = require('./sendCustomEmailPreview');
 const {markNotificationsAsRead} = require('./markNotificationsAsRead');
+const {updateEmailTemplate} = require('./updateEmailTemplate');
+const {setTemplateToDefault} = require('./setTemplateToDefault');
 
 const Mutation = {
 	checkEmailAvailability,
@@ -132,6 +135,7 @@ const Mutation = {
 	removeTag,
 	sendReminderTestEmail,
 	sendReminderPreviewTestEmail,
+	sendCustomEmailPreview,
 	markNotificationsAsRead,
 	requestCollab,
 	removeCollab,
@@ -142,6 +146,8 @@ const Mutation = {
 	linkToProject,
 	removeAssignmentToTask,
 	removeLinkToProject,
+	updateEmailTemplate,
+	setTemplateToDefault,
 };
 
 module.exports = {
