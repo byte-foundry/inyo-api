@@ -16,7 +16,7 @@ const weekDays = {
 	0: 'SUNDAY',
 };
 
-const sendCustomersRecapEmail = async ({userId}, {metadata}) => {
+const sendCustomersRecapEmail = async ({userId}, {metadata = {}}) => {
 	let user = await prisma.user({id: userId});
 
 	if (!user.startWorkAt) {
@@ -55,6 +55,10 @@ const sendCustomersRecapEmail = async ({userId}, {metadata}) => {
 		finishedAt_gte: "${startedWorkAt.toJSON()}"
 	`;
 
+	const canceledReportsIds = Object.entries(metadata.canceledReports)
+		.filter(([, value]) => value)
+		.map(([key]) => key);
+
 	user = await prisma.user({id: userId}).$fragment(gql`
 		fragment UserFinishedTasks on User {
 			email
@@ -78,7 +82,7 @@ const sendCustomersRecapEmail = async ({userId}, {metadata}) => {
 							}
 						}]
 						NOT: {
-							id_in: [${metadata.canceledReports ? metadata.canceledReports.join(',') : ''}]
+							id_in: [${canceledReportsIds.join(',')}]
 						}
 					}
 				) {
