@@ -27,13 +27,13 @@ const contentSerializer = new Html({
 						);
 					}
 
-					if (object.data.param.name === 'task.listOfAttachmentsNotUploaded') {
+					if (object.data.param.name === 'task.listOfAttachmentNotUploaded') {
 						return React.createElement(
 							'a',
 							{
 								href: '{{task.link}}',
 							},
-							'{{#task.listOfAttachmentsNotUploaded}}',
+							'{{#task.listOfAttachmentNotUploaded}}',
 							React.createElement(
 								'label',
 								null,
@@ -44,7 +44,7 @@ const contentSerializer = new Html({
 								'{{name}}',
 							),
 							React.createElement('br', null),
-							'{{/task.listOfAttachmentsNotUploaded}}',
+							'{{/task.listOfAttachmentNotUploaded}}',
 						);
 					}
 
