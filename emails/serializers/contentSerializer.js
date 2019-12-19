@@ -27,6 +27,27 @@ const contentSerializer = new Html({
 						);
 					}
 
+					if (object.data.param.name === 'task.listOfAttachmentsNotUploaded') {
+						return React.createElement(
+							'a',
+							{
+								href: '{{task.link}}',
+							},
+							'{{#task.listOfAttachmentsNotUploaded}}',
+							React.createElement(
+								'label',
+								null,
+								React.createElement('input', {
+									type: 'checkbox',
+								}),
+								' ',
+								'{{name}}',
+							),
+							React.createElement('br', null),
+							'{{/task.listOfAttachmentsNotUploaded}}',
+						);
+					}
+
 					if (object.data.param.name === 'task.link') {
 						return React.createElement(
 							'a',

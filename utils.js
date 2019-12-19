@@ -168,8 +168,7 @@ const createCustomEmailArguments = async ({
 			name: task.name,
 			description: task.description,
 			attachments: task.attachments,
-			listOfAttachmentNotUploaded:
-				'Placer ici la liste des fichiers à uploadés',
+			listOfAttachmentNotUploaded: '',
 			threadOfComments: task.comments.map(c => ({
 				text: c.text,
 				author: c.authorUser

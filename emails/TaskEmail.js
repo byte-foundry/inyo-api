@@ -41,6 +41,7 @@ const TemplateWithType = gql`
 		id
 		subject
 		content
+		timing
 		type {
 			category
 			name

@@ -156,7 +156,7 @@ const templates = {
 								},
 								{
 									object: 'text',
-									text: 'needs some document for the project ',
+									text: ' needs some document for the project ',
 									marks: [],
 								},
 								{
@@ -548,7 +548,7 @@ const templates = {
 										param: {
 											id: 'ck3yjczn3a3hr0737qgsdg62p',
 											name: 'task.link',
-											__typename: 'emailparam',
+											__typename: 'EmailParam',
 										},
 									},
 									nodes: [
@@ -873,14 +873,14 @@ const templates = {
 									data: {
 										param: {
 											id: 'ck3yjczmva3hj0737xv4dp273',
-											name: 'task.name',
+											name: 'task.link',
 											__typename: 'EmailParam',
 										},
 									},
 									nodes: [
 										{
 											object: 'text',
-											text: 'task.name',
+											text: 'task.link',
 											marks: [],
 										},
 									],
@@ -911,7 +911,7 @@ const templates = {
 							nodes: [
 								{
 									object: 'text',
-									text: 'Les documents encore manquants :',
+									text: 'The list of missing documents:',
 									marks: [],
 								},
 							],
@@ -1198,14 +1198,14 @@ const templates = {
 									data: {
 										param: {
 											id: 'ck3yjczmva3hj0737xv4dp273',
-											name: 'task.name',
+											name: 'task.link',
 											__typename: 'EmailParam',
 										},
 									},
 									nodes: [
 										{
 											object: 'text',
-											text: 'task.name',
+											text: 'task.link',
 											marks: [],
 										},
 									],
@@ -1562,7 +1562,7 @@ const templates = {
 							nodes: [
 								{
 									object: 'text',
-									text: 'Les documents encore manquants :',
+									text: 'The list of missing documents:',
 									marks: [],
 								},
 							],
