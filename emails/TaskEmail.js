@@ -24,28 +24,6 @@ async function sendTaskValidationEmail({email, meta, ...data}, ctx) {
 	);
 }
 
-const ItemForReminder = gql`
-	fragment ItemForReminder on Item {
-		id
-		type
-		name
-		description
-		attachments {
-			id
-			url
-			filename
-		}
-		section {
-			project {
-				id
-				customer {
-					token
-				}
-			}
-		}
-	}
-`;
-
 const UserForEmail = gql`
 	fragment UserForEmail on User {
 		id
@@ -93,7 +71,9 @@ const ItemForReminder = gql`
 `;
 
 async function sendItemContentAcquisitionEmail(
-	{userId, customerId, itemId, projectId},
+	{
+		userId, customerId, itemId, projectId,
+	},
 	ctx,
 ) {
 	const meta = {userId};
@@ -112,7 +92,7 @@ async function sendItemContentAcquisitionEmail(
 
 	if (customTemplates.length > 0) {
 		const renderedTemplates = await Promise.all(
-			customTemplates.map(async templateToRender => {
+			customTemplates.map(async (templateToRender) => {
 				const [
 					renderedSubject,
 					renderedContent,
@@ -169,7 +149,8 @@ async function sendItemContentAcquisitionEmail(
 		url = getAppUrl(
 			`/${customer.token}/tasks/${item.id}?projectId=${project.id}`,
 		);
-	} else {
+	}
+	else {
 		url = getAppUrl(`/${customer.token}/tasks/${item.id}`);
 	}
 
@@ -288,7 +269,9 @@ const reminderTypesTemplateIds = {
 };
 
 async function setupItemReminderEmail(
-	{itemId, userId, customerId, projectId, reminders, issueDate},
+	{
+		itemId, userId, customerId, projectId, reminders, issueDate,
+	},
 	ctx,
 ) {
 	const item = await ctx.db.item({id: itemId}).$fragment(ItemForReminder);
@@ -352,13 +335,15 @@ async function setupItemReminderEmail(
 							connect: {id: itemId},
 						},
 					});
-				} catch (error) {
+				}
+				catch (error) {
 					console.error(
 						`Reminder of type '${type}' for item '${itemId}' NOT created in posthook.`,
 						error,
 					);
 				}
-			} else {
+			}
+			else {
 				const customer = await ctx.db.customer({id: customerId});
 				const user = await ctx.db.user({id: userId}).$fragment(UserForEmail);
 
@@ -370,7 +355,8 @@ async function setupItemReminderEmail(
 					url = getAppUrl(
 						`/${customer.token}/tasks/${item.id}?projectId=${project.id}`,
 					);
-				} else {
+				}
+				else {
 					url = getAppUrl(`/${customer.token}/tasks/${item.id}`);
 				}
 
@@ -420,7 +406,8 @@ async function setupItemReminderEmail(
 							connect: {id: itemId},
 						},
 					});
-				} catch (error) {
+				}
+				catch (error) {
 					console.error(
 						`Reminder of type '${type}' for item '${itemId}' NOT created in posthook.`,
 						error,
