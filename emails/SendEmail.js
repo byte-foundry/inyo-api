@@ -6,6 +6,16 @@ const {formatName} = require('../utils');
 
 sendGridClient.setApiKey(process.env.SENDGRID_API_KEY);
 
+const UserWithSettings = gql`
+	fragment UserWithSettings on User {
+		lastName
+		firstName
+		settings {
+			assistantName
+		}
+	}
+`;
+
 async function sendEmail({
 	email, meta, data, templateId,
 }, ctx) {
@@ -14,15 +24,9 @@ async function sendEmail({
 	let userSignatureName = '';
 
 	if (meta && meta.userId) {
-		const user = await ctx.db.user({id: meta.userId}).$fragment(gql`
-			fragment UserWithSettings on User {
-				lastName
-				firstName
-				settings {
-					assistantName
-				}
-			}
-		`);
+		const user = await ctx.db
+			.user({id: meta.userId})
+			.$fragment(UserWithSettings);
 
 		userSignatureName = formatName(user.firstName, user.lastName);
 

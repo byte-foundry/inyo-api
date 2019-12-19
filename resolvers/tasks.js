@@ -2,6 +2,27 @@ const {getUserId, createItemOwnerFilter} = require('../utils');
 
 const gql = String.raw;
 
+const TaskWithProjectDeadline = gql`
+	fragment TaskWithProjectDeadline on Item {
+		id
+		name
+		type
+		unit
+		description
+		section {
+			id
+			project {
+				deadline
+			}
+		}
+		status
+		position
+		timeItTook
+		dueDate
+		createdAt
+	}
+`;
+
 const tasks = async (root, {filter, sort, projectId}, ctx) => {
 	let where;
 	const {token} = ctx;
@@ -76,29 +97,12 @@ const tasks = async (root, {filter, sort, projectId}, ctx) => {
 		};
 	}
 
-	const tasks = await ctx.db.items({
-		where,
-		orderBy: sort,
-	}).$fragment(gql`
-		fragment TaskWithProjet on Item {
-			id
-			name
-			type
-			unit
-			description
-			section {
-				id
-				project {
-					deadline
-				}
-			}
-			status
-			position
-			timeItTook
-			dueDate
-			createdAt
-		}
-	`);
+	const tasks = await ctx.db
+		.items({
+			where,
+			orderBy: sort,
+		})
+		.$fragment(TaskWithProjectDeadline);
 
 	if (sort === 'dueDate_ASC') {
 		return tasks.sort(
