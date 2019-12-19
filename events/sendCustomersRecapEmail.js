@@ -55,7 +55,7 @@ const sendCustomersRecapEmail = async ({userId}, {metadata = {}}) => {
 		finishedAt_gte: "${startedWorkAt.toJSON()}"
 	`;
 
-	const canceledReportsIds = Object.entries(metadata.canceledReports)
+	const canceledReportsIds = Object.entries(metadata.canceledReports || {})
 		.filter(([, value]) => value)
 		.map(([key]) => key);
 
