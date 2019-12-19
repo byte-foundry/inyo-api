@@ -67,7 +67,7 @@ const batchGetCustomerByTaskId = async (ids, db) => {
 			],
 		},
 	}).$fragment(gql`
-		fragment CustomerWithTaskId on User {
+		fragment CustomerWithTaskId${ids.join('')} on User {
 			${customersScalars}
 			linkedTasks(where: {id_in: ${idsFilter} }) {
 				id

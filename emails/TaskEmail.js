@@ -24,6 +24,52 @@ async function sendTaskValidationEmail({email, meta, ...data}, ctx) {
 	);
 }
 
+const UserForEmail = gql`
+	fragment UserForEmail on User {
+		id
+		email
+		firstName
+		lastName
+		settings {
+			assistantName
+		}
+	}
+`;
+
+const TemplateWithType = gql`
+	fragment TemplateWithType on EmailTemplate {
+		id
+		subject
+		content
+		type {
+			category
+			name
+		}
+	}
+`;
+
+const ItemForReminder = gql`
+	fragment ItemForReminder on Item {
+		id
+		type
+		name
+		description
+		attachments {
+			id
+			url
+			filename
+		}
+		section {
+			project {
+				id
+				customer {
+					token
+				}
+			}
+		}
+	}
+`;
+
 async function sendItemContentAcquisitionEmail(
 	{
 		userId, customerId, itemId, projectId,
@@ -31,26 +77,18 @@ async function sendItemContentAcquisitionEmail(
 	ctx,
 ) {
 	const meta = {userId};
-	const customTemplates = await ctx.db.emailTemplates({
-		where: {
-			type: {
-				category: 'CONTENT_ACQUISITION',
+	const customTemplates = await ctx.db
+		.emailTemplates({
+			where: {
+				type: {
+					category: 'CONTENT_ACQUISITION',
+				},
+				owner: {
+					id: userId,
+				},
 			},
-			owner: {
-				id: userId,
-			},
-		},
-	}).$fragment(gql`
-		fragment TemplateWithType on EmailTemplate {
-			id
-			subject
-			content
-			type {
-				category
-				name
-			}
-		}
-	`);
+		})
+		.$fragment(TemplateWithType);
 
 	if (customTemplates.length > 0) {
 		const renderedTemplates = await Promise.all(
@@ -98,40 +136,10 @@ async function sendItemContentAcquisitionEmail(
 			ctx,
 		);
 	}
-	const item = await ctx.db.item({id: itemId}).$fragment(gql`
-		fragment ItemForReminder on Item {
-			id
-			type
-			name
-			description
-			attachments {
-				id
-				url
-				filename
-			}
-			section {
-				project {
-					id
-					customer {
-						token
-					}
-				}
-			}
-		}
-	`);
+	const item = await ctx.db.item({id: itemId}).$fragment(ItemForReminder);
 
 	const customer = await ctx.db.customer({id: customerId});
-	const user = await ctx.db.user({id: userId}).$fragment(gql`
-		fragment UserForEmail on User {
-			id
-			email
-			firstName
-			lastName
-			settings {
-				assistantName
-			}
-		}
-	`);
+	const user = await ctx.db.user({id: userId}).$fragment(UserForEmail);
 
 	let url = 'Pas de projet ni client 🤷‍';
 
@@ -266,48 +274,20 @@ async function setupItemReminderEmail(
 	},
 	ctx,
 ) {
-	const item = await ctx.db.item({id: itemId}).$fragment(gql`
-		fragment ItemForReminder on Item {
-			id
-			type
-			name
-			description
-			attachments {
-				id
-				url
-				filename
-			}
-			section {
-				project {
-					id
-					customer {
-						token
-					}
-				}
-			}
-		}
-	`);
+	const item = await ctx.db.item({id: itemId}).$fragment(ItemForReminder);
 
-	const customTemplates = await ctx.db.emailTemplates({
-		where: {
-			type: {
-				category: item.type,
+	const customTemplates = await ctx.db
+		.emailTemplates({
+			where: {
+				type: {
+					category: item.type,
+				},
+				owner: {
+					id: userId,
+				},
 			},
-			owner: {
-				id: userId,
-			},
-		},
-	}).$fragment(gql`
-		fragment TemplateWithType on EmailTemplate {
-			id
-			subject
-			content
-			type {
-				category
-				name
-			}
-		}
-	`);
+		})
+		.$fragment(TemplateWithType);
 
 	const dates = [...(reminders || remindersSequences[item.type])];
 
@@ -365,17 +345,7 @@ async function setupItemReminderEmail(
 			}
 			else {
 				const customer = await ctx.db.customer({id: customerId});
-				const user = await ctx.db.user({id: userId}).$fragment(gql`
-					fragment UserForEmail on User {
-						id
-						email
-						firstName
-						lastName
-						settings {
-							assistantName
-						}
-					}
-				`);
+				const user = await ctx.db.user({id: userId}).$fragment(UserForEmail);
 
 				let url = 'Pas de projet ni client 🤷‍';
 

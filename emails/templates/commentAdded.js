@@ -498,14 +498,14 @@ const templates = {
 									data: {
 										param: {
 											id: 'ck3yjczmva3hj0737xv4dp273',
-											name: 'task.name',
+											name: 'task.link',
 											__typename: 'EmailParam',
 										},
 									},
 									nodes: [
 										{
 											object: 'text',
-											text: 'task.name',
+											text: 'task.link',
 											marks: [],
 										},
 									],

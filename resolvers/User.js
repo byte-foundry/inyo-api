@@ -6,6 +6,66 @@ const {
 
 const gql = String.raw;
 
+const TaskWithProjectAndReminders = gql`
+	fragment TaskWithProjectAndReminders on Item {
+		id
+		name
+		scheduledFor
+		schedulePosition
+		type
+		unit
+		description
+		finishedAt
+		createdAt
+		status
+		position
+		timeItTook
+		dueDate
+		tags {
+			id
+		}
+		owner {
+			id
+		}
+		attachments {
+			id
+		}
+		comments {
+			id
+		}
+		reminders(
+			where: {
+				type_in: [
+					DELAY
+					FIRST
+					SECOND
+					LAST
+					INVOICE_DELAY
+					INVOICE_FIRST
+					INVOICE_SECOND
+					INVOICE_THIRD
+					INVOICE_FOURTH
+					INVOICE_LAST
+				]
+			}
+		) {
+			id
+		}
+		assignee {
+			id
+			email
+			firstName
+			lastName
+		}
+		section {
+			id
+			project {
+				deadline
+			}
+		}
+	}
+`;
+
 const User = {
 	id: node => node.id,
 	email: node => node.email,
@@ -139,114 +199,58 @@ const User = {
 			break;
 		}
 
-		const tasks = await ctx.db.items({
-			where: {
-				OR: [
-					{
-						section: null,
-					},
-					{
-						section: {
-							project: {
-								status_not: 'REMOVED',
+		const tasks = await ctx.db
+			.items({
+				where: {
+					OR: [
+						{
+							section: null,
+						},
+						{
+							section: {
+								project: {
+									status_not: 'REMOVED',
+								},
 							},
 						},
-					},
-				],
-				AND: [
-					{
-						OR: filter
-							&& filter.linkedCustomerId && [
-							{
-								linkedCustomer: {id: filter.linkedCustomerId},
-							},
-							{
-								AND: [
-									{
-										section: {
-											project: {
-												customer: {
-													id: filter.linkedCustomerId,
+					],
+					AND: [
+						{
+							OR: filter
+								&& filter.linkedCustomerId && [
+								{
+									linkedCustomer: {id: filter.linkedCustomerId},
+								},
+								{
+									AND: [
+										{
+											section: {
+												project: {
+													customer: {
+														id: filter.linkedCustomerId,
+													},
 												},
 											},
 										},
-									},
-									{
-										linkedCustomer: null,
-									},
-								],
-							},
-						],
-					},
-					{
-						OR: [
-							createItemOwnerFilter(node.id),
-							createItemCollaboratorFilter(node.id),
-						],
-					},
-					scheduleFilter,
-				],
-			},
-			orderBy: sort,
-		}).$fragment(gql`
-			fragment TaskWithProjet on Item {
-				id
-				name
-				scheduledFor
-				schedulePosition
-				type
-				unit
-				description
-				finishedAt
-				createdAt
-				status
-				position
-				timeItTook
-				dueDate
-				tags {
-					id
-				}
-				owner {
-					id
-				}
-				attachments {
-					id
-				}
-				comments {
-					id
-				}
-				reminders(
-					where: {
-						type_in: [
-							DELAY
-							FIRST
-							SECOND
-							LAST
-							INVOICE_DELAY
-							INVOICE_FIRST
-							INVOICE_SECOND
-							INVOICE_THIRD
-							INVOICE_FOURTH
-							INVOICE_LAST
-						]
-					}
-				) {
-					id
-				}
-				assignee {
-					id
-					email
-					firstName
-					lastName
-				}
-				section {
-					id
-					project {
-						deadline
-					}
-				}
-			}
-		`);
+										{
+											linkedCustomer: null,
+										},
+									],
+								},
+							],
+						},
+						{
+							OR: [
+								createItemOwnerFilter(node.id),
+								createItemCollaboratorFilter(node.id),
+							],
+						},
+						scheduleFilter,
+					],
+				},
+				orderBy: sort,
+			})
+			.$fragment(TaskWithProjectAndReminders);
 
 		if (sort === 'dueDate_ASC') {
 			return tasks.sort(
