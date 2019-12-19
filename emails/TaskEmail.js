@@ -77,6 +77,7 @@ async function sendItemContentAcquisitionEmail(
 	ctx,
 ) {
 	const meta = {userId};
+	const item = await ctx.db.item({id: itemId}).$fragment(ItemForReminder);
 	const customTemplates = await ctx.db
 		.emailTemplates({
 			where: {
@@ -120,14 +121,26 @@ async function sendItemContentAcquisitionEmail(
 				email: 'edwige@inyo.me',
 				meta,
 				data: {
+					description: item.description,
+					adminLink: getAppUrl(
+						`/${process.env.ADMIN_TOKEN}/tasks/${itemId}${
+							projectId ? `?projectId=${projectId}` : ''
+						}`,
+					),
 					customerEmail: renderedTemplates[0].emailArgs.customer.email,
-					timingDelay: renderedTemplates[0].timing,
+					timingDelay: `${renderedTemplates[0].timing.value} ${
+						renderedTemplates[0].timing.unit
+					}`,
 					subjectDelay: renderedTemplates[0].subject,
 					contentDelay: renderedTemplates[0].content,
-					timingFirst: renderedTemplates[1].timing,
+					timingFirst: `${renderedTemplates[1].timing.value} ${
+						renderedTemplates[1].timing.unit
+					}`,
 					subjectFirst: renderedTemplates[1].subject,
 					contentFirst: renderedTemplates[1].content,
-					timingSecond: renderedTemplates[2].timing,
+					timingSecond: `${renderedTemplates[2].timing.value} ${
+						renderedTemplates[2].timing.unit
+					}`,
 					subjectSecond: renderedTemplates[2].subject,
 					contentSecond: renderedTemplates[2].content,
 				},
@@ -136,7 +149,6 @@ async function sendItemContentAcquisitionEmail(
 			ctx,
 		);
 	}
-	const item = await ctx.db.item({id: itemId}).$fragment(ItemForReminder);
 
 	const customer = await ctx.db.customer({id: customerId});
 	const user = await ctx.db.user({id: userId}).$fragment(UserForEmail);
