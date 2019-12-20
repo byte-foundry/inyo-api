@@ -1,10 +1,12 @@
 const COMMENT_ADDED = require('./commentAdded');
+const CUSTOMER_REPORT = require('./customerReport');
 const CONTENT_ACQUISITION = require('./contentAcquisition');
 const CUSTOMER = require('./customer');
 const INVOICE = require('./invoice');
 
 const templates = {
 	COMMENT_ADDED,
+	CUSTOMER_REPORT,
 	CONTENT_ACQUISITION,
 	CUSTOMER,
 	INVOICE,
