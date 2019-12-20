@@ -295,31 +295,19 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3yjczn3a3hr0737qgsdg62p',
-											name: 'task.listOfAttachmentNotUploaded',
+											id: 'ck4dyt2x800ey0789kflqe3js',
+											name: 'task.listOfAttachmentsNotUploaded',
 											__typename: 'EmailParam',
 										},
 									},
 									nodes: [
 										{
 											object: 'text',
-											text: 'task.listOfAttachmentNotUploaded',
+											text: 'task.listOfAttachmentsNotUploaded',
 											marks: [],
 										},
 									],
 								},
-								{
-									object: 'text',
-									text: '',
-									marks: [],
-								},
-							],
-						},
-						{
-							object: 'block',
-							type: 'paragraph',
-							data: {},
-							nodes: [
 								{
 									object: 'text',
 									text: '',
@@ -664,31 +652,19 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3yjczn3a3hr0737qgsdg62p',
-											name: 'task.listOfAttachmentNotUploaded',
+											id: 'ck4dyt2x800ey0789kflqe3js',
+											name: 'task.listOfAttachmentsNotUploaded',
 											__typename: 'EmailParam',
 										},
 									},
 									nodes: [
 										{
 											object: 'text',
-											text: 'task.listOfAttachmentNotUploaded',
+											text: 'task.listOfAttachmentsNotUploaded',
 											marks: [],
 										},
 									],
 								},
-								{
-									object: 'text',
-									text: '',
-									marks: [],
-								},
-							],
-						},
-						{
-							object: 'block',
-							type: 'paragraph',
-							data: {},
-							nodes: [
 								{
 									object: 'text',
 									text: '',
@@ -1037,31 +1013,19 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3yjczn3a3hr0737qgsdg62p',
-											name: 'task.listOfAttachmentNotUploaded',
+											id: 'ck4dyt2x800ey0789kflqe3js',
+											name: 'task.listOfAttachmentsNotUploaded',
 											__typename: 'EmailParam',
 										},
 									},
 									nodes: [
 										{
 											object: 'text',
-											text: 'task.listOfAttachmentNotUploaded',
+											text: 'task.listOfAttachmentsNotUploaded',
 											marks: [],
 										},
 									],
 								},
-								{
-									object: 'text',
-									text: '',
-									marks: [],
-								},
-							],
-						},
-						{
-							object: 'block',
-							type: 'paragraph',
-							data: {},
-							nodes: [
 								{
 									object: 'text',
 									text: '',
@@ -1409,31 +1373,19 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3yjczn3a3hr0737qgsdg62p',
-											name: 'task.listOfAttachmentNotUploaded',
+											id: 'ck4dyt2x800ey0789kflqe3js',
+											name: 'task.listOfAttachmentsNotUploaded',
 											__typename: 'EmailParam',
 										},
 									},
 									nodes: [
 										{
 											object: 'text',
-											text: 'task.listOfAttachmentNotUploaded',
+											text: 'task.listOfAttachmentsNotUploaded',
 											marks: [],
 										},
 									],
 								},
-								{
-									object: 'text',
-									text: '',
-									marks: [],
-								},
-							],
-						},
-						{
-							object: 'block',
-							type: 'paragraph',
-							data: {},
-							nodes: [
 								{
 									object: 'text',
 									text: '',
@@ -1782,31 +1734,19 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3yjczn3a3hr0737qgsdg62p',
-											name: 'task.listOfAttachmentNotUploaded',
+											id: 'ck4dyt2x800ey0789kflqe3js',
+											name: 'task.listOfAttachmentsNotUploaded',
 											__typename: 'EmailParam',
 										},
 									},
 									nodes: [
 										{
 											object: 'text',
-											text: 'task.listOfAttachmentNotUploaded',
+											text: 'task.listOfAttachmentsNotUploaded',
 											marks: [],
 										},
 									],
 								},
-								{
-									object: 'text',
-									text: '',
-									marks: [],
-								},
-							],
-						},
-						{
-							object: 'block',
-							type: 'paragraph',
-							data: {},
-							nodes: [
 								{
 									object: 'text',
 									text: '',
@@ -2084,14 +2024,14 @@ const templates = {
 									data: {
 										param: {
 											id: 'ck3yjczmva3hj0737xv4dp273',
-											name: 'task.name',
+											name: 'task.link',
 											__typename: 'EmailParam',
 										},
 									},
 									nodes: [
 										{
 											object: 'text',
-											text: 'task.name',
+											text: 'task.link',
 											marks: [],
 										},
 									],
@@ -2154,15 +2094,15 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3yjczn3a3hr0737qgsdg62p',
-											name: 'task.listOfAttachmentNotUploaded',
+											id: 'ck4dyt2x800ey0789kflqe3js',
+											name: 'task.listOfAttachmentsNotUploaded',
 											__typename: 'EmailParam',
 										},
 									},
 									nodes: [
 										{
 											object: 'text',
-											text: 'task.listOfAttachmentNotUploaded',
+											text: 'task.listOfAttachmentsNotUploaded',
 											marks: [],
 										},
 									],
