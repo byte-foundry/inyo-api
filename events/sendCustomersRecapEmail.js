@@ -86,6 +86,7 @@ const sendCustomersRecapEmail = async ({userId}, {metadata = {}}) => {
 						}
 					}
 				) {
+					id
 					title
 					firstName
 					lastName
@@ -143,6 +144,8 @@ const sendCustomersRecapEmail = async ({userId}, {metadata = {}}) => {
 							customer.lastName,
 						)}`,
 					).trimRight(),
+					userId,
+					customerId: customer.id,
 					projects: customer.projects.map(project => ({
 						...project,
 						sections: project.sections.map(section => ({
