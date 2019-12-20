@@ -1,5 +1,5 @@
 const templates = {
-	DAILY_REPORT: {
+	CUSTOMER_REPORT: {
 		en: {
 			subject: {
 				object: 'value',
