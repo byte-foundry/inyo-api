@@ -141,7 +141,7 @@ const sendCustomersRecapEmail = async ({userId}, {metadata}) => {
 						)}`,
 					).trimRight(),
 					userId,
-					customer: customer.id,
+					customerId: customer.id,
 					projects: customer.projects.map(project => ({
 						...project,
 						sections: project.sections.map(section => ({
