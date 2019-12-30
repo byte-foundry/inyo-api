@@ -124,6 +124,8 @@ type Mutation {
 		name: String
 		sharedNotes: Json
 		personalNotes: Json
+		quoteHeader: Json
+		quoteFooter: Json
 		customerId: ID
 		customer: CustomerInput
 		deadline: DateTime
@@ -270,6 +272,14 @@ type Mutation {
 		content: Json
 	): EmailTemplate!
 	setTemplateToDefault(id: ID!): EmailTemplate!
+
+	# Create a project's quote
+	issueQuote(
+		projectId: ID!
+		sections: [QuoteSectionInput!]
+		header: Json
+		footer: Json
+	): Quote!
 }
 
 input CommentInput {
@@ -338,6 +348,11 @@ input ItemInput {
 input SectionInput {
 	name: String!
 	items: [ItemInput!]!
+}
+
+input QuoteSectionInput {
+	name: String!
+	price: Int!
 }
 
 input ReminderInput {
@@ -548,12 +563,20 @@ type Section {
 	position: Int!
 }
 
+type QuoteSection {
+	id: ID!
+	name: String!
+	price: Int!
+}
+
 type Quote {
 	id: ID!
+	token: String!
+	header: Json
+	footer: Json
+	sections: [QuoteSection!]!
 	project: Project!
-	issuedAt: DateTime
 	createdAt: DateTime!
-	updatedAt: DateTime!
 }
 
 type Project {
@@ -578,6 +601,9 @@ type Project {
 	daysUntilDeadline: Int
 	attachments: [File!]!
 	linkedCollaborators: [User!]!
+	quoteHeader: Json
+	quoteFooter: Json
+	quotes: [Quote!]!
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }

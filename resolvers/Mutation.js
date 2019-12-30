@@ -49,6 +49,7 @@ const {sendCustomEmailPreview} = require('./sendCustomEmailPreview');
 const {markNotificationsAsRead} = require('./markNotificationsAsRead');
 const {updateEmailTemplate} = require('./updateEmailTemplate');
 const {setTemplateToDefault} = require('./setTemplateToDefault');
+const {issueQuote} = require('./issueQuote');
 
 const Mutation = {
 	checkEmailAvailability,
@@ -106,6 +107,7 @@ const Mutation = {
 	removeLinkToProject,
 	updateEmailTemplate,
 	setTemplateToDefault,
+	issueQuote,
 };
 
 module.exports = {

@@ -147,6 +147,9 @@ const Project = {
 
 		return ctx.loaders.users.collaboratorsByProjectId.load(node.id);
 	},
+	quoteHeader: node => node.quoteHeader,
+	quoteFooter: node => node.quoteFooter,
+	quotes: (node, args, ctx) => ctx.db.quotes({where: {project: {id: node.id}}}),
 };
 
 module.exports = {

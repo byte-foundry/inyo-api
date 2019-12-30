@@ -37,7 +37,6 @@ type Customer {
 	rcs: String
 	rm: String
 	serviceCompany: Company! @relation(name: "CompanyCustomers")
-	quotes: [Quote!]! @relation(name: "CustomerQuotes")
 	projects: [Project!]! @relation(name: "CustomerProjects")
 	linkedTasks: [Item!]! @relation(name: "LinkedCustomerTasks")
 	comments: [Comment!]! @relation(name: "CommentAuthorCustomer")
@@ -46,21 +45,6 @@ type Customer {
 	files: [File!]! @relation(name: "CustomerFiles")
 	customerEvents: [CustomerEvent!]!
 		@relation(name: "CustomerCustomerEvents", onDelete: CASCADE)
-}
-
-enum QuoteStatus {
-	DRAFT
-	SENT
-	ACCEPTED
-	REJECTED
-	INVOICED
-	INVOICED_ACCEPTED
-}
-
-enum QuoteTemplate {
-	BLANK
-	WEBSITE
-	IDENTITY
 }
 
 enum ProjectStatus {
@@ -303,38 +287,26 @@ type Section {
 	id: ID! @unique
 	name: String!
 	items: [Item!]! @relation(name: "SectionItems", onDelete: CASCADE)
-	option: Option @relation(name: "OptionSections")
-	project: Project @relation(name: "ProjectSections")
+	project: Project! @relation(name: "ProjectSections")
 	position: Int!
 }
 
-type Option {
+type QuoteSection {
 	id: ID! @unique
+	quote: Quote! @relation(name: "QuoteSections")
 	name: String!
-	proposal: Json! @default(value: "{}")
-	sections: [Section!]! @relation(name: "OptionSections", onDelete: CASCADE)
-	quote: Quote! @relation(name: "QuoteOptions")
+	price: Int!
 }
 
 type Quote {
 	id: ID! @unique
-	name: String!
-	template: QuoteTemplate @default(value: BLANK)
-	customer: Customer! @relation(name: "CustomerQuotes")
-	# this token is a way to restrict access to anyone else than the customer
 	token: String! @unique
-	status: QuoteStatus! @default(value: DRAFT)
-	options: [Option!]! @relation(name: "QuoteOptions", onDelete: CASCADE)
-	viewedByCustomer: Boolean! @default(value: false)
-	reminders: [Reminder!]! @relation(name: "QuoteReminders", onDelete: CASCADE)
-	issuedAt: DateTime
+	header: Json
+	footer: Json
+	sections: [QuoteSection!]! @relation(name: "QuoteSections", onDelete: CASCADE)
+	project: Project! @relation(name: "ProjectQuotes")
 	createdAt: DateTime!
 	updatedAt: DateTime!
-
-	acceptedQuotesLogs: [Log!]!
-		@relation(name: "AcceptedQuotesLogs", onDelete: CASCADE)
-	acceptedAmendmentsLogs: [Log!]!
-		@relation(name: "AcceptedAmendmentsLogs", onDelete: CASCADE)
 }
 
 type Project {
@@ -356,6 +328,9 @@ type Project {
 	notifyActivityToCustomer: Boolean! @default(value: true)
 	attachments: [File!]! @relation(name: "ProjectAttachments")
 	linkedCollaborators: [User!]! @relation(name: "CollaboratorsProject")
+	quoteHeader: Json
+	quoteFooter: Json
+	quotes: [Quote!]! @relation(name: "ProjectQuotes")
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }
@@ -387,7 +362,6 @@ type Settings {
 
 	# deprecated
 	askItemFinishConfirmation: Boolean! @default(value: true)
-	askSendQuoteConfirmation: Boolean! @default(value: true)
 	askStartProjectConfirmation: Boolean! @default(value: true)
 }
 
@@ -472,16 +446,8 @@ type Reminder {
 	metadata: Json @default(value: "{}")
 
 	# deprecated
-	quote: Quote @relation(name: "QuoteReminders")
 	resetFocusRemindersUser: User @relation(name: "UserResetFocusReminders")
 	snoozedItem: Item @relation(name: "SnoozeReminders")
-}
-
-type Log {
-	ip: String!
-	acceptedQuotes: [Quote!]! @relation(name: "AcceptedQuotesLogs")
-	acceptedAmendments: [Quote!]! @relation(name: "AcceptedAmendmentsLogs")
-	createdAt: DateTime!
 }
 
 type File {
