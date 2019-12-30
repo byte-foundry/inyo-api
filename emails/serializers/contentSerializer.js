@@ -11,14 +11,18 @@ const contentSerializer = new Html({
 						return React.createElement(
 							React.Fragment,
 							null,
-							'{{#user.listsOfTasksCompletedOnDay.projects}}',
+							'{{#user.listOfTasksCompletedOnDay.projects.length}}',
+							'{{#user.listOfTasksCompletedOnDay.projects}}',
 							React.createElement(
 								'h3',
 								null,
 								React.createElement(
 									'a',
 									{
-										style: 'color: #ff3366; font-weight: normal;',
+										style: {
+											color: '#ff3366',
+											fontWeight: 'normal',
+										},
 										href: '{{url}}',
 									},
 									'{{name}}',
@@ -28,9 +32,7 @@ const contentSerializer = new Html({
 								'p',
 								null,
 								'Dans ce projet ',
-								{
-									user,
-								},
+								'{{user.fullname}}',
 								' a termin\xE9 les t\xE2ches suivantes :',
 							),
 							React.createElement(
@@ -40,9 +42,10 @@ const contentSerializer = new Html({
 								React.createElement('li', null, '{{name}}'),
 								'{{/items}}{{/sections}}',
 							),
-							'{{/user.listsOfTasksCompletedOnDay.projects}}',
+							'{{/user.listOfTasksCompletedOnDay.projects}}',
+							'{{/user.listOfTasksCompletedOnDay.projects.length}}',
 							React.createElement('br', null),
-							'{{#user.listsOfTasksCompletedOnDay.tasks.length}}',
+							'{{#user.listOfTasksCompletedOnDay.tasks.length}}',
 							React.createElement(
 								'p',
 								null,
@@ -51,11 +54,11 @@ const contentSerializer = new Html({
 							React.createElement(
 								'ul',
 								null,
-								'{{#tasks}}',
+								'{{#user.listOfTasksCompletedOnDay.tasks}}',
 								React.createElement('li', null, '{{name}}'),
-								'{{/tasks}}',
+								'{{/user.listOfTasksCompletedOnDay.tasks}}',
 							),
-							'{{/user.listsOfTasksCompletedOnDay.tasks.length}}',
+							'{{/user.listOfTasksCompletedOnDay.tasks.length}}',
 						);
 					}
 

@@ -14,7 +14,7 @@ const templates = {
 							nodes: [
 								{
 									object: 'text',
-									text: '',
+									text: 'Status report for ',
 									marks: [],
 								},
 								{
@@ -22,7 +22,7 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3hb0a0e00550735pn7s7nw6',
+											id: 'ck4bf2gkrnyyr07373g7todd7',
 											name: 'user.fullname',
 											__typename: 'EmailParam',
 										},
@@ -37,7 +37,7 @@ const templates = {
 								},
 								{
 									object: 'text',
-									text: ' needs your help',
+									text: '',
 									marks: [],
 								},
 							],
@@ -66,7 +66,7 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3yjczoua3jb0737dte08a6u',
+											id: 'ck4bf2gk0nyy70737jqjof9pf',
 											name: 'customer.fullname',
 											__typename: 'EmailParam',
 										},
@@ -105,7 +105,7 @@ const templates = {
 							nodes: [
 								{
 									object: 'text',
-									text: '',
+									text: 'Some of your ongoing projects with ',
 									marks: [],
 								},
 								{
@@ -113,7 +113,7 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3yjczpia3jv0737mhu8d5su',
+											id: 'ck4bf2gkrnyyr07373g7todd7',
 											name: 'user.fullname',
 											__typename: 'EmailParam',
 										},
@@ -128,8 +128,7 @@ const templates = {
 								},
 								{
 									object: 'text',
-									text:
-										'asked me to contact you because we need you to complete the task .',
+									text: ' had tasks that have been finished.',
 									marks: [],
 								},
 							],
@@ -153,30 +152,7 @@ const templates = {
 							nodes: [
 								{
 									object: 'text',
-									text: 'You must validate the task so that ',
-									marks: [],
-								},
-								{
-									object: 'inline',
-									type: 'param',
-									data: {
-										param: {
-											id: 'ck3yjczpia3jv0737mhu8d5su',
-											name: 'user.fullname',
-											__typename: 'EmailParam',
-										},
-									},
-									nodes: [
-										{
-											object: 'text',
-											text: 'user.fullname',
-											marks: [],
-										},
-									],
-								},
-								{
-									object: 'text',
-									text: ' can move forward with the next steps.',
+									text: 'Here is the list of what has been done:',
 									marks: [],
 								},
 							],
@@ -208,15 +184,15 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3yjczn3a3hr0737qgsdg62p',
-											name: 'task.link',
+											id: 'ck4bf2gl1nyz30737opb15z2w',
+											name: 'user.listOfTasksCompletedOnDay',
 											__typename: 'EmailParam',
 										},
 									},
 									nodes: [
 										{
 											object: 'text',
-											text: 'task.link',
+											text: 'user.listOfTasksCompletedOnDay',
 											marks: [],
 										},
 									],
@@ -248,7 +224,7 @@ const templates = {
 								{
 									object: 'text',
 									text:
-										'Please do it as quickly as possible. Otherwise, the project may fall behind!',
+										'If you have any questions, feel free to click on a project and comment on the task you’d like to give feedback on.',
 									marks: [],
 								},
 							],
@@ -272,55 +248,7 @@ const templates = {
 							nodes: [
 								{
 									object: 'text',
-									text:
-										'Need more info to validate the task? In this case, just add your feedback in the comment section. ',
-									marks: [],
-								},
-								{
-									object: 'inline',
-									type: 'param',
-									data: {
-										param: {
-											id: 'ck3yjczpia3jv0737mhu8d5su',
-											name: 'user.fullname',
-											__typename: 'EmailParam',
-										},
-									},
-									nodes: [
-										{
-											object: 'text',
-											text: 'user.fullname',
-											marks: [],
-										},
-									],
-								},
-								{
-									object: 'text',
-									text: 'will be notified immediately.',
-									marks: [],
-								},
-							],
-						},
-						{
-							object: 'block',
-							type: 'paragraph',
-							data: {},
-							nodes: [
-								{
-									object: 'text',
-									text: '',
-									marks: [],
-								},
-							],
-						},
-						{
-							object: 'block',
-							type: 'paragraph',
-							data: {},
-							nodes: [
-								{
-									object: 'text',
-									text: 'Regards,',
+									text: 'Have a good day,',
 									marks: [],
 								},
 							],
@@ -343,7 +271,7 @@ const templates = {
 							nodes: [
 								{
 									object: 'text',
-									text: '',
+									text: 'Suivi de projet de ',
 									marks: [],
 								},
 								{
@@ -351,7 +279,7 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3hb0a0e00550735pn7s7nw6',
+											id: 'ck4bf2gkrnyyr07373g7todd7',
 											name: 'user.fullname',
 											__typename: 'EmailParam',
 										},
@@ -366,7 +294,7 @@ const templates = {
 								},
 								{
 									object: 'text',
-									text: ' a besoin de vous',
+									text: '',
 									marks: [],
 								},
 							],
@@ -395,7 +323,7 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3hb10gk006k0735dc4z04mg',
+											id: 'ck4bf2gk0nyy70737jqjof9pf',
 											name: 'customer.fullname',
 											__typename: 'EmailParam',
 										},
@@ -434,7 +362,7 @@ const templates = {
 							nodes: [
 								{
 									object: 'text',
-									text: '',
+									text: 'Des tâches ont été finies sur vos projets avec ',
 									marks: [],
 								},
 								{
@@ -442,7 +370,7 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3hb0a0e00550735pn7s7nw6',
+											id: 'ck4bf2gkrnyyr07373g7todd7',
 											name: 'user.fullname',
 											__typename: 'EmailParam',
 										},
@@ -451,30 +379,6 @@ const templates = {
 										{
 											object: 'text',
 											text: 'user.fullname',
-											marks: [],
-										},
-									],
-								},
-								{
-									object: 'text',
-									text:
-										' me demande de vous contacter car nous avons besoin de vous pour réaliser la tâche ',
-									marks: [],
-								},
-								{
-									object: 'inline',
-									type: 'param',
-									data: {
-										param: {
-											id: 'ck3haz72a00270735wffmxcxe',
-											name: 'task.name',
-											__typename: 'EmailParam',
-										},
-									},
-									nodes: [
-										{
-											object: 'text',
-											text: 'task.name',
 											marks: [],
 										},
 									],
@@ -493,79 +397,7 @@ const templates = {
 							nodes: [
 								{
 									object: 'text',
-									text: '',
-									marks: [],
-								},
-							],
-						},
-						{
-							object: 'block',
-							type: 'paragraph',
-							data: {},
-							nodes: [
-								{
-									object: 'text',
-									text: 'Voici la description de la tâche:',
-									marks: [],
-								},
-							],
-						},
-						{
-							object: 'block',
-							type: 'paragraph',
-							data: {},
-							nodes: [
-								{
-									object: 'text',
-									text: '',
-									marks: [],
-								},
-								{
-									object: 'inline',
-									type: 'param',
-									data: {
-										param: {
-											id: 'ck3haz73a002b07350fpzwobn',
-											name: 'task.description',
-											__typename: 'EmailParam',
-										},
-									},
-									nodes: [
-										{
-											object: 'text',
-											text: 'task.description',
-											marks: [],
-										},
-									],
-								},
-								{
-									object: 'text',
-									text: '',
-									marks: [],
-								},
-							],
-						},
-						{
-							object: 'block',
-							type: 'paragraph',
-							data: {},
-							nodes: [
-								{
-									object: 'text',
-									text: '',
-									marks: [],
-								},
-							],
-						},
-						{
-							object: 'block',
-							type: 'paragraph',
-							data: {},
-							nodes: [
-								{
-									object: 'text',
-									text:
-										'Vous devez valider la tâche pour que  puisse avancer sur le reste du projet.',
+									text: 'Voici la liste de ce qui a été avancé :',
 									marks: [],
 								},
 							],
@@ -597,15 +429,15 @@ const templates = {
 									type: 'param',
 									data: {
 										param: {
-											id: 'ck3haz73w002f0735c7v76u76',
-											name: 'task.link',
+											id: 'ck4bf2gl1nyz30737opb15z2w',
+											name: 'user.listOfTasksCompletedOnDay',
 											__typename: 'EmailParam',
 										},
 									},
 									nodes: [
 										{
 											object: 'text',
-											text: 'task.link',
+											text: 'user.listOfTasksCompletedOnDay',
 											marks: [],
 										},
 									],
@@ -637,7 +469,7 @@ const templates = {
 								{
 									object: 'text',
 									text:
-										'Attention, le projet risque de prendre du retard si vous ne le faites pas dans les temps.',
+										"Si vous avez des questions, n'hésitez pas à cliquer sur le projet et commenter la tâche concernée.",
 									marks: [],
 								},
 							],
@@ -661,31 +493,7 @@ const templates = {
 							nodes: [
 								{
 									object: 'text',
-									text:
-										'Vous avez peut être besoin d’informations supplémentaires? Dans ce cas, n’hésitez pas à ajouter un commentaire en cliquant sur la zone prévue à cet effet. ',
-									marks: [],
-								},
-								{
-									object: 'inline',
-									type: 'param',
-									data: {
-										param: {
-											id: 'ck3hb0a0e00550735pn7s7nw6',
-											name: 'user.fullname',
-											__typename: 'EmailParam',
-										},
-									},
-									nodes: [
-										{
-											object: 'text',
-											text: 'user.fullname',
-											marks: [],
-										},
-									],
-								},
-								{
-									object: 'text',
-									text: ' en sera informé immédiatement.',
+									text: 'Cordialement,',
 									marks: [],
 								},
 							],
