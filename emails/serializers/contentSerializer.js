@@ -7,6 +7,58 @@ const contentSerializer = new Html({
 		{
 			serialize: (object, children) => {
 				if (object.type && object.type === 'param') {
+					if (object.data.param.name === 'user.listOfTasksCompletedOnDay') {
+						return React.createElement(
+							React.Fragment,
+							null,
+							'{{#user.listsOfTasksCompletedOnDay.projects}}',
+							React.createElement(
+								'h3',
+								null,
+								React.createElement(
+									'a',
+									{
+										style: 'color: #ff3366; font-weight: normal;',
+										href: '{{url}}',
+									},
+									'{{name}}',
+								),
+							),
+							React.createElement(
+								'p',
+								null,
+								'Dans ce projet ',
+								{
+									user,
+								},
+								' a termin\xE9 les t\xE2ches suivantes :',
+							),
+							React.createElement(
+								'ul',
+								null,
+								'{{#sections}}{{#items}}',
+								React.createElement('li', null, '{{name}}'),
+								'{{/items}}{{/sections}}',
+							),
+							'{{/user.listsOfTasksCompletedOnDay.projects}}',
+							React.createElement('br', null),
+							'{{#user.listsOfTasksCompletedOnDay.tasks.length}}',
+							React.createElement(
+								'p',
+								null,
+								'Ces t\xE2ches non li\xE9es \xE0 un projet ont \xE9t\xE9 termin\xE9es :',
+							),
+							React.createElement(
+								'ul',
+								null,
+								'{{#tasks}}',
+								React.createElement('li', null, '{{name}}'),
+								'{{/tasks}}',
+							),
+							'{{/user.listsOfTasksCompletedOnDay.tasks.length}}',
+						);
+					}
+
 					if (object.data.param.name === 'task.attachments') {
 						return React.createElement(
 							'ul',
