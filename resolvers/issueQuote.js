@@ -18,7 +18,7 @@ const issueQuote = async (
 		footer,
 	});
 
-	console.log('Created new quote from project', projectId, quote);
+	console.log('Created new quote from project', projectId);
 
 	return quote;
 };

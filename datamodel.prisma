@@ -289,13 +289,14 @@ type Section {
 	items: [Item!]! @relation(name: "SectionItems", onDelete: CASCADE)
 	project: Project! @relation(name: "ProjectSections")
 	position: Int!
+	price: Float
 }
 
 type QuoteSection {
 	id: ID! @unique
 	quote: Quote! @relation(name: "QuoteSections")
 	name: String!
-	price: Int!
+	price: Float!
 }
 
 type Quote {

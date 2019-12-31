@@ -5,6 +5,7 @@ const {createTemplate} = require('../emails/templates');
 const {tasks} = require('./tasks');
 const {activity} = require('./activity');
 const {reminders} = require('./reminders');
+const {quote} = require('./quote');
 
 const Query = {
 	me: async (root, args, ctx) => {
@@ -76,9 +77,7 @@ const Query = {
 
 		return template;
 	},
-	quote: () => {
-		throw new Error('Quotes are not supported anymore');
-	},
+	quote: (root, {id}, ctx) => ctx.db.quote({id}),
 	item: async (root, {id, token, updateCommentViews}, ctx) => {
 		if (updateCommentViews) {
 			if (token) {

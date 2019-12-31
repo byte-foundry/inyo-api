@@ -146,7 +146,7 @@ type Mutation {
 		position: Int
 	): Section!
 	# Update
-	updateSection(id: ID!, name: String, position: Int): Section
+	updateSection(id: ID!, name: String, position: Int, price: Float): Section
 	# Remove section
 	removeSection(id: ID!): Section
 
@@ -561,12 +561,13 @@ type Section {
 	items: [Item!]!
 	project: Project!
 	position: Int!
+	price: Float
 }
 
 type QuoteSection {
 	id: ID!
 	name: String!
-	price: Int!
+	price: Float!
 }
 
 type Quote {

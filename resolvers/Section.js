@@ -16,6 +16,7 @@ const Section = {
 		return ctx.loaders.projects.bySectionId.load(node.id);
 	},
 	position: node => node.position,
+	price: node => node.price,
 };
 
 module.exports = {

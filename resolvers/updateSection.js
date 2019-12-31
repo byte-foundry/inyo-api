@@ -5,7 +5,9 @@ const gql = String.raw;
 
 const updateSection = async (
 	parent,
-	{id, name, position: wantedPosition},
+	{
+		id, name, position: wantedPosition, price,
+	},
 	ctx,
 ) => {
 	const userId = getUserId(ctx);
@@ -104,7 +106,7 @@ const updateSection = async (
 
 	const updatedSection = await ctx.db.updateSection({
 		where: {id},
-		data: {name, position},
+		data: {name, position, price},
 	});
 
 	await ctx.db.createUserEvent({
