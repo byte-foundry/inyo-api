@@ -5,7 +5,6 @@ const {createTemplate} = require('../emails/templates');
 const {tasks} = require('./tasks');
 const {activity} = require('./activity');
 const {reminders} = require('./reminders');
-const {quote} = require('./quote');
 
 const Query = {
 	me: async (root, args, ctx) => {
