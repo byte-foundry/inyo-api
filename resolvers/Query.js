@@ -76,9 +76,7 @@ const Query = {
 
 		return template;
 	},
-	quote: () => {
-		throw new Error('Quotes are not supported anymore');
-	},
+	quote: (root, {id}, ctx) => ctx.db.quote({id}),
 	item: async (root, {id, token, updateCommentViews}, ctx) => {
 		if (updateCommentViews) {
 			if (token) {

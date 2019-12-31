@@ -35,6 +35,7 @@ const {EmailType} = require('./EmailType');
 const {EmailParam} = require('./EmailParam');
 const {EmailParamForType} = require('./EmailParamForType');
 const {EmailTemplate} = require('./EmailTemplate');
+const {Quote} = require('./Quote');
 
 const resolvers = {
 	TimeZone: GraphQLTimeZone,
@@ -49,13 +50,8 @@ const resolvers = {
 	Company,
 	Item,
 	Section,
-	Option: () => {
-		throw new Error('Quotes are not supported anymore');
-	},
 	Project,
-	Quote: () => {
-		throw new Error('Quotes are not supported anymore');
-	},
+	Quote,
 	Customer,
 	Address,
 	Author,
