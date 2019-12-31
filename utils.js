@@ -164,12 +164,32 @@ const createCustomEmailArguments = async ({
 			}
 		`);
 
+		const fileListRegex = /([\s\S])*# content-acquisition-list(?:\n([^#]+)?)?$/;
+		const hasUploadAttachment = fileListRegex.test(task.description);
+
+		let files = [];
+
+		if (hasUploadAttachment) {
+			const matches = task.description
+				.match(fileListRegex)[0]
+				.split('# content-acquisition-list');
+
+			const fileItemRegex = /- \[([ x])\] (.+)/;
+
+			files = matches
+				.pop()
+				.split('\n')
+				.filter(line => fileItemRegex.test(line))
+				.map(line => ({
+					name: line.match(fileItemRegex).pop(),
+				}));
+		}
+
 		emailArgs.task = {
 			name: task.name,
 			description: task.description,
 			attachments: task.attachments,
-			listOfAttachmentNotUploaded:
-				'Placer ici la liste des fichiers à uploadés',
+			listOfAttachmentNotUploaded: files,
 			threadOfComments: task.comments.map(c => ({
 				text: c.text,
 				author: c.authorUser

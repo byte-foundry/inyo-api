@@ -156,7 +156,7 @@ const templates = {
 								},
 								{
 									object: 'text',
-									text: 'needs some document for the project ',
+									text: ' needs some document for the project ',
 									marks: [],
 								},
 								{
@@ -264,6 +264,53 @@ const templates = {
 								{
 									object: 'text',
 									text: 'Here is the list of documents to provide :',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczn3a3hr0737qgsdg62p',
+											name: 'task.listOfAttachmentNotUploaded',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'task.listOfAttachmentNotUploaded',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
 									marks: [],
 								},
 							],
@@ -548,7 +595,7 @@ const templates = {
 										param: {
 											id: 'ck3yjczn3a3hr0737qgsdg62p',
 											name: 'task.link',
-											__typename: 'emailparam',
+											__typename: 'EmailParam',
 										},
 									},
 									nodes: [
@@ -586,6 +633,53 @@ const templates = {
 								{
 									object: 'text',
 									text: 'voici la liste des documents nécessaires :',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczn3a3hr0737qgsdg62p',
+											name: 'task.listOfAttachmentNotUploaded',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'task.listOfAttachmentNotUploaded',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
 									marks: [],
 								},
 							],
@@ -873,14 +967,14 @@ const templates = {
 									data: {
 										param: {
 											id: 'ck3yjczmva3hj0737xv4dp273',
-											name: 'task.name',
+											name: 'task.link',
 											__typename: 'EmailParam',
 										},
 									},
 									nodes: [
 										{
 											object: 'text',
-											text: 'task.name',
+											text: 'task.link',
 											marks: [],
 										},
 									],
@@ -911,7 +1005,54 @@ const templates = {
 							nodes: [
 								{
 									object: 'text',
-									text: 'Les documents encore manquants :',
+									text: 'The list of missing documents:',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczn3a3hr0737qgsdg62p',
+											name: 'task.listOfAttachmentNotUploaded',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'task.listOfAttachmentNotUploaded',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
 									marks: [],
 								},
 							],
@@ -1198,14 +1339,14 @@ const templates = {
 									data: {
 										param: {
 											id: 'ck3yjczmva3hj0737xv4dp273',
-											name: 'task.name',
+											name: 'task.link',
 											__typename: 'EmailParam',
 										},
 									},
 									nodes: [
 										{
 											object: 'text',
-											text: 'task.name',
+											text: 'task.link',
 											marks: [],
 										},
 									],
@@ -1237,6 +1378,53 @@ const templates = {
 								{
 									object: 'text',
 									text: 'Les documents encore manquants :',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczn3a3hr0737qgsdg62p',
+											name: 'task.listOfAttachmentNotUploaded',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'task.listOfAttachmentNotUploaded',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
 									marks: [],
 								},
 							],
@@ -1562,7 +1750,54 @@ const templates = {
 							nodes: [
 								{
 									object: 'text',
-									text: 'Les documents encore manquants :',
+									text: 'The list of missing documents:',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczn3a3hr0737qgsdg62p',
+											name: 'task.listOfAttachmentNotUploaded',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'task.listOfAttachmentNotUploaded',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
 									marks: [],
 								},
 							],
@@ -1888,6 +2123,53 @@ const templates = {
 								{
 									object: 'text',
 									text: 'Pour information, les documents concernés :',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+							],
+						},
+						{
+							object: 'block',
+							type: 'paragraph',
+							data: {},
+							nodes: [
+								{
+									object: 'text',
+									text: '',
+									marks: [],
+								},
+								{
+									object: 'inline',
+									type: 'param',
+									data: {
+										param: {
+											id: 'ck3yjczn3a3hr0737qgsdg62p',
+											name: 'task.listOfAttachmentNotUploaded',
+											__typename: 'EmailParam',
+										},
+									},
+									nodes: [
+										{
+											object: 'text',
+											text: 'task.listOfAttachmentNotUploaded',
+											marks: [],
+										},
+									],
+								},
+								{
+									object: 'text',
+									text: '',
 									marks: [],
 								},
 							],

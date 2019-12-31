@@ -1,10 +1,12 @@
 const COMMENT_ADDED = require('./commentAdded');
+const CUSTOMER_REPORT = require('./customerReport');
 const CONTENT_ACQUISITION = require('./contentAcquisition');
 const CUSTOMER = require('./customer');
 const INVOICE = require('./invoice');
 
 const templates = {
 	COMMENT_ADDED,
+	CUSTOMER_REPORT,
 	CONTENT_ACQUISITION,
 	CUSTOMER,
 	INVOICE,
@@ -51,7 +53,50 @@ const baseArguments = {
 			fullname: 'Jean Dujardin',
 			phone: '06 36 65 65 65',
 			email: 'jean@du.jardin',
-			listOfTasksCompletedOnDay: 'listOfTasksCompletedOnDay',
+			listOfTasksCompletedOnDay: {
+				tasks: [
+					{
+						name: 'Tâche 1',
+					},
+					{
+						name: 'Tâche 2',
+					},
+				],
+				projects: [
+					{
+						name: 'Projet 1',
+						url: 'https://inyo.me',
+						sections: [
+							{
+								items: [
+									{
+										name: 'Tâche 1',
+									},
+									{
+										name: 'Tâche 2',
+									},
+								],
+							},
+						],
+					},
+					{
+						name: 'Projet 2',
+						url: 'https://inyo.me',
+						sections: [
+							{
+								items: [
+									{
+										name: 'Tâche 1',
+									},
+									{
+										name: 'Tâche 2',
+									},
+								],
+							},
+						],
+					},
+				],
+			},
 		},
 		customer: {
 			firstname: 'Benoît',

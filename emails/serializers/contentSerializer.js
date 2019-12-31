@@ -7,6 +7,61 @@ const contentSerializer = new Html({
 		{
 			serialize: (object, children) => {
 				if (object.type && object.type === 'param') {
+					if (object.data.param.name === 'user.listOfTasksCompletedOnDay') {
+						return React.createElement(
+							React.Fragment,
+							null,
+							'{{#user.listOfTasksCompletedOnDay.projects.length}}',
+							'{{#user.listOfTasksCompletedOnDay.projects}}',
+							React.createElement(
+								'h3',
+								null,
+								React.createElement(
+									'a',
+									{
+										style: {
+											color: '#ff3366',
+											fontWeight: 'normal',
+										},
+										href: '{{url}}',
+									},
+									'{{name}}',
+								),
+							),
+							React.createElement(
+								'p',
+								null,
+								'Dans ce projet ',
+								'{{user.fullname}}',
+								' a termin\xE9 les t\xE2ches suivantes :',
+							),
+							React.createElement(
+								'ul',
+								null,
+								'{{#sections}}{{#items}}',
+								React.createElement('li', null, '{{name}}'),
+								'{{/items}}{{/sections}}',
+							),
+							'{{/user.listOfTasksCompletedOnDay.projects}}',
+							'{{/user.listOfTasksCompletedOnDay.projects.length}}',
+							React.createElement('br', null),
+							'{{#user.listOfTasksCompletedOnDay.tasks.length}}',
+							React.createElement(
+								'p',
+								null,
+								'Ces t\xE2ches non li\xE9es \xE0 un projet ont \xE9t\xE9 termin\xE9es :',
+							),
+							React.createElement(
+								'ul',
+								null,
+								'{{#user.listOfTasksCompletedOnDay.tasks}}',
+								React.createElement('li', null, '{{name}}'),
+								'{{/user.listOfTasksCompletedOnDay.tasks}}',
+							),
+							'{{/user.listOfTasksCompletedOnDay.tasks.length}}',
+						);
+					}
+
 					if (object.data.param.name === 'task.attachments') {
 						return React.createElement(
 							'ul',
@@ -24,6 +79,27 @@ const contentSerializer = new Html({
 								),
 							),
 							'{{/task.attachments}}',
+						);
+					}
+
+					if (object.data.param.name === 'task.listOfAttachmentNotUploaded') {
+						return React.createElement(
+							'a',
+							{
+								href: '{{task.link}}',
+							},
+							'{{#task.listOfAttachmentNotUploaded}}',
+							React.createElement(
+								'label',
+								null,
+								React.createElement('input', {
+									type: 'checkbox',
+								}),
+								' ',
+								'{{name}}',
+							),
+							React.createElement('br', null),
+							'{{/task.listOfAttachmentNotUploaded}}',
 						);
 					}
 
