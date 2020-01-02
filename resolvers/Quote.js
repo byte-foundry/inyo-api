@@ -3,13 +3,7 @@ const Quote = {
 	header: node => node.header,
 	footer: node => node.footer,
 	sections: (node, args, ctx) => ctx.db.quote({id: node.id}).sections(),
-	project: (node, args, ctx) => {
-		if (node.project) {
-			return ctx.loaders.projectLoader.load(node.project.id);
-		}
-
-		return ctx.loaders.projects.bySectionId.load(node.id);
-	},
+	project: (node, args, ctx) => ctx.loaders.projectLoader.load(node.project.id),
 	createdAt: node => node.createdAt,
 };
 

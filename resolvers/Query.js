@@ -76,7 +76,20 @@ const Query = {
 
 		return template;
 	},
-	quote: (root, {id}, ctx) => ctx.db.quote({id}),
+	quote: (root, {id}, ctx) => ctx.db.quote({id}).$fragment(gql`
+			fragment quoteWithRelationsId on Quote {
+				id
+				header
+				footer
+				sections {
+					id
+				}
+				project {
+					id
+				}
+				createdAt
+			}
+		`),
 	item: async (root, {id, token, updateCommentViews}, ctx) => {
 		if (updateCommentViews) {
 			if (token) {
