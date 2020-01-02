@@ -1,6 +1,5 @@
 const Quote = {
 	id: node => node.id,
-	token: node => node.token,
 	header: node => node.header,
 	footer: node => node.footer,
 	sections: (node, args, ctx) => ctx.db.quote({id: node.id}).sections(),

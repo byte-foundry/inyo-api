@@ -572,7 +572,6 @@ type QuoteSection {
 
 type Quote {
 	id: ID!
-	token: String!
 	header: Json
 	footer: Json
 	sections: [QuoteSection!]!

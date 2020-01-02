@@ -301,7 +301,6 @@ type QuoteSection {
 
 type Quote {
 	id: ID! @unique
-	token: String! @unique
 	header: Json
 	footer: Json
 	sections: [QuoteSection!]! @relation(name: "QuoteSections", onDelete: CASCADE)
