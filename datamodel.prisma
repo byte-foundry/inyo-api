@@ -450,6 +450,12 @@ type Reminder {
 	snoozedItem: Item @relation(name: "SnoozeReminders")
 }
 
+enum DocumentType {
+	DEFAULT
+	ADMIN
+	DELIVERABLE
+}
+
 type File {
 	id: ID! @unique
 	ownerUser: User @relation(name: "UserFiles")
@@ -458,6 +464,7 @@ type File {
 	mimetype: String!
 	encoding: String!
 	url: String!
+	documentType: DocumentType! @default(value: DEFAULT)
 	linkedTask: Item @relation(name: "TaskAttachments")
 	linkedProject: Project @relation(name: "ProjectAttachments")
 	createdAt: DateTime!

@@ -232,6 +232,7 @@ type Mutation {
 		taskId: ID
 		projectId: ID
 		token: String
+		type: DocumentType
 	): [File!]
 
 	updateFile(id: ID!, filename: String!): File
@@ -586,7 +587,6 @@ type Project {
 	sharedNotes: Json
 	personalNotes: Json
 	issuer: Company!
-		@deprecated(reason: "Company is not used anymore. Use `owner` instead")
 	owner: User!
 	customer: Customer
 	token: String
@@ -731,6 +731,12 @@ type CollabRequest {
 
 union Owner = User | Customer
 
+enum DocumentType {
+	DEFAULT
+	ADMIN
+	DELIVERABLE
+}
+
 type File {
 	id: ID!
 	owner: Owner
@@ -738,6 +744,8 @@ type File {
 	mimetype: String!
 	encoding: String!
 	url: String!
+	documentType: DocumentType!
+	linkedProject: Project
 	linkedTask: Item
 }
 
