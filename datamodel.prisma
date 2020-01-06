@@ -352,6 +352,7 @@ type Company {
 	banner: File @relation(name: "CompanyBanner", onDelete: CASCADE)
 	bannerUnsplashId: String
 	customers: [Customer!]! @relation(name: "CompanyCustomers", onDelete: CASCADE)
+	documents: [File!]! @relation(name: "CompanyDocuments", onDelete: CASCADE)
 }
 
 type Settings {
