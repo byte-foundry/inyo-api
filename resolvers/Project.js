@@ -124,18 +124,7 @@ const Project = {
 	updatedAt: node => node.updatedAt,
 	attachments: (node, args, ctx) => ctx.db.files({
 		where: {
-			OR: [
-				{
-					linkedTask: {
-						section: {
-							project: {id: node.id},
-						},
-					},
-				},
-				{
-					linkedProject: {id: node.id},
-				},
-			],
+			linkedProject: {id: node.id},
 		},
 	}),
 	linkedCollaborators: (node, args, ctx) => {
