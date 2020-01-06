@@ -87,6 +87,7 @@ type Mutation {
 		title: Title
 		phone: String
 		occupation: String
+		address: AddressInput
 		userNotes: Json
 	): Customer!
 	# Update a customer with new date
@@ -99,6 +100,7 @@ type Mutation {
 		title: Title
 		phone: String
 		occupation: String
+		address: AddressInput
 		userNotes: Json
 		customer: CustomerInput
 	): Customer!
