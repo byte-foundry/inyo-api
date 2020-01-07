@@ -234,7 +234,7 @@ type Mutation {
 		taskId: ID
 		projectId: ID
 		token: String
-		type: DocumentType
+		documentType: DocumentType
 	): [File!]
 
 	updateFile(id: ID!, filename: String!): File
