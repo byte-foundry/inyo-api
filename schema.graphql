@@ -747,6 +747,7 @@ type File {
 	encoding: String!
 	url: String!
 	documentType: DocumentType!
+	createdAt: DateTime!
 	linkedProject: Project
 	linkedTask: Item
 }
