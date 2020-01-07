@@ -90,13 +90,13 @@ const uploadAttachments = async (
 		taskProjectId = project.id;
 	}
 
-	const attachments = await Promise.all(
+	const attachmentsIntermediary = await Promise.all(
 		files.map(file => processUpload(file, ctx, taskId || projectId)),
 	);
 
-	await Promise.all(
-		attachments.map(async ({id, filename}) => {
-			await ctx.db.updateFile({
+	const attachments = await Promise.all(
+		attachmentsIntermediary.map(async ({id, filename}) => {
+			const file = await ctx.db.updateFile({
 				where: {id},
 				data: {
 					documentType,
@@ -146,6 +146,8 @@ const uploadAttachments = async (
 					},
 				});
 			}
+
+			return file;
 		}),
 	);
 
