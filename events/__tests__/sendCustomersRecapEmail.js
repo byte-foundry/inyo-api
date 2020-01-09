@@ -43,6 +43,7 @@ describe('sendCustomersRecapEmail', () => {
 			company: {
 				customers: [
 					{
+						id: 'customer-id',
 						title: 'MONSIEUR',
 						firstName: 'Jean',
 						lastName: 'Bon',
@@ -73,6 +74,7 @@ describe('sendCustomersRecapEmail', () => {
 						],
 					},
 					{
+						id: 'customer-id-2',
 						title: 'MADAME',
 						firstName: 'Camille',
 						lastName: 'Honnête',
@@ -137,6 +139,8 @@ describe('sendCustomersRecapEmail', () => {
 				email: 'jeanbon@meatandgreet.test',
 				customerName: ' M. Jean Bon',
 				user: 'Jean Michel',
+				userId: 'user-id',
+				customerId: 'customer-id',
 				projects: user.company.customers[0].projects.map(project => ({
 					...project,
 					url: `/${user.company.customers[0].token}/tasks?projectId=${
@@ -158,6 +162,8 @@ describe('sendCustomersRecapEmail', () => {
 				email: 'camionette@nissanjidosha.jp',
 				customerName: ' Mme Camille Honnête',
 				user: 'Jean Michel',
+				userId: 'user-id',
+				customerId: 'customer-id-2',
 				projects: user.company.customers[1].projects.map(project => ({
 					...project,
 					url: `/${user.company.customers[1].token}/tasks?projectId=${
