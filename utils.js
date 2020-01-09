@@ -134,6 +134,8 @@ const createCustomEmailArguments = async ({
 	recipientId,
 	recipientIsUser,
 	authorIsUser,
+	tasks,
+	projects,
 	ctx,
 }) => {
 	const emailArgs = {};
@@ -236,7 +238,10 @@ const createCustomEmailArguments = async ({
 			fullname: formatName(user.firstName, user.lastName),
 			phone: user.company.phone,
 			email: user.email,
-			listOfTasksCompletedOnDay: 'listoftasks',
+			listOfTasksCompletedOnDay: {
+				tasks,
+				projects,
+			},
 		};
 	}
 
@@ -395,6 +400,8 @@ const renderTemplate = async ({
 	recipientId,
 	recipientIsUser,
 	authorIsUser,
+	tasks,
+	projects,
 	ctx,
 }) => {
 	const emailArgs = await createCustomEmailArguments({
@@ -407,6 +414,8 @@ const renderTemplate = async ({
 		recipientId,
 		recipientIsUser,
 		authorIsUser,
+		tasks,
+		projects,
 		ctx,
 	});
 
