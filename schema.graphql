@@ -210,6 +210,12 @@ type Mutation {
 	# Remove task from the focus zone
 	unfocusTask(id: ID!): Item!
 
+	# Start the timer for a task (ending current task timer)
+	startTaskTimer(id: ID!): Item!
+
+	# Stop the current task timer
+	stopCurrentTaskTimer: Item
+
 	# Update an already validated item
 	updateValidatedItem(id: ID!, unit: Float!, comment: CommentInput!): Item
 		@deprecated(reason: "Use updateItem instead.")
@@ -524,6 +530,11 @@ enum ItemType {
 	PERSONAL
 }
 
+type TimeRange {
+	start: DateTime!
+	end: DateTime
+}
+
 type Item {
 	id: ID!
 	owner: User!
@@ -548,6 +559,8 @@ type Item {
 	tags: [Tag!]!
 	finishedAt: DateTime
 	createdAt: DateTime!
+	currentlyTimedBy: User
+	workedTimes: [TimeRange!]!
 
 	isFocused: Boolean!
 		@deprecated(reason: "Focus has been replaced with scheduledFor.")
@@ -687,9 +700,6 @@ type User {
 	assignedTasks: [Item!]!
 	projects: [Project!]!
 	company: Company!
-		@deprecated(
-			reason: "Company is not used anymore. User customers and projects instead."
-		)
 	defaultDailyPrice: Int
 	defaultVatRate: Int @deprecated(reason: "Vat rate is not used anymore.")
 	clientViews: Int!
@@ -712,6 +722,7 @@ type User {
 	): [Item!]!
 	schedule(start: Date, first: Int): [ScheduleDay!]!
 	focusedTasks: [Item!]!
+	currentTask: Item
 	notifications(before: DateTime): [Notification!]!
 	tags: [Tag!]!
 	signedUpAt: DateTime!

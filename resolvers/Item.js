@@ -158,6 +158,11 @@ const Item = {
 	},
 	finishedAt: node => node.finishedAt,
 	createdAt: node => node.createdAt,
+	workedTimes: (node, args, ctx) => {
+		if (node.workedTimes) return node.workedTimes;
+
+		return ctx.db.item({id: node.id}).workedTimes();
+	},
 };
 
 module.exports = {
