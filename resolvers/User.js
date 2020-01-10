@@ -295,14 +295,15 @@ const User = {
 				.format(moment.HTML5_FMT.DATE),
 		}));
 	},
-	focusedTasks: async (node, args, ctx) => ctx.db.user({id: node.id}).focusedTasks(),
-	notifications: async (node, {from}, ctx) => ctx.db.user({id: node.id}).notifications({
+	focusedTasks: (node, args, ctx) => ctx.db.user({id: node.id}).focusedTasks(),
+	notifications: (node, {from}, ctx) => ctx.db.user({id: node.id}).notifications({
 		where: {
 			createdAt_lt: from,
 		},
 		first: 20,
 		orderBy: 'createdAt_DESC',
 	}),
+	currentTask: (node, args, ctx) => ctx.db.user({id: node.id}).currentTask(),
 	signedUpAt: node => node.createdAt,
 	lifetimePayment: node => node.lifetimePayment,
 	emailTemplates: (node, args, ctx) => ctx.db.user({id: node.id}).emailTemplates().$fragment(gql`

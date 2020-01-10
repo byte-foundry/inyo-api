@@ -18,6 +18,8 @@ const {addItem} = require('./addItem');
 const {updateItem} = require('./updateItem');
 const {focusTask} = require('./focusTask');
 const {unfocusTask} = require('./unfocusTask');
+const {startTaskTimer} = require('./startTaskTimer');
+const {stopCurrentTaskTimer} = require('./stopCurrentTaskTimer');
 const {removeItem} = require('./removeItem');
 const {finishItem} = require('./finishItem');
 const {unfinishItem} = require('./unfinishItem');
@@ -75,6 +77,8 @@ const Mutation = {
 	updateItem,
 	focusTask,
 	unfocusTask,
+	startTaskTimer,
+	stopCurrentTaskTimer,
 	removeItem,
 	snoozeItem() {
 		throw Error('Tasks cannot be snoozed anymore.');

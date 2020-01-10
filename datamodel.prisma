@@ -252,6 +252,13 @@ enum ItemType {
 	PERSONAL
 }
 
+type TimeRange {
+	id: ID! @unique
+	task: Item! @relation(name: "TaskTimeRanges")
+	start: DateTime!
+	end: DateTime
+}
+
 type Item {
 	id: ID! @unique
 	owner: User! @relation(name: "UserTasks")
@@ -277,6 +284,9 @@ type Item {
 	createdAt: DateTime!
 	updatedAt: DateTime!
 	timeItTook: Float
+	currentlyTimedBy: User @relation(name: "UserCurrentTask")
+	workedTimes: [TimeRange!]!
+		@relation(name: "TaskTimeRanges", onDelete: CASCADE)
 	tags: [Tag!]! @relation(name: "ItemTags")
 
 	# deprecated
@@ -403,6 +413,7 @@ type User {
 	settings: Settings! @relation(name: "UserSettings", onDelete: CASCADE)
 	tasks: [Item!]! @relation(name: "UserTasks", onDelete: CASCADE)
 	focusedTasks: [Item!]! @relation(name: "UserFocusedTasks", onDelete: CASCADE)
+	currentTask: Item @relation(name: "UserCurrentTask")
 	projects: [Project!]! @relation(name: "UserProjects", onDelete: CASCADE)
 	collaborationProjects: [Project!]! @relation(name: "CollaboratorsProject")
 	files: [File!]! @relation(name: "UserFiles", onDelete: CASCADE)
