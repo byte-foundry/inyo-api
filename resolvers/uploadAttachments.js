@@ -4,7 +4,13 @@ const {NotFoundError} = require('../errors');
 
 const gql = String.raw;
 
-const uploadAttachments = async (parent, {files, taskId, projectId}, ctx) => {
+const uploadAttachments = async (
+	parent,
+	{
+		documentType, files, taskId, projectId,
+	},
+	ctx,
+) => {
 	const {token} = ctx;
 
 	if (taskId && projectId) {
@@ -84,15 +90,16 @@ const uploadAttachments = async (parent, {files, taskId, projectId}, ctx) => {
 		taskProjectId = project.id;
 	}
 
-	const attachments = await Promise.all(
+	const attachmentsIntermediary = await Promise.all(
 		files.map(file => processUpload(file, ctx, taskId || projectId)),
 	);
 
-	await Promise.all(
-		attachments.map(async ({id, filename}) => {
-			await ctx.db.updateFile({
+	const attachments = await Promise.all(
+		attachmentsIntermediary.map(async ({id, filename}) => {
+			const file = await ctx.db.updateFile({
 				where: {id},
 				data: {
+					documentType,
 					linkedTask: taskId && {connect: {id: taskId}},
 					linkedProject: projectId && {connect: {id: projectId}},
 					ownerUser: token ? undefined : {connect: {id: ownerId}},
@@ -139,6 +146,8 @@ const uploadAttachments = async (parent, {files, taskId, projectId}, ctx) => {
 					},
 				});
 			}
+
+			return file;
 		}),
 	);
 

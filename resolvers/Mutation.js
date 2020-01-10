@@ -49,6 +49,7 @@ const {sendCustomEmailPreview} = require('./sendCustomEmailPreview');
 const {markNotificationsAsRead} = require('./markNotificationsAsRead');
 const {updateEmailTemplate} = require('./updateEmailTemplate');
 const {setTemplateToDefault} = require('./setTemplateToDefault');
+const {issueQuote} = require('./issueQuote');
 
 const Mutation = {
 	checkEmailAvailability,
@@ -67,21 +68,6 @@ const Mutation = {
 	archiveProject,
 	unarchiveProject,
 	removeProject,
-	startProject: () => {
-		throw Error("It's not possible to start a project anymore.");
-	},
-	createQuote: () => {
-		throw Error("It's not possible to create quote anymore.");
-	},
-	updateQuote: () => {
-		throw Error("It's not possible to update quote anymore.");
-	},
-	removeQuote: () => {
-		throw Error("It's not possible to remove a quote anymore.");
-	},
-	updateOption: () => {
-		throw Error("It's not possible to update quote options anymore.");
-	},
 	addSection,
 	updateSection,
 	removeSection,
@@ -89,13 +75,7 @@ const Mutation = {
 	updateItem,
 	focusTask,
 	unfocusTask,
-	updateValidatedItem: () => {
-		throw Error('Validated item are not supported.');
-	},
 	removeItem,
-	sendQuote: () => {
-		throw Error("It's not possible to send quote anymore.");
-	},
 	snoozeItem() {
 		throw Error('Tasks cannot be snoozed anymore.');
 	},
@@ -104,27 +84,6 @@ const Mutation = {
 	},
 	finishItem,
 	unfinishItem,
-	sendAmendment: async () => {
-		throw Error("It's not possible to send amendment anymore.");
-	},
-	acceptItem: () => {
-		throw Error('Accepting item is not supported anymore');
-	},
-	rejectItem: () => {
-		throw Error('Rejecting item is not supported anymore');
-	},
-	acceptQuote: () => {
-		throw Error('Quotes are not supported anymore');
-	},
-	rejectQuote: () => {
-		throw Error('Quotes are not supported anymore');
-	},
-	acceptAmendment: () => {
-		throw Error('Amendments are not supported anymore');
-	},
-	rejectAmendment: () => {
-		throw Error('Amendments are not supported anymore');
-	},
 	postComment,
 	uploadAttachments,
 	updateFile,
@@ -148,6 +107,7 @@ const Mutation = {
 	removeLinkToProject,
 	updateEmailTemplate,
 	setTemplateToDefault,
+	issueQuote,
 };
 
 module.exports = {

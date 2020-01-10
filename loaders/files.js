@@ -9,6 +9,7 @@ const FileWithRelationsFragment = gql`
 		encoding
 		url
 		createdAt
+		documentType
 		ownerUser {
 			id
 		}

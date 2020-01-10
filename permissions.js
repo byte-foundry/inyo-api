@@ -48,15 +48,13 @@ const isPayingOrInTrial = rule()((parent, args, ctx, info) => {
 	return new PaymentError();
 });
 
-const isAdmin = rule()(
-	(parent, {token = null}, ctx) => ADMIN_TOKEN === token || ADMIN_TOKEN === ctx.token,
-);
+const isAdmin = rule()((parent, args, ctx) => ADMIN_TOKEN === ctx.token);
 
 const hasToken = rule()((parent, args, {token = null}) => !!token);
 
-const isCustomer = rule()(async (parent, {token = null}, ctx) => {
+const isCustomer = rule()(async (parent, args, ctx) => {
 	try {
-		const customer = await ctx.loaders.customerTokenLoader.load(token);
+		const customer = await ctx.loaders.customerTokenLoader.load(ctx.token);
 
 		return !!customer;
 	}
@@ -77,7 +75,7 @@ const isItemCollaborator = and(
 	rule()((parent, {id}, ctx) => ctx.db.$exists.item({id, assignee: {id: ctx.userId}})),
 );
 
-const isItemCustomer = rule()(async (parent, {id, token = null}, ctx) => ctx.db.$exists.item({
+const isItemCustomer = rule()(async (parent, {id}, ctx) => ctx.db.$exists.item({
 	id,
 	OR: [
 		{
@@ -85,17 +83,17 @@ const isItemCustomer = rule()(async (parent, {id, token = null}, ctx) => ctx.db.
 				project: {
 					OR: [
 						{
-							token,
+							token: ctx.token,
 						},
 						{
-							customer: {token},
+							customer: {token: ctx.token},
 						},
 					],
 				},
 			},
 		},
 		{
-			linkedCustomer: {token},
+			linkedCustomer: {token: ctx.token},
 		},
 	],
 }));
@@ -131,25 +129,25 @@ const isProjectCollaborator = and(
 
 const isCustomerOwner = and(
 	isAuthenticated,
-	rule()((parent, {id, token}, ctx) => ctx.db.$exists.customer({
+	rule()((parent, {id}, ctx) => ctx.db.$exists.customer({
 		id,
-		token,
+		token: ctx.token,
 		serviceCompany: {
 			owner: {id: ctx.userId},
 		},
 	})),
 );
 
-const isProjectCustomer = rule()(async (parent, {id, token = null}, ctx) => ctx.db.$exists.project({
+const isProjectCustomer = rule()(async (parent, {id}, ctx) => ctx.db.$exists.project({
 	id,
 	OR: [
 		{
 			customer: {
-				token,
+				token: ctx.token,
 			},
 		},
 		{
-			token,
+			token: ctx.token,
 		},
 	],
 }));

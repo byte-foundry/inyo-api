@@ -12,6 +12,7 @@ const createCustomer = async (
 		title,
 		phone,
 		occupation,
+		address,
 		userNotes,
 	},
 	ctx,
@@ -29,6 +30,9 @@ const createCustomer = async (
 		title,
 		phone,
 		occupation,
+		address: address && {
+			create: address,
+		},
 		userNotes,
 		serviceCompany: {
 			connect: {id: company.id},

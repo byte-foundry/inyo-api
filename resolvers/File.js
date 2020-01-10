@@ -10,7 +10,10 @@ const File = {
 	mimetype: node => node.mimetype,
 	encoding: node => node.encoding,
 	url: node => node.url,
+	documentType: node => node.documentType,
+	createdAt: node => node.createdAt,
 	linkedTask: async (node, args, ctx) => ctx.db.file({id: node.id}).linkedTask(),
+	linkedProject: async (node, args, ctx) => ctx.db.file({id: node.id}).linkedProject(),
 };
 
 module.exports = {

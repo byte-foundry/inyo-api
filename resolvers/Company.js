@@ -20,9 +20,6 @@ const Company = {
 		return ctx.db.company({id: node.id}).banner();
 	},
 	customers: (node, args, ctx) => ctx.db.company({id: node.id}).customers(),
-	quotes: () => {
-		throw new Error('Quotes are not supported anymore');
-	},
 	projects: async (node, args, ctx) => {
 		const customers = await ctx.db.company({id: node.id}).customers()
 			.$fragment(gql`

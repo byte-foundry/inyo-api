@@ -12,6 +12,7 @@ const updateCustomer = async (
 		title,
 		phone,
 		occupation,
+		address,
 		userNotes,
 		customer = {},
 	},
@@ -47,6 +48,12 @@ const updateCustomer = async (
 			title,
 			phone,
 			occupation,
+			address: address && {
+				upsert: {
+					create: address,
+					update: address,
+				},
+			},
 			userNotes,
 		},
 	});
