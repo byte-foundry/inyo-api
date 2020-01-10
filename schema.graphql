@@ -282,6 +282,8 @@ type Mutation {
 		sections: [QuoteSectionInput!]
 		header: Json
 		footer: Json
+		hasTaxes: Boolean!
+		taxRate: Float!
 	): Quote!
 }
 
@@ -353,9 +355,14 @@ input SectionInput {
 	items: [ItemInput!]!
 }
 
+input QuoteItemInput {
+	name: String!
+}
+
 input QuoteSectionInput {
 	name: String!
-	price: Int!
+	price: Float!
+	items: [QuoteItemInput!]!
 }
 
 input ReminderInput {
@@ -567,9 +574,15 @@ type Section {
 	price: Float
 }
 
+type QuoteItem {
+	id: ID!
+	name: String!
+}
+
 type QuoteSection {
 	id: ID!
 	name: String!
+	items: [QuoteItem!]!
 	price: Float!
 }
 
@@ -579,6 +592,8 @@ type Quote {
 	footer: Json
 	sections: [QuoteSection!]!
 	project: Project!
+	hasTaxes: Boolean!
+	taxRate: Float!
 	createdAt: DateTime!
 }
 
