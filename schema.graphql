@@ -216,6 +216,9 @@ type Mutation {
 	# Stop the current task timer
 	stopCurrentTaskTimer: Item
 
+	# Stop the current task timer
+	clearTaskWorkedTimes(taskId: ID!): Item!
+
 	# Update an already validated item
 	updateValidatedItem(id: ID!, unit: Float!, comment: CommentInput!): Item
 		@deprecated(reason: "Use updateItem instead.")
