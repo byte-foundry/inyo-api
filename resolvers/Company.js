@@ -11,6 +11,7 @@ const Company = {
 	rcs: node => node.rcs,
 	rm: node => node.rm,
 	vat: node => node.vat,
+	vatRate: node => node.vatRate,
 	logo: (node, args, ctx) => ctx.db.company({id: node.id}).logo(),
 	banner: (node, args, ctx) => {
 		if (node.bannerUnsplashId) {

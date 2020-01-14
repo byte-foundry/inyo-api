@@ -302,9 +302,16 @@ type Section {
 	price: Float
 }
 
+type QuoteItem {
+	id: ID! @unique
+	section: QuoteSection! @relation(name: "QuoteItemSection")
+	name: String!
+}
+
 type QuoteSection {
 	id: ID! @unique
 	quote: Quote! @relation(name: "QuoteSections")
+	items: [QuoteItem!]! @relation(name: "QuoteItemSection")
 	name: String!
 	price: Float!
 }
@@ -315,6 +322,9 @@ type Quote {
 	footer: Json
 	sections: [QuoteSection!]! @relation(name: "QuoteSections", onDelete: CASCADE)
 	project: Project! @relation(name: "ProjectQuotes")
+	hasTaxes: Boolean! @default(value: false)
+	taxRate: Float! @default(value: 20)
+	acceptedAt: DateTime
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }
@@ -358,6 +368,7 @@ type Company {
 	rcsCity: String
 	rm: String
 	vat: String
+	vatRate: Float
 	logo: File @relation(name: "CompanyLogo", onDelete: CASCADE)
 	banner: File @relation(name: "CompanyBanner", onDelete: CASCADE)
 	bannerUnsplashId: String

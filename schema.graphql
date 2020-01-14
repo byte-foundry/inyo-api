@@ -291,7 +291,11 @@ type Mutation {
 		sections: [QuoteSectionInput!]
 		header: Json
 		footer: Json
+		hasTaxes: Boolean!
+		taxRate: Float!
 	): Quote!
+
+	acceptQuote(id: ID!, token: String!): Quote!
 }
 
 input CommentInput {
@@ -316,6 +320,7 @@ input CompanyInput {
 	rcsCity: String
 	rm: String
 	vat: String
+	vatRate: Float
 	logo: Upload
 	banner: Upload
 	bannerUnsplashId: ID
@@ -363,9 +368,14 @@ input SectionInput {
 	items: [ItemInput!]!
 }
 
+input QuoteItemInput {
+	name: String!
+}
+
 input QuoteSectionInput {
 	name: String!
-	price: Int!
+	price: Float!
+	items: [QuoteItemInput!]!
 }
 
 input ReminderInput {
@@ -584,9 +594,15 @@ type Section {
 	price: Float
 }
 
+type QuoteItem {
+	id: ID!
+	name: String!
+}
+
 type QuoteSection {
 	id: ID!
 	name: String!
+	items: [QuoteItem!]!
 	price: Float!
 }
 
@@ -596,6 +612,9 @@ type Quote {
 	footer: Json
 	sections: [QuoteSection!]!
 	project: Project!
+	hasTaxes: Boolean!
+	taxRate: Float!
+	acceptedAt: DateTime
 	createdAt: DateTime!
 }
 
@@ -642,6 +661,7 @@ type Company {
 	rcsCity: String
 	rm: String
 	vat: String
+	vatRate: Float
 	logo: File
 	banner: ExternalImage
 	projects: [Project!]!
