@@ -319,6 +319,7 @@ input CompanyInput {
 	logo: Upload
 	banner: Upload
 	bannerUnsplashId: ID
+	documents: [Upload!]
 }
 
 input SettingsInput {
@@ -644,6 +645,7 @@ type Company {
 	logo: File
 	banner: ExternalImage
 	projects: [Project!]!
+	documents: [File!]!
 
 	customers: [Customer!]!
 		@deprecated(reason: "Use `customers` on User instead.")

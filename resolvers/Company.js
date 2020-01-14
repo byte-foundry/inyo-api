@@ -44,6 +44,7 @@ const Company = {
 				[],
 			);
 	},
+	documents: (node, args, ctx) => ctx.db.company({id: node.id}).documents(),
 };
 
 module.exports = {
