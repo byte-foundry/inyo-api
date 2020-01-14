@@ -285,6 +285,8 @@ type Mutation {
 		hasTaxes: Boolean!
 		taxRate: Float!
 	): Quote!
+
+	acceptQuote(id: ID!, token: String!): Quote!
 }
 
 input CommentInput {
@@ -309,6 +311,7 @@ input CompanyInput {
 	rcsCity: String
 	rm: String
 	vat: String
+	vatRate: Float
 	logo: Upload
 	banner: Upload
 	bannerUnsplashId: ID
@@ -594,6 +597,7 @@ type Quote {
 	project: Project!
 	hasTaxes: Boolean!
 	taxRate: Float!
+	acceptedAt: DateTime
 	createdAt: DateTime!
 }
 
@@ -640,6 +644,7 @@ type Company {
 	rcsCity: String
 	rm: String
 	vat: String
+	vatRate: Float
 	logo: File
 	banner: ExternalImage
 	projects: [Project!]!

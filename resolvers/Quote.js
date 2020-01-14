@@ -6,6 +6,7 @@ const Quote = {
 	project: (node, args, ctx) => ctx.loaders.projectLoader.load(node.project.id),
 	hasTaxes: node => node.hasTaxes,
 	taxRate: node => node.taxRate,
+	acceptedAt: node => node.acceptedAt,
 	createdAt: node => node.createdAt,
 };
 

@@ -50,6 +50,7 @@ const {markNotificationsAsRead} = require('./markNotificationsAsRead');
 const {updateEmailTemplate} = require('./updateEmailTemplate');
 const {setTemplateToDefault} = require('./setTemplateToDefault');
 const {issueQuote} = require('./issueQuote');
+const {acceptQuote} = require('./acceptQuote');
 
 const Mutation = {
 	checkEmailAvailability,
@@ -108,6 +109,7 @@ const Mutation = {
 	updateEmailTemplate,
 	setTemplateToDefault,
 	issueQuote,
+	acceptQuote,
 };
 
 module.exports = {

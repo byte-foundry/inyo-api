@@ -314,6 +314,7 @@ type Quote {
 	project: Project! @relation(name: "ProjectQuotes")
 	hasTaxes: Boolean! @default(value: false)
 	taxRate: Float! @default(value: 20)
+	acceptedAt: DateTime
 	createdAt: DateTime!
 	updatedAt: DateTime!
 }
@@ -357,6 +358,7 @@ type Company {
 	rcsCity: String
 	rm: String
 	vat: String
+	vatRate: Float
 	logo: File @relation(name: "CompanyLogo", onDelete: CASCADE)
 	banner: File @relation(name: "CompanyBanner", onDelete: CASCADE)
 	bannerUnsplashId: String
