@@ -81,6 +81,8 @@ const Query = {
 				id
 				header
 				footer
+				hasTaxes
+				taxRate
 				sections {
 					id
 				}

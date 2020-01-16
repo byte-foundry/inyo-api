@@ -36,6 +36,8 @@ const {EmailParam} = require('./EmailParam');
 const {EmailParamForType} = require('./EmailParamForType');
 const {EmailTemplate} = require('./EmailTemplate');
 const {Quote} = require('./Quote');
+const {QuoteSection} = require('./QuoteSection');
+const {QuoteItem} = require('./QuoteItem');
 
 const resolvers = {
 	TimeZone: GraphQLTimeZone,
@@ -52,6 +54,8 @@ const resolvers = {
 	Section,
 	Project,
 	Quote,
+	QuoteSection,
+	QuoteItem,
 	Customer,
 	Address,
 	Author,

@@ -25,6 +25,10 @@ const ItemWithRelationsFragment = gql`
 		tags {
 			id
 		}
+		workedTimes {
+			start
+			end
+		}
 	}
 `;
 

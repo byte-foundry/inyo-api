@@ -80,6 +80,26 @@ const updateUser = async (
 		bannerProperties.bannerUnsplashId = null;
 	}
 
+	const documents = {connect: []};
+
+	if (company && company.documents) {
+		const documentsFiles = await Promise.all(
+			company.documents.map(file => processUpload(file, ctx, userId), 1000000),
+		);
+
+		await Promise.all(
+			documentsFiles.map(({id}) => ctx.db.updateFile({
+				where: {id},
+				data: {
+					documentType: 'ADMIN',
+					ownerUser: {connect: {id: ctx.userId}},
+				},
+			})),
+		);
+
+		documents.connect = documentsFiles.map(d => ({id: d.id}));
+	}
+
 	if (
 		settings
 		&& settings.language
@@ -125,6 +145,7 @@ const updateUser = async (
 					},
 					logo,
 					...bannerProperties,
+					documents,
 				},
 			},
 			settings: settings && {

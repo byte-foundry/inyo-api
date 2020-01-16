@@ -18,6 +18,9 @@ const {addItem} = require('./addItem');
 const {updateItem} = require('./updateItem');
 const {focusTask} = require('./focusTask');
 const {unfocusTask} = require('./unfocusTask');
+const {startTaskTimer} = require('./startTaskTimer');
+const {stopCurrentTaskTimer} = require('./stopCurrentTaskTimer');
+const {clearTaskWorkedTimes} = require('./clearTaskWorkedTimes');
 const {removeItem} = require('./removeItem');
 const {finishItem} = require('./finishItem');
 const {unfinishItem} = require('./unfinishItem');
@@ -50,6 +53,7 @@ const {markNotificationsAsRead} = require('./markNotificationsAsRead');
 const {updateEmailTemplate} = require('./updateEmailTemplate');
 const {setTemplateToDefault} = require('./setTemplateToDefault');
 const {issueQuote} = require('./issueQuote');
+const {acceptQuote} = require('./acceptQuote');
 
 const Mutation = {
 	checkEmailAvailability,
@@ -75,6 +79,9 @@ const Mutation = {
 	updateItem,
 	focusTask,
 	unfocusTask,
+	startTaskTimer,
+	stopCurrentTaskTimer,
+	clearTaskWorkedTimes,
 	removeItem,
 	snoozeItem() {
 		throw Error('Tasks cannot be snoozed anymore.');
@@ -108,6 +115,7 @@ const Mutation = {
 	updateEmailTemplate,
 	setTemplateToDefault,
 	issueQuote,
+	acceptQuote,
 };
 
 module.exports = {
