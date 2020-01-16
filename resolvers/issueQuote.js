@@ -5,6 +5,8 @@ const issueQuote = async (
 	},
 	ctx,
 ) => {
+	const user = ctx.db.user({id: ctx.userId});
+	const newQuoteNumber = user.quoteNumber + 1;
 	const sectionsWithItemsCreate = sections.map(section => ({
 		...section,
 		items: {
@@ -12,6 +14,7 @@ const issueQuote = async (
 		},
 	}));
 	const quote = await ctx.db.createQuote({
+		issueNumber: newQuoteNumber,
 		project: {connect: {id: projectId}},
 		sections: {
 			create: sectionsWithItemsCreate,
@@ -20,6 +23,13 @@ const issueQuote = async (
 		taxRate,
 		header,
 		footer,
+	});
+
+	await ctx.db.updateUser({
+		where: {id: ctx.userId},
+		data: {
+			quoteNumber: newQuoteNumber,
+		},
 	});
 
 	console.log('Created new quote from project', projectId);

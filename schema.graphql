@@ -608,6 +608,7 @@ type QuoteSection {
 
 type Quote {
 	id: ID!
+	issueNumber: Int!
 	header: Json
 	footer: Json
 	sections: [QuoteSection!]!
@@ -753,6 +754,7 @@ type User {
 	signedUpAt: DateTime!
 	lifetimePayment: Boolean!
 	emailTemplates: [EmailTemplate!]!
+	quoteNumber: Int!
 }
 
 type CollabRequest {

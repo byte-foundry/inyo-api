@@ -318,6 +318,7 @@ type QuoteSection {
 
 type Quote {
 	id: ID! @unique
+	issueNumber: Int! @default(value: 0)
 	header: Json
 	footer: Json
 	sections: [QuoteSection!]! @relation(name: "QuoteSections", onDelete: CASCADE)
@@ -435,6 +436,7 @@ type User {
 	updatedAt: DateTime!
 	tags: [Tag!]! @relation(name: "UserTags", onDelete: CASCADE)
 	lifetimePayment: Boolean @default(value: false)
+	quoteNumber: Int! @default(value: 0)
 
 	collaborators: [User!]! @relation(name: "Collaborators")
 	collaboratorRequests: [CollabRequest!]! @relation(name: "CollabRequester")
