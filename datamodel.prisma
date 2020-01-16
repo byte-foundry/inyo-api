@@ -324,7 +324,7 @@ type Quote {
 	sections: [QuoteSection!]! @relation(name: "QuoteSections", onDelete: CASCADE)
 	project: Project! @relation(name: "ProjectQuotes")
 	hasTaxes: Boolean! @default(value: false)
-	taxRate: Float! @default(value: 20)
+	taxRate: Float @default(value: 20)
 	acceptedAt: DateTime
 	createdAt: DateTime!
 	updatedAt: DateTime!

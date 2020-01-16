@@ -79,6 +79,7 @@ const Query = {
 	quote: (root, {id}, ctx) => ctx.db.quote({id}).$fragment(gql`
 			fragment quoteWithRelationsId on Quote {
 				id
+				issueNumber
 				header
 				footer
 				hasTaxes

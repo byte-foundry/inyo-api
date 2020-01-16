@@ -292,7 +292,7 @@ type Mutation {
 		header: Json
 		footer: Json
 		hasTaxes: Boolean!
-		taxRate: Float!
+		taxRate: Float
 	): Quote!
 
 	acceptQuote(id: ID!, token: String!): Quote!
@@ -614,7 +614,7 @@ type Quote {
 	sections: [QuoteSection!]!
 	project: Project!
 	hasTaxes: Boolean!
-	taxRate: Float!
+	taxRate: Float
 	acceptedAt: DateTime
 	createdAt: DateTime!
 }

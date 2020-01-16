@@ -5,7 +5,7 @@ const issueQuote = async (
 	},
 	ctx,
 ) => {
-	const user = ctx.db.user({id: ctx.userId});
+	const user = await ctx.db.user({id: ctx.userId});
 	const newQuoteNumber = user.quoteNumber + 1;
 	const sectionsWithItemsCreate = sections.map(section => ({
 		...section,
