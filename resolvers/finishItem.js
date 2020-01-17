@@ -21,8 +21,13 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 			status
 			unit
 			type
+			currentlyTimedBy {
+				id
+			}
 			workedTimes {
 				id
+				start
+				end
 			}
 			owner {
 				id
@@ -181,7 +186,7 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 	}
 
 	await cancelPendingReminders(item.pendingReminders, id, ctx);
-	const isCurrentTask = id === item.owner.currentTask.id;
+	const isCurrentTask = item.owner.currentTask && id === item.owner.currentTask.id;
 
 	const updatedItem = await ctx.db.updateItem({
 		where: {id},

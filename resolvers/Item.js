@@ -27,6 +27,7 @@ const Item = {
 	},
 	scheduledFor: node => node.scheduledFor && new Date(node.scheduledFor),
 	schedulePosition: node => node.schedulePosition,
+	scheduledForDays: (node, args, ctx) => ctx.db.item({id: node.id}).scheduledForDays({orderBy: 'position_ASC'}),
 	isFocused: async (node, args, ctx) => {
 		const scheduledFor = await ctx.db.item({id: node.id}).scheduledFor();
 

@@ -203,8 +203,10 @@ type Mutation {
 	focusTask(
 		id: ID!
 		reminders: [ReminderInput]
+		from: Date
 		for: Date
 		schedulePosition: Int
+		action: FocusActionType
 	): Item!
 
 	# Remove task from the focus zone
@@ -499,6 +501,11 @@ enum EmailCategory {
 	COMMENT_ADDED
 }
 
+enum FocusActionType {
+	MOVE
+	SPLIT
+}
+
 type Reminder {
 	id: ID!
 	item: Item
@@ -549,12 +556,18 @@ type TimeRange {
 	end: DateTime
 }
 
+type ScheduleSpot {
+	date: Date!
+	position: Int!
+}
+
 type Item {
 	id: ID!
 	owner: User!
 	assignee: User
 	scheduledFor: Date
 	schedulePosition: Int
+	scheduledForDays: [ScheduleSpot!]!
 	linkedCustomer: Customer
 	name: String!
 	type: ItemType!

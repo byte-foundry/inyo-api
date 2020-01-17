@@ -261,11 +261,19 @@ type TimeRange {
 	end: DateTime
 }
 
+type ScheduleSpot {
+	id: ID! @unique
+	task: Item! @relation(name: "TaskScheduleSpots")
+	date: DateTime!
+	position: Int!
+}
+
 type Item {
 	id: ID! @unique
 	owner: User! @relation(name: "UserTasks")
 	scheduledFor: DateTime
 	schedulePosition: Int
+	scheduledForDays: [ScheduleSpot!]! @relation(name: "TaskScheduleSpots")
 	focusedBy: User @relation(name: "UserFocusedTasks")
 	linkedCustomer: Customer @relation(name: "LinkedCustomerTasks")
 	assignee: User @relation(name: "UserAssignedTasks")
