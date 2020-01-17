@@ -157,6 +157,8 @@ enum CustomerEventType {
 	POSTED_COMMENT
 	UPLOADED_ATTACHMENT
 	FINISHED_TASK
+	VIEWED_QUOTE
+	ACCEPTED_QUOTE
 }
 
 enum UserEventType {
@@ -328,6 +330,8 @@ type Quote {
 	acceptedAt: DateTime
 	createdAt: DateTime!
 	updatedAt: DateTime!
+	invalid: Boolean! @default(value: true)
+	validQuote: Quote @relation(name: "ValidQuote")
 }
 
 type Project {
@@ -527,6 +531,7 @@ type CustomerEvent {
 	task: Item @relation(name: "CustomerEventOnTask")
 	comment: Comment @relation(name: "CustomerEventOnComment")
 	file: File @relation(name: "CustomerEventOnFile")
+	quote: Quote @relation(name: "CustomerEventOnQuote")
 }
 
 type Notification {

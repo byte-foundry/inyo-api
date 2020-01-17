@@ -4,6 +4,7 @@ const acceptQuote = async (parent, {id, token}, ctx) => {
 	const [quote] = await ctx.db.quotes({
 		where: {
 			id,
+			invalid: false,
 			project: {
 				customer: {
 					token,
