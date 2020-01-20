@@ -102,6 +102,7 @@ const Query = {
 						id
 					}
 				}
+				acceptedAt
 				createdAt
 			}
 		`);
