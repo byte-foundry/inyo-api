@@ -4,6 +4,7 @@ const acceptQuote = async (parent, {id, token}, ctx) => {
 	const [quote] = await ctx.db.quotes({
 		where: {
 			id,
+			invalid: false,
 			project: {
 				customer: {
 					token,
@@ -16,7 +17,7 @@ const acceptQuote = async (parent, {id, token}, ctx) => {
 		throw new NotFoundError(`Quote '${id}' has not been found.`);
 	}
 
-	if (!quote.acceptedAt) {
+	if (quote.acceptedAt) {
 		throw new AlreadyExistingError(`Quote '${id}' has already been accepted`);
 	}
 

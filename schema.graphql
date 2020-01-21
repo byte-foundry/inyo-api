@@ -292,7 +292,7 @@ type Mutation {
 		header: Json
 		footer: Json
 		hasTaxes: Boolean!
-		taxRate: Float!
+		taxRate: Float
 	): Quote!
 
 	acceptQuote(id: ID!, token: String!): Quote!
@@ -614,7 +614,9 @@ type Quote {
 	sections: [QuoteSection!]!
 	project: Project!
 	hasTaxes: Boolean!
-	taxRate: Float!
+	taxRate: Float
+	invalid: Boolean!
+	validQuote: Quote
 	acceptedAt: DateTime
 	createdAt: DateTime!
 }
@@ -844,6 +846,8 @@ enum EventType {
 	UNLINKED_COLLABORATOR_TO_PROJECT
 	ASSIGNED_TO_TASK
 	REMOVE_ASSIGNMENT_TO_TASK
+	VIEWED_QUOTE
+	ACCEPTED_QUOTE
 }
 
 union EventEmitter = User | Customer

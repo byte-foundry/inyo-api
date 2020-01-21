@@ -76,22 +76,58 @@ const Query = {
 
 		return template;
 	},
-	quote: (root, {id}, ctx) => ctx.db.quote({id}).$fragment(gql`
+	quote: async (root, {id}, ctx) => {
+		const quote = await ctx.db.quote({id}).$fragment(gql`
 			fragment quoteWithRelationsId on Quote {
 				id
+				issueNumber
 				header
 				footer
 				hasTaxes
 				taxRate
+				invalid
+				validQuote {
+					id
+					issueNumber
+				}
 				sections {
 					id
 				}
 				project {
 					id
+					customer {
+						id
+					}
+					owner {
+						id
+					}
 				}
+				acceptedAt
 				createdAt
 			}
-		`),
+		`);
+
+		if (!ctx.userId || ctx.userId !== quote.project.owner.id) {
+			await ctx.db.createCustomerEvent({
+				type: 'VIEWED_QUOTE',
+				customer: {connect: {id: quote.project.customer.id}},
+				metadata: {projectId: quote.project.id, quoteId: id},
+				notifications: {
+					create: {
+						user: {connect: {id: quote.project.owner.id}},
+					},
+				},
+				quote: {connect: {id}},
+				project: {
+					connect: {
+						id: quote.project.id,
+					},
+				},
+			});
+		}
+
+		return quote;
+	},
 	item: async (root, {id, token, updateCommentViews}, ctx) => {
 		if (updateCommentViews) {
 			if (token) {
