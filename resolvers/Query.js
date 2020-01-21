@@ -107,22 +107,24 @@ const Query = {
 			}
 		`);
 
-		await ctx.db.createCustomerEvent({
-			type: 'VIEWED_QUOTE',
-			customer: {connect: {id: quote.project.customer.id}},
-			metadata: {projectId: quote.project.id, quoteId: id},
-			notifications: {
-				create: {
-					user: {connect: {id: quote.project.owner.id}},
+		if (!ctx.userId || ctx.userId !== quote.project.owner.id) {
+			await ctx.db.createCustomerEvent({
+				type: 'VIEWED_QUOTE',
+				customer: {connect: {id: quote.project.customer.id}},
+				metadata: {projectId: quote.project.id, quoteId: id},
+				notifications: {
+					create: {
+						user: {connect: {id: quote.project.owner.id}},
+					},
 				},
-			},
-			quote: {connect: {id}},
-			project: {
-				connect: {
-					id: quote.project.id,
+				quote: {connect: {id}},
+				project: {
+					connect: {
+						id: quote.project.id,
+					},
 				},
-			},
-		});
+			});
+		}
 
 		return quote;
 	},
