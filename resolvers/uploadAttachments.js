@@ -87,7 +87,9 @@ const uploadAttachments = async (
 			.section()
 			.project();
 
-		taskProjectId = project.id;
+		if (project) {
+			taskProjectId = project.id;
+		}
 	}
 
 	const attachmentsIntermediary = await Promise.all(
