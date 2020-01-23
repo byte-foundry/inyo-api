@@ -5,3 +5,4 @@ posthook.env
 _vimrc*
 yarn-error.log
 .envrc
+credentials.json
