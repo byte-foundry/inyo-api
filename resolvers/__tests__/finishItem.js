@@ -34,6 +34,9 @@ describe('finishItem', () => {
 								email: 'chouche@gitan.fm',
 								firstName: 'Adrien',
 								lastName: 'David',
+								currentTask: {
+									id: 'currentTask-id',
+								},
 							},
 							unit: 1,
 							pendingReminders: [],
@@ -116,6 +119,9 @@ describe('finishItem', () => {
 								email: 'chouche@gitan.fm',
 								firstName: 'Adrien',
 								lastName: 'David',
+								currentTask: {
+									id: 'currentTask-id',
+								},
 							},
 							pendingReminders: [
 								{
@@ -212,6 +218,9 @@ describe('finishItem', () => {
 								email: 'chouche@gitan.fm',
 								firstName: 'Adrien',
 								lastName: 'David',
+								currentTask: {
+									id: 'currentTask-id',
+								},
 							},
 							section: {
 								id: 'section-id',
@@ -288,6 +297,9 @@ describe('finishItem', () => {
 								email: 'chouche@gitan.fm',
 								firstName: 'Adrien',
 								lastName: 'David',
+								currentTask: {
+									id: 'currentTask-id',
+								},
 							},
 							unit: 1,
 							pendingReminders: [],
@@ -341,6 +353,106 @@ describe('finishItem', () => {
 		};
 
 		const item = await finishItem({}, args, ctx);
+
+		expect(item).toMatchObject({
+			id: args.id,
+			status: 'FINISHED',
+			timeItTook: 2,
+		});
+	});
+
+	it('stop the timer of the task finished', async () => {
+		const args = {
+			id: 'item-id',
+			timeItTook: 2,
+		};
+		const ctx = {
+			request: {
+				get: () => 'user-token',
+			},
+			db: {
+				...db,
+				items: () => ({
+					$fragment: () => [
+						{
+							name: 'Mon item',
+							status: 'PENDING',
+							type: 'DEFAULT',
+							owner: {
+								id: 'user-id',
+								email: 'chouche@gitan.fm',
+								firstName: 'Adrien',
+								lastName: 'David',
+								currentTask: {
+									id: 'currentTask-id',
+								},
+							},
+							unit: 1,
+							pendingReminders: [],
+							section: {
+								id: 'section-id',
+								project: {
+									id: 'project-id',
+									token: 'mon-token',
+									name: "C'est notre projeeet",
+									customer: {
+										id: 'customer-id',
+										title: 'MONSIEUR',
+										firstName: 'Jean',
+										lastName: 'Michel',
+										email: 'jean@michel.org',
+									},
+									status: 'ONGOING',
+									sections: [
+										{
+											name: 'Ma section',
+											items: [
+												{
+													name: 'Mon item',
+													unit: 1,
+													status: 'PENDING',
+												},
+											],
+										},
+									],
+								},
+							},
+						},
+					],
+				}),
+				item: () => ({
+					$fragment: () => ({
+						section: {
+							items: [],
+							project: {
+								sections: [],
+							},
+						},
+					}),
+				}),
+				updateItem: jest.fn(({data}) => ({
+					id: 'item-id',
+					...data,
+				})),
+				updateManyReminders: jest.fn(),
+			},
+		};
+
+		const item = await finishItem({id: 'currentTask-id'}, args, ctx);
+
+		expect(ctx.db.updateItem).toHaveBeenCalledWith(
+			expect.objectContaining({
+				where: {
+					id: 'item-id',
+				},
+				data: expect.objectContaining({
+					status: 'FINISHED',
+					currentlyTimedBy: {
+						disconnect: true,
+					},
+				}),
+			}),
+		);
 
 		expect(item).toMatchObject({
 			id: args.id,
