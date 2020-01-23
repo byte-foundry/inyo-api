@@ -28,6 +28,10 @@ const removeAssignmentToTask = async (
 		data: {
 			assignee: {disconnect: true},
 			scheduledFor: null,
+			schedulePosition: null,
+			scheduledForDays: {
+				deleteMany: {},
+			},
 		},
 	});
 

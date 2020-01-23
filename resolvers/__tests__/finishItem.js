@@ -100,9 +100,9 @@ describe('finishItem', () => {
 	it('should let a customer finish a project customer item', async () => {
 		const args = {
 			id: 'item-id',
-			token: 'customer-token',
 		};
 		const ctx = {
+			token: 'customer-token',
 			request: {
 				get: () => '',
 			},
@@ -199,9 +199,9 @@ describe('finishItem', () => {
 	it('should not let a customer finish a project user item', async () => {
 		const args = {
 			id: 'item-id',
-			token: 'customer-token',
 		};
 		const ctx = {
+			token: 'customer-token',
 			request: {
 				get: () => '',
 			},

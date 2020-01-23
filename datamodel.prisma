@@ -266,6 +266,7 @@ type ScheduleSpot {
 	task: Item! @relation(name: "TaskScheduleSpots")
 	date: DateTime!
 	position: Int!
+	status: ItemStatus! @default(value: PENDING)
 }
 
 type Item {

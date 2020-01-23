@@ -24,6 +24,7 @@ const FocusingItemWithProject = gql`
 		scheduledFor
 		schedulePosition
 		scheduledForDays {
+			id
 			date
 			position
 		}
@@ -72,11 +73,13 @@ const focusTask = async (
 	},
 	ctx,
 ) => {
-	let scheduledForDate = moment(scheduledFor).isValid()
+	let scheduledForDate = moment(scheduledFor || null).isValid()
 		? moment(scheduledFor)
 		: moment();
+	let fromDate = moment(from || null).isValid() ? moment(from) : null;
 
 	scheduledForDate = scheduledForDate.format(moment.HTML5_FMT.DATE);
+	fromDate = fromDate && fromDate.format(moment.HTML5_FMT.DATE);
 
 	const userId = getUserId(ctx);
 	// This is so that assignee can schedule their task and only them
@@ -188,15 +191,35 @@ const focusTask = async (
 		}
 	}
 
-	const currentScheduleLink = from
-		? item.scheduledForDays.find(l => l.date === from)
-		: item.scheduledForDays[0];
 	let position = schedulePosition;
+
+	const existingLinkForWantedDay = item.scheduledForDays.find(
+		l => l.date.split('T')[0] === scheduledForDate,
+	);
+	let currentScheduleLink
+		= action === 'MOVE' && fromDate
+			? item.scheduledForDays.find(l => l.date.split('T')[0] === fromDate)
+			: null;
+
+	if (action === 'MOVE' && !fromDate) {
+		if (!currentScheduleLink) {
+			[currentScheduleLink] = item.scheduledForDays;
+		}
+
+		// TODO: which one to move? merge all?
+	}
+
+	// we want to put a task on a day it is already scheduled, then just moving
+	if (action === 'SPLIT' && existingLinkForWantedDay) {
+		action = 'MOVE'; // eslint-disable-line no-param-reassign
+		currentScheduleLink = existingLinkForWantedDay;
+	}
 
 	if (
 		!currentScheduleLink
 		|| position !== currentScheduleLink.position
-		|| (scheduledFor && scheduledFor !== currentScheduleLink.date)
+		|| (scheduledForDate
+			&& scheduledForDate !== currentScheduleLink.date.split('T')[0])
 	) {
 		const previousScheduledFor = currentScheduleLink
 			? currentScheduleLink.date
@@ -212,7 +235,8 @@ const focusTask = async (
 		}).$fragment(gql`
 			fragment ItemListWithScheduleDay on Item {
 				id
-				scheduledForDays(where: {date: ${previousScheduledFor}}) {
+				scheduledForDays(where: {date: "${scheduledForDate}"}) {
+					id
 					date
 					position
 				}
@@ -226,7 +250,11 @@ const focusTask = async (
 		let initialPosition = dayTasks.findIndex(task => task.id === id);
 
 		// not the same list and action is not split
-		if (action === 'MOVE' && initialPosition < 0 && currentScheduleLink) {
+		if (
+			action === 'MOVE'
+			&& currentScheduleLink
+			&& existingLinkForWantedDay !== currentScheduleLink
+		) {
 			const previousList = await ctx.db.items({
 				where: {
 					owner: {id: ctx.userId},
@@ -237,7 +265,7 @@ const focusTask = async (
 			}).$fragment(gql`
 				fragment ItemListWithScheduleDay2 on Item {
 					id
-					scheduledForDays(where: {date: ${previousScheduledFor}}) {
+					scheduledForDays(where: {date: "${previousScheduledFor}"}) {
 						id
 						date
 						position
@@ -249,42 +277,64 @@ const focusTask = async (
 				(a, b) => a.scheduledForDays[0].position - b.scheduledForDays[0].position,
 			);
 
+			const previousListPosition = previousList.findIndex(
+				task => task.id === id,
+			);
+
+			// using an upsert here to update previous tasks not defined with the new system
 			await reorderList(
 				previousList,
-				currentScheduleLink.position,
+				previousListPosition,
 				previousList.length,
-				(task, pos) => ctx.db.updateScheduleSpot({
-					where: {id: task.scheduledForDays[0].id},
-					data: {
-						scheduledForDays: {
-							update: {
-								position: pos,
-							},
-						},
+				(task, pos) => ctx.db.upsertScheduleSpot({
+					where: {
+						id:
+								task.scheduledForDays.length > 0
+									? task.scheduledForDays[0].id
+									: undefined,
+					},
+					update: {
+						position: pos,
+					},
+					create: {
+						date: scheduledForDate,
+						position: pos,
+						task: {connect: {id: item.id}},
 					},
 				}),
 			);
+
+			// we need to remove the previous link if there is a need to merge
+			if (existingLinkForWantedDay) {
+				await ctx.db.deleteScheduleSpot({id: currentScheduleLink.id});
+
+				currentScheduleLink = existingLinkForWantedDay;
+			}
+		}
+
+		if (typeof position !== 'number' || position >= dayTasks.length) {
+			position = initialPosition >= 0 ? dayTasks.length - 1 : dayTasks.length;
+		}
+		else if (position < 0) {
+			position = 0;
 		}
 
 		if (initialPosition < 0) {
 			initialPosition = dayTasks.length;
 		}
 
-		if (typeof position !== 'number' || position > dayTasks.length) {
-			position = dayTasks.length;
-		}
-		else if (position < 0) {
-			position = 0;
-		}
-
-		await reorderList(dayTasks, initialPosition, position, (task, pos) => ctx.db.updateScheduleSpot({
-			where: {id: task.scheduledForDays[0].id},
-			data: {
-				scheduledForDays: {
-					update: {
-						position: pos,
-					},
-				},
+		// using an upsert here to update previous tasks not defined with the new system
+		await reorderList(dayTasks, initialPosition, position, (task, pos) => ctx.db.upsertScheduleSpot({
+			where: {
+				id: task.scheduledForDays[0] ? task.scheduledForDays[0].id : '',
+			},
+			update: {
+				position: pos,
+			},
+			create: {
+				date: scheduledForDate,
+				position: pos,
+				task: {connect: {id: item.id}},
 			},
 		}));
 	}
@@ -295,11 +345,15 @@ const focusTask = async (
 			scheduledFor: scheduledForDate,
 			schedulePosition: position,
 			scheduledForDays: {
-				upsert: {
-					where: {id: currentScheduleLink && currentScheduleLink.id},
-					update: {date: scheduledForDate, position},
-					create: {date: scheduledForDate, position},
-				},
+				update: currentScheduleLink
+					? {
+						where: {id: currentScheduleLink.id},
+						data: {date: scheduledForDate, position},
+					  }
+					: undefined,
+				create: currentScheduleLink
+					? undefined
+					: {date: scheduledForDate, position},
 			},
 			focusedBy: {
 				connect: {id: userId},

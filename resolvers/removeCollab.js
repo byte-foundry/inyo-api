@@ -51,6 +51,10 @@ const removeCollab = async (parent, {collaboratorId}, ctx) => {
 				data: {
 					assignee: {disconnect: true},
 					scheduledFor: null,
+					schedulePosition: null,
+					scheduledForDays: {
+						deleteMany: {},
+					},
 				},
 			});
 		});

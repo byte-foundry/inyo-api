@@ -28,7 +28,9 @@ const sendReminderPreviewTestEmail = async (parent, {taskId, type}, ctx) => {
 			id
 			name
 			status
-			scheduledFor
+			scheduledForDays {
+				date
+			}
 			focusedBy {
 				id
 			}
@@ -70,7 +72,7 @@ const sendReminderPreviewTestEmail = async (parent, {taskId, type}, ctx) => {
 		throw new Error('Cannot send preview email in this task state.');
 	}
 
-	if (item.focusedBy || item.scheduledFor) {
+	if (item.focusedBy || item.scheduledForDays.length > 0) {
 		throw new Error(
 			'Cannot send preview email for an already focused task, use sendReminderPreviewEmail instead.',
 		);

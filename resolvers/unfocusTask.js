@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const {
 	getUserId,
 	createItemOwnerFilter,
@@ -31,7 +33,11 @@ const cancelPendingReminders = async (pendingReminders, itemId, ctx) => {
 	}
 };
 
-const unfocusTask = async (parent, {id}, ctx) => {
+const unfocusTask = async (parent, {id, from}, ctx) => {
+	const fromDate = moment(from || null).isValid()
+		? moment(from).format(moment.HTML5_FORMAT.DATE)
+		: null;
+
 	const userId = getUserId(ctx);
 	// This is so that assignee can schedule their task and only them
 	const [item] = await ctx.db.items({
@@ -62,6 +68,11 @@ const unfocusTask = async (parent, {id}, ctx) => {
 			description
 			scheduledFor
 			schedulePosition
+			scheduledForDays(orderBy: date_ASC) {
+				id
+				date
+				position
+			}
 			linkedCustomer {
 				title
 				firstName
@@ -99,25 +110,39 @@ const unfocusTask = async (parent, {id}, ctx) => {
 	}
 
 	// ignoring when already unfocused
-	if (!item.focusedBy && !item.scheduledFor && !item.schedulePosition) {
+	if (
+		!item.focusedBy
+		&& !item.scheduledFor
+		&& !item.schedulePosition
+		&& (item.scheduledForDays.length === 0
+			|| (fromDate
+				&& !item.scheduledForDays.every(d => d.date.split('T')[0] !== fromDate)))
+	) {
 		return ctx.db.item({id});
 	}
 
-	if (item.scheduledFor && item.schedulePosition) {
+	const scheduledFor = item.scheduledForDays.find(
+		d => d.date.split('T')[0] === fromDate,
+	);
+	if (scheduledFor) {
 		// resetting dashboard list
-		const dayTasks = await ctx.db.items({
+		const daySpots = await ctx.db.scheduleSpots({
 			where: {
-				scheduledFor: item.scheduledFor,
-				schedulePosition_gt: item.schedulePosition,
+				date: new Date(fromDate),
+				position_gt: scheduledFor.position,
 			},
-			orderBy: 'schedulePosition_ASC',
+			orderBy: 'position_ASC',
 		});
 
-		dayTasks.forEach((task, index) => ctx.db.updateItem({
-			where: {id: task.id},
-			data: {schedulePosition: item.schedulePosition + index},
+		daySpots.forEach((day, index) => ctx.db.updateScheduleSpot({
+			where: {id: day.id},
+			data: {position: day.position + index},
 		}));
+
+		await ctx.db.deleteScheduleSpot({id: scheduledFor.id});
 	}
+
+	// TODO: remove everything if from not specified
 
 	await cancelPendingReminders(item.pendingReminders, id, ctx);
 
