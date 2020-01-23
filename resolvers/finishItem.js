@@ -21,11 +21,17 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 			status
 			unit
 			type
+			workedTimes {
+				id
+			}
 			owner {
 				id
 				email
 				firstName
 				lastName
+				currentTask {
+					id
+				}
 			}
 			linkedCustomer {
 				id
@@ -175,6 +181,7 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 	}
 
 	await cancelPendingReminders(item.pendingReminders, id, ctx);
+	const isCurrentTask = id === item.owner.currentTask.id;
 
 	const updatedItem = await ctx.db.updateItem({
 		where: {id},
@@ -182,6 +189,19 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 			status: 'FINISHED',
 			finishedAt: new Date(),
 			timeItTook,
+			workedTimes: isCurrentTask
+				? {
+					update: {
+						where: {id: item.workedTimes[item.workedTimes.length - 1].id},
+						data: {end: new Date()},
+					},
+				  }
+				: undefined,
+			currentlyTimedBy: isCustomerTask
+				? {
+					disconnect: true,
+				  }
+				: undefined,
 		},
 	});
 
