@@ -6,3 +6,4 @@ _vimrc*
 yarn-error.log
 .envrc
 credentials.json
+token.json
