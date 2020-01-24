@@ -72,6 +72,7 @@ const unfocusTask = async (parent, {id, from}, ctx) => {
 				id
 				date
 				position
+				status
 			}
 			linkedCustomer {
 				title
@@ -110,26 +111,33 @@ const unfocusTask = async (parent, {id, from}, ctx) => {
 	}
 
 	// ignoring when already unfocused
-	if (
-		!item.focusedBy
-		&& !item.scheduledFor
-		&& !item.schedulePosition
-		&& (item.scheduledForDays.length === 0
-			|| (fromDate
-				&& !item.scheduledForDays.every(d => d.date.split('T')[0] !== fromDate)))
-	) {
+	if (item.scheduledForDays.length === 0) {
 		return ctx.db.item({id});
 	}
 
-	const scheduledFor = item.scheduledForDays.find(
-		d => d.date.split('T')[0] === fromDate,
-	);
-	if (scheduledFor) {
-		// resetting dashboard list
+	const scheduleDaysToRemove = [];
+
+	if (from) {
+		const scheduledFor = item.scheduledForDays.find(
+			d => d.date.split('T')[0] === fromDate,
+		);
+
+		if (scheduledFor) {
+			scheduleDaysToRemove.push(scheduledFor);
+		}
+	}
+	else {
+		scheduleDaysToRemove.push(
+			...item.scheduledForDays.filter(d => d.status !== 'FINISHED'),
+		);
+	}
+
+	// remove every spots we unfocused from
+	scheduleDaysToRemove.forEach(async ({id: spotId, date, position}) => {
 		const daySpots = await ctx.db.scheduleSpots({
 			where: {
-				date: new Date(fromDate),
-				position_gt: scheduledFor.position,
+				date,
+				position_gt: position,
 			},
 			orderBy: 'position_ASC',
 		});
@@ -139,8 +147,8 @@ const unfocusTask = async (parent, {id, from}, ctx) => {
 			data: {position: day.position + index},
 		}));
 
-		await ctx.db.deleteScheduleSpot({id: scheduledFor.id});
-	}
+		await ctx.db.deleteScheduleSpot({id: spotId});
+	});
 
 	// TODO: remove everything if from not specified
 
