@@ -10,6 +10,7 @@ jest.mock('../../emails/TaskEmail');
 const db = {
 	createUserEvent() {},
 	createCustomerEvent() {},
+	upsertScheduleSpot: jest.fn(),
 };
 
 describe('focusTask', () => {
@@ -27,7 +28,7 @@ describe('focusTask', () => {
 				updateItem: ({data}) => ({
 					id: 'item-id',
 					...data,
-					scheduledForDays: [data.scheduledForDays.upsert.create],
+					scheduledForDays: [data.scheduledForDays.create],
 				}),
 			},
 		};
@@ -107,9 +108,8 @@ describe('focusTask', () => {
 				updateItem: ({data}) => ({
 					id: 'item-id',
 					...data,
-					scheduledForDays: [data.scheduledForDays.upsert.create],
+					scheduledForDays: [data.scheduledForDays.create],
 				}),
-				updateScheduleSpot: jest.fn(),
 			},
 		};
 
@@ -172,14 +172,12 @@ describe('focusTask', () => {
 
 		const item = await focusTask({}, args, ctx);
 
-		expect(ctx.db.updateScheduleSpot).toHaveBeenCalledWith({
-			where: {id: 'item-id3-schedule-1'},
-			data: {
-				scheduledForDays: {
-					update: {position: 2},
-				},
-			},
-		});
+		expect(ctx.db.upsertScheduleSpot).toHaveBeenCalledWith(
+			expect.objectContaining({
+				where: {id: 'item-id3-schedule-1'},
+				update: {position: 2},
+			}),
+		);
 
 		expect(item).toMatchObject({
 			id: args.id,
@@ -210,9 +208,9 @@ describe('focusTask', () => {
 				updateItem: ({data}) => ({
 					id: 'item-id',
 					...data,
-					scheduledForDays: [data.scheduledForDays.upsert.create],
+					scheduledForDays: [data.scheduledForDays.update.data],
 				}),
-				updateScheduleSpot: jest.fn(),
+				upsertScheduleSpot: jest.fn(),
 			},
 		};
 
@@ -308,23 +306,19 @@ describe('focusTask', () => {
 
 		const item = await focusTask({}, args, ctx);
 
-		expect(ctx.db.updateScheduleSpot).toHaveBeenCalledWith({
-			where: {id: 'item-id3-schedule-1'},
-			data: {
-				scheduledForDays: {
-					update: {position: 1},
-				},
-			},
-		});
+		expect(ctx.db.upsertScheduleSpot).toHaveBeenCalledWith(
+			expect.objectContaining({
+				where: {id: 'item-id3-schedule-1'},
+				update: {position: 1},
+			}),
+		);
 
-		expect(ctx.db.updateScheduleSpot).toHaveBeenCalledWith({
-			where: {id: 'item-id4-schedule-1'},
-			data: {
-				scheduledForDays: {
-					update: {position: 1},
-				},
-			},
-		});
+		expect(ctx.db.upsertScheduleSpot).toHaveBeenCalledWith(
+			expect.objectContaining({
+				where: {id: 'item-id4-schedule-1'},
+				update: {position: 1},
+			}),
+		);
 
 		expect(item).toMatchObject({
 			id: args.id,
@@ -361,9 +355,9 @@ describe('focusTask', () => {
 				updateItem: ({data}) => ({
 					id: 'item-id',
 					...data,
-					scheduledForDays: [data.scheduledForDays.upsert.create],
+					scheduledForDays: [data.scheduledForDays.create],
 				}),
-				updateScheduleSpot: jest.fn(),
+				upsertScheduleSpot: jest.fn(),
 			},
 		};
 
@@ -447,20 +441,18 @@ describe('focusTask', () => {
 
 		const item = await focusTask({}, args, ctx);
 
-		expect(ctx.db.updateScheduleSpot).not.toHaveBeenCalledWith(
+		expect(ctx.db.upsertScheduleSpot).not.toHaveBeenCalledWith(
 			expect.objectContaining({
 				where: {id: 'item-id3-schedule-1'},
 			}),
 		);
 
-		expect(ctx.db.updateScheduleSpot).toHaveBeenCalledWith({
-			where: {id: 'item-id4-schedule-1'},
-			data: {
-				scheduledForDays: {
-					update: {position: 1},
-				},
-			},
-		});
+		expect(ctx.db.upsertScheduleSpot).toHaveBeenCalledWith(
+			expect.objectContaining({
+				where: {id: 'item-id4-schedule-1'},
+				update: {position: 1},
+			}),
+		);
 
 		expect(item).toMatchObject({
 			id: args.id,
@@ -497,9 +489,9 @@ describe('focusTask', () => {
 				updateItem: ({data}) => ({
 					id: 'item-id',
 					...data,
-					scheduledForDays: [data.scheduledForDays.upsert.update],
+					scheduledForDays: [data.scheduledForDays.update.data],
 				}),
-				updateScheduleSpot: jest.fn(),
+				upsertScheduleSpot: jest.fn(),
 			},
 		};
 
@@ -596,23 +588,19 @@ describe('focusTask', () => {
 			},
 		});
 
-		expect(ctx.db.updateScheduleSpot).toHaveBeenCalledWith({
-			where: {id: 'item-id3-schedule-1'},
-			data: {
-				scheduledForDays: {
-					update: {position: 0},
-				},
-			},
-		});
+		expect(ctx.db.upsertScheduleSpot).toHaveBeenCalledWith(
+			expect.objectContaining({
+				where: {id: 'item-id3-schedule-1'},
+				update: {position: 0},
+			}),
+		);
 
-		expect(ctx.db.updateScheduleSpot).toHaveBeenCalledWith({
-			where: {id: 'item-id4-schedule-1'},
-			data: {
-				scheduledForDays: {
-					update: {position: 1},
-				},
-			},
-		});
+		expect(ctx.db.upsertScheduleSpot).toHaveBeenCalledWith(
+			expect.objectContaining({
+				where: {id: 'item-id4-schedule-1'},
+				update: {position: 1},
+			}),
+		);
 
 		expect(item).toMatchObject({
 			id: args.id,
@@ -654,7 +642,7 @@ describe('focusTask', () => {
 				updateItem: ({data}) => ({
 					id: 'item-id',
 					...data,
-					scheduledForDays: [data.scheduledForDays.upsert.create],
+					scheduledForDays: [data.scheduledForDays.create],
 				}),
 			},
 		};
@@ -748,9 +736,9 @@ describe('focusTask', () => {
 				updateItem: ({data}) => ({
 					id: 'item-id',
 					...data,
-					scheduledForDays: [data.scheduledForDays.upsert.update],
+					scheduledForDays: [data.scheduledForDays.update.data],
 				}),
-				updateScheduleSpot: jest.fn(),
+				upsertScheduleSpot: jest.fn(),
 			},
 		};
 
@@ -822,14 +810,12 @@ describe('focusTask', () => {
 		setupItemReminderEmail.mockClear();
 		expect(setupItemReminderEmail).not.toHaveBeenCalled();
 
-		expect(ctx.db.updateScheduleSpot).toHaveBeenCalledWith({
-			where: {id: 'item-id2-schedule-1'},
-			data: {
-				scheduledForDays: {
-					update: {position: 1},
-				},
-			},
-		});
+		expect(ctx.db.upsertScheduleSpot).toHaveBeenCalledWith(
+			expect.objectContaining({
+				where: {id: 'item-id2-schedule-1'},
+				update: {position: 1},
+			}),
+		);
 
 		expect(item).toMatchObject({
 			id: args.id,

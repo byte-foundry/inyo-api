@@ -23,6 +23,7 @@ describe('unfinishItem', () => {
 							name: 'Mon item',
 							status: 'FINISHED',
 							type: 'DEFAULT',
+							scheduledForDays: [],
 							section: {
 								id: 'section-id',
 								project: {
@@ -73,9 +74,9 @@ describe('unfinishItem', () => {
 	it('should let a customer reset a project customer item', async () => {
 		const args = {
 			id: 'item-id',
-			token: 'customer-token',
 		};
 		const ctx = {
+			token: 'customer-token',
 			request: {
 				get: () => '',
 			},
@@ -137,9 +138,9 @@ describe('unfinishItem', () => {
 	it('should not let a customer finish a project user item', async () => {
 		const args = {
 			id: 'item-id',
-			token: 'customer-token',
 		};
 		const ctx = {
+			token: 'customer-token',
 			request: {
 				get: () => '',
 			},

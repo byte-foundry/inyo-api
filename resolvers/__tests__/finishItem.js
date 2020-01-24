@@ -40,6 +40,7 @@ describe('finishItem', () => {
 							},
 							unit: 1,
 							pendingReminders: [],
+							workedTimes: [],
 							section: {
 								id: 'section-id',
 								project: {
@@ -303,6 +304,7 @@ describe('finishItem', () => {
 							},
 							unit: 1,
 							pendingReminders: [],
+							workedTimes: [],
 							section: {
 								id: 'section-id',
 								project: {
