@@ -35,7 +35,7 @@ const cancelPendingReminders = async (pendingReminders, itemId, ctx) => {
 
 const unfocusTask = async (parent, {id, from}, ctx) => {
 	const fromDate = moment(from || null).isValid()
-		? moment(from).format(moment.HTML5_FORMAT.DATE)
+		? moment(from).format(moment.HTML5_FMT.DATE)
 		: null;
 
 	const userId = getUserId(ctx);
