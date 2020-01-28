@@ -28,6 +28,7 @@ const {batchGetEmailParamForTypeById} = require('./emailParamForTypes');
 const {batchGetEmailTypeById} = require('./emailTypes');
 const {batchGetFileById} = require('./files');
 const {batchGetCommentById} = require('./comments');
+const {batchGetCommentViewById} = require('./commentViews');
 const {batchGetReminderById} = require('./reminders');
 
 const createLoaders = () => {
@@ -47,6 +48,7 @@ const createLoaders = () => {
 		emailTypeLoader: new Dataloader(ids => batchGetEmailTypeById(ids, db)),
 		fileLoader: new Dataloader(ids => batchGetFileById(ids, db)),
 		commentLoader: new Dataloader(ids => batchGetCommentById(ids, db)),
+		commentViewLoader: new Dataloader(ids => batchGetCommentViewById(ids, db)),
 		reminderLoader: new Dataloader(ids => batchGetReminderById(ids, db)),
 		sections: {
 			byItemId: new Dataloader(ids => batchGetSectionByItemId(ids, db)),
