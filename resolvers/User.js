@@ -63,6 +63,11 @@ const TaskWithProjectAndReminders = gql`
 				deadline
 			}
 		}
+		workedTimes {
+			id
+			start
+			end
+		}
 	}
 `;
 
