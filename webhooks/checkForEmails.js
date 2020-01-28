@@ -1,12 +1,17 @@
 const {google} = require('googleapis');
 const fs = require('fs');
 const readline = require('readline');
+const {simpleParser} = require('mailparser');
 const replyParser = require('node-email-reply-parser');
 
+const {postComment} = require('../resolvers/postComment');
 const {prisma} = require('../generated/prisma-client');
 
 // If modifying these scopes, delete token.json.
-const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
+const SCOPES = [
+	'https://www.googleapis.com/auth/gmail.readonly',
+	'https://www.googleapis.com/auth/gmail.modify',
+];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
@@ -19,7 +24,7 @@ fs.readFile('credentials.json', (err, content) => {
 	authorize(JSON.parse(content));
 });
 
-let authClient;
+let emailClient;
 
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
@@ -39,7 +44,8 @@ function authorize(credentials) {
 	fs.readFile(TOKEN_PATH, (err, token) => {
 		if (err) return getNewToken(oAuth2Client);
 		oAuth2Client.setCredentials(JSON.parse(token));
-		authClient = oAuth2Client;
+		const authClient = oAuth2Client;
+		emailClient = google.gmail({version: 'v1', auth: authClient});
 	});
 }
 
@@ -78,8 +84,8 @@ function getNewToken(oAuth2Client, callback) {
  *
  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
  */
-function listLabels() {
-	const gmail = google.gmail({version: 'v1', authClient});
+function checkForEmails() {
+	const gmail = emailClient;
 	gmail.users.messages.list(
 		{
 			userId: 'me',
@@ -93,32 +99,96 @@ function listLabels() {
 					const message = await gmail.users.messages.get({
 						userId: 'me',
 						id,
+						format: 'raw',
 					});
-					const to = message.data.payload.headers.find(
-						header => header.name === 'To',
-					).value;
-					const from = message.data.payload.headers.find(
-						header => header.name === 'From',
-					).value;
+					const messageObject = await simpleParser(
+						Buffer.from(message.data.raw, 'base64').toString('utf-8'),
+					);
+
 					const messageContent = replyParser(
-						Buffer.from(
-							message.data.payload.parts[0].body.data,
-							'base64',
-						).toString('utf-8'),
+						messageObject.text,
 					).getVisibleText();
 
-					console.log(to);
-					console.log(from);
-					console.log(messageContent);
+					const taskId = messageObject.to.value[0].address.match(
+						/\+([a-z0-9]*)@/,
+					)[1];
+					const fromEmail = messageObject.from.value[0].address;
+
+					const [user] = await prisma.users({
+						where: {
+							email: fromEmail,
+							OR: [
+								{
+									tasks_some: {
+										id: taskId,
+									},
+								},
+								{
+									assignedTasks_some: {
+										id: taskId,
+									},
+								},
+							],
+						},
+					});
+
+					const [customer] = await prisma.customers({
+						where: {
+							email: fromEmail,
+							OR: [
+								{linkedTasks_some: {id: taskId}},
+								{projects_some: {sections_some: {items_some: {id: taskId}}}},
+							],
+						},
+					});
+
+					if (!user && !customer) {
+						console.log(
+							`When checking email for comment reply, email from ${fromEmail} does not match a user or a customer`,
+						);
+
+						await gmail.users.messages.modify({
+							userId: 'me',
+							id,
+							requestBody: {
+								removeLabelIds: ['UNREAD'],
+							},
+						});
+
+						return true;
+					}
+
+					const ctx = {
+						token: customer && customer.token,
+						db: prisma,
+						userId: user && user.id,
+						language: 'fr',
+					};
+
+					postComment(
+						undefined,
+						{itemId: taskId, comment: {text: messageContent}},
+						ctx,
+					);
+
+					await gmail.users.messages.modify({
+						userId: 'me',
+						id,
+						requestBody: {
+							removeLabelIds: ['UNREAD'],
+						},
+					});
+
+					return true;
 				});
 			}
 			else {
-				console.log('No labels found.');
+				console.log('No emails found.');
 			}
 		},
 	);
 }
 
 module.exports = {
-	checkForEmails: listLabels,
+	checkForEmails,
 };
