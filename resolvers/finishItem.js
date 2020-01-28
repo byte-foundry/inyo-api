@@ -196,7 +196,8 @@ const finishItem = async (parent, {id, timeItTook, for: scheduledFor}, ctx) => {
 	}
 
 	await cancelPendingReminders(item.pendingReminders, id, ctx);
-	const isCurrentTask = item.owner.currentTask && id === item.owner.currentTask.id;
+	const isCurrentTask
+		= item.owner.currentTask && id === item.owner.currentTask.id;
 
 	if (scheduledFor && item.scheduledForDays.length > 0) {
 		const currentDay = item.scheduledForDays.find(
@@ -235,12 +236,12 @@ const finishItem = async (parent, {id, timeItTook, for: scheduledFor}, ctx) => {
 			workedTimes: isCurrentTask
 				? {
 					update: {
-						where: {id: item.workedTimes[item.workedTimes.length - 1].id},
+						where: {end: null},
 						data: {end: new Date()},
 					},
 				  }
 				: undefined,
-			currentlyTimedBy: isCustomerTask
+			currentlyTimedBy: isCurrentTask
 				? {
 					disconnect: true,
 				  }

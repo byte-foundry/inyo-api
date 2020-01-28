@@ -274,7 +274,8 @@ type Item {
 	owner: User! @relation(name: "UserTasks")
 	scheduledFor: DateTime
 	schedulePosition: Int
-	scheduledForDays: [ScheduleSpot!]! @relation(name: "TaskScheduleSpots")
+	scheduledForDays: [ScheduleSpot!]!
+		@relation(name: "TaskScheduleSpots", onDelete: CASCADE)
 	focusedBy: User @relation(name: "UserFocusedTasks")
 	linkedCustomer: Customer @relation(name: "LinkedCustomerTasks")
 	assignee: User @relation(name: "UserAssignedTasks")

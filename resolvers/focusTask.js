@@ -27,6 +27,7 @@ const FocusingItemWithProject = gql`
 			id
 			date
 			position
+			status
 		}
 		attachments {
 			url
@@ -215,6 +216,8 @@ const focusTask = async (
 		currentScheduleLink = existingLinkForWantedDay;
 	}
 
+	let isFinished = item.scheduledForDays.every(d => d.status === 'FINISHED');
+
 	if (
 		!currentScheduleLink
 		|| position !== currentScheduleLink.position
@@ -308,6 +311,10 @@ const focusTask = async (
 			if (existingLinkForWantedDay) {
 				await ctx.db.deleteScheduleSpot({id: currentScheduleLink.id});
 
+				isFinished = item.scheduledForDays
+					.filter(d => d.id !== currentScheduleLink.id)
+					.every(d => d.status === 'FINISHED');
+
 				currentScheduleLink = existingLinkForWantedDay;
 			}
 		}
@@ -342,6 +349,7 @@ const focusTask = async (
 	const focusedTask = await ctx.db.updateItem({
 		where: {id},
 		data: {
+			status: isFinished && currentScheduleLink ? 'FINISHED' : 'PENDING',
 			scheduledFor: scheduledForDate,
 			schedulePosition: position,
 			scheduledForDays: {
