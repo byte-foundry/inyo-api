@@ -45,7 +45,7 @@ async function sendNewCommentEmail(
 			author = await ctx.db.user({id: authorId});
 		}
 		else {
-			author = await ctx.db.customer({id: recipientId});
+			author = await ctx.db.customer({id: authorId});
 		}
 
 		if (recipientIsUser) {

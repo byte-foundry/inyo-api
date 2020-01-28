@@ -67,6 +67,7 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 						token
 						customer {
 							id
+							title
 							firstName
 							lastName
 							email

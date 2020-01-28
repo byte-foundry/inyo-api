@@ -1,9 +1,11 @@
 const {google} = require('googleapis');
+const {Duplex} = require('stream');
 const fs = require('fs');
 const readline = require('readline');
 const {simpleParser} = require('mailparser');
 const replyParser = require('node-email-reply-parser');
 
+const {storeUpload} = require('../files');
 const {postComment} = require('../resolvers/postComment');
 const {prisma} = require('../generated/prisma-client');
 
@@ -157,6 +159,44 @@ function checkForEmails() {
 
 						return true;
 					}
+
+					await Promise.all(
+						messageObject.attachments.map(async (attachment) => {
+							const stream = new Duplex();
+							stream.push(attachment.content);
+							stream.push(null);
+
+							const {
+								Location, ETag, Bucket, Key,
+							} = await storeUpload({
+								stream,
+								prefix: taskId,
+								filename: attachment.filename,
+								maxFileSize: Infinity,
+							});
+
+							const fileIntermediary = await prisma.createFile({
+								filename: attachment.filename,
+								mimetype: attachment.contentType,
+								encoding: '7bit',
+								url: Location,
+							});
+
+							const file = await prisma.updateFile({
+								where: {id: fileIntermediary.id},
+								data: {
+									documentType: 'DEFAULT',
+									linkedTask: {connect: {id: taskId}},
+									ownerUser: user ? {connect: {id: user.id}} : undefined,
+									ownerCustomer: customer
+										? {connect: {id: customer.id}}
+										: undefined,
+								},
+							});
+
+							return file;
+						}),
+					);
 
 					const ctx = {
 						token: customer && customer.token,
