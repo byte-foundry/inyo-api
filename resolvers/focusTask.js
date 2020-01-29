@@ -216,7 +216,10 @@ const focusTask = async (
 		currentScheduleLink = existingLinkForWantedDay;
 	}
 
-	let isFinished = item.scheduledForDays.every(d => d.status === 'FINISHED');
+	let isFinished
+		= item.scheduledForDays.length > 0
+			? item.scheduledForDays.every(d => d.status === 'FINISHED')
+			: item.status;
 
 	if (
 		!currentScheduleLink
@@ -349,7 +352,7 @@ const focusTask = async (
 	const focusedTask = await ctx.db.updateItem({
 		where: {id},
 		data: {
-			status: isFinished && currentScheduleLink ? 'FINISHED' : 'PENDING',
+			status: isFinished ? 'FINISHED' : 'PENDING',
 			scheduledFor: scheduledForDate,
 			schedulePosition: position,
 			scheduledForDays: {
@@ -361,7 +364,11 @@ const focusTask = async (
 					: undefined,
 				create: currentScheduleLink
 					? undefined
-					: {date: scheduledForDate, position},
+					: {
+						date: scheduledForDate,
+						position,
+						status: isFinished ? 'FINISHED' : 'PENDING',
+					  },
 			},
 			focusedBy: {
 				connect: {id: userId},

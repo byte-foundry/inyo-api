@@ -829,4 +829,100 @@ describe('focusTask', () => {
 			],
 		});
 	});
+
+	it('should let a user focus a finished task without changing its status', async () => {
+		const scheduledFor = moment().format(moment.HTML5_FMT.DATE);
+
+		const args = {
+			id: 'item-id',
+			for: scheduledFor,
+			schedulePosition: 0,
+		};
+		const ctx = {
+			request: {
+				get: () => 'user-token',
+			},
+			db: {
+				...db,
+				items: jest.fn(),
+				user: () => ({
+					$fragment: () => ({
+						id: 'user-id',
+						email: 'chouche@gitan.fm',
+						firstName: 'Adrien',
+						lastName: 'David',
+						startWorkAt: '0000-00-00T09:00:00.000Z',
+					}),
+				}),
+				updateItem: ({data}) => ({
+					id: 'item-id',
+					...data,
+					scheduledForDays: [data.scheduledForDays.create],
+				}),
+				upsertScheduleSpot: jest.fn(),
+			},
+		};
+
+		ctx.db.items.mockReturnValueOnce({
+			$fragment: () => [
+				{
+					id: 'item-id',
+					name: 'Mon item',
+					status: 'FINISHED',
+					type: 'DEFAULT',
+					unit: 1,
+					description: '',
+					scheduledFor: null,
+					schedulePosition: null,
+					scheduledForDays: [],
+					attachments: [],
+					linkedCustomer: null,
+					focusedBy: null,
+					pendingReminders: [
+						{type: 'DELAY'},
+						{type: 'FIRST'},
+						{type: 'SECOND'},
+						{type: 'LAST'},
+					],
+					test: 'bidule',
+					section: {
+						project: {
+							id: 'project-id',
+							token: 'mon-token',
+							name: "C'est notre projeeet",
+							customer: {
+								id: 'customer-id',
+								title: 'MONSIEUR',
+								firstName: 'Jean',
+								lastName: 'Michel',
+								email: 'jean@michel.org',
+								token: 'user-token',
+							},
+							status: 'ONGOING',
+						},
+					},
+				},
+			],
+		});
+
+		ctx.db.items.mockReturnValueOnce({
+			$fragment: () => [],
+		});
+
+		const item = await focusTask({}, args, ctx);
+
+		expect(item).toMatchObject({
+			id: args.id,
+			scheduledFor: args.for,
+			schedulePosition: args.schedulePosition,
+			status: 'FINISHED',
+			scheduledForDays: [
+				{
+					date: args.for,
+					position: args.schedulePosition,
+					status: 'FINISHED',
+				},
+			],
+		});
+	});
 });
