@@ -35,7 +35,6 @@ async function sendEmail({
 
 	const assistantEmailName = slugify(assistantName.toLowerCase());
 
-	console.log(`reply to:${replyTo}`);
 	const request = {
 		method: 'POST',
 		url: '/v3/mail/send',

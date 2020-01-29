@@ -90,7 +90,9 @@ async function sendNewCommentEmail(
 				email,
 				meta,
 				data: params,
-				replyTo: `suivi+${taskId}@inyo.me`,
+				replyTo: `suivi+${taskId}_${
+					recipientIsUser ? 'U' : 'C'
+				}_${recipientId}@inyo.me`,
 				templateId: getTemplateId('d-9037dcd4a6d4435a93546a891cfc1037', ctx),
 			},
 			ctx,

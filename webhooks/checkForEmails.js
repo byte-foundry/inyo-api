@@ -21,7 +21,9 @@ const TOKEN_PATH = 'token.json';
 
 // Load client secrets from a local file.
 fs.readFile('credentials.json', (err, content) => {
-	if (err) return console.log('Error loading client secret file:', err);
+	if (err) {
+		return console.log('Error loading client secret file:', err);
+	}
 	// Authorize a client with credentials, then call the Gmail API.
 	authorize(JSON.parse(content));
 });
@@ -42,7 +44,6 @@ function authorize(credentials) {
 		redirect_uris[0],
 	);
 
-	// Check if we have previously stored a token.
 	fs.readFile(TOKEN_PATH, (err, token) => {
 		if (err) return getNewToken(oAuth2Client);
 		oAuth2Client.setCredentials(JSON.parse(token));
@@ -86,15 +87,19 @@ function getNewToken(oAuth2Client, callback) {
  *
  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
  */
-function checkForEmails() {
+const checkForEmails = async (req, response) => {
+	console.log('##### Starting to check emails');
 	const gmail = emailClient;
 	gmail.users.messages.list(
 		{
 			userId: 'me',
-			q: 'to:suivi is:unread {subject:commented subject:commentaire}',
+			q: 'to:suivi -is:inyo_read {subject:commented subject:commentaire}',
 		},
 		(err, res) => {
-			if (err) return console.log(`The API returned an error: ${err}`);
+			if (err) {
+				response.status(500).send();
+				return console.log(`The API returned an error: ${err}`);
+			}
 			const {messages} = res.data;
 			if (messages) {
 				messages.forEach(async ({id}) => {
@@ -106,19 +111,24 @@ function checkForEmails() {
 					const messageObject = await simpleParser(
 						Buffer.from(message.data.raw, 'base64').toString('utf-8'),
 					);
-
 					const messageContent = replyParser(
 						messageObject.text,
 					).getVisibleText();
 
-					const taskId = messageObject.to.value[0].address.match(
-						/\+([a-z0-9]*)@/,
-					)[1];
-					const fromEmail = messageObject.from.value[0].address;
+					const suiviAddress = messageObject.to.value.find(({address}) => address.match(/suivi\+.*@inyo\.me/)).address;
+
+					const [, taskId, type, recipientId] = suiviAddress.match(
+						/\+([a-z0-9]*)_(U|C)_([a-z0-9]*)@/,
+					);
+					console.log(
+						`Email from ${messageObject.from.value[0].address} on behalf of ${
+							type === 'U' ? 'user' : 'customer'
+						} with id ${recipientId} for task ${taskId}`,
+					);
 
 					const [user] = await prisma.users({
 						where: {
-							email: fromEmail,
+							id: recipientId,
 							OR: [
 								{
 									tasks_some: {
@@ -136,7 +146,7 @@ function checkForEmails() {
 
 					const [customer] = await prisma.customers({
 						where: {
-							email: fromEmail,
+							id: recipientId,
 							OR: [
 								{linkedTasks_some: {id: taskId}},
 								{projects_some: {sections_some: {items_some: {id: taskId}}}},
@@ -144,20 +154,20 @@ function checkForEmails() {
 						},
 					});
 
-					if (!user && !customer) {
+					if (!((user && type === 'U') || (customer && type === 'C'))) {
 						console.log(
-							`When checking email for comment reply, email from ${fromEmail} does not match a user or a customer`,
+							`When checking email for comment reply, id ${recipientId} does not match a user or a customer`,
 						);
 
 						await gmail.users.messages.modify({
 							userId: 'me',
 							id,
 							requestBody: {
-								removeLabelIds: ['UNREAD'],
+								addLabelIds: ['Label_5756327031789877986'],
 							},
 						});
 
-						return true;
+						return;
 					}
 
 					await Promise.all(
@@ -215,19 +225,19 @@ function checkForEmails() {
 						userId: 'me',
 						id,
 						requestBody: {
-							removeLabelIds: ['UNREAD'],
+							addLabelIds: ['Label_5756327031789877986'],
 						},
 					});
-
-					return true;
 				});
+				response.status(200).send();
 			}
 			else {
 				console.log('No emails found.');
+				response.status(200).send();
 			}
 		},
 	);
-}
+};
 
 module.exports = {
 	checkForEmails,
