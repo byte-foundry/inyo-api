@@ -154,9 +154,15 @@ const unfocusTask = async (parent, {id, from}, ctx) => {
 
 	await cancelPendingReminders(item.pendingReminders, id, ctx);
 
+	// finished = either schedules have been deleted or are finished
+	const isFinished = item.scheduledForDays.every(
+		d => scheduleDaysToRemove.includes(d) || d.status === 'FINISHED',
+	);
+
 	const unfocusedTask = await ctx.db.updateItem({
 		where: {id},
 		data: {
+			status: isFinished ? 'FINISHED' : 'PENDING',
 			scheduledFor: null,
 			schedulePosition: null,
 			focusedBy: item.focusedBy && {
