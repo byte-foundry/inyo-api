@@ -25,8 +25,38 @@ const Item = {
 
 		return ctx.db.item({id: node.id}).assignee();
 	},
-	scheduledFor: node => node.scheduledFor && new Date(node.scheduledFor),
-	schedulePosition: node => node.schedulePosition,
+	scheduledFor: async (node, args, ctx) => {
+		const [scheduleLastSpot] = await ctx.db
+			.item({id: node.id})
+			.scheduledForDays({orderBy: 'date_DESC', first: 1});
+
+		if (scheduleLastSpot) {
+			return new Date(scheduleLastSpot.date);
+		}
+
+		return node.scheduledFor && new Date(node.scheduledFor);
+	},
+	schedulePosition: async (node, args, ctx) => {
+		const [scheduleLastSpot] = await ctx.db
+			.item({id: node.id})
+			.scheduledForDays({orderBy: 'date_DESC', first: 1});
+
+		if (scheduleLastSpot) {
+			return scheduleLastSpot.position;
+		}
+
+		return node.schedulePosition;
+	},
+	scheduledForDays: async (node, args, ctx) => {
+		const scheduledForDays = await ctx.db
+			.item({id: node.id})
+			.scheduledForDays({orderBy: 'date_ASC'});
+
+		return scheduledForDays.map(day => ({
+			...day,
+			date: new Date(day.date),
+		}));
+	},
 	isFocused: async (node, args, ctx) => {
 		const scheduledFor = await ctx.db.item({id: node.id}).scheduledFor();
 

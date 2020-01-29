@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const gql = String.raw;
 
 const {
@@ -13,7 +15,10 @@ const {NotFoundError} = require('../errors');
 const {sendTaskValidationEmail} = require('../emails/TaskEmail');
 const {cancelPendingReminders} = require('../reminders/cancelPendingReminders');
 
-const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
+const finishItem = async (parent, {id, timeItTook, for: scheduledFor}, ctx) => {
+	const {token} = ctx;
+	const forDate = moment(scheduledFor).format(moment.HTML5_FMT.DATE);
+
 	const fragment = gql`
 		fragment ItemWithProject on Item {
 			id
@@ -21,8 +26,18 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 			status
 			unit
 			type
+			scheduledForDays(orderBy: date_ASC) {
+				id
+				date
+				status
+			}
+			currentlyTimedBy {
+				id
+			}
 			workedTimes {
 				id
+				start
+				end
 			}
 			owner {
 				id
@@ -181,23 +196,52 @@ const finishItem = async (parent, {id, token, timeItTook}, ctx) => {
 	}
 
 	await cancelPendingReminders(item.pendingReminders, id, ctx);
-	const isCurrentTask = id === item.owner.currentTask.id;
+	const isCurrentTask
+		= item.owner.currentTask && id === item.owner.currentTask.id;
+
+	if (scheduledFor && item.scheduledForDays.length > 0) {
+		const currentDay = item.scheduledForDays.find(
+			d => d.date.split('T')[0] === forDate,
+		);
+		if (currentDay) {
+			await ctx.db.updateScheduleSpot({
+				where: {id: currentDay.id},
+				data: {status: 'FINISHED'},
+			});
+		}
+
+		const everythingDone = item.scheduledForDays
+			.filter(d => d.date.split('T')[0] !== forDate)
+			.every(d => d.status === 'FINISHED');
+
+		if (!everythingDone) {
+			return ctx.db.item({id: item.id});
+		}
+	}
 
 	const updatedItem = await ctx.db.updateItem({
 		where: {id},
 		data: {
 			status: 'FINISHED',
+			scheduledForDays: {
+				updateMany: {
+					where: {},
+					data: {
+						status: 'FINISHED',
+					},
+				},
+			},
 			finishedAt: new Date(),
 			timeItTook,
 			workedTimes: isCurrentTask
 				? {
 					update: {
-						where: {id: item.workedTimes[item.workedTimes.length - 1].id},
+						where: {end: null},
 						data: {end: new Date()},
 					},
 				  }
 				: undefined,
-			currentlyTimedBy: isCustomerTask
+			currentlyTimedBy: isCurrentTask
 				? {
 					disconnect: true,
 				  }

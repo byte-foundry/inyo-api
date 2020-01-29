@@ -10,8 +10,6 @@ const TaskWithProjectAndReminders = gql`
 	fragment TaskWithProjectAndReminders on Item {
 		id
 		name
-		scheduledFor
-		schedulePosition
 		type
 		unit
 		description
@@ -153,7 +151,7 @@ const User = {
 		switch (schedule) {
 		case 'UNSCHEDULED':
 			scheduleFilter = {
-				scheduledFor: null,
+				scheduledForDays_none: {},
 				OR: [
 					{
 						status_not: 'FINISHED',
@@ -182,15 +180,17 @@ const User = {
 			break;
 		case 'SCHEDULED':
 			scheduleFilter = {
-				scheduledFor_not: null,
+				scheduledForDays_some: {},
 			};
 			break;
 		case 'TO_BE_RESCHEDULED':
 			scheduleFilter = {
-				scheduledFor_lt: moment()
-					.tz(ctx.timeZone)
-					.startOf('day'),
-				status_not: 'FINISHED',
+				scheduledForDays_some: {
+					date_lt: moment()
+						.tz(ctx.timeZone)
+						.startOf('day'),
+					status_not: 'FINISHED',
+				},
 				type_in: ['DEFAULT', 'PERSONAL'],
 				OR: [
 					{

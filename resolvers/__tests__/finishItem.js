@@ -40,6 +40,7 @@ describe('finishItem', () => {
 							},
 							unit: 1,
 							pendingReminders: [],
+							workedTimes: [],
 							section: {
 								id: 'section-id',
 								project: {
@@ -100,9 +101,9 @@ describe('finishItem', () => {
 	it('should let a customer finish a project customer item', async () => {
 		const args = {
 			id: 'item-id',
-			token: 'customer-token',
 		};
 		const ctx = {
+			token: 'customer-token',
 			request: {
 				get: () => '',
 			},
@@ -199,9 +200,9 @@ describe('finishItem', () => {
 	it('should not let a customer finish a project user item', async () => {
 		const args = {
 			id: 'item-id',
-			token: 'customer-token',
 		};
 		const ctx = {
+			token: 'customer-token',
 			request: {
 				get: () => '',
 			},
@@ -303,6 +304,7 @@ describe('finishItem', () => {
 							},
 							unit: 1,
 							pendingReminders: [],
+							workedTimes: [],
 							section: {
 								id: 'section-id',
 								project: {
@@ -363,7 +365,7 @@ describe('finishItem', () => {
 
 	it('stop the timer of the task finished', async () => {
 		const args = {
-			id: 'item-id',
+			id: 'current-task-id',
 			timeItTook: 2,
 		};
 		const ctx = {
@@ -375,6 +377,7 @@ describe('finishItem', () => {
 				items: () => ({
 					$fragment: () => [
 						{
+							id: 'current-task-id',
 							name: 'Mon item',
 							status: 'PENDING',
 							type: 'DEFAULT',
@@ -384,7 +387,7 @@ describe('finishItem', () => {
 								firstName: 'Adrien',
 								lastName: 'David',
 								currentTask: {
-									id: 'currentTask-id',
+									id: 'current-task-id',
 								},
 							},
 							unit: 1,
@@ -431,22 +434,28 @@ describe('finishItem', () => {
 					}),
 				}),
 				updateItem: jest.fn(({data}) => ({
-					id: 'item-id',
+					id: 'current-task-id',
 					...data,
 				})),
 				updateManyReminders: jest.fn(),
 			},
 		};
 
-		const item = await finishItem({id: 'currentTask-id'}, args, ctx);
+		const item = await finishItem({}, args, ctx);
 
 		expect(ctx.db.updateItem).toHaveBeenCalledWith(
 			expect.objectContaining({
 				where: {
-					id: 'item-id',
+					id: 'current-task-id',
 				},
 				data: expect.objectContaining({
 					status: 'FINISHED',
+					workedTimes: {
+						update: {
+							where: {end: null},
+							data: {end: expect.any(Date)},
+						},
+					},
 					currentlyTimedBy: {
 						disconnect: true,
 					},
