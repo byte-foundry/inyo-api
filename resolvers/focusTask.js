@@ -349,6 +349,11 @@ const focusTask = async (
 		}));
 	}
 
+	// new splits are pending, so the task goes back to pending
+	if (action === 'SPLIT' && isFinished && item.scheduledForDays.length > 0) {
+		isFinished = false;
+	}
+
 	const focusedTask = await ctx.db.updateItem({
 		where: {id},
 		data: {
@@ -367,7 +372,10 @@ const focusTask = async (
 					: {
 						date: scheduledForDate,
 						position,
-						status: isFinished ? 'FINISHED' : 'PENDING',
+						status:
+								item.status === 'FINISHED' && item.scheduledForDays.length === 0
+									? 'FINISHED'
+									: 'PENDING',
 					  },
 			},
 			focusedBy: {
