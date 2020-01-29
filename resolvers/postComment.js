@@ -67,6 +67,7 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 						token
 						customer {
 							id
+							title
 							firstName
 							lastName
 							email
@@ -201,7 +202,7 @@ const postComment = async (parent, {itemId, comment}, ctx) => {
 		return ctx.db.item({id: itemId});
 	}
 
-	const userId = getUserId(ctx);
+	const {userId} = ctx;
 	const [item] = await ctx.db.items({
 		where: {
 			AND: [

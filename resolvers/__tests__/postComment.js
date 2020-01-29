@@ -246,6 +246,7 @@ describe('postComment', () => {
 			},
 		};
 		const ctx = {
+			userId: 'collaborator-id',
 			request: {
 				get: () => 'collaborator-id',
 			},

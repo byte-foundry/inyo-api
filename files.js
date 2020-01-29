@@ -69,5 +69,6 @@ const processUpload = async (upload, ctx, prefix, maxFileSize = Infinity) => {
 };
 
 module.exports = {
+	storeUpload,
 	processUpload,
 };

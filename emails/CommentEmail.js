@@ -45,7 +45,7 @@ async function sendNewCommentEmail(
 			author = await ctx.db.user({id: authorId});
 		}
 		else {
-			author = await ctx.db.customer({id: recipientId});
+			author = await ctx.db.customer({id: authorId});
 		}
 
 		if (recipientIsUser) {
@@ -90,6 +90,7 @@ async function sendNewCommentEmail(
 				email,
 				meta,
 				data: params,
+				replyTo: `suivi+${taskId}@inyo.me`,
 				templateId: getTemplateId('d-9037dcd4a6d4435a93546a891cfc1037', ctx),
 			},
 			ctx,
@@ -114,6 +115,7 @@ async function sendNewCommentEmail(
 				subject: renderedSubject,
 				content: renderedContent,
 			},
+			replyTo: `suivi+${taskId}@inyo.me`,
 			meta,
 			templateId: 'd-9feaaa66a50a4dd0bcde2d98d41b3737',
 			email,
