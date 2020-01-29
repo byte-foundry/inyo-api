@@ -115,7 +115,7 @@ const Item = {
 		return ctx.db.item({id: node.id}).attachments();
 	},
 	reminders: (node, args, ctx) => {
-		if (node.attachments) {
+		if (node.reminders) {
 			return ctx.loaders.reminderLoader.loadMany(node.reminders.map(r => r.id));
 		}
 
@@ -132,6 +132,9 @@ const Item = {
 					'INVOICE_THIRD',
 					'INVOICE_FOURTH',
 					'INVOICE_LAST',
+					'CONTENT_ACQUISITION_DELAY',
+					'CONTENT_ACQUISITION_FIRST',
+					'CONTENT_ACQUISITION_SECOND',
 				],
 			},
 		});
