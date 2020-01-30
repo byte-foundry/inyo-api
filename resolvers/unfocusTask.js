@@ -159,7 +159,7 @@ const unfocusTask = async (parent, {id, from}, ctx) => {
 	const isFinished
 		= remainingScheduleDays.length > 0
 			? remainingScheduleDays.every(d => d.status === 'FINISHED')
-			: item.status;
+			: item.status === 'FINISHED';
 
 	const unfocusedTask = await ctx.db.updateItem({
 		where: {id},
