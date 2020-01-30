@@ -34,9 +34,13 @@ describe('finishItem', () => {
 								email: 'chouche@gitan.fm',
 								firstName: 'Adrien',
 								lastName: 'David',
+								currentTask: {
+									id: 'currentTask-id',
+								},
 							},
 							unit: 1,
 							pendingReminders: [],
+							workedTimes: [],
 							section: {
 								id: 'section-id',
 								project: {
@@ -97,9 +101,9 @@ describe('finishItem', () => {
 	it('should let a customer finish a project customer item', async () => {
 		const args = {
 			id: 'item-id',
-			token: 'customer-token',
 		};
 		const ctx = {
+			token: 'customer-token',
 			request: {
 				get: () => '',
 			},
@@ -116,6 +120,9 @@ describe('finishItem', () => {
 								email: 'chouche@gitan.fm',
 								firstName: 'Adrien',
 								lastName: 'David',
+								currentTask: {
+									id: 'currentTask-id',
+								},
 							},
 							pendingReminders: [
 								{
@@ -193,9 +200,9 @@ describe('finishItem', () => {
 	it('should not let a customer finish a project user item', async () => {
 		const args = {
 			id: 'item-id',
-			token: 'customer-token',
 		};
 		const ctx = {
+			token: 'customer-token',
 			request: {
 				get: () => '',
 			},
@@ -212,6 +219,9 @@ describe('finishItem', () => {
 								email: 'chouche@gitan.fm',
 								firstName: 'Adrien',
 								lastName: 'David',
+								currentTask: {
+									id: 'currentTask-id',
+								},
 							},
 							section: {
 								id: 'section-id',
@@ -288,9 +298,13 @@ describe('finishItem', () => {
 								email: 'chouche@gitan.fm',
 								firstName: 'Adrien',
 								lastName: 'David',
+								currentTask: {
+									id: 'currentTask-id',
+								},
 							},
 							unit: 1,
 							pendingReminders: [],
+							workedTimes: [],
 							section: {
 								id: 'section-id',
 								project: {
@@ -341,6 +355,113 @@ describe('finishItem', () => {
 		};
 
 		const item = await finishItem({}, args, ctx);
+
+		expect(item).toMatchObject({
+			id: args.id,
+			status: 'FINISHED',
+			timeItTook: 2,
+		});
+	});
+
+	it('stop the timer of the task finished', async () => {
+		const args = {
+			id: 'current-task-id',
+			timeItTook: 2,
+		};
+		const ctx = {
+			request: {
+				get: () => 'user-token',
+			},
+			db: {
+				...db,
+				items: () => ({
+					$fragment: () => [
+						{
+							id: 'current-task-id',
+							name: 'Mon item',
+							status: 'PENDING',
+							type: 'DEFAULT',
+							owner: {
+								id: 'user-id',
+								email: 'chouche@gitan.fm',
+								firstName: 'Adrien',
+								lastName: 'David',
+								currentTask: {
+									id: 'current-task-id',
+								},
+							},
+							unit: 1,
+							pendingReminders: [],
+							section: {
+								id: 'section-id',
+								project: {
+									id: 'project-id',
+									token: 'mon-token',
+									name: "C'est notre projeeet",
+									customer: {
+										id: 'customer-id',
+										title: 'MONSIEUR',
+										firstName: 'Jean',
+										lastName: 'Michel',
+										email: 'jean@michel.org',
+									},
+									status: 'ONGOING',
+									sections: [
+										{
+											name: 'Ma section',
+											items: [
+												{
+													name: 'Mon item',
+													unit: 1,
+													status: 'PENDING',
+												},
+											],
+										},
+									],
+								},
+							},
+						},
+					],
+				}),
+				item: () => ({
+					$fragment: () => ({
+						section: {
+							items: [],
+							project: {
+								sections: [],
+							},
+						},
+					}),
+				}),
+				updateItem: jest.fn(({data}) => ({
+					id: 'current-task-id',
+					...data,
+				})),
+				updateManyReminders: jest.fn(),
+			},
+		};
+
+		const item = await finishItem({}, args, ctx);
+
+		expect(ctx.db.updateItem).toHaveBeenCalledWith(
+			expect.objectContaining({
+				where: {
+					id: 'current-task-id',
+				},
+				data: expect.objectContaining({
+					status: 'FINISHED',
+					workedTimes: {
+						update: {
+							where: {end: null},
+							data: {end: expect.any(Date)},
+						},
+					},
+					currentlyTimedBy: {
+						disconnect: true,
+					},
+				}),
+			}),
+		);
 
 		expect(item).toMatchObject({
 			id: args.id,

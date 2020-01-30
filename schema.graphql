@@ -203,12 +203,14 @@ type Mutation {
 	focusTask(
 		id: ID!
 		reminders: [ReminderInput]
+		from: Date
 		for: Date
 		schedulePosition: Int
+		action: FocusActionType
 	): Item!
 
 	# Remove task from the focus zone
-	unfocusTask(id: ID!): Item!
+	unfocusTask(id: ID!, from: Date): Item!
 
 	# Start the timer for a task (ending current task timer)
 	startTaskTimer(id: ID!): Item!
@@ -231,9 +233,9 @@ type Mutation {
 	unsnoozeItem(id: ID!): Item
 		@deprecated(reason: "Tasks cannot be unsnoozed anymore.")
 	# Finish an item
-	finishItem(id: ID!, token: String, timeItTook: Float): Item
+	finishItem(id: ID!, token: String, timeItTook: Float, for: Date): Item
 	# Reset an item (going back to pending)
-	unfinishItem(id: ID!, token: String): Item
+	unfinishItem(id: ID!, token: String, for: Date): Item
 
 	#post a comment on an item
 	postComment(itemId: ID!, token: String, comment: CommentInput!): Item
@@ -499,6 +501,11 @@ enum EmailCategory {
 	COMMENT_ADDED
 }
 
+enum FocusActionType {
+	MOVE
+	SPLIT
+}
+
 type Reminder {
 	id: ID!
 	item: Item
@@ -549,12 +556,25 @@ type TimeRange {
 	end: DateTime
 }
 
+type ScheduleSpot {
+	date: Date!
+	position: Int!
+	status: ItemStatus!
+}
+
 type Item {
 	id: ID!
 	owner: User!
 	assignee: User
 	scheduledFor: Date
+		@deprecated(
+			reason: "scheduledFor has been replaced with scheduledForDays.date"
+		)
 	schedulePosition: Int
+		@deprecated(
+			reason: "scheduledPosition has been replaced with scheduledForDays.position"
+		)
+	scheduledForDays: [ScheduleSpot!]!
 	linkedCustomer: Customer
 	name: String!
 	type: ItemType!

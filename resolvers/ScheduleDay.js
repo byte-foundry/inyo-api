@@ -24,6 +24,10 @@ const TaskWithProject = gql`
 		id
 		scheduledFor
 		schedulePosition
+		scheduledForDays {
+			date
+			position
+		}
 		name
 		type
 		description
@@ -78,58 +82,79 @@ const TaskWithProject = gql`
 
 const ScheduleDay = {
 	date: node => node.date,
-	tasks: (node, args, ctx) => ctx.db
-		.items({
-			where: {
-				AND: [
-					{
-						OR: [
-							{
-								section: null,
-							},
-							{
-								section: {
-									project: {
-										status: 'ONGOING',
+	tasks: async (node, args, ctx) => {
+		const tasks = await ctx.db
+			.items({
+				where: {
+					AND: [
+						{
+							OR: [
+								{
+									section: null,
+								},
+								{
+									section: {
+										project: {
+											status: 'ONGOING',
+										},
 									},
 								},
+							],
+						},
+						{
+							OR: [
+								createItemOwnerFilter(ctx.userId),
+								createItemCollaboratorFilter(ctx.userId),
+							],
+						},
+					],
+					type_in: ['DEFAULT', 'PERSONAL'],
+					OR: [
+						{scheduledFor: node.date},
+						{
+							scheduledForDays_some: {
+								date: node.date,
 							},
-						],
-					},
-					{
-						OR: [
-							createItemOwnerFilter(ctx.userId),
-							createItemCollaboratorFilter(ctx.userId),
-						],
-					},
-				],
-				type_in: ['DEFAULT', 'PERSONAL'],
-				OR: [
-					{scheduledFor: node.date},
-					{
-						status: 'FINISHED',
-						scheduledFor: null,
-						AND: [
-							{
-								finishedAt_lt: moment()
-									.tz(ctx.timeZone)
-									.startOf('day'),
-							},
-							{
-								finishedAt_gt: moment(node.date)
-									.tz(ctx.timeZone)
-									.startOf('day'),
-								finishedAt_lt: moment(node.date)
-									.tz(ctx.timeZone)
-									.endOf('day'),
-							},
-						],
-					},
-				],
-			},
-			orderBy: 'schedulePosition_ASC',
-		})
-		.$fragment(TaskWithProject),
+						},
+						{
+							status: 'FINISHED',
+							scheduledFor: null,
+							scheduledForDays_none: {},
+							AND: [
+								{
+									finishedAt_lt: moment()
+										.tz(ctx.timeZone)
+										.startOf('day'),
+								},
+								{
+									finishedAt_gt: moment(node.date)
+										.tz(ctx.timeZone)
+										.startOf('day'),
+									finishedAt_lt: moment(node.date)
+										.tz(ctx.timeZone)
+										.endOf('day'),
+								},
+							],
+						},
+					],
+				},
+				orderBy: 'schedulePosition_ASC',
+			})
+			.$fragment(TaskWithProject);
+
+		tasks.sort((a, b) => {
+			const aDay = a.scheduledForDays.find(
+				day => day.date.split('T')[0] === node.date,
+			);
+			const bDay = b.scheduledForDays.find(
+				day => day.date.split('T')[0] === node.date,
+			);
+
+			return aDay.position - bDay.position;
+		});
+
+		return tasks;
+	},
 	reminders: (node, args, ctx) => ctx.db
 		.reminders({
 			where: {

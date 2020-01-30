@@ -17,7 +17,7 @@ const UserWithSettings = gql`
 `;
 
 async function sendEmail({
-	email, meta, data, templateId,
+	email, meta, data, templateId, replyTo,
 }, ctx) {
 	let assistantName = 'Edwige';
 
@@ -44,7 +44,7 @@ async function sendEmail({
 				email: `${assistantEmailName}@inyo.me`,
 			},
 			reply_to: {
-				email: 'suivi@inyo.me',
+				email: replyTo || 'suivi@inyo.me',
 				name: 'Suivi Inyo',
 			},
 			personalizations: [

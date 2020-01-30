@@ -12,6 +12,7 @@ const {prisma} = require('./generated/prisma-client');
 const {createLoaders} = require('./loaders');
 const {resolvers} = require('./resolvers');
 const {permissions} = require('./permissions');
+const {checkForEmails} = require('./webhooks/checkForEmails.js');
 const {posthookReceiver} = require('./webhooks/posthookReceiver');
 const {paymentFromStripe} = require('./webhooks/paymentFromStripe.js');
 const {scheduleDailyMails} = require('./webhooks/scheduleDailyMails');
@@ -163,6 +164,7 @@ const app = express();
 const routes = express.Router();
 
 routes.post('/schedule-daily-mails', scheduleDailyMails);
+routes.post('/check-emails', checkForEmails);
 routes.post('/update-intercom', updateIntercom);
 
 routes.post(
