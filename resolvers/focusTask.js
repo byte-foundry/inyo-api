@@ -219,7 +219,7 @@ const focusTask = async (
 	let isFinished
 		= item.scheduledForDays.length > 0
 			? item.scheduledForDays.every(d => d.status === 'FINISHED')
-			: item.status;
+			: item.status === 'FINISHED';
 
 	if (
 		!currentScheduleLink

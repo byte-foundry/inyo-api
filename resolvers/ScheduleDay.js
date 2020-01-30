@@ -110,7 +110,6 @@ const ScheduleDay = {
 					],
 					type_in: ['DEFAULT', 'PERSONAL'],
 					OR: [
-						{scheduledFor: node.date},
 						{
 							scheduledForDays_some: {
 								date: node.date,
@@ -118,7 +117,6 @@ const ScheduleDay = {
 						},
 						{
 							status: 'FINISHED',
-							scheduledFor: null,
 							scheduledForDays_none: {},
 							AND: [
 								{
@@ -138,7 +136,6 @@ const ScheduleDay = {
 						},
 					],
 				},
-				orderBy: 'schedulePosition_ASC',
 			})
 			.$fragment(TaskWithProject);
 
@@ -149,6 +146,9 @@ const ScheduleDay = {
 			const bDay = b.scheduledForDays.find(
 				day => day.date.split('T')[0] === node.date,
 			);
+
+			if (!aDay) return 1;
+			if (!bDay) return -1;
 
 			return aDay.position - bDay.position;
 		});
