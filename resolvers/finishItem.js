@@ -235,7 +235,7 @@ const finishItem = async (parent, {id, timeItTook, for: scheduledFor}, ctx) => {
 			timeItTook,
 			workedTimes: isCurrentTask
 				? {
-					update: {
+					updateMany: {
 						where: {end: null},
 						data: {end: new Date()},
 					},
