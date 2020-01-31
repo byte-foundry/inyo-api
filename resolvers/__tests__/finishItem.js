@@ -451,7 +451,7 @@ describe('finishItem', () => {
 				data: expect.objectContaining({
 					status: 'FINISHED',
 					workedTimes: {
-						update: {
+						updateMany: {
 							where: {end: null},
 							data: {end: expect.any(Date)},
 						},
