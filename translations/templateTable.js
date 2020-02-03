@@ -129,6 +129,21 @@ const templateTable = {
 		fr: 'd-58819ee68aaf4d4f8a3c69a31bc830aa',
 		en: 'd-58819ee68aaf4d4f8a3c69a31bc830aa',
 	},
+	// content acquitision delay
+	'd-1c7c39346ae94c1799731c4ac881ddca': {
+		fr: 'd-1c7c39346ae94c1799731c4ac881ddca',
+		en: 'd-99121ea07cf9442195ed43dd4998d43d',
+	},
+	// content acquisition first
+	'd-026e1ab5d23c49c7bdbafa8fb0f97e1d': {
+		fr: 'd-026e1ab5d23c49c7bdbafa8fb0f97e1d',
+		en: 'd-9fe92fa3bb3e4c92a33723dcfa60ec3e',
+	},
+	// content acquisition second
+	'd-88e212fdb4ee4bc7b5b7acb0ed4613a2': {
+		fr: 'd-88e212fdb4ee4bc7b5b7acb0ed4613a2',
+		en: 'd-b2f412df527d4a578f82cfce6d847944',
+	},
 };
 
 module.exports = {templateTable};

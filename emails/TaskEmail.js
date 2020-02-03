@@ -295,9 +295,9 @@ const reminderTypesTemplateIds = {
 	INVOICE_THIRD: 'd-9711c3779d3043f8a477b3a7cc8940b3',
 	INVOICE_FOURTH: 'd-ccf43fb2df0e4822a22bc55fe02ced4a',
 	INVOICE_LAST: 'd-45388ea561144c57831c6d69241d31f3',
-	CONTENT_ACQUISITION_DELAY: '',
-	CONTENT_ACQUISITION_FIRST: '',
-	CONTENT_ACQUISITION_SECOND: '',
+	CONTENT_ACQUISITION_DELAY: 'd-1c7c39346ae94c1799731c4ac881ddca',
+	CONTENT_ACQUISITION_FIRST: 'd-026e1ab5d23c49c7bdbafa8fb0f97e1d',
+	CONTENT_ACQUISITION_SECOND: 'd-88e212fdb4ee4bc7b5b7acb0ed4613a2',
 	CUSTOM: 'd-9feaaa66a50a4dd0bcde2d98d41b3737',
 };
 
@@ -401,6 +401,13 @@ async function setupItemReminderEmail(
 					userUrl = getAppUrl(`/tasks/${item.id}?projectId=${project.id}`);
 				}
 
+				const docs = Array.from(
+					description.matchAll(/(?:^- \[([\sx])] (.*)$)+/gm),
+				).map(m => ({
+					checked: m[1] === 'x',
+					name: m[2],
+				}));
+
 				const basicInfos = {
 					meta: {userId},
 					itemId: item.id,
@@ -424,6 +431,8 @@ async function setupItemReminderEmail(
 					url: type === 'USER_WARNING' ? userUrl : url,
 					description: filterDescription(item.description),
 					fileUrls: item.attachments,
+					userEmail: user.email,
+					docs,
 				};
 
 				try {
