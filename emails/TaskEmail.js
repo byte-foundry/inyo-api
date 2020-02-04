@@ -402,7 +402,7 @@ async function setupItemReminderEmail(
 				}
 
 				const docs = Array.from(
-					description.matchAll(/(?:^- \[([\sx])] (.*)$)+/gm),
+					item.description.matchAll(/(?:^- \[([\sx])] (.*)$)+/gm),
 				).map(m => ({
 					checked: m[1] === 'x',
 					name: m[2],
