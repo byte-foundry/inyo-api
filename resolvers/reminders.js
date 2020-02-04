@@ -28,6 +28,9 @@ const reminders = async (root, args, ctx) => {
 				'INVOICE_THIRD',
 				'INVOICE_FOURTH',
 				'INVOICE_LAST',
+				'CONTENT_ACQUISITION_DELAY',
+				'CONTENT_ACQUISITION_FIRST',
+				'CONTENT_ACQUISITION_SECOND',
 			],
 			item: {
 				AND: [

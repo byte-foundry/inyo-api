@@ -216,19 +216,19 @@ const remindersSequences = {
 			sendingDate: moment().add(5, 'minutes'),
 			type: 'DELAY',
 		},
-		/* 2 days */ {
+		/* +2 days */ {
 			delay: moment.duration(2, 'days').asSeconds(),
 			sendingDate: moment().add(2, 'days'),
 			type: 'FIRST',
 		},
-		/* 3 days */ {
-			delay: moment.duration(2 + 3, 'days').asSeconds(),
-			sendingDate: moment().add(2 + 3, 'days'),
+		/* +3 days */ {
+			delay: moment.duration(5, 'days').asSeconds(),
+			sendingDate: moment().add(5, 'days'),
 			type: 'SECOND',
 		},
-		/* 1 day */ {
-			delay: moment.duration(2 + 3 + 1, 'days').asSeconds(),
-			sendingDate: moment().add(2 + 3 + 1, 'days'),
+		/* +1 day */ {
+			delay: moment.duration(6, 'days').asSeconds(),
+			sendingDate: moment().add(6, 'days'),
 			type: 'LAST',
 		},
 	],
@@ -238,30 +238,47 @@ const remindersSequences = {
 			sendingDate: moment().add(5, 'minutes'),
 			type: 'INVOICE_DELAY',
 		},
-		/* 2 days */ {
+		/* +12 days */ {
 			delay: moment.duration(12, 'days').asSeconds(),
 			sendingDate: moment().add(12, 'days'),
 			type: 'INVOICE_FIRST',
 		},
-		/* 3 days */ {
+		/* +8 days */ {
 			delay: moment.duration(20, 'days').asSeconds(),
 			sendingDate: moment().add(20, 'days'),
 			type: 'INVOICE_SECOND',
 		},
-		/* 1 day */ {
+		/* +5 days */ {
 			delay: moment.duration(25, 'days').asSeconds(),
 			sendingDate: moment().add(25, 'days'),
 			type: 'INVOICE_THIRD',
 		},
-		/* 1 day */ {
+		/* +5 days */ {
 			delay: moment.duration(30, 'days').asSeconds(),
 			sendingDate: moment().add(30, 'days'),
 			type: 'INVOICE_FOURTH',
 		},
-		/* 1 day */ {
+		/* +5 days */ {
 			delay: moment.duration(40, 'days').asSeconds(),
 			sendingDate: moment().add(40, 'days'),
 			type: 'INVOICE_LAST',
+		},
+	],
+	CONTENT_ACQUISITION: [
+		/* 5 min before actually sending it */ {
+			delay: moment.duration(5, 'minutes').asSeconds(),
+			sendingDate: moment().add(5, 'minutes'),
+			type: 'CONTENT_ACQUISITION_DELAY',
+		},
+		/* +3 days */ {
+			delay: moment.duration(3, 'days').asSeconds(),
+			sendingDate: moment().add(3, 'days'),
+			type: 'CONTENT_ACQUISITION_FIRST',
+		},
+		/* +4 days */ {
+			delay: moment.duration(7, 'days').asSeconds(),
+			sendingDate: moment().add(7, 'days'),
+			type: 'CONTENT_ACQUISITION_SECOND',
 		},
 	],
 };
@@ -278,6 +295,9 @@ const reminderTypesTemplateIds = {
 	INVOICE_THIRD: 'd-9711c3779d3043f8a477b3a7cc8940b3',
 	INVOICE_FOURTH: 'd-ccf43fb2df0e4822a22bc55fe02ced4a',
 	INVOICE_LAST: 'd-45388ea561144c57831c6d69241d31f3',
+	CONTENT_ACQUISITION_DELAY: 'd-1c7c39346ae94c1799731c4ac881ddca',
+	CONTENT_ACQUISITION_FIRST: 'd-026e1ab5d23c49c7bdbafa8fb0f97e1d',
+	CONTENT_ACQUISITION_SECOND: 'd-88e212fdb4ee4bc7b5b7acb0ed4613a2',
 	CUSTOM: 'd-9feaaa66a50a4dd0bcde2d98d41b3737',
 };
 
@@ -381,6 +401,13 @@ async function setupItemReminderEmail(
 					userUrl = getAppUrl(`/tasks/${item.id}?projectId=${project.id}`);
 				}
 
+				const docs = Array.from(
+					item.description.matchAll(/(?:^- \[([\sx])] (.*)$)+/gm),
+				).map(m => ({
+					checked: m[1] === 'x',
+					name: m[2],
+				}));
+
 				const basicInfos = {
 					meta: {userId},
 					itemId: item.id,
@@ -404,6 +431,8 @@ async function setupItemReminderEmail(
 					url: type === 'USER_WARNING' ? userUrl : url,
 					description: filterDescription(item.description),
 					fileUrls: item.attachments,
+					userEmail: user.email,
+					docs,
 				};
 
 				try {
