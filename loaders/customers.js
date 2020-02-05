@@ -82,12 +82,15 @@ const batchGetCustomerByTaskId = async (ids, db) => {
 		}
 	`);
 
-	return ids.map(id => customers.find((customer) => {
-		const hasLinkedTask = customer.linkedTasks.some(task => task.id === id);
-		const isLinkedToProjectTask = customer.projects.some(project => project.sections.some(section => section.items.some(task => task.id === id)));
+	return ids.map((id) => {
+		const linkedCustomer = customers.find(customer => customer.linkedTasks.some(task => task.id === id));
 
-		return hasLinkedTask || isLinkedToProjectTask;
-	}));
+		if (linkedCustomer) return linkedCustomer;
+
+		const customerLinkedToProjectTask = customers.find(customer => customer.projects.some(project => project.sections.some(section => section.items.some(task => task.id === id))));
+
+		return customerLinkedToProjectTask;
+	});
 };
 
 module.exports = {
