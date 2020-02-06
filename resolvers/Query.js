@@ -20,39 +20,13 @@ const Query = {
 				email
 				firstName
 				lastName
-				referrer {
-					id
-				}
-				referrees {
-					id
-				}
-				company {
-					id
-				}
+				hmacIntercomId
 				startWorkAt
 				endWorkAt
 				workingDays
 				timeZone
-				userEvents {
-					id
-				}
-				reminders {
-					id
-				}
-				morningReminders {
-					id
-				}
-				eveningReminders {
-					id
-				}
-				resetFocusReminders {
-					id
-				}
 				defaultDailyPrice
 				defaultVatRate
-				commentViews {
-					id
-				}
 				workingFields
 				otherSkill
 				skills
@@ -62,31 +36,10 @@ const Query = {
 				jobType
 				interestedFeatures
 				hasUpcomingProject
-				settings {
-					id
-				}
 				tasks {
 					id
 				}
-				focusedTasks {
-					id
-				}
-				currentTask {
-					id
-				}
 				projects {
-					id
-				}
-				collaborationProjects {
-					id
-				}
-				files {
-					id
-				}
-				comments {
-					id
-				}
-				notifications {
 					id
 				}
 				createdAt
@@ -96,21 +49,6 @@ const Query = {
 				}
 				lifetimePayment
 				quoteNumber
-				collaborators {
-					id
-				}
-				collaboratorRequests {
-					id
-				}
-				collaborationRequests {
-					id
-				}
-				assignedTasks {
-					id
-				}
-				emailTemplates {
-					id
-				}
 			}
 		`);
 		return user;
