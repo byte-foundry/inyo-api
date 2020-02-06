@@ -14,7 +14,106 @@ const Query = {
 				connect: {id: getUserId(ctx)},
 			},
 		});
-		return ctx.db.user({id: getUserId(ctx)});
+		const user = await ctx.db.user({id: getUserId(ctx)}).$fragment(gql`
+			fragment TaskWithProjectAndReminders on Item {
+				id
+				email
+				firstName
+				lastName
+				referrer {
+					id
+				}
+				referrees {
+					id
+				}
+				company {
+					id
+				}
+				startWorkAt
+				endWorkAt
+				workingDays
+				timeZone
+				userEvents {
+					id
+				}
+				reminders {
+					id
+				}
+				morningReminders {
+					id
+				}
+				eveningReminders {
+					id
+				}
+				resetFocusReminders {
+					id
+				}
+				defaultDailyPrice
+				defaultVatRate
+				commentViews {
+					id
+				}
+				workingFields
+				otherSkill
+				skills
+				otherPain
+				painsExpressed
+				canBeContacted
+				jobType
+				interestedFeatures
+				hasUpcomingProject
+				settings {
+					id
+				}
+				tasks {
+					id
+				}
+				focusedTasks {
+					id
+				}
+				currentTask {
+					id
+				}
+				projects {
+					id
+				}
+				collaborationProjects {
+					id
+				}
+				files {
+					id
+				}
+				comments {
+					id
+				}
+				notifications {
+					id
+				}
+				createdAt
+				updatedAt
+				tags {
+					id
+				}
+				lifetimePayment
+				quoteNumber
+				collaborators {
+					id
+				}
+				collaboratorRequests {
+					id
+				}
+				collaborationRequests {
+					id
+				}
+				assignedTasks {
+					id
+				}
+				emailTemplates {
+					id
+				}
+			}
+		`);
+		return user;
 	},
 	customer: (root, {id}, ctx) => ctx.db.customer({id, token: ctx.token}),
 	project: async (root, {id}, ctx) => {
