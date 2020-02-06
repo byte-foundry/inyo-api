@@ -77,6 +77,9 @@ const posthookReceiver = async (req, res) => {
 		case 'INVOICE_SECOND':
 		case 'INVOICE_THIRD':
 		case 'INVOICE_FOURTH':
+		case 'CONTENT_ACQUISITION_DELAY':
+		case 'CONTENT_ACQUISITION_FIRST':
+		case 'CONTENT_ACQUISITION_SECOND':
 		case 'USER_WARNING':
 			callback = sendReminderEmail;
 			break;
@@ -116,6 +119,9 @@ const posthookReceiver = async (req, res) => {
 				'INVOICE_SECOND',
 				'INVOICE_THIRD',
 				'INVOICE_FOURTH',
+				'CONTENT_ACQUISITION_DELAY',
+				'CONTENT_ACQUISITION_FIRST',
+				'CONTENT_ACQUISITION_SECOND',
 			].includes(reminder.type)
 		) {
 			await prisma.createUserEvent({

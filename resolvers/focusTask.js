@@ -150,20 +150,10 @@ const focusTask = async (
 			issueDate = moment();
 		}
 
-		if (item.type === 'CONTENT_ACQUISITION') {
-			await sendItemContentAcquisitionEmail(
-				{
-					userId,
-					customerId: customer.id,
-					itemId: item.id,
-					projectId: item.section && item.section.project.id,
-					issueDate: issueDate.toDate(),
-				},
-				ctx,
-			);
-			console.log('Content acquisition email sent to us');
-		}
-		else if (item.type === 'CUSTOMER' && item.pendingReminders.length === 0) {
+		if (
+			['CUSTOMER', 'INVOICE', 'CONTENT_ACQUISITION'].includes(item.type)
+			&& item.pendingReminders.length === 0
+		) {
 			await setupItemReminderEmail(
 				{
 					userId,
@@ -171,24 +161,11 @@ const focusTask = async (
 					itemId: item.id,
 					projectId: item.section && item.section.project.id,
 					reminders,
-					issueDate: issueDate.toDate(),
+					issueDate,
 				},
 				ctx,
 			);
 			console.log(`Item '${item.id}': Reminders set.`);
-		}
-		else if (item.type === 'INVOICE' && item.pendingReminders.length === 0) {
-			await setupItemReminderEmail(
-				{
-					userId,
-					customerId: customer.id,
-					itemId: item.id,
-					projectId: item.section && item.section.project.id,
-					reminders,
-					issueDate: issueDate.toDate(),
-				},
-				ctx,
-			);
 		}
 	}
 

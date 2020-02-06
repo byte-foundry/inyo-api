@@ -1,5 +1,5 @@
 const templates = {
-	DELAY: {
+	CONTENT_ACQUISITION_DELAY: {
 		en: {
 			timing: {
 				value: 5,
@@ -739,7 +739,7 @@ const templates = {
 			},
 		},
 	},
-	FIRST: {
+	CONTENT_ACQUISITION_FIRST: {
 		en: {
 			timing: {
 				value: 3,
@@ -1484,7 +1484,7 @@ const templates = {
 			},
 		},
 	},
-	SECOND: {
+	CONTENT_ACQUISITION_SECOND: {
 		en: {
 			timing: {
 				value: 7,
