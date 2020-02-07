@@ -41,8 +41,7 @@ const sendReminderEmail = async ({templateId, email, ...data}) => {
 				userId: user.id,
 			},
 			replyTo:
-				recipientIsUser
-				&& recipientId
+				recipientId
 				&& `suivi+${item.id}_${
 					recipientIsUser ? 'U' : 'C'
 				}_${recipientId}@inyo.me`,

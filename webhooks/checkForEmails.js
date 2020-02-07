@@ -115,12 +115,12 @@ const checkForEmails = async (req, response) => {
 						messageObject.text,
 					).getVisibleText();
 
-					const suiviAddress = messageObject.to.value.find(({address}) => address.match(/suivi\+.*@inyo\.me/)).address;
-
 					try {
+						const suiviAddress = messageObject.to.value.find(({address}) => address.match(/suivi\+.*@inyo\.me/)).address;
 						const [, taskId, type, recipientId] = suiviAddress.match(
 							/\+([a-z0-9]*)_(U|C)_([a-z0-9]*)@/,
 						);
+
 						console.log(
 							`Email from ${messageObject.from.value[0].address} on behalf of ${
 								type === 'U' ? 'user' : 'customer'
