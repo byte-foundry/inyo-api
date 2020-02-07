@@ -93,7 +93,7 @@ const checkForEmails = async (req, response) => {
 	gmail.users.messages.list(
 		{
 			userId: 'me',
-			q: 'to:suivi -is:inyo_read {subject:commented subject:commentaire}',
+			q: 'to:suivi@inyo.me -is:inyo_read',
 		},
 		(err, res) => {
 			if (err) {
@@ -115,111 +115,116 @@ const checkForEmails = async (req, response) => {
 						messageObject.text,
 					).getVisibleText();
 
-					const suiviAddress = messageObject.to.value.find(({address}) => address.match(/suivi\+.*@inyo\.me/)).address;
-
-					const [, taskId, type, recipientId] = suiviAddress.match(
-						/\+([a-z0-9]*)_(U|C)_([a-z0-9]*)@/,
-					);
-					console.log(
-						`Email from ${messageObject.from.value[0].address} on behalf of ${
-							type === 'U' ? 'user' : 'customer'
-						} with id ${recipientId} for task ${taskId}`,
-					);
-
-					const [user] = await prisma.users({
-						where: {
-							id: recipientId,
-							OR: [
-								{
-									tasks_some: {
-										id: taskId,
-									},
-								},
-								{
-									assignedTasks_some: {
-										id: taskId,
-									},
-								},
-							],
-						},
-					});
-
-					const [customer] = await prisma.customers({
-						where: {
-							id: recipientId,
-							OR: [
-								{linkedTasks_some: {id: taskId}},
-								{projects_some: {sections_some: {items_some: {id: taskId}}}},
-							],
-						},
-					});
-
-					if (!((user && type === 'U') || (customer && type === 'C'))) {
-						console.log(
-							`When checking email for comment reply, id ${recipientId} does not match a user or a customer`,
+					try {
+						const suiviAddress = messageObject.to.value.find(({address}) => address.match(/suivi\+.*@inyo\.me/)).address;
+						const [, taskId, type, recipientId] = suiviAddress.match(
+							/\+([a-z0-9]*)_(U|C)_([a-z0-9]*)@/,
 						);
 
-						await gmail.users.messages.modify({
-							userId: 'me',
-							id,
-							requestBody: {
-								addLabelIds: ['Label_5756327031789877986'],
+						console.log(
+							`Email from ${messageObject.from.value[0].address} on behalf of ${
+								type === 'U' ? 'user' : 'customer'
+							} with id ${recipientId} for task ${taskId}`,
+						);
+
+						const [user] = await prisma.users({
+							where: {
+								id: recipientId,
+								OR: [
+									{
+										tasks_some: {
+											id: taskId,
+										},
+									},
+									{
+										assignedTasks_some: {
+											id: taskId,
+										},
+									},
+								],
 							},
 						});
 
-						return;
-					}
+						const [customer] = await prisma.customers({
+							where: {
+								id: recipientId,
+								OR: [
+									{linkedTasks_some: {id: taskId}},
+									{projects_some: {sections_some: {items_some: {id: taskId}}}},
+								],
+							},
+						});
 
-					await Promise.all(
-						messageObject.attachments.map(async (attachment) => {
-							const stream = new Duplex();
-							stream.push(attachment.content);
-							stream.push(null);
+						if (!((user && type === 'U') || (customer && type === 'C'))) {
+							console.log(
+								`When checking email for comment reply, id ${recipientId} does not match a user or a customer`,
+							);
 
-							const {
-								Location, ETag, Bucket, Key,
-							} = await storeUpload({
-								stream,
-								prefix: taskId,
-								filename: attachment.filename,
-								maxFileSize: Infinity,
-							});
-
-							const fileIntermediary = await prisma.createFile({
-								filename: attachment.filename,
-								mimetype: attachment.contentType,
-								encoding: '7bit',
-								url: Location,
-							});
-
-							const file = await prisma.updateFile({
-								where: {id: fileIntermediary.id},
-								data: {
-									documentType: 'DEFAULT',
-									linkedTask: {connect: {id: taskId}},
-									ownerUser: user ? {connect: {id: user.id}} : undefined,
-									ownerCustomer: customer
-										? {connect: {id: customer.id}}
-										: undefined,
+							await gmail.users.messages.modify({
+								userId: 'me',
+								id,
+								requestBody: {
+									addLabelIds: ['Label_5756327031789877986'],
 								},
 							});
 
-							return file;
-						}),
-					);
+							return;
+						}
 
-					const ctx = {
-						token: customer && customer.token,
-						db: prisma,
-						userId: user && user.id,
-						language: 'fr',
-					};
+						await Promise.all(
+							messageObject.attachments.map(async (attachment) => {
+								const stream = new Duplex();
+								stream.push(attachment.content);
+								stream.push(null);
 
-					postComment(
-						undefined,
-						{itemId: taskId, comment: {text: messageContent}},
-						ctx,
-					);
+								const {
+									Location, ETag, Bucket, Key,
+								} = await storeUpload({
+									stream,
+									prefix: taskId,
+									filename: attachment.filename,
+									maxFileSize: Infinity,
+								});
+
+								const fileIntermediary = await prisma.createFile({
+									filename: attachment.filename,
+									mimetype: attachment.contentType,
+									encoding: '7bit',
+									url: Location,
+								});
+
+								const file = await prisma.updateFile({
+									where: {id: fileIntermediary.id},
+									data: {
+										documentType: 'DEFAULT',
+										linkedTask: {connect: {id: taskId}},
+										ownerUser: user ? {connect: {id: user.id}} : undefined,
+										ownerCustomer: customer
+											? {connect: {id: customer.id}}
+											: undefined,
+									},
+								});
+
+								return file;
+							}),
+						);
+
+						const ctx = {
+							token: customer && customer.token,
+							db: prisma,
+							userId: user && user.id,
+							language: 'fr',
+						};
+
+						postComment(
+							undefined,
+							{itemId: taskId, comment: {text: messageContent}},
+							ctx,
+						);
+					}
+					catch (e) {
+						console.log('Email read but not linked to task');
+					}
 
 					await gmail.users.messages.modify({
 						userId: 'me',

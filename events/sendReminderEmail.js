@@ -2,7 +2,7 @@ const {prisma} = require('../generated/prisma-client');
 const sendEmail = require('../emails/SendEmail');
 
 const sendReminderEmail = async ({templateId, email, ...data}) => {
-	const {itemId} = data;
+	const {itemId, recipientIsUser, recipientId} = data;
 	const [item] = await prisma.items({
 		where: {
 			id: itemId,
@@ -40,6 +40,11 @@ const sendReminderEmail = async ({templateId, email, ...data}) => {
 			meta: {
 				userId: user.id,
 			},
+			replyTo:
+				recipientId
+				&& `suivi+${item.id}_${
+					recipientIsUser ? 'U' : 'C'
+				}_${recipientId}@inyo.me`,
 			email,
 			data,
 		},

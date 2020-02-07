@@ -362,6 +362,8 @@ async function setupItemReminderEmail(
 							content: renderedContent,
 							templateId: reminderTypesTemplateIds.CUSTOM,
 							email: emailArgs.customer.email,
+							recipientIsUser: type === 'USER_WARNING',
+							recipientId: type === 'USER_WARNING' ? userId : customerId,
 							itemId,
 						},
 						item: {
@@ -432,6 +434,8 @@ async function setupItemReminderEmail(
 					description: filterDescription(item.description),
 					fileUrls: item.attachments,
 					userEmail: user.email,
+					recipientIsUser: type === 'USER_WARNING',
+					recipientId: type === 'USER_WARNING' ? userId : customerId,
 					docs,
 				};
 
