@@ -14,44 +14,7 @@ const Query = {
 				connect: {id: getUserId(ctx)},
 			},
 		});
-		const user = await ctx.db.user({id: getUserId(ctx)}).$fragment(gql`
-			fragment TaskWithProjectAndReminders on Item {
-				id
-				email
-				firstName
-				lastName
-				hmacIntercomId
-				startWorkAt
-				endWorkAt
-				workingDays
-				timeZone
-				defaultDailyPrice
-				defaultVatRate
-				workingFields
-				otherSkill
-				skills
-				otherPain
-				painsExpressed
-				canBeContacted
-				jobType
-				interestedFeatures
-				hasUpcomingProject
-				tasks {
-					id
-				}
-				projects {
-					id
-				}
-				createdAt
-				updatedAt
-				tags {
-					id
-				}
-				lifetimePayment
-				quoteNumber
-			}
-		`);
-		return user;
+		return ctx.db.user({id: getUserId(ctx)});
 	},
 	customer: (root, {id}, ctx) => ctx.db.customer({id, token: ctx.token}),
 	project: async (root, {id}, ctx) => {
