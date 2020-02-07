@@ -8,6 +8,7 @@ sendGridClient.setApiKey(process.env.SENDGRID_API_KEY);
 
 const UserWithSettings = gql`
 	fragment UserWithSettings on User {
+		email
 		lastName
 		firstName
 		settings {
@@ -23,10 +24,10 @@ async function sendEmail({
 
 	let userSignatureName = '';
 
+	let user;
+
 	if (meta && meta.userId) {
-		const user = await ctx.db
-			.user({id: meta.userId})
-			.$fragment(UserWithSettings);
+		user = await ctx.db.user({id: meta.userId}).$fragment(UserWithSettings);
 
 		userSignatureName = formatName(user.firstName, user.lastName);
 
@@ -44,8 +45,8 @@ async function sendEmail({
 				email: `${assistantEmailName}@inyo.me`,
 			},
 			reply_to: {
-				email: replyTo || 'suivi@inyo.me',
-				name: 'Suivi Inyo',
+				email: replyTo || (user ? user.email : 'suivi@inyo.me'),
+				name: user ? formatName(user.firstName, user.lastName) : 'Suivi Inyo',
 			},
 			personalizations: [
 				{

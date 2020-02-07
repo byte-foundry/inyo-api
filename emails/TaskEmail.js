@@ -348,6 +348,8 @@ async function setupItemReminderEmail(
 					taskId: itemId,
 					customerId,
 					projectId,
+					recipientIsUser: type === 'USER_WARNING',
+					recipientId: type === 'USER_WARNING' ? userId : customerId,
 					ctx,
 				});
 
@@ -432,6 +434,8 @@ async function setupItemReminderEmail(
 					description: filterDescription(item.description),
 					fileUrls: item.attachments,
 					userEmail: user.email,
+					recipientIsUser: type === 'USER_WARNING',
+					recipientId: type === 'USER_WARNING' ? userId : customerId,
 					docs,
 				};
 
