@@ -117,7 +117,9 @@ async function sendNewCommentEmail(
 				subject: renderedSubject,
 				content: renderedContent,
 			},
-			replyTo: `suivi+${taskId}@inyo.me`,
+			replyTo: `suivi+${taskId}_${
+				recipientIsUser ? 'U' : 'C'
+			}_${recipientId}@inyo.me`,
 			meta,
 			templateId: 'd-9feaaa66a50a4dd0bcde2d98d41b3737',
 			email,
