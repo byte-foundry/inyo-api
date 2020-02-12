@@ -260,6 +260,7 @@ const Query = {
 	},
 	tasks,
 	activity,
+	plannedWorkingTimes,
 };
 
 module.exports = {
