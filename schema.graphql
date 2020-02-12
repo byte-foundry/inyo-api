@@ -34,6 +34,7 @@ type Query {
 	unsplashPhotos(keyword: String, page: Int): UnsplashPhotoConnection!
 	emailTypes: [EmailType!]!
 	emailTemplate(typeName: String!, category: String!): EmailTemplate!
+	plannedWorkingTimes(from: Date, to: Date): [ScheduleWorkTime!]!
 }
 
 type Mutation {
@@ -917,6 +918,11 @@ type ScheduleDay {
 	tasks: [Item!]!
 	reminders: [Reminder!]!
 	deadlines: [DeadlineObject!]!
+}
+
+type ScheduleWorkTime {
+	date: Date!
+	workingTime: Float
 }
 
 type UnsplashPhotoConnection {

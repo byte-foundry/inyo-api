@@ -4,6 +4,7 @@ const {getUserId, createItemOwnerFilter} = require('../utils');
 const {createTemplate} = require('../emails/templates');
 const {tasks} = require('./tasks');
 const {activity} = require('./activity');
+const {plannedWorkingTimes} = require('./plannedWorkingTimes');
 const {reminders} = require('./reminders');
 
 const Query = {
@@ -259,6 +260,7 @@ const Query = {
 	},
 	tasks,
 	activity,
+	plannedWorkingTimes,
 };
 
 module.exports = {
