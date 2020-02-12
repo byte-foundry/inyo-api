@@ -425,7 +425,7 @@ async function setupItemReminderEmail(
 					customerPhone: customer.phone,
 					projectName: item.section && item.section.project.name,
 					itemName: item.name,
-					formattedIssueDate: issueDate.format('DD/MM/YYYY'),
+					formattedIssueDate: moment(issueDate).format('DD/MM/YYYY'),
 					assistantName: user.settings.assistantName,
 					templateId: getTemplateId(reminderTypesTemplateIds[type], ctx),
 					email: type === 'USER_WARNING' ? user.email : customer.email,
@@ -442,7 +442,7 @@ async function setupItemReminderEmail(
 				try {
 					await createPosthookReminder({
 						type,
-						postAt: moment(issueDate.toDate())
+						postAt: moment(issueDate)
 							.add(delay, 'seconds')
 							.format(),
 						data: {

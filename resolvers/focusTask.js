@@ -161,7 +161,7 @@ const focusTask = async (
 					itemId: item.id,
 					projectId: item.section && item.section.project.id,
 					reminders,
-					issueDate,
+					issueDate: issueDate.toDate(),
 				},
 				ctx,
 			);
