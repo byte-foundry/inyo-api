@@ -418,6 +418,8 @@ type User {
 	company: Company! @relation(name: "CompanyOwner", onDelete: CASCADE)
 	startWorkAt: DateTime
 	endWorkAt: DateTime
+	startBreakAt: DateTime
+	endBreakAt: DateTime
 	workingDays: [DAY!]!
 	timeZone: String
 	userEvents: [UserEvent!]! @relation(name: "UserUserEvents", onDelete: CASCADE)

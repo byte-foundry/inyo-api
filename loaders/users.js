@@ -11,6 +11,8 @@ const UserWithRelationsFragment = gql`
 		lastName
 		startWorkAt
 		endWorkAt
+		startBreakAt
+		endBreakAt
 		workingDays
 		timeZone
 		defaultDailyPrice

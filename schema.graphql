@@ -62,6 +62,8 @@ type Mutation {
 		lastName: String
 		startWorkAt: Time
 		endWorkAt: Time
+		startBreakAt: Time
+		endBreakAt: Time
 		timeZone: TimeZone
 		workingDays: [DAY!]
 		defaultDailyPrice: Int
@@ -759,6 +761,8 @@ type User {
 	clientViews: Int!
 	startWorkAt: Time
 	endWorkAt: Time
+	startBreakAt: Time
+	endBreakAt: Time
 	workingDays: [DAY!]!
 	timeZone: TimeZone
 	workingFields: [String!]!
