@@ -49,8 +49,8 @@ const plannedWorkingTimes = async (root, {from, to}, ctx) => {
 	let workingTime = 8;
 
 	if (user.startWorkAt && user.endWorkAt) {
-		const diffTime = moment(user.endWorkAt, 'HH:mm:ss').diff(
-			moment(user.startWorkAt, 'HH:mm:ss'),
+		const diffTime = moment(user.endWorkAt).diff(
+			moment(user.startWorkAt),
 			'hours',
 			true,
 		);
@@ -59,8 +59,8 @@ const plannedWorkingTimes = async (root, {from, to}, ctx) => {
 	}
 
 	if (user.startBreakAt && user.endBreakAt) {
-		const diffTime = moment(user.endBreakAt, 'HH:mm:ss').diff(
-			moment(user.startBreakAt, 'HH:mm:ss'),
+		const diffTime = moment(user.endBreakAt).diff(
+			moment(user.startBreakAt),
 			'hours',
 			true,
 		);
@@ -88,7 +88,10 @@ const plannedWorkingTimes = async (root, {from, to}, ctx) => {
 				scheduledDay => moment(scheduledDay.date).isAfter(moment().startOf('day')),
 			).length;
 			const timeWorked
-				= task.workedTimes.reduce((workedTimeInMilliseconds, {start, end}) => workedTimeInMilliseconds + moment(end).diff(start), 0) / workingTime;
+				= task.workedTimes.reduce(
+					(workedTimeInMilliseconds, {start, end}) => workedTimeInMilliseconds + moment(end).diff(start),
+					0,
+				) / workingTime;
 
 			const workingTimeForDay = Math.max(
 				(task.unit - timeWorked) / remainingScheduledDays,
