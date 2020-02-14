@@ -44,16 +44,6 @@ const templateTable = {
 		fr: 'd-ce9155013d1e4f77920aa27685757a6e',
 		en: 'd-dc1ffddae76443a5ad815a8b3c38a224',
 	},
-	// sendProjectStartedEmail
-	'd-651e0ed5b1a84b69bfa6479217417fd7': {
-		fr: 'd-651e0ed5b1a84b69bfa6479217417fd7',
-		en: 'd-651e0ed5b1a84b69bfa6479217417fd7',
-	},
-	// sendProjectCreatedEmail
-	'd-96d142386e474b8992d56cceade9452f': {
-		fr: 'd-96d142386e474b8992d56cceade9452f',
-		en: 'd-96d142386e474b8992d56cceade9452f',
-	},
 	// sendSignupEmail
 	'd-d217b4a0727743cf84282d656382e01a': {
 		fr: 'd-d217b4a0727743cf84282d656382e01a',

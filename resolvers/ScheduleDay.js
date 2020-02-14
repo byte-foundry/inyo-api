@@ -212,20 +212,9 @@ const ScheduleDay = {
 		});
 		const items = await ctx.db.items({
 			where: {
-				AND: [
-					{
-						OR: [
-							{
-								section: null,
-							},
-						],
-					},
-					{
-						OR: [
-							createItemOwnerFilter(ctx.userId),
-							createItemCollaboratorFilter(ctx.userId),
-						],
-					},
+				OR: [
+					createItemOwnerFilter(ctx.userId),
+					createItemCollaboratorFilter(ctx.userId),
 				],
 				dueDate_gt: moment(node.date)
 					.tz(ctx.timeZone)

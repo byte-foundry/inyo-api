@@ -1,7 +1,6 @@
 const uuid = require('uuid/v4');
 
-const {getUserId, getAppUrl, TAG_COLOR_PALETTE} = require('../utils');
-const {sendProjectCreatedEmail} = require('../emails/ProjectEmail');
+const {getUserId, TAG_COLOR_PALETTE} = require('../utils');
 
 const createProject = async (
 	parent,
@@ -125,36 +124,6 @@ const createProject = async (
 		notifyActivityToCustomer,
 		deadline,
 	});
-
-	try {
-		const user = await ctx.db.user({id: userId});
-
-		let token;
-
-		if (customerId) {
-			({token} = await ctx.db.customer({id: customerId}));
-		}
-		else if (customer) {
-			({token} = variables.customer.create);
-		}
-
-		await sendProjectCreatedEmail(
-			{
-				meta: {userId},
-				userEmail: user.email,
-				name: createdProject.name,
-				url: getAppUrl(
-					`/${process.env.ADMIN_TOKEN}/tasks?projectId=${createdProject.id}`,
-				),
-				customerUrl:
-					token && getAppUrl(`/${token}/tasks?projectId=${createdProject.id}`),
-			},
-			ctx,
-		);
-	}
-	catch (err) {
-		console.log(err);
-	}
 
 	await ctx.db.createUserEvent({
 		type: 'CREATED_PROJECT',
