@@ -11,8 +11,8 @@ async function sendCustomerEveningEmail(
 	const [template] = await ctx.db.emailTemplates({
 		where: {
 			type: {
-				category: 'DAILY_REPORT',
-				name: 'DAILY_REPORT',
+				category: 'CUSTOMER_REPORT',
+				name: 'CUSTOMER_REPORT',
 			},
 			owner: {id: userId},
 		},
