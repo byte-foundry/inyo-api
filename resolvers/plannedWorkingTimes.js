@@ -14,7 +14,7 @@ const plannedWorkingTimes = async (root, {from, to}, ctx) => {
 					scheduledForDays_some: {
 						AND: [
 							{
-								date_gt: from,
+								date_gte: from,
 							},
 							{
 								date_lt: to,

@@ -66,7 +66,7 @@ const removeItem = async (parent, {id}, ctx) => {
 			orderBy: 'position_ASC',
 		});
 
-		daySpots.forEach((spot, index) => ctx.db.updateScheduleSpots({
+		daySpots.forEach((spot, index) => ctx.db.updateScheduleSpot({
 			where: {id: spot.id},
 			data: {position: spot.position + index},
 		}));
