@@ -87,18 +87,21 @@ const plannedWorkingTimes = async (root, {from, to}, ctx) => {
 			const remainingScheduledDays = task.scheduledForDays.filter(
 				scheduledDay => moment(scheduledDay.date).isAfter(moment().startOf('day')),
 			).length;
-			const timeWorked
-				= task.workedTimes.reduce(
-					(workedTimeInMilliseconds, {start, end}) => workedTimeInMilliseconds + moment(end).diff(start),
+
+			if (remainingScheduledDays !== 0 || workingTime !== 0) {
+				const timeWorked
+					= task.workedTimes.reduce(
+						(workedTimeInMilliseconds, {start, end}) => workedTimeInMilliseconds + moment(end).diff(start),
+						0,
+					) / workingTime;
+
+				const workingTimeForDay = Math.max(
+					(task.unit - timeWorked) / remainingScheduledDays,
 					0,
-				) / workingTime;
+				);
 
-			const workingTimeForDay = Math.max(
-				(task.unit - timeWorked) / remainingScheduledDays,
-				0,
-			);
-
-			day.workingTime += workingTimeForDay;
+				day.workingTime += workingTimeForDay;
+			}
 		});
 	});
 
