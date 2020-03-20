@@ -60,7 +60,7 @@ const Query = {
 						{
 							customer: {
 								serviceCompany: {
-									owner: {id: user.id},
+									owner: {id: ctx.userId},
 								},
 							},
 						},
