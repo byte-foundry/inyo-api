@@ -78,8 +78,22 @@ const server = new ApolloServer({
 
 		let isPayingOrInTrial = false;
 
+		let language = 'fr';
+
+		let timeZone = 'Europe/Paris';
+
 		if (userId) {
-			user = await prisma.user({id: userId});
+			user = await prisma.user({id: userId}).$fragment(gql`
+				fragment UserSettings on User {
+					lifetimePayment
+					timeZone
+					email
+					createdAt
+					settings {
+						language
+					}
+				}
+			`);
 			isAuthenticated = !!user;
 
 			if (
@@ -90,19 +104,19 @@ const server = new ApolloServer({
 			) {
 				isPayingOrInTrial = true;
 			}
+			//
+			// if the userId or token doesn't exist, user is not defined
+			if (user) {
+				timeZone = user.timeZone || 'Europe/Paris';
+				language = user.settings.language || 'fr';
+				email = user.email;
+			}
 		}
 
-		let language = 'fr';
-
-		let timeZone = 'Europe/Paris';
-
-		if (userId || token) {
+		if (token) {
 			[user] = await prisma.users({
 				where: {
 					OR: [
-						{
-							id: userId,
-						},
 						{
 							company: {
 								customers_some: {
