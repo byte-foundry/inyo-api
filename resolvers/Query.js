@@ -12,11 +12,11 @@ const Query = {
 		ctx.db.createUserEvent({
 			type: 'ME_CALL',
 			user: {
-				connect: {id: getUserId(ctx)},
+				connect: {id: ctx.userId},
 			},
 		});
 		const [user, projects] = await Promise.all([
-			ctx.db.user({id: getUserId(ctx)}).$fragment(gql`
+			ctx.db.user({id: ctx.userId}).$fragment(gql`
 				fragment UserWithTag on User {
 					id
 					email
@@ -55,7 +55,7 @@ const Query = {
 					NOT: {status: 'REMOVED'},
 					OR: [
 						{
-							owner: {id: user.id},
+							owner: {id: ctx.userId},
 						},
 						{
 							customer: {
