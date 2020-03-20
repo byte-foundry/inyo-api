@@ -15,7 +15,68 @@ const Query = {
 				connect: {id: getUserId(ctx)},
 			},
 		});
-		return ctx.db.user({id: getUserId(ctx)});
+		const user = await ctx.db.user({id: getUserId(ctx)}).$fragment(gql`
+			fragment UserWithTag on User {
+				id
+				email
+				hmacIntercomId
+				password
+				firstName
+				lastName
+				startWorkAt
+				endWorkAt
+				startBreakAt
+				endBreakAt
+				workingDays
+				timeZone
+				workingFields
+				otherSkill
+				skills
+				otherPain
+				painsExpressed
+				canBeContacted
+				jobType
+				interestedFeatures
+				hasUpcomingProject
+				createdAt
+				updatedAt
+				company {
+					id
+					customers {
+						id
+					}
+				}
+				tags {
+					id
+				}
+				lifetimePayment
+				quoteNumber
+			}
+		`);
+		const projects = await ctx.db.projects({
+			where: {
+				NOT: {status: 'REMOVED'},
+				OR: [
+					{
+						owner: {id: user.id},
+					},
+					{
+						customer: {
+							serviceCompany: {
+								owner: {id: user.id},
+							},
+						},
+					},
+				],
+			},
+		}).$fragment(gql`
+			fragment UserProjectsWithId on Project {
+				id
+			}
+		`);
+
+		user.projects = projects;
+		return user;
 	},
 	customer: (root, {id}, ctx) => ctx.db.customer({id, token: ctx.token}),
 	project: async (root, {id}, ctx) => {

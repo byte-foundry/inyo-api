@@ -78,31 +78,47 @@ const User = {
 	hmacIntercomId: node => node.hmacIntercomId,
 	firstName: node => node.firstName,
 	lastName: node => node.lastName,
-	customers: (node, args, ctx) => ctx.db
-		.user({id: node.id})
-		.company()
-		.customers(),
+	customers: (node, args, ctx) => {
+		if (node.company && node.company.customers) {
+			return ctx.loaders.customerLoader.loadMany(
+				node.company.customers.map(customer => customer.id),
+			);
+		}
+
+		return ctx.db
+			.user({id: node.id})
+			.company()
+			.customers();
+	},
 	collaborators: (node, args, ctx) => ctx.db.user({id: node.id}).collaborators(),
 	collaboratorRequests: (node, args, ctx) => ctx.db.user({id: node.id}).collaboratorRequests(),
 	collaborationRequests: (node, args, ctx) => ctx.db.user({id: node.id}).collaborationRequests(),
 	assignedTasks: (node, args, ctx) => ctx.db.user({id: node.id}).assignedTasks(),
-	projects: async (node, args, ctx) => ctx.db.projects({
-		where: {
-			NOT: {status: 'REMOVED'},
-			OR: [
-				{
-					owner: {id: node.id},
-				},
-				{
-					customer: {
-						serviceCompany: {
-							owner: {id: node.id},
+	projects: async (node, args, ctx) => {
+		if (node.projects) {
+			return ctx.loaders.projectLoader.loadMany(
+				node.projects.map(project => project.id),
+			);
+		}
+
+		return ctx.db.projects({
+			where: {
+				NOT: {status: 'REMOVED'},
+				OR: [
+					{
+						owner: {id: node.id},
+					},
+					{
+						customer: {
+							serviceCompany: {
+								owner: {id: node.id},
+							},
 						},
 					},
-				},
-			],
-		},
-	}),
+				],
+			},
+		});
+	},
 	company: (node, args, ctx) => ctx.db.user({id: node.id}).company(),
 	startWorkAt: node => node.startWorkAt && new Date(node.startWorkAt),
 	endWorkAt: node => node.endWorkAt && new Date(node.endWorkAt),
@@ -116,7 +132,13 @@ const User = {
 	jobType: node => node.jobType,
 	interestedFeatures: node => node.interestedFeatures,
 	hasUpcomingProject: node => node.hasUpcomingProject,
-	tags: (node, args, ctx) => ctx.db.user({id: node.id}).tags(),
+	tags: (node, args, ctx) => {
+		if (node.tags) {
+			return ctx.loaders.tagLoader.loadMany(node.tags.map(tag => tag.id));
+		}
+
+		return ctx.db.user({id: node.id}).tags();
+	},
 	settings: (node, args, ctx) => ctx.db.user({id: node.id}).settings(),
 	clientViews: async (node, args, ctx) => {
 		const viewEvents = await ctx.db.customerEvents({
