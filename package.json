@@ -17,7 +17,7 @@
 		"@sendgrid/client": "^6.3.0",
 		"apollo-datasource-rest": "^0.6.9",
 		"apollo-server": "^2.9.12",
-		"apollo-server-express": "^2.9.12",
+		"apollo-server-express": "^2.14.2",
 		"aws-sdk": "^2.351.0",
 		"bcrypt": "^3.0.2",
 		"body-parser": "^1.18.3",
