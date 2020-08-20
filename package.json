@@ -19,7 +19,7 @@
 		"apollo-server": "^2.9.12",
 		"apollo-server-express": "^2.9.12",
 		"aws-sdk": "^2.351.0",
-		"bcrypt": "^3.0.2",
+		"bcrypt": "^5.0.0",
 		"body-parser": "^1.18.3",
 		"dataloader": "^1.4.0",
 		"express": "^4.17.1",
