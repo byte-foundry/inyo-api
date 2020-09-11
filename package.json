@@ -43,7 +43,7 @@
 		"moment": "^2.22.2",
 		"moment-timezone": "^0.5.23",
 		"node-email-reply-parser": "^0.1.1",
-		"node-fetch": "^2.2.1",
+		"node-fetch": "^2.6.1",
 		"prisma": "~1.30.5",
 		"prisma-client-lib": "~1.30.5",
 		"react": "^16.12.0",
